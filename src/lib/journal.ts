@@ -3,6 +3,7 @@ import path from 'path'
 import matter from 'gray-matter'
 
 const JOURNAL_DIR = path.join(process.cwd(), 'content/journal')
+const PROJECT_START = new Date('2026-03-26')
 
 // =============================================
 // Types & Interfaces
@@ -137,4 +138,39 @@ export function getEntryBySlug(slug: string): JournalEntry | null {
   const meta = validateFrontmatter(slug, data as Record<string, unknown>)
 
   return { ...meta, content }
+}
+
+// =============================================
+// Helpers
+// =============================================
+
+/**
+ * Extracts a plain-text excerpt from MDX content.
+ * Takes the first non-empty, non-heading paragraph, max 160 chars.
+ */
+export function getExcerpt(content: string, maxLength = 160): string {
+  const lines = content.split('\n')
+  for (const line of lines) {
+    const trimmed = line.trim()
+    // Skip headings, empty lines, MDX imports/exports, HTML tags
+    if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('<') || trimmed.startsWith('import ') || trimmed.startsWith('export ')) continue
+    // Strip inline markdown: bold, italic, code, links
+    const plain = trimmed
+      .replace(/\*\*(.+?)\*\*/g, '$1')
+      .replace(/\*(.+?)\*/g, '$1')
+      .replace(/`(.+?)`/g, '$1')
+      .replace(/\[(.+?)\]\(.+?\)/g, '$1')
+    if (plain.length < 10) continue
+    return plain.length > maxLength ? plain.slice(0, maxLength).trimEnd() + '…' : plain
+  }
+  return ''
+}
+
+/**
+ * Returns the project day number for a given date string (YYYY-MM-DD).
+ * Day 1 = 2026-03-26.
+ */
+export function getDayNumber(date: string): number {
+  const ms = new Date(date).getTime() - PROJECT_START.getTime()
+  return Math.floor(ms / 86_400_000) + 1
 }
