@@ -1,0 +1,105 @@
+// prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// =============================================
+// GEWOHNHEITEN — Die drei Säulen
+// Quelle: Manuell via Frontmatter (sync bei Build/Commit)
+// =============================================
+
+model DailyHabits {
+  id        String          @id @default(cuid())
+  date      DateTime        @unique @db.Date
+
+  movement  MovementLevel
+  nutrition NutritionLevel
+  smoking   SmokingStatus
+
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@index([date])
+}
+
+enum MovementLevel {
+  MINIMAL
+  STEPS_ONLY
+  STEPS_TRAINED
+}
+
+enum NutritionLevel {
+  NONE
+  ONE
+  TWO
+  THREE
+}
+
+enum SmokingStatus {
+  SMOKED
+  REPLACEMENT
+  NONE
+}
+
+// =============================================
+// METRIKEN — Objektive Messwerte
+// =============================================
+
+model DailyMetrics {
+  id             String        @id @default(cuid())
+  date           DateTime      @unique @db.Date
+
+  weight         Float?
+  bodyFat        Float?
+  bmi            Float?
+  steps          Int?
+  activeMinutes  Int?
+  caloriesBurned Int?
+  distance       Float?
+  restingHR      Int?
+  sleepDuration  Int?
+
+  source         MetricSource  @default(MANUAL)
+
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([date])
+}
+
+enum MetricSource {
+  MANUAL
+  FITBIT
+  APPLE_HEALTH
+  MERGED
+}
+
+// =============================================
+// EMOJI-REACTIONS — Leser-Interaktion
+// =============================================
+
+model Reaction {
+  id        String       @id @default(cuid())
+  slug      String
+  emoji     ReactionType
+  ipHash    String
+
+  createdAt DateTime     @default(now())
+
+  @@unique([slug, emoji, ipHash])
+  @@index([slug])
+}
+
+enum ReactionType {
+  HEART
+  CLAP
+  FIRE
+  MUSCLE
+  STAR
+}
