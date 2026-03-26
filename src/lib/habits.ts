@@ -1,40 +1,78 @@
-import { getAllEntries, type HabitsFrontmatter } from './journal'
+import { MovementLevel, NutritionLevel, SmokingStatus } from '@prisma/client'
+import { getAllEntries, type MovementValue, type NutritionValue, type SmokingValue } from './journal'
+
+// =============================================
+// Streak-Definitionen (Issue #3):
+//   Bewegung  ≥ STEPS_ONLY   → steps_only | steps_trained
+//   Ernährung ≥ ONE          → one | two | three
+//   Rauchstopp = NONE        → none (replacement zählt nicht)
+// =============================================
+
+export function isMovementFulfilled(movement: MovementValue): boolean {
+  return movement === 'steps_only' || movement === 'steps_trained'
+}
+
+export function isNutritionFulfilled(nutrition: NutritionValue): boolean {
+  return nutrition === 'one' || nutrition === 'two' || nutrition === 'three'
+}
+
+export function isSmokingFulfilled(smoking: SmokingValue): boolean {
+  return smoking === 'none'
+}
+
+// =============================================
+// Frontmatter-String → Prisma-Enum
+// =============================================
+
+export const MOVEMENT_ENUM_MAP: Record<MovementValue, MovementLevel> = {
+  minimal: MovementLevel.MINIMAL,
+  steps_only: MovementLevel.STEPS_ONLY,
+  steps_trained: MovementLevel.STEPS_TRAINED,
+}
+
+export const NUTRITION_ENUM_MAP: Record<NutritionValue, NutritionLevel> = {
+  none: NutritionLevel.NONE,
+  one: NutritionLevel.ONE,
+  two: NutritionLevel.TWO,
+  three: NutritionLevel.THREE,
+}
+
+export const SMOKING_ENUM_MAP: Record<SmokingValue, SmokingStatus> = {
+  smoked: SmokingStatus.SMOKED,
+  replacement: SmokingStatus.REPLACEMENT,
+  none: SmokingStatus.NONE,
+}
+
+// =============================================
+// Streak-Berechnung
+// =============================================
 
 export interface StreakResult {
   current: number
   longest: number
 }
 
-function isMovementFulfilled(movement: HabitsFrontmatter['movement']): boolean {
-  return movement === 'steps_only' || movement === 'steps_trained'
-}
-
-function isNutritionFulfilled(nutrition: HabitsFrontmatter['nutrition']): boolean {
-  return nutrition === 'two' || nutrition === 'three'
-}
-
-function isSmokingFulfilled(smoking: HabitsFrontmatter['smoking']): boolean {
-  return smoking === 'none' || smoking === 'replacement'
-}
-
+/**
+ * Berechnet den aktuellen und längsten Streak aus einer Boolean-Liste.
+ * @param values - sortiert neueste zuerst
+ */
 export function calculateStreak(values: boolean[]): StreakResult {
+  // Aktueller Streak: konsekutive `true`-Werte ab dem neuesten Eintrag
   let current = 0
-  let longest = 0
-  let streak = 0
+  for (const v of values) {
+    if (v) current++
+    else break
+  }
 
-  // values are sorted newest first
-  for (let i = 0; i < values.length; i++) {
-    if (values[i]) {
-      if (i === 0 || values[i - 1]) {
-        streak++
-      } else {
-        streak = 1
-      }
-      if (i === 0) current = streak
-      longest = Math.max(longest, streak)
+  // Längster Streak: längste konsekutive `true`-Sequenz
+  let longest = 0
+  let run = 0
+  for (const v of values) {
+    if (v) {
+      run++
+      if (run > longest) longest = run
     } else {
-      if (i === 0) current = 0
-      streak = 0
+      run = 0
     }
   }
 
@@ -43,18 +81,15 @@ export function calculateStreak(values: boolean[]): StreakResult {
 
 export function getMovementStreak(): StreakResult {
   const entries = getAllEntries()
-  const values = entries.map((e) => isMovementFulfilled(e.habits.movement))
-  return calculateStreak(values)
+  return calculateStreak(entries.map((e) => isMovementFulfilled(e.habits.movement)))
 }
 
 export function getNutritionStreak(): StreakResult {
   const entries = getAllEntries()
-  const values = entries.map((e) => isNutritionFulfilled(e.habits.nutrition))
-  return calculateStreak(values)
+  return calculateStreak(entries.map((e) => isNutritionFulfilled(e.habits.nutrition)))
 }
 
 export function getSmokingStreak(): StreakResult {
   const entries = getAllEntries()
-  const values = entries.map((e) => isSmokingFulfilled(e.habits.smoking))
-  return calculateStreak(values)
+  return calculateStreak(entries.map((e) => isSmokingFulfilled(e.habits.smoking)))
 }
