@@ -79,6 +79,30 @@ export function calculateStreak(values: boolean[]): StreakResult {
   return { current, longest }
 }
 
+// =============================================
+// Erfüllungsgrad-Level (für Heatmap)
+//   -1 = kein Eintrag, 0 = niedrigster, max = bester
+// =============================================
+
+export function getMovementLevel(m: MovementValue): number {
+  if (m === 'steps_trained') return 2
+  if (m === 'steps_only') return 1
+  return 0
+}
+
+export function getNutritionLevel(n: NutritionValue): number {
+  if (n === 'three') return 3
+  if (n === 'two') return 2
+  if (n === 'one') return 1
+  return 0
+}
+
+export function getSmokingLevel(s: SmokingValue): number {
+  if (s === 'none') return 2
+  if (s === 'replacement') return 1
+  return 0
+}
+
 export function getMovementStreak(): StreakResult {
   const entries = getAllEntries()
   return calculateStreak(entries.map((e) => isMovementFulfilled(e.habits.movement)))

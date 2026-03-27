@@ -1,5 +1,6 @@
 import { getAllEntries } from '@/lib/journal'
 import { JournalFeed } from '@/components/journal/JournalFeed'
+import { HabitsDashboard } from '@/components/habits/HabitsDashboard'
 
 export default function HomePage() {
   const entries = getAllEntries()
@@ -18,6 +19,8 @@ export default function HomePage() {
           mit echten Zahlen, guten und schlechten Tagen.
         </p>
       </header>
+
+      <HabitsDashboard />
 
       <JournalFeed entries={entries} />
     </div>
