@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { getAllEntries } from '@/lib/journal'
 import { JournalFeed } from '@/components/journal/JournalFeed'
 import { HabitsDashboard } from '@/components/habits/HabitsDashboard'
