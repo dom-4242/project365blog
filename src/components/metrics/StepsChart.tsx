@@ -1,0 +1,104 @@
+'use client'
+
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ReferenceLine,
+  ResponsiveContainer,
+} from 'recharts'
+
+export interface StepsDataPoint {
+  date: string
+  steps: number
+}
+
+interface TooltipProps {
+  active?: boolean
+  payload?: Array<{ value: number }>
+  label?: string
+}
+
+function formatDateShort(dateStr: string): string {
+  return new Date(dateStr + 'T00:00:00').toLocaleDateString('de-CH', {
+    day: 'numeric',
+    month: 'short',
+  })
+}
+
+function formatDateLong(dateStr: string): string {
+  return new Date(dateStr + 'T00:00:00').toLocaleDateString('de-CH', {
+    day: 'numeric',
+    month: 'long',
+  })
+}
+
+function formatSteps(v: number): string {
+  return v >= 1000 ? `${Math.round(v / 1000)}k` : String(v)
+}
+
+function StepsTooltip({ active, payload, label }: TooltipProps) {
+  if (!active || !payload?.length) return null
+  return (
+    <div className="bg-white border border-sand-200 rounded-lg px-3 py-2 text-sm shadow-sm">
+      <p className="text-sand-400 text-xs mb-0.5">{formatDateLong(label ?? '')}</p>
+      <p className="font-semibold text-[#1a1714]">{payload[0].value.toLocaleString('de-CH')} Schritte</p>
+    </div>
+  )
+}
+
+interface StepsChartProps {
+  data: StepsDataPoint[]
+  avgSteps?: number
+}
+
+export function StepsChart({ data, avgSteps }: StepsChartProps) {
+  return (
+    <div className="bg-white rounded-2xl border border-sand-200 p-5 h-full">
+      <div className="flex items-baseline justify-between mb-4">
+        <h3 className="font-display font-semibold text-sm text-[#1a1714]">Schritte</h3>
+        {avgSteps !== undefined && (
+          <span className="text-2xl font-bold font-display text-movement-700">
+            {formatSteps(avgSteps)}{' '}
+            <span className="text-sm font-normal text-sand-400">Ø/Tag</span>
+          </span>
+        )}
+      </div>
+      <ResponsiveContainer width="100%" height={180}>
+        <BarChart data={data} margin={{ top: 4, right: 8, left: -18, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#e8e4dc" vertical={false} />
+          <XAxis
+            dataKey="date"
+            tick={{ fontSize: 10, fill: '#b5aca0' }}
+            tickFormatter={formatDateShort}
+            tickLine={false}
+            axisLine={{ stroke: '#e8e4dc' }}
+            interval="preserveStartEnd"
+          />
+          <YAxis
+            tick={{ fontSize: 10, fill: '#b5aca0' }}
+            tickFormatter={formatSteps}
+            tickLine={false}
+            axisLine={false}
+          />
+          <ReferenceLine
+            y={10000}
+            stroke="#16a34a"
+            strokeDasharray="4 3"
+            strokeWidth={1.5}
+            label={{ value: '10k Ziel', position: 'insideTopRight', fontSize: 10, fill: '#16a34a' }}
+          />
+          <Tooltip content={<StepsTooltip />} />
+          <Bar
+            dataKey="steps"
+            fill="#22c55e"
+            radius={[3, 3, 0, 0]}
+          />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  )
+}
