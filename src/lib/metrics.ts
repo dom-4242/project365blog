@@ -69,3 +69,17 @@ export async function getStepsHistory(days = 30) {
     select: { date: true, steps: true },
   })
 }
+
+export async function getBodyFatHistory(days = 90) {
+  const since = new Date()
+  since.setDate(since.getDate() - days)
+
+  return prisma.dailyMetrics.findMany({
+    where: {
+      date: { gte: since },
+      bodyFat: { not: null },
+    },
+    orderBy: { date: 'asc' },
+    select: { date: true, bodyFat: true },
+  })
+}

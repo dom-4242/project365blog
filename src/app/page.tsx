@@ -1,6 +1,7 @@
 import { getAllEntries } from '@/lib/journal'
 import { JournalFeed } from '@/components/journal/JournalFeed'
 import { HabitsDashboard } from '@/components/habits/HabitsDashboard'
+import { MetricsDashboard } from '@/components/metrics/MetricsDashboard'
 
 export default function HomePage() {
   const entries = getAllEntries()
@@ -21,6 +22,8 @@ export default function HomePage() {
       </header>
 
       <HabitsDashboard />
+
+      <MetricsDashboard />
 
       <JournalFeed entries={entries} />
     </div>
