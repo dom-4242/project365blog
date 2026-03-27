@@ -39,23 +39,25 @@ export function JournalPost({ entry }: JournalPostProps) {
       )}
 
       {/* Header */}
-      <header className="mb-10 space-y-4">
-        <div className="flex items-center gap-3 text-sm text-sand-500">
-          <span className="font-medium tracking-widest uppercase text-xs">
+      <header className="mb-10">
+        <div className="flex items-center gap-3 mb-4">
+          <span className="font-display font-bold text-xs tracking-widest uppercase text-sand-400 border border-sand-200 rounded px-2 py-0.5">
             Tag {dayNumber}
           </span>
-          <span className="text-sand-300 select-none">·</span>
-          <time dateTime={entry.date}>{formatDate(entry.date)}</time>
+          <span className="text-sand-300 select-none" aria-hidden="true">·</span>
+          <time className="text-sm text-sand-400" dateTime={entry.date}>
+            {formatDate(entry.date)}
+          </time>
         </div>
 
-        <h1 className="font-display text-3xl sm:text-4xl font-bold leading-tight text-[#1a1714]">
+        <h1 className="font-display text-3xl sm:text-4xl font-bold leading-tight text-[#1a1714] mb-5">
           {entry.title}
         </h1>
 
         <HabitBadges habits={entry.habits} />
 
         {entry.tags && entry.tags.length > 0 && (
-          <ul className="flex flex-wrap gap-2 pt-1">
+          <ul className="flex flex-wrap gap-2 mt-3">
             {entry.tags.map((tag) => (
               <li
                 key={tag}
@@ -68,21 +70,23 @@ export function JournalPost({ entry }: JournalPostProps) {
         )}
       </header>
 
-      {/* MDX Content */}
-      <div className="prose prose-stone prose-lg max-w-none">
+      <hr className="border-sand-200 mb-10" />
+
+      {/* Artikel-Inhalt mit Initiale */}
+      <div className="prose prose-stone prose-lg max-w-none prose-dropcap">
         <MDXRemote source={entry.content} />
       </div>
 
-      {/* Reactions */}
-      <div className="mt-12 pt-8 border-t border-sand-200">
+      {/* Reaktionen */}
+      <div className="mt-14 pt-8 border-t border-sand-200">
         <ReactionBar slug={entry.slug} />
       </div>
 
-      {/* Back link */}
-      <footer className="mt-8">
+      {/* Navigation */}
+      <footer className="mt-8 pt-6 border-t border-sand-100">
         <Link
           href="/"
-          className="text-sm text-nutrition-700 hover:underline font-medium"
+          className="text-sm font-medium text-nutrition-700 hover:text-nutrition-600 transition-colors"
         >
           ← Zurück zum Journal
         </Link>

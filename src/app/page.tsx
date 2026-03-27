@@ -27,7 +27,14 @@ export default function HomePage() {
 
       <MetricsDashboard />
 
-      <JournalFeed entries={entries} />
+      {/* Journal-Feed mit Section-Header */}
+      <section>
+        <div className="flex items-center gap-4 mb-6">
+          <h2 className="font-display text-xl font-bold text-[#1a1714] shrink-0">Einträge</h2>
+          <div className="flex-1 border-t border-sand-200" aria-hidden="true" />
+        </div>
+        <JournalFeed entries={entries} />
+      </section>
     </div>
   )
 }
