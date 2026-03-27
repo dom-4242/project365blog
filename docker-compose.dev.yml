@@ -1,0 +1,31 @@
+# ============================================
+# docker-compose.dev.yml — Lokale Entwicklung
+#
+# Nutzung:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+#
+# Ergänzt docker-compose.yml um:
+#   - Lokaler Build statt Registry-Image
+#   - DB-Port nach aussen (für Tools wie Prisma Studio, DBeaver)
+#   - Adminer als DB-GUI (http://localhost:8080)
+#   - Content-Verzeichnis als Volume (MDX-Änderungen ohne Rebuild)
+# ============================================
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: project365blog:dev
+
+  db:
+    ports:
+      - "5432:5432"
+
+  adminer:
+    image: adminer:latest
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
