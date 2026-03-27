@@ -1,0 +1,32 @@
+# Dependencies (werden im Docker-Build neu installiert)
+node_modules
+.pnpm-store
+
+# Next.js Build-Output (wird im Docker-Build neu erstellt)
+.next
+
+# Git
+.git
+.gitignore
+
+# GitHub Actions
+.github
+
+# Lokale Env-Dateien (NIE ins Image!)
+.env
+.env.*
+.env.local
+.env.*.local
+
+# Entwicklungs-Compose-Overrides
+docker-compose.dev.yml
+docker-compose.override.yml
+
+# OS & IDE
+.DS_Store
+Thumbs.db
+.vscode
+.idea
+
+# Test-Output
+coverage

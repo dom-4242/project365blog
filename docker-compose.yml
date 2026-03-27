@@ -1,3 +1,17 @@
+# ============================================
+# docker-compose.yml — Produktion
+#
+# Voraussetzungen:
+#   cp .env.example .env
+#   # .env befüllen (DB_PASSWORD, Fitbit-Keys, etc.)
+#
+# Starten:
+#   docker compose pull && docker compose up -d
+#
+# Lokale Entwicklung (mit Build + Adminer):
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+# ============================================
+
 services:
   # --- PostgreSQL ---
   db:
@@ -5,48 +19,34 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: project365
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Fehler: DB_PASSWORD muss in .env gesetzt sein}
       POSTGRES_DB: project365blog
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U project365 -d project365blog"]
       interval: 10s
       timeout: 5s
       retries: 5
+    # Kein Port-Mapping: DB nur intern erreichbar
 
   # --- Next.js App ---
   web:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ${IMAGE:-ghcr.io/dominiquestampfli/project365blog:latest}
     restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
-      DATABASE_URL: "postgresql://project365:${DB_PASSWORD:-changeme}@db:5432/project365blog"
-      # Fitbit API (aus .env laden)
+      DATABASE_URL: "postgresql://project365:${DB_PASSWORD}@db:5432/project365blog"
       FITBIT_CLIENT_ID: ${FITBIT_CLIENT_ID:-}
       FITBIT_CLIENT_SECRET: ${FITBIT_CLIENT_SECRET:-}
       FITBIT_ACCESS_TOKEN: ${FITBIT_ACCESS_TOKEN:-}
       FITBIT_REFRESH_TOKEN: ${FITBIT_REFRESH_TOKEN:-}
-      # Health Auto Export Webhook
       HEALTH_IMPORT_API_KEY: ${HEALTH_IMPORT_API_KEY:-}
+      CRON_SECRET: ${CRON_SECRET:-}
     depends_on:
       db:
         condition: service_healthy
-
-  # --- Adminer (DB GUI, nur für Entwicklung) ---
-  # Auskommentieren für Production
-  adminer:
-    image: adminer:latest
-    restart: unless-stopped
-    ports:
-      - "8080:8080"
-    depends_on:
-      - db
 
 volumes:
   postgres_data:

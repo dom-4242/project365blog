@@ -4,7 +4,7 @@
 
 # --- Stage 1: Dependencies ---
 FROM node:20-alpine AS deps
-RUN corepack enable && corepack prepare pnpm@9 --activate
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
@@ -15,13 +15,13 @@ RUN pnpm db:generate
 
 # --- Stage 2: Build ---
 FROM node:20-alpine AS builder
-RUN corepack enable && corepack prepare pnpm@9 --activate
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Dummy DB URL für Build (Prisma Client braucht es nicht zur Build-Zeit)
+# Dummy DB URL für Build (keine DB zur Build-Zeit benötigt)
 ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
 ENV NEXT_TELEMETRY_DISABLED=1
 
@@ -38,22 +38,27 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy standalone output
+# Next.js Standalone Output
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Prisma Client für Runtime
+# Prisma Client (Runtime) + CLI (für migrate deploy beim Start)
 COPY --from=deps /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=deps /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=deps /app/node_modules/prisma ./node_modules/prisma
 COPY --from=builder /app/prisma ./prisma
 
-# Content (MDX-Dateien)
+# MDX Content (wird zur Runtime gelesen)
 COPY --from=builder /app/content ./content
+
+# Entrypoint: Migrations + Server
+COPY docker-entrypoint.sh ./
+RUN chmod +x docker-entrypoint.sh
 
 USER nextjs
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+CMD ["/bin/sh", "docker-entrypoint.sh"]
