@@ -11,7 +11,9 @@ Ein öffentliches tägliches Journal (365-Tage-Projekt) mit integriertem Habit-T
 - **Framework:** Next.js 14+ (App Router, Server Components, Server Actions)
 - **Sprache:** TypeScript (strict mode)
 - **Styling:** Tailwind CSS
-- **Content:** MDX-Dateien im Git-Repository (kein CMS)
+- **Content:** Datenbank-basiert mit Rich-Text Editor (Web-CMS)
+- **Auth:** NextAuth.js mit Google OAuth (Single-Admin)
+- **Rich-Text Editor:** Tiptap (headless, erweiterbar, Markdown-kompatibel)
 - **Datenbank:** PostgreSQL (Docker Container)
 - **ORM:** Prisma (Type-safe, Schema-first, Migrations)
 - **Charts:** Recharts für Metriken-Visualisierung
@@ -106,63 +108,82 @@ project365blog/
 
 ## Content-Format: Journal-Einträge
 
-Jeder Eintrag ist eine MDX-Datei mit strukturiertem Frontmatter.
+Einträge werden **im Browser über einen Rich-Text Editor** erstellt und in der Datenbank gespeichert.
+Kein MDX, kein Git-Commit für Content — alles läuft über das Web-CMS.
+
 **Wichtig:** Es gibt eine klare Trennung zwischen **Gewohnheiten** und **Metriken**.
 
 - **Gewohnheiten (Habits):** Die drei Säulen des Projekts. Subjektive tägliche Selbsteinschätzung
-  mit definierten Erfüllungsgraden. Werden manuell im Frontmatter erfasst.
+  mit definierten Erfüllungsgraden. Werden manuell im Editor-Formular erfasst.
 - **Metriken (Metrics):** Objektive, messbare Körper- und Aktivitätswerte.
   Werden primär automatisch via APIs (Fitbit, Apple Health) importiert.
-  Können optional auch im Frontmatter stehen (als Fallback/Override).
+  Können auch manuell im Editor-Formular erfasst/überschrieben werden.
 
-```mdx
----
-title: "Tag 1 — Der Anfang"
-date: "2026-03-26"
-banner: "/images/journal/2026-03-26.jpg"
-tags: ["motivation", "start"]
+### Editor-Flow (Admin, eingeloggt)
 
-# === GEWOHNHEITEN (Die drei Säulen) ===
-# Werden IMMER manuell erfasst — tägliche Selbsteinschätzung
-habits:
-  movement: "steps_only"    # Säule 1: Bewegung & Training
-                            # "minimal"      → Unter 10k Schritte, kein Training
-                            # "steps_only"   → Über 10k Schritte, kein Training
-                            # "steps_trained"→ Über 10k Schritte + Training
-  nutrition: "two"          # Säule 2: Ernährung
-                            # "none"  → Keine gesunde Mahlzeit
-                            # "one"   → Eine gesunde Mahlzeit
-                            # "two"   → Zwei gesunde Mahlzeiten
-                            # "three" → Drei gesunde Mahlzeiten
-  smoking: "none"           # Säule 3: Rauchstopp
-                            # "smoked"      → Es wurde geraucht
-                            # "replacement" → Nicht geraucht, aber Nikotinersatz
-                            # "none"        → Rauchfrei ohne Hilfsmittel
----
+1. Login via Google OAuth (nur ein erlaubter Admin-Account)
+2. "Neuer Eintrag" → Editor-Seite öffnet sich
+3. Ausfüllen:
+   - **Titel** (Pflicht)
+   - **Datum** (default: heute)
+   - **Text** via Rich-Text Editor (Tiptap: Formatting, Überschriften, Listen, Links)
+   - **Banner-Bild** (Upload)
+   - **Tags** (optional)
+   - **Die drei Säulen** (Dropdown/Buttons pro Habit — Pflicht)
+   - **Manuelle Metriken** (optionale Felder für Gewicht, Schritte etc.)
+4. Vorschau → Speichern → Eintrag ist sofort live
 
-Heute beginnt das Projekt. Der erste Tag von 365...
+### Erfüllungsgrade der drei Säulen
 
-## Was ich heute gelernt habe
+**Säule 1 — Bewegung & Training:**
+- `MINIMAL` → Unter 10k Schritte, kein Training
+- `STEPS_ONLY` → Über 10k Schritte, kein Training
+- `STEPS_TRAINED` → Über 10k Schritte + Training
 
-...
+**Säule 2 — Ernährung:**
+- `NONE` → Keine gesunde Mahlzeit
+- `ONE` → Eine gesunde Mahlzeit
+- `TWO` → Zwei gesunde Mahlzeiten
+- `THREE` → Drei gesunde Mahlzeiten
 
-## Wie ich mich fühle
+**Säule 3 — Rauchstopp:**
+- `SMOKED` → Es wurde geraucht
+- `REPLACEMENT` → Nicht geraucht, aber Nikotinersatz
+- `NONE` → Rauchfrei ohne Hilfsmittel
 
-...
-```
+### Regeln
 
-### Regeln für Frontmatter
-
-- `date` ist immer im Format YYYY-MM-DD
-- `banner` ist optional — zeigt auf /images/journal/
-- Alle drei Habits sind **required** — werden jeden Tag im Frontmatter erfasst
-- Metriken werden NICHT im Frontmatter erfasst (kommen aus APIs) — ausser als optionaler Override
+- Alle drei Habits sind **required** beim Erstellen eines Eintrags
+- Metriken sind optional — werden primär via API importiert, können aber manuell überschrieben werden
+- Banner-Bild ist optional (Upload im Editor)
 - Neue Habits/Metriken können später ergänzt werden — das Schema soll erweiterbar sein
+
+## Authentifizierung
+
+Single-Admin Setup mit NextAuth.js + Google OAuth.
+
+- Nur **ein** Google-Account hat Admin-Zugang (konfiguriert via Umgebungsvariable)
+- Leser brauchen KEIN Login — der Blog ist öffentlich lesbar
+- Admin-Bereich: `/admin/` — geschützt via Middleware
+- Admin-Funktionen: Einträge erstellen/bearbeiten, Metriken manuell erfassen
+
+```
+// Geschützte Routen (nur Admin):
+/admin/                    → Dashboard
+/admin/entries/new         → Neuer Eintrag (Editor)
+/admin/entries/[id]/edit   → Eintrag bearbeiten
+/admin/metrics             → Metriken manuell erfassen
+
+// Öffentliche Routen (jeder):
+/                          → Startseite (Dashboard + Feed)
+/journal/[slug]            → Einzelner Eintrag
+/api/reactions             → Emoji-Reactions
+```
 
 ## Datenbank-Schema (Prisma)
 
-PostgreSQL wird für alle dynamischen Daten verwendet. MDX-Content bleibt im Filesystem.
-**Kernprinzip:** Gewohnheiten = manuell (Frontmatter → DB), Metriken = automatisch (APIs → DB).
+PostgreSQL ist die **einzige Content-Quelle**. Kein Filesystem-Content mehr.
+**Kernprinzip:** Alles in der DB — Journal-Einträge, Habits, Metriken, Reactions.
 
 ```prisma
 // prisma/schema.prisma
@@ -177,25 +198,33 @@ generator client {
 }
 
 // =============================================
-// GEWOHNHEITEN — Die drei Säulen
-// Quelle: Manuell via Frontmatter (sync bei Build/Commit)
+// JOURNAL-EINTRÄGE — Content
+// Quelle: Web-Editor (Admin, eingeloggt)
 // =============================================
 
-model DailyHabits {
-  id        String          @id @default(cuid())
-  date      DateTime        @unique @db.Date
+model JournalEntry {
+  id          String          @id @default(cuid())
+  slug        String          @unique          // URL-Slug, default = Datum
+  title       String
+  content     String          @db.Text         // Rich-Text als HTML (von Tiptap)
+  excerpt     String?                          // Kurzbeschreibung für Feed
+  bannerUrl   String?                          // Pfad zum Banner-Bild
+  tags        String[]                         // Tags als Array
+  date        DateTime        @db.Date         // Datum des Eintrags
+  published   Boolean         @default(true)   // Draft-Modus möglich
 
-  // Säule 1: Bewegung & Training
-  movement  MovementLevel
-  // Säule 2: Ernährung
-  nutrition NutritionLevel
-  // Säule 3: Rauchstopp
-  smoking   SmokingStatus
+  // Eingebettete Gewohnheiten (Die drei Säulen)
+  movement    MovementLevel
+  nutrition   NutritionLevel
+  smoking     SmokingStatus
 
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  reactions   Reaction[]
 
   @@index([date])
+  @@index([published])
 }
 
 enum MovementLevel {
@@ -219,20 +248,19 @@ enum SmokingStatus {
 
 // =============================================
 // METRIKEN — Objektive Messwerte
-// Quelle: Primär automatisch via Fitbit/Apple Health APIs
-// Können auch manuell erfasst werden (source = MANUAL)
+// Quelle: Automatisch (Fitbit/Apple Health) + Manuell (Admin-UI)
 // =============================================
 
 model DailyMetrics {
   id             String        @id @default(cuid())
   date           DateTime      @unique @db.Date
 
-  // Körperwerte (Quelle: Fitbit Aria Waage)
+  // Körperwerte (Quelle: Fitbit Aria Waage oder manuell)
   weight         Float?        // kg
   bodyFat        Float?        // % Körperfettanteil
   bmi            Float?        // BMI
 
-  // Aktivität (Quelle: Fitbit/Apple Watch)
+  // Aktivität (Quelle: Fitbit/Apple Watch oder manuell)
   steps          Int?          // Tagesschritte
   activeMinutes  Int?          // Aktive Minuten
   caloriesBurned Int?          // Verbrannte Kalorien
@@ -251,7 +279,7 @@ model DailyMetrics {
 }
 
 enum MetricSource {
-  MANUAL           // Von Hand oder via Frontmatter eingetragen
+  MANUAL           // Manuell im Admin-Bereich eingetragen
   FITBIT           // Automatisch von Fitbit API
   APPLE_HEALTH     // Automatisch von Apple Health (via Health Auto Export)
   MERGED           // Kombination aus mehreren Quellen
@@ -259,19 +287,20 @@ enum MetricSource {
 
 // =============================================
 // EMOJI-REACTIONS — Leser-Interaktion
-// Quelle: Rein DB-basiert (API-Route)
 // =============================================
 
 model Reaction {
-  id        String       @id @default(cuid())
-  slug      String       // Journal-Eintrag Slug (= Datum)
-  emoji     ReactionType
-  ipHash    String       // SHA-256 Hash der IP (Spam-Schutz)
+  id           String       @id @default(cuid())
+  emoji        ReactionType
+  ipHash       String       // SHA-256 Hash der IP (Spam-Schutz)
 
-  createdAt DateTime     @default(now())
+  journalEntry JournalEntry @relation(fields: [entryId], references: [id])
+  entryId      String
 
-  @@unique([slug, emoji, ipHash])  // Ein Emoji pro IP pro Eintrag
-  @@index([slug])
+  createdAt    DateTime     @default(now())
+
+  @@unique([entryId, emoji, ipHash])  // Ein Emoji pro IP pro Eintrag
+  @@index([entryId])
 }
 
 enum ReactionType {
@@ -285,13 +314,11 @@ enum ReactionType {
 
 ### Datenbank-Regeln
 
-- **Gewohnheiten (`DailyHabits`):** Sync aus Frontmatter bei Build/Commit. Alle drei Säulen required.
-- **Metriken (`DailyMetrics`):** Primär via API-Sync (Fitbit, Apple Health). Alles optional weil
-  nicht jede Quelle jeden Tag alle Werte liefert.
-- **Reactions (`Reaction`):** Rein DB-basiert. IP nur als SHA-256 Hash gespeichert.
-- Ein Besucher kann pro Eintrag jedes Emoji einmal vergeben (unique constraint).
-- `MetricSource` trackt woher die Daten kommen — wichtig für Debugging und Datenqualität.
-- Bei Konflikten zwischen Quellen: Geräte-Daten (FITBIT/APPLE_HEALTH) > MANUAL.
+- **JournalEntry:** Einzige Content-Quelle. Enthält Text (HTML von Tiptap), Habits und Metadaten.
+  Habits sind direkt im Entry eingebettet (kein separates DailyHabits-Model mehr).
+- **DailyMetrics:** Automatisch via API-Sync ODER manuell im Admin-Bereich. Alles optional.
+- **Reactions:** Verknüpft via Foreign Key mit JournalEntry. IP nur als SHA-256 Hash.
+- Bei Metriken-Konflikten: Geräte-Daten (FITBIT/APPLE_HEALTH) > MANUAL.
 
 ## Datenquellen & API-Integrationen
 
@@ -335,6 +362,15 @@ Wenn Daten aus mehreren Quellen kommen (z.B. Schritte von Fitbit UND Apple Healt
 # .env.example
 DATABASE_URL="postgresql://project365:password@localhost:5432/project365blog"
 
+# NextAuth.js
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET=""                      # openssl rand -base64 32
+
+# Google OAuth (Admin-Login)
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+ADMIN_EMAIL=""                          # Deine Google-Email — nur dieser Account hat Zugang
+
 # Fitbit API (OAuth 2.0)
 FITBIT_CLIENT_ID=""
 FITBIT_CLIENT_SECRET=""
@@ -343,19 +379,31 @@ FITBIT_REFRESH_TOKEN=""
 
 # Health Auto Export (einfacher API-Key für Webhook-Authentifizierung)
 HEALTH_IMPORT_API_KEY=""
-
-# .env.local (NICHT im Git — in .gitignore)
-DATABASE_URL="postgresql://project365:dein_sicheres_passwort@localhost:5432/project365blog"
 ```
 
 ## Features & Phasen
 
-### Phase 1 — MVP (aktuell)
+### Phase 1 — MVP ✅ (abgeschlossen)
 - [x] Projektstruktur aufsetzen
-- [ ] PostgreSQL + Prisma Setup (Schema, Migrations, Seed)
-- [ ] MDX-Integration mit Frontmatter-Parsing
-- [ ] Sync-Script: Frontmatter-Habits → Datenbank
-- [ ] Fitbit API Integration (OAuth Setup, täglicher Sync für Gewicht + Schritte)
+- [x] PostgreSQL + Prisma Setup
+- [x] MDX-Integration (wird durch Web-CMS ersetzt)
+- [x] Habits-Sync
+- [x] Journal Feed & Einzelansicht
+- [x] Emoji-Reactions
+- [x] Gewohnheiten-Dashboard
+- [x] Metriken-Dashboard
+- [x] Docker Production Setup
+
+### Phase 1.5 — Web-CMS & Auth (aktuell)
+- [ ] NextAuth.js mit Google OAuth (Single-Admin)
+- [ ] Admin-Bereich (/admin/) mit Middleware-Schutz
+- [ ] JournalEntry DB-Model (Migration von MDX → DB)
+- [ ] Rich-Text Editor (Tiptap) für Journal-Einträge
+- [ ] Banner-Bild Upload
+- [ ] Habits-Auswahl im Editor (Dropdowns/Buttons für die drei Säulen)
+- [ ] Manuelle Metriken-Erfassung im Admin-Bereich
+- [ ] Draft/Published Toggle
+- [ ] Bestehende MDX-Einträge in DB migrieren (einmalig)
 - [ ] Startseite mit Journal-Feed (neueste zuerst)
 - [ ] Einzelne Journal-Post Ansicht mit Banner-Bild
 - [ ] Emoji-Reactions unter jedem Eintrag (❤️ 👏 🔥 💪 ⭐)
@@ -457,11 +505,12 @@ DATABASE_URL="postgresql://project365:dein_sicheres_passwort@localhost:5432/proj
 
 ## Wichtige Entscheidungen (ADRs)
 
-### ADR-001: MDX für Content + Habits, PostgreSQL für Metriken + Reactions
-Hybrid-Ansatz: Journal-Texte und Gewohnheiten als MDX-Dateien im Git (manuell erfasst,
-versioniert, offline-fähig). Objektive Metriken primär aus APIs (Fitbit, Apple Health)
-direkt in PostgreSQL. Reactions rein DB-basiert.
-Klare Trennung: Habits = subjektive Selbsteinschätzung (Mensch), Metriken = objektive Messwerte (Geräte).
+### ADR-001: Datenbank als einzige Content-Quelle (Web-CMS)
+**Geändert:** Ursprünglich MDX-Dateien im Git, jetzt komplett DB-basiert.
+Journal-Einträge werden im Browser via Rich-Text Editor erstellt und in PostgreSQL
+gespeichert. Vorteile: Einträge können von überall erstellt werden (Handy, Tablet),
+kein Git-Workflow für Content nötig, Habits und Metriken direkt am Eintrag.
+Klare Trennung: Habits = subjektive Selbsteinschätzung, Metriken = objektive Messwerte.
 
 ### ADR-002: Prisma als ORM
 Prisma bietet type-safe DB-Zugriffe, auto-generierte TypeScript-Types aus dem Schema, deklarative Migrations und eine grosse Community. Passt ideal zum TypeScript-strict-Ansatz des Projekts.
@@ -475,10 +524,20 @@ Deployment als Docker Compose Stack im HomeLab: Next.js (Standalone-Mode) + Post
 ### ADR-005: Fitbit API als primäre Metriken-Quelle
 Fitbit Web API (OAuth 2.0) für automatischen Import von Gewicht, Körperfett (Aria Waage),
 Schritte und Aktivitätsdaten. Täglicher Cron-Sync. Apple Health als ergänzende Quelle
-(Phase 2) via "Health Auto Export" App → REST-Webhook.
+via "Health Auto Export" App → REST-Webhook.
 
-### ADR-006: Übersetzungs-Strategie (Phase 3)
-AI-Übersetzung zur Build-Time mit Caching. Übersetzungen werden als generierte Dateien gespeichert und nur bei Änderung des Originals neu erstellt. Konkretes Tooling wird in Phase 3 evaluiert.
+### ADR-006: Google OAuth für Single-Admin Auth
+NextAuth.js mit Google Provider. Nur ein Google-Account (konfiguriert via ADMIN_EMAIL
+Env-Variable) hat Admin-Zugang. Kein Registrierungssystem. Blog ist öffentlich lesbar,
+Admin-Bereich (/admin/) ist via Middleware geschützt.
+
+### ADR-007: Tiptap als Rich-Text Editor
+Tiptap (headless Editor auf Basis von ProseMirror) für den Journal-Editor. Erweiterbar,
+Markdown-Shortcuts, sauberes HTML-Output, gute React-Integration, Open Source.
+Speichert HTML in der DB.
+
+### ADR-008: Übersetzungs-Strategie (Phase 3+)
+AI-Übersetzung mit Caching. Konkretes Tooling wird in Phase 3 evaluiert.
 
 ## Befehle
 
@@ -497,11 +556,10 @@ pnpm db:migrate             # Migration erstellen und ausführen
 pnpm db:push                # Schema pushen ohne Migration (Dev)
 pnpm db:seed                # Seed-Daten laden
 pnpm db:studio              # Prisma Studio öffnen (DB GUI)
-pnpm db:sync                # Frontmatter-Metriken → Datenbank synchronisieren
 
-# Content
-# Neuen Eintrag erstellen (Datum wird automatisch gesetzt):
-pnpm new-entry              # Erstellt content/journal/YYYY-MM-DD.mdx mit Template
+# Content (neu via Web-Editor im Browser)
+# Einträge werden unter /admin/entries/new im Browser erstellt.
+# Kein CLI-Befehl mehr nötig für neue Einträge.
 
 # Docker
 docker compose up -d        # Alle Container starten (Next.js + PostgreSQL)
