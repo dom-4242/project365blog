@@ -4,7 +4,6 @@ import { MDXRemote } from 'next-mdx-remote/rsc'
 import type { JournalEntry } from '@/lib/journal'
 import { getDayNumber } from '@/lib/journal'
 import { HabitBadges } from './HabitBadges'
-import { ReactionBar } from '@/components/reactions/ReactionBar'
 
 interface JournalPostProps {
   entry: JournalEntry
@@ -73,13 +72,8 @@ export function JournalPost({ entry }: JournalPostProps) {
         <MDXRemote source={entry.content} />
       </div>
 
-      {/* Reactions */}
-      <div className="mt-12 pt-8 border-t border-sand-200">
-        <ReactionBar slug={entry.slug} />
-      </div>
-
       {/* Back link */}
-      <footer className="mt-8">
+      <footer className="mt-16 pt-8 border-t border-sand-200">
         <Link
           href="/"
           className="text-sm text-nutrition-700 hover:underline font-medium"
