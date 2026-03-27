@@ -8,19 +8,17 @@ interface JournalFeedProps {
 export function JournalFeed({ entries }: JournalFeedProps) {
   if (entries.length === 0) {
     return (
-      <div className="py-20 text-center text-sand-400">
-        <p className="font-display text-2xl mb-2">Noch keine Einträge</p>
-        <p className="text-sm">Die ersten Einträge folgen bald.</p>
+      <div className="py-20 text-center">
+        <p className="font-display text-2xl text-sand-300 mb-2">Noch keine Einträge</p>
+        <p className="text-sm text-sand-400">Die ersten Einträge folgen bald.</p>
       </div>
     )
   }
 
   return (
-    <div className="divide-y divide-sand-200">
+    <div className="space-y-5">
       {entries.map((entry) => (
-        <div key={entry.slug} className="py-12 first:pt-0">
-          <JournalCard entry={entry} />
-        </div>
+        <JournalCard key={entry.slug} entry={entry} />
       ))}
     </div>
   )

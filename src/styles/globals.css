@@ -3,13 +3,46 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     font-family: var(--font-body), Georgia, serif;
     background-color: #faf9f7;
     color: #2d2926;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display), Georgia, serif;
+  }
+
+  /* Warme Auswahlfarbe passend zum Projekt-Stil */
+  ::selection {
+    background-color: #fde68a;
+    color: #1a1714;
+  }
+
+  :focus-visible {
+    outline: 2px solid #f59e0b;
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+@layer components {
+  /* Initiale für Artikel-Texte */
+  .prose-dropcap > p:first-of-type::first-letter {
+    font-family: var(--font-display), Georgia, serif;
+    font-size: 3.5em;
+    font-weight: 700;
+    float: left;
+    line-height: 0.82;
+    margin-right: 0.1em;
+    margin-top: 0.08em;
+    color: #1a1714;
   }
 }

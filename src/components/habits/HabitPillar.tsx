@@ -56,7 +56,10 @@ export function HabitPillar({ pillar, streak, totalFulfilled, totalEntries, days
   const cfg = PILLAR_CONFIG[pillar]
 
   return (
-    <div className={`rounded-2xl border ${cfg.bgClass} ${cfg.borderClass} p-5 space-y-5`}>
+    <div className={`rounded-2xl border ${cfg.borderClass} ${cfg.bgClass} overflow-hidden`}>
+      {/* Farbiger Akzentbalken oben */}
+      <div className={`h-1 ${cfg.barColorClass}`} />
+      <div className="p-5 space-y-5">
       <div className="flex items-center gap-2">
         <span className="text-xl" aria-hidden="true">{cfg.emoji}</span>
         <h3 className={`font-display font-semibold text-base ${cfg.textColorClass}`}>
@@ -75,6 +78,7 @@ export function HabitPillar({ pillar, streak, totalFulfilled, totalEntries, days
       />
 
       <HabitHeatmap days={days} pillar={pillar} />
+      </div>
     </div>
   )
 }
