@@ -5,6 +5,8 @@ import matter from 'gray-matter'
 const JOURNAL_DIR = path.join(process.cwd(), 'content/journal')
 const PROJECT_START = new Date('2026-03-26')
 
+export const PROJECT_START_DATE = '2026-03-26'
+
 // =============================================
 // Types & Interfaces
 // =============================================
