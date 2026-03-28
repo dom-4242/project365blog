@@ -5,30 +5,8 @@ import { useRouter } from 'next/navigation'
 import { MovementLevel, NutritionLevel, SmokingStatus } from '@prisma/client'
 import { clsx } from 'clsx'
 import { TiptapEditor } from './TiptapEditor'
+import { HabitsPicker } from './HabitsPicker'
 import { createEntry, updateEntry, type EntryFormData } from '@/app/admin/entries/actions'
-
-// =============================================
-// Habit-Selektoren Konfiguration
-// =============================================
-
-const MOVEMENT_OPTIONS: { value: MovementLevel; label: string; desc: string }[] = [
-  { value: 'MINIMAL', label: 'Minimal', desc: 'Unter 10k, kein Training' },
-  { value: 'STEPS_ONLY', label: '10k+', desc: '10k+ Schritte' },
-  { value: 'STEPS_TRAINED', label: '10k+ & Training', desc: '10k+ & Training' },
-]
-
-const NUTRITION_OPTIONS: { value: NutritionLevel; label: string }[] = [
-  { value: 'NONE', label: '0' },
-  { value: 'ONE', label: '1' },
-  { value: 'TWO', label: '2' },
-  { value: 'THREE', label: '3' },
-]
-
-const SMOKING_OPTIONS: { value: SmokingStatus; label: string; desc: string }[] = [
-  { value: 'SMOKED', label: 'Geraucht', desc: 'Geraucht' },
-  { value: 'REPLACEMENT', label: 'Ersatz', desc: 'Nikotinersatz' },
-  { value: 'NONE', label: 'Rauchfrei', desc: 'Rauchfrei ohne Hilfsmittel' },
-]
 
 // =============================================
 // Helper
@@ -227,80 +205,14 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
       </div>
 
       {/* Die drei Säulen */}
-      <div className="bg-white rounded-2xl border border-sand-200 p-5">
-        <h3 className="font-display text-sm font-semibold text-[#1a1714] mb-4">Die drei Säulen</h3>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-          {/* Bewegung */}
-          <div>
-            <p className="text-xs font-medium text-movement-700 mb-2">🏃 Bewegung</p>
-            <div className="flex flex-col gap-1.5">
-              {MOVEMENT_OPTIONS.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => setMovement(opt.value)}
-                  className={clsx(
-                    'text-left px-3 py-2 rounded-lg text-xs font-medium border transition-colors',
-                    movement === opt.value
-                      ? 'bg-movement-100 border-movement-300 text-movement-700'
-                      : 'bg-white border-sand-200 text-sand-500 hover:border-movement-200 hover:text-movement-700'
-                  )}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Ernährung */}
-          <div>
-            <p className="text-xs font-medium text-nutrition-700 mb-2">🥗 Ernährung</p>
-            <div className="flex flex-col gap-1.5">
-              {NUTRITION_OPTIONS.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => setNutrition(opt.value)}
-                  className={clsx(
-                    'text-left px-3 py-2 rounded-lg text-xs font-medium border transition-colors',
-                    nutrition === opt.value
-                      ? 'bg-nutrition-100 border-nutrition-200 text-nutrition-700'
-                      : 'bg-white border-sand-200 text-sand-500 hover:border-nutrition-200 hover:text-nutrition-700'
-                  )}
-                >
-                  {opt.label === '0' ? '0 gesunde Mahlzeiten' :
-                   opt.label === '1' ? '1 gesunde Mahlzeit' :
-                   opt.label === '2' ? '2 gesunde Mahlzeiten' :
-                   '3 gesunde Mahlzeiten'}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Rauchstopp */}
-          <div>
-            <p className="text-xs font-medium text-smoking-700 mb-2">🚭 Rauchstopp</p>
-            <div className="flex flex-col gap-1.5">
-              {SMOKING_OPTIONS.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => setSmoking(opt.value)}
-                  className={clsx(
-                    'text-left px-3 py-2 rounded-lg text-xs font-medium border transition-colors',
-                    smoking === opt.value
-                      ? 'bg-smoking-100 border-smoking-200 text-smoking-700'
-                      : 'bg-white border-sand-200 text-sand-500 hover:border-smoking-200 hover:text-smoking-700'
-                  )}
-                >
-                  {opt.desc}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+      <HabitsPicker
+        movement={movement}
+        nutrition={nutrition}
+        smoking={smoking}
+        onMovementChange={setMovement}
+        onNutritionChange={setNutrition}
+        onSmokingChange={setSmoking}
+      />
 
       {/* Submit */}
       <div className="flex items-center justify-between pt-2">
