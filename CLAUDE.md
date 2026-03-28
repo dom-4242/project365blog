@@ -384,41 +384,28 @@ HEALTH_IMPORT_API_KEY=""
 ## Features & Phasen
 
 ### Phase 1 — MVP ✅ (abgeschlossen)
-- [x] Projektstruktur aufsetzen
+- [x] Projektstruktur aufsetzen (Next.js, TypeScript, Tailwind, Prisma)
 - [x] PostgreSQL + Prisma Setup
-- [x] MDX-Integration (wird durch Web-CMS ersetzt)
-- [x] Habits-Sync
+- [x] MDX-Integration & Habits-Sync
+- [x] Fitbit API Integration
 - [x] Journal Feed & Einzelansicht
-- [x] Emoji-Reactions
-- [x] Gewohnheiten-Dashboard
-- [x] Metriken-Dashboard
+- [x] Emoji-Reactions (❤️ 👏 🔥 💪 ⭐)
+- [x] Gewohnheiten-Dashboard (Drei Säulen)
+- [x] Metriken-Dashboard (Charts)
 - [x] Docker Production Setup
+- [x] UI Styling & Redesign
 
-### Phase 1.5 — Web-CMS & Auth (aktuell)
-- [ ] NextAuth.js mit Google OAuth (Single-Admin)
-- [ ] Admin-Bereich (/admin/) mit Middleware-Schutz
-- [ ] JournalEntry DB-Model (Migration von MDX → DB)
-- [ ] Rich-Text Editor (Tiptap) für Journal-Einträge
-- [ ] Banner-Bild Upload
-- [ ] Habits-Auswahl im Editor (Dropdowns/Buttons für die drei Säulen)
-- [ ] Manuelle Metriken-Erfassung im Admin-Bereich
-- [ ] Draft/Published Toggle
-- [ ] Bestehende MDX-Einträge in DB migrieren (einmalig)
-- [ ] Startseite mit Journal-Feed (neueste zuerst)
-- [ ] Einzelne Journal-Post Ansicht mit Banner-Bild
-- [ ] Emoji-Reactions unter jedem Eintrag (❤️ 👏 🔥 💪 ⭐)
-- [ ] Gewohnheiten-Dashboard auf Startseite (oberhalb Feed)
-  - [ ] Drei-Säulen-Übersicht: Bewegung, Ernährung, Rauchstopp
-  - [ ] Streak-Anzeigen pro Säule (z.B. "X Tage rauchfrei")
-  - [ ] Erfüllungsgrad-Visualisierung (Fortschrittsbalken oder Heatmap)
-- [ ] Metriken-Dashboard auf Startseite (unterhalb Habits, oberhalb Feed)
-  - [ ] Gewichtsverlauf (Linien-Chart, letzte 30 Tage + Gesamttrend)
-  - [ ] Schritte-Verlauf (Balken-Chart)
-  - [ ] Körperfett-Trend (wenn von Waage verfügbar)
-- [ ] Responsive Design (Mobile-first)
-- [ ] Docker Compose Setup (Next.js + PostgreSQL)
+### Phase 1.5 — Web-CMS & Auth ✅ (abgeschlossen)
+- [x] NextAuth.js mit Google OAuth (Single-Admin)
+- [x] Admin-Bereich (/admin/) mit Middleware-Schutz
+- [x] JournalEntry DB-Model (Migration von MDX → DB)
+- [x] Rich-Text Editor (Tiptap) für Journal-Einträge
+- [x] Banner-Bild Upload
+- [x] Habits-Auswahl im Editor (Buttons für die drei Säulen)
+- [x] Manuelle Metriken-Erfassung im Admin-Bereich
+- [x] Admin-Dashboard mit Übersicht und Schnellzugriff
 
-### Phase 2 — Polish & Apple Health
+### Phase 2 — Polish & Apple Health (nächste Phase)
 - [ ] Apple Health Integration via "Health Auto Export" App
   - [ ] POST /api/health-import Endpoint
   - [ ] Merge-Logik für Fitbit + Apple Health Daten
@@ -429,6 +416,8 @@ HEALTH_IMPORT_API_KEY=""
 - [ ] SEO-Optimierung (Meta-Tags, Open Graph)
 - [ ] RSS-Feed
 - [ ] Suchfunktion über Einträge
+- [ ] Eintrag löschen im Admin-Bereich
+- [ ] Admin-Link auf der Startseite (nur für eingeloggte User)
 
 ### Phase 3 — Mehrsprachigkeit
 - [ ] i18n-Setup für UI-Elemente (Navigation, Labels)
@@ -440,7 +429,7 @@ HEALTH_IMPORT_API_KEY=""
 - [ ] Weitere Metriken/Habits ergänzen
 - [ ] Jahres-Übersicht (GitHub-style Contribution Grid) für alle drei Säulen
 - [ ] Monats-Zusammenfassungen (automatisch generiert)
-- [ ] Metriken-Eingabe über Web-UI (neben MDX-Workflow)
+- [ ] Statistiken und Seitenaufrufe im Admin-Bereich
 - [ ] Backup-Strategie für PostgreSQL-Daten
 
 ## Design-Richtlinien
