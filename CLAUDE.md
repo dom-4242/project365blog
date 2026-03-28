@@ -405,7 +405,17 @@ HEALTH_IMPORT_API_KEY=""
 - [x] Manuelle Metriken-Erfassung im Admin-Bereich
 - [x] Admin-Dashboard mit Übersicht und Schnellzugriff
 
-### Phase 2 — Polish & Apple Health (nächste Phase)
+### Phase 2 — Polish, Fitbit & Apple Health (aktuell)
+- [ ] Fitbit API in Betrieb nehmen (Code ist implementiert, muss konfiguriert werden)
+  - [ ] Fitbit Developer App registrieren auf dev.fitbit.com (Type: Personal)
+  - [ ] OAuth 2.0 Tokens generieren (Authorization Code Flow)
+  - [ ] Env-Variablen setzen: FITBIT_CLIENT_ID, FITBIT_CLIENT_SECRET, FITBIT_ACCESS_TOKEN, FITBIT_REFRESH_TOKEN, CRON_SECRET
+  - [ ] Cron-Endpoint testen: GET /api/cron/fitbit-sync mit Bearer Token
+  - [ ] Prüfen: Gewicht, Körperfett, BMI von Aria Waage kommen korrekt an
+  - [ ] Prüfen: Schritte, Distanz, Kalorien, aktive Minuten kommen korrekt an
+  - [ ] Metriken-Dashboard zeigt echte Fitbit-Daten
+  - [ ] Cron-Job einrichten (extern: GitHub Actions Schedule oder Server-Cron)
+  - [ ] Token-Refresh testen (was passiert wenn Access Token abläuft)
 - [ ] Apple Health Integration via "Health Auto Export" App
   - [ ] POST /api/health-import Endpoint
   - [ ] Merge-Logik für Fitbit + Apple Health Daten
