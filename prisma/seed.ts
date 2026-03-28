@@ -22,15 +22,7 @@ async function main() {
       slug: '2026-03-26',
       title: 'Tag 1 — Der Anfang',
       excerpt: 'Heute beginnt das Projekt. Der erste Tag von 365.',
-      content: `Heute beginnt das Projekt. Der erste Tag von 365.
-
-## Was ich heute gelernt habe
-
-Der erste Schritt ist oft der schwerste. Aber er ist gemacht.
-
-## Wie ich mich fühle
-
-Motiviert und ein bisschen nervös — aber bereit.`,
+      content: `<p>Heute beginnt das Projekt. Der erste Tag von 365.</p><h2>Was ich heute gelernt habe</h2><p>Der erste Schritt ist oft der schwerste. Aber er ist gemacht.</p><h2>Wie ich mich fühle</h2><p>Motiviert und ein bisschen nervös — aber bereit.</p>`,
       date: new Date('2026-03-26'),
       movement: MovementLevel.STEPS_ONLY,
       nutrition: NutritionLevel.TWO,

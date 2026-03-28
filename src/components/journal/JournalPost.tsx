@@ -1,6 +1,5 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { MDXRemote } from 'next-mdx-remote/rsc'
 import type { JournalEntry } from '@/lib/journal'
 import { getDayNumber } from '@/lib/journal'
 import { HabitBadges } from './HabitBadges'
@@ -72,10 +71,11 @@ export function JournalPost({ entry }: JournalPostProps) {
 
       <hr className="border-sand-200 mb-10" />
 
-      {/* Artikel-Inhalt mit Initiale */}
-      <div className="prose prose-stone prose-lg max-w-none prose-dropcap">
-        <MDXRemote source={entry.content} />
-      </div>
+      {/* Artikel-Inhalt */}
+      <div
+        className="prose prose-stone prose-lg max-w-none prose-dropcap"
+        dangerouslySetInnerHTML={{ __html: entry.content }}
+      />
 
       {/* Reaktionen */}
       <div className="mt-14 pt-8 border-t border-sand-200">
