@@ -5,8 +5,8 @@ import { JournalFeed } from '@/components/journal/JournalFeed'
 import { HabitsDashboard } from '@/components/habits/HabitsDashboard'
 import { MetricsDashboard } from '@/components/metrics/MetricsDashboard'
 
-export default function HomePage() {
-  const entries = getAllEntries()
+export default async function HomePage() {
+  const entries = await getAllEntries()
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">

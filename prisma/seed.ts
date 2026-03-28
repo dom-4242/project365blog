@@ -1,23 +1,49 @@
-import { PrismaClient, MovementLevel, NutritionLevel, SmokingStatus, MetricSource } from '@prisma/client'
+import {
+  PrismaClient,
+  MovementLevel,
+  NutritionLevel,
+  SmokingStatus,
+  MetricSource,
+} from '@prisma/client'
 
 const prisma = new PrismaClient()
 
 async function main() {
   console.log('Seeding database...')
 
-  // Example habits entry for day 1
-  await prisma.dailyHabits.upsert({
-    where: { date: new Date('2026-03-26') },
+  // =============================================
+  // Journal-Einträge (Migration von MDX → DB)
+  // =============================================
+
+  await prisma.journalEntry.upsert({
+    where: { slug: '2026-03-26' },
     update: {},
     create: {
+      slug: '2026-03-26',
+      title: 'Tag 1 — Der Anfang',
+      excerpt: 'Heute beginnt das Projekt. Der erste Tag von 365.',
+      content: `Heute beginnt das Projekt. Der erste Tag von 365.
+
+## Was ich heute gelernt habe
+
+Der erste Schritt ist oft der schwerste. Aber er ist gemacht.
+
+## Wie ich mich fühle
+
+Motiviert und ein bisschen nervös — aber bereit.`,
       date: new Date('2026-03-26'),
       movement: MovementLevel.STEPS_ONLY,
       nutrition: NutritionLevel.TWO,
       smoking: SmokingStatus.NONE,
+      tags: ['motivation', 'start'],
+      published: true,
     },
   })
 
-  // Example metrics entry for day 1
+  // =============================================
+  // Metriken
+  // =============================================
+
   await prisma.dailyMetrics.upsert({
     where: { date: new Date('2026-03-26') },
     update: {},

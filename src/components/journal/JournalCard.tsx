@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import type { JournalEntryMeta } from '@/lib/journal'
-import { getExcerpt, getDayNumber, getEntryBySlug } from '@/lib/journal'
+import { getDayNumber } from '@/lib/journal'
 import { HabitBadges } from './HabitBadges'
 
 interface JournalCardProps {
@@ -17,8 +17,7 @@ function formatDate(dateStr: string): string {
 }
 
 export function JournalCard({ entry }: JournalCardProps) {
-  const full = getEntryBySlug(entry.slug)
-  const excerpt = full ? getExcerpt(full.content) : ''
+  const excerpt = entry.excerpt ?? ''
   const dayNumber = getDayNumber(entry.date)
 
   return (

@@ -10,22 +10,33 @@ generator client {
 }
 
 // =============================================
-// GEWOHNHEITEN — Die drei Säulen
-// Quelle: Manuell via Frontmatter (sync bei Build/Commit)
+// JOURNAL-EINTRÄGE — Content + eingebettete Habits
+// Quelle: Web-Editor (Admin, eingeloggt)
 // =============================================
 
-model DailyHabits {
-  id        String          @id @default(cuid())
-  date      DateTime        @unique @db.Date
+model JournalEntry {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  title     String
+  content   String   @db.Text
+  excerpt   String?
+  bannerUrl String?
+  tags      String[]
+  date      DateTime @db.Date
+  published Boolean  @default(true)
 
+  // Die drei Säulen — direkt eingebettet
   movement  MovementLevel
   nutrition NutritionLevel
   smoking   SmokingStatus
 
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reactions Reaction[]
 
   @@index([date])
+  @@index([published])
 }
 
 enum MovementLevel {
@@ -49,12 +60,12 @@ enum SmokingStatus {
 
 // =============================================
 // METRIKEN — Objektive Messwerte
+// Quelle: Automatisch (Fitbit/Apple Health) + Manuell
 // =============================================
 
 model DailyMetrics {
-  id             String        @id @default(cuid())
-  date           DateTime      @unique @db.Date
-
+  id             String       @id @default(cuid())
+  date           DateTime     @unique @db.Date
   weight         Float?
   bodyFat        Float?
   bmi            Float?
@@ -64,11 +75,9 @@ model DailyMetrics {
   distance       Float?
   restingHR      Int?
   sleepDuration  Int?
-
-  source         MetricSource  @default(MANUAL)
-
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  source         MetricSource @default(MANUAL)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 
   @@index([date])
 }
@@ -85,15 +94,15 @@ enum MetricSource {
 // =============================================
 
 model Reaction {
-  id        String       @id @default(cuid())
-  slug      String
-  emoji     ReactionType
-  ipHash    String
+  id           String       @id @default(cuid())
+  emoji        ReactionType
+  ipHash       String
+  journalEntry JournalEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  entryId      String
+  createdAt    DateTime     @default(now())
 
-  createdAt DateTime     @default(now())
-
-  @@unique([slug, emoji, ipHash])
-  @@index([slug])
+  @@unique([entryId, emoji, ipHash])
+  @@index([entryId])
 }
 
 enum ReactionType {

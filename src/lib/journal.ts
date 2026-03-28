@@ -1,14 +1,12 @@
-import fs from 'fs'
-import path from 'path'
-import matter from 'gray-matter'
-
-const JOURNAL_DIR = path.join(process.cwd(), 'content/journal')
-const PROJECT_START = new Date('2026-03-26')
+import { MovementLevel, NutritionLevel, SmokingStatus } from '@prisma/client'
+import type { JournalEntry as PrismaJournalEntry } from '@prisma/client'
+import { prisma } from './db'
 
 export const PROJECT_START_DATE = '2026-03-26'
+const PROJECT_START = new Date('2026-03-26')
 
 // =============================================
-// Types & Interfaces
+// Types — öffentliche Schnittstelle (unverändert für Komponenten)
 // =============================================
 
 export type MovementValue = 'minimal' | 'steps_only' | 'steps_trained'
@@ -24,122 +22,84 @@ export interface HabitsFrontmatter {
 export interface JournalEntry {
   slug: string
   title: string
-  date: string
+  date: string // YYYY-MM-DD
   banner?: string
   tags?: string[]
   habits: HabitsFrontmatter
   content: string
+  excerpt?: string
 }
 
 export type JournalEntryMeta = Omit<JournalEntry, 'content'>
 
 // =============================================
-// Validation
+// Enum-Mapping: Prisma → Lowercase-String
 // =============================================
 
-const VALID_MOVEMENT: ReadonlySet<string> = new Set(['minimal', 'steps_only', 'steps_trained'])
-const VALID_NUTRITION: ReadonlySet<string> = new Set(['none', 'one', 'two', 'three'])
-const VALID_SMOKING: ReadonlySet<string> = new Set(['smoked', 'replacement', 'none'])
-
-export class FrontmatterValidationError extends Error {
-  constructor(
-    public readonly slug: string,
-    message: string,
-  ) {
-    super(`[${slug}] ${message}`)
-    this.name = 'FrontmatterValidationError'
-  }
+const MOVEMENT_TO_VALUE: Record<MovementLevel, MovementValue> = {
+  MINIMAL: 'minimal',
+  STEPS_ONLY: 'steps_only',
+  STEPS_TRAINED: 'steps_trained',
 }
 
-export function validateFrontmatter(
-  slug: string,
-  data: Record<string, unknown>,
-): JournalEntryMeta {
-  if (!data.title || typeof data.title !== 'string') {
-    throw new FrontmatterValidationError(slug, 'Missing or invalid "title"')
-  }
-  if (!data.date || typeof data.date !== 'string') {
-    throw new FrontmatterValidationError(slug, 'Missing or invalid "date"')
-  }
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(data.date)) {
-    throw new FrontmatterValidationError(slug, `"date" must be YYYY-MM-DD, got "${data.date}"`)
-  }
-  if (data.banner !== undefined && typeof data.banner !== 'string') {
-    throw new FrontmatterValidationError(slug, '"banner" must be a string')
-  }
-  if (data.tags !== undefined && !Array.isArray(data.tags)) {
-    throw new FrontmatterValidationError(slug, '"tags" must be an array')
-  }
+const NUTRITION_TO_VALUE: Record<NutritionLevel, NutritionValue> = {
+  NONE: 'none',
+  ONE: 'one',
+  TWO: 'two',
+  THREE: 'three',
+}
 
-  // Validate habits
-  if (!data.habits || typeof data.habits !== 'object' || Array.isArray(data.habits)) {
-    throw new FrontmatterValidationError(slug, 'Missing or invalid "habits" block')
-  }
+const SMOKING_TO_VALUE: Record<SmokingStatus, SmokingValue> = {
+  SMOKED: 'smoked',
+  REPLACEMENT: 'replacement',
+  NONE: 'none',
+}
 
-  const habits = data.habits as Record<string, unknown>
+function toDateString(date: Date): string {
+  return date.toISOString().slice(0, 10)
+}
 
-  if (!habits.movement || !VALID_MOVEMENT.has(String(habits.movement))) {
-    throw new FrontmatterValidationError(
-      slug,
-      `"habits.movement" must be one of: ${[...VALID_MOVEMENT].join(', ')}`,
-    )
-  }
-  if (!habits.nutrition || !VALID_NUTRITION.has(String(habits.nutrition))) {
-    throw new FrontmatterValidationError(
-      slug,
-      `"habits.nutrition" must be one of: ${[...VALID_NUTRITION].join(', ')}`,
-    )
-  }
-  if (!habits.smoking || !VALID_SMOKING.has(String(habits.smoking))) {
-    throw new FrontmatterValidationError(
-      slug,
-      `"habits.smoking" must be one of: ${[...VALID_SMOKING].join(', ')}`,
-    )
-  }
-
+function toMeta(entry: PrismaJournalEntry): JournalEntryMeta {
   return {
-    slug,
-    title: data.title,
-    date: data.date,
-    banner: data.banner,
-    tags: data.tags as string[] | undefined,
+    slug: entry.slug,
+    title: entry.title,
+    date: toDateString(entry.date),
+    banner: entry.bannerUrl ?? undefined,
+    tags: entry.tags.length > 0 ? entry.tags : undefined,
+    excerpt: entry.excerpt ?? undefined,
     habits: {
-      movement: habits.movement as MovementValue,
-      nutrition: habits.nutrition as NutritionValue,
-      smoking: habits.smoking as SmokingValue,
+      movement: MOVEMENT_TO_VALUE[entry.movement],
+      nutrition: NUTRITION_TO_VALUE[entry.nutrition],
+      smoking: SMOKING_TO_VALUE[entry.smoking],
     },
   }
 }
 
-// =============================================
-// Readers
-// =============================================
-
-export function getAllEntries(): JournalEntryMeta[] {
-  if (!fs.existsSync(JOURNAL_DIR)) return []
-
-  const files = fs.readdirSync(JOURNAL_DIR).filter((f) => f.endsWith('.mdx'))
-
-  const entries = files.map((filename) => {
-    const slug = filename.replace('.mdx', '')
-    const filePath = path.join(JOURNAL_DIR, filename)
-    const fileContent = fs.readFileSync(filePath, 'utf8')
-    const { data } = matter(fileContent)
-    return validateFrontmatter(slug, data as Record<string, unknown>)
-  })
-
-  return entries.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+function toFull(entry: PrismaJournalEntry): JournalEntry {
+  return {
+    ...toMeta(entry),
+    content: entry.content,
+  }
 }
 
-export function getEntryBySlug(slug: string): JournalEntry | null {
-  const filePath = path.join(JOURNAL_DIR, `${slug}.mdx`)
-  if (!fs.existsSync(filePath)) return null
+// =============================================
+// DB-Queries (ersetzen Filesystem-Reads)
+// =============================================
 
-  const fileContent = fs.readFileSync(filePath, 'utf8')
-  const { data, content } = matter(fileContent)
-  const meta = validateFrontmatter(slug, data as Record<string, unknown>)
+export async function getAllEntries(): Promise<JournalEntryMeta[]> {
+  const entries = await prisma.journalEntry.findMany({
+    where: { published: true },
+    orderBy: { date: 'desc' },
+  })
+  return entries.map(toMeta)
+}
 
-  return { ...meta, content }
+export async function getEntryBySlug(slug: string): Promise<JournalEntry | null> {
+  const entry = await prisma.journalEntry.findUnique({
+    where: { slug },
+  })
+  if (!entry || !entry.published) return null
+  return toFull(entry)
 }
 
 // =============================================
@@ -147,16 +107,21 @@ export function getEntryBySlug(slug: string): JournalEntry | null {
 // =============================================
 
 /**
- * Extracts a plain-text excerpt from MDX content.
- * Takes the first non-empty, non-heading paragraph, max 160 chars.
+ * Extrahiert einen Plaintext-Excerpt aus Markdown/HTML-Content.
+ * Nimmt den ersten nicht-leeren, nicht-Überschriften-Absatz (max 160 Zeichen).
  */
 export function getExcerpt(content: string, maxLength = 160): string {
   const lines = content.split('\n')
   for (const line of lines) {
     const trimmed = line.trim()
-    // Skip headings, empty lines, MDX imports/exports, HTML tags
-    if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('<') || trimmed.startsWith('import ') || trimmed.startsWith('export ')) continue
-    // Strip inline markdown: bold, italic, code, links
+    if (
+      !trimmed ||
+      trimmed.startsWith('#') ||
+      trimmed.startsWith('<') ||
+      trimmed.startsWith('import ') ||
+      trimmed.startsWith('export ')
+    )
+      continue
     const plain = trimmed
       .replace(/\*\*(.+?)\*\*/g, '$1')
       .replace(/\*(.+?)\*/g, '$1')
@@ -169,8 +134,8 @@ export function getExcerpt(content: string, maxLength = 160): string {
 }
 
 /**
- * Returns the project day number for a given date string (YYYY-MM-DD).
- * Day 1 = 2026-03-26.
+ * Gibt die Projekttagnummer für ein Datums-String zurück (YYYY-MM-DD).
+ * Tag 1 = 2026-03-26.
  */
 export function getDayNumber(date: string): number {
   const ms = new Date(date).getTime() - PROJECT_START.getTime()
