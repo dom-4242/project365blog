@@ -6,6 +6,7 @@ import { MovementLevel, NutritionLevel, SmokingStatus } from '@prisma/client'
 import { clsx } from 'clsx'
 import { TiptapEditor } from './TiptapEditor'
 import { HabitsPicker } from './HabitsPicker'
+import { BannerUpload } from './BannerUpload'
 import { createEntry, updateEntry, type EntryFormData } from '@/app/admin/entries/actions'
 
 // =============================================
@@ -48,6 +49,7 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
   const [movement, setMovement] = useState<MovementLevel>(initial?.movement ?? 'STEPS_ONLY')
   const [nutrition, setNutrition] = useState<NutritionLevel>(initial?.nutrition ?? 'TWO')
   const [smoking, setSmoking] = useState<SmokingStatus>(initial?.smoking ?? 'NONE')
+  const [bannerUrl, setBannerUrl] = useState<string | undefined>(initial?.bannerUrl)
   const [tags, setTags] = useState<string>(initial?.tags?.join(', ') ?? '')
   const [published, setPublished] = useState(initial?.published ?? true)
   const [error, setError] = useState<string | null>(null)
@@ -70,6 +72,7 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
       date,
       content,
       excerpt,
+      bannerUrl,
       movement,
       nutrition,
       smoking,
@@ -178,6 +181,9 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
           className="w-full border border-sand-200 rounded-lg px-3 py-1.5 text-sm text-[#2d2926] focus:outline-none focus:border-sand-400 bg-white"
         />
       </div>
+
+      {/* Banner-Bild */}
+      <BannerUpload value={bannerUrl} onChange={setBannerUrl} slug={slug} />
 
       {/* Tiptap Editor */}
       <div>

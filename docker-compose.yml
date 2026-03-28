@@ -44,9 +44,12 @@ services:
       FITBIT_REFRESH_TOKEN: ${FITBIT_REFRESH_TOKEN:-}
       HEALTH_IMPORT_API_KEY: ${HEALTH_IMPORT_API_KEY:-}
       CRON_SECRET: ${CRON_SECRET:-}
+    volumes:
+      - uploads:/app/public/images/journal
     depends_on:
       db:
         condition: service_healthy
 
 volumes:
   postgres_data:
+  uploads:

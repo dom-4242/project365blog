@@ -11,6 +11,7 @@ export interface EntryFormData {
   date: string // YYYY-MM-DD
   content: string
   excerpt: string
+  bannerUrl?: string
   movement: MovementLevel
   nutrition: NutritionLevel
   smoking: SmokingStatus
@@ -51,6 +52,7 @@ export async function createEntry(data: EntryFormData): Promise<ActionResult> {
         date: new Date(data.date),
         content: data.content,
         excerpt: data.excerpt.trim() || extractExcerpt(data.content),
+        bannerUrl: data.bannerUrl ?? null,
         movement: data.movement,
         nutrition: data.nutrition,
         smoking: data.smoking,
@@ -85,6 +87,7 @@ export async function updateEntry(id: string, data: EntryFormData): Promise<Acti
         date: new Date(data.date),
         content: data.content,
         excerpt: data.excerpt.trim() || extractExcerpt(data.content),
+        bannerUrl: data.bannerUrl ?? null,
         movement: data.movement,
         nutrition: data.nutrition,
         smoking: data.smoking,
