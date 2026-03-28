@@ -21,8 +21,8 @@ function generateDateRange(from: string, to: string): string[] {
   return dates
 }
 
-export function HabitsDashboard() {
-  const entries = getAllEntries() // newest first
+export async function HabitsDashboard() {
+  const entries = await getAllEntries() // newest first
   const entryMap = new Map(entries.map((e) => [e.date, e]))
 
   const today = new Date().toISOString().slice(0, 10)

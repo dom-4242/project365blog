@@ -1,6 +1,8 @@
+export const dynamic = 'force-dynamic'
+
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import { getAllEntries, getEntryBySlug } from '@/lib/journal'
+import { getEntryBySlug } from '@/lib/journal'
 import { JournalPost } from '@/components/journal/JournalPost'
 
 interface JournalPostPageProps {
@@ -9,13 +11,8 @@ interface JournalPostPageProps {
   }
 }
 
-export async function generateStaticParams() {
-  const entries = getAllEntries()
-  return entries.map((entry) => ({ slug: entry.slug }))
-}
-
 export async function generateMetadata({ params }: JournalPostPageProps): Promise<Metadata> {
-  const entry = getEntryBySlug(params.slug)
+  const entry = await getEntryBySlug(params.slug)
   if (!entry) return {}
   return {
     title: `${entry.title} — Project 365`,
@@ -26,8 +23,8 @@ export async function generateMetadata({ params }: JournalPostPageProps): Promis
   }
 }
 
-export default function JournalPostPage({ params }: JournalPostPageProps) {
-  const entry = getEntryBySlug(params.slug)
+export default async function JournalPostPage({ params }: JournalPostPageProps) {
+  const entry = await getEntryBySlug(params.slug)
   if (!entry) notFound()
 
   return <JournalPost entry={entry} />

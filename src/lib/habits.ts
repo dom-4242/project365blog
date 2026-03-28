@@ -103,17 +103,17 @@ export function getSmokingLevel(s: SmokingValue): number {
   return 0
 }
 
-export function getMovementStreak(): StreakResult {
-  const entries = getAllEntries()
+export async function getMovementStreak(): Promise<StreakResult> {
+  const entries = await getAllEntries()
   return calculateStreak(entries.map((e) => isMovementFulfilled(e.habits.movement)))
 }
 
-export function getNutritionStreak(): StreakResult {
-  const entries = getAllEntries()
+export async function getNutritionStreak(): Promise<StreakResult> {
+  const entries = await getAllEntries()
   return calculateStreak(entries.map((e) => isNutritionFulfilled(e.habits.nutrition)))
 }
 
-export function getSmokingStreak(): StreakResult {
-  const entries = getAllEntries()
+export async function getSmokingStreak(): Promise<StreakResult> {
+  const entries = await getAllEntries()
   return calculateStreak(entries.map((e) => isSmokingFulfilled(e.habits.smoking)))
 }
