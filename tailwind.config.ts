@@ -2,6 +2,7 @@ import type { Config } from 'tailwindcss'
 import typography from '@tailwindcss/typography'
 
 const config: Config = {
+  darkMode: 'class',
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -18,6 +19,7 @@ const config: Config = {
           300: '#d4cec3',
           400: '#b5aca0',
           500: '#9a9088',
+          600: '#7a706a',
         },
         // Säule Bewegung: Grün-Töne
         movement: {
@@ -27,6 +29,8 @@ const config: Config = {
           500: '#22c55e',
           600: '#16a34a',
           700: '#15803d',
+          800: '#166534',
+          900: '#14532d',
         },
         // Säule Ernährung: Orange/Amber-Töne
         nutrition: {
@@ -36,6 +40,8 @@ const config: Config = {
           500: '#f59e0b',
           600: '#d97706',
           700: '#b45309',
+          800: '#92400e',
+          900: '#78350f',
         },
         // Säule Rauchstopp: Blau-Töne
         smoking: {
@@ -45,6 +51,8 @@ const config: Config = {
           500: '#3b82f6',
           600: '#2563eb',
           700: '#1d4ed8',
+          800: '#1e40af',
+          900: '#1e3a8a',
         },
       },
       fontFamily: {

@@ -43,9 +43,9 @@ function formatSteps(v: number): string {
 function StepsTooltip({ active, payload, label }: TooltipProps) {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-white border border-sand-200 rounded-lg px-3 py-2 text-sm shadow-sm">
+    <div className="bg-white dark:bg-[#2d2926] border border-sand-200 dark:border-[#4a4540] rounded-lg px-3 py-2 text-sm shadow-sm">
       <p className="text-sand-400 text-xs mb-0.5">{formatDateLong(label ?? '')}</p>
-      <p className="font-semibold text-[#1a1714]">{payload[0].value.toLocaleString('de-CH')} Schritte</p>
+      <p className="font-semibold text-[#1a1714] dark:text-[#faf9f7]">{payload[0].value.toLocaleString('de-CH')} Schritte</p>
     </div>
   )
 }
@@ -57,11 +57,11 @@ interface StepsChartProps {
 
 export function StepsChart({ data, avgSteps }: StepsChartProps) {
   return (
-    <div className="bg-white rounded-2xl border border-sand-200 p-5 h-full">
+    <div className="bg-white dark:bg-[#2d2926] rounded-2xl border border-sand-200 dark:border-[#4a4540] p-5 h-full">
       <div className="flex items-baseline justify-between mb-4">
-        <h3 className="font-display font-semibold text-sm text-[#1a1714]">Schritte</h3>
+        <h3 className="font-display font-semibold text-sm text-[#1a1714] dark:text-[#faf9f7]">Schritte</h3>
         {avgSteps !== undefined && (
-          <span className="text-2xl font-bold font-display text-movement-700">
+          <span className="text-2xl font-bold font-display text-movement-700 dark:text-movement-400">
             {formatSteps(avgSteps)}{' '}
             <span className="text-sm font-normal text-sand-400">Ø/Tag</span>
           </span>
@@ -69,17 +69,17 @@ export function StepsChart({ data, avgSteps }: StepsChartProps) {
       </div>
       <ResponsiveContainer width="100%" height={180}>
         <BarChart data={data} margin={{ top: 4, right: 8, left: -18, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e8e4dc" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" vertical={false} />
           <XAxis
             dataKey="date"
-            tick={{ fontSize: 10, fill: '#b5aca0' }}
+            tick={{ fontSize: 10, fill: 'var(--chart-axis)' }}
             tickFormatter={formatDateShort}
             tickLine={false}
-            axisLine={{ stroke: '#e8e4dc' }}
+            axisLine={{ stroke: 'var(--chart-axis-line)' }}
             interval="preserveStartEnd"
           />
           <YAxis
-            tick={{ fontSize: 10, fill: '#b5aca0' }}
+            tick={{ fontSize: 10, fill: 'var(--chart-axis)' }}
             tickFormatter={formatSteps}
             tickLine={false}
             axisLine={false}

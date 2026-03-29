@@ -19,28 +19,28 @@ const PILLAR_CONFIG: Record<Pillar, PillarConfig> = {
     title: 'Bewegung',
     emoji: '🏃',
     streakLabel: 'Tage aktiv',
-    bgClass: 'bg-movement-100',
-    borderClass: 'border-movement-200',
-    textColorClass: 'text-movement-700',
-    barColorClass: 'bg-movement-500',
+    bgClass: 'bg-movement-100 dark:bg-movement-600/10',
+    borderClass: 'border-movement-200 dark:border-movement-600/20',
+    textColorClass: 'text-movement-700 dark:text-movement-400',
+    barColorClass: 'bg-movement-500 dark:bg-movement-400',
   },
   nutrition: {
     title: 'Ernährung',
     emoji: '🥗',
     streakLabel: 'Tage gesund',
-    bgClass: 'bg-nutrition-100',
-    borderClass: 'border-nutrition-200',
-    textColorClass: 'text-nutrition-700',
-    barColorClass: 'bg-nutrition-500',
+    bgClass: 'bg-nutrition-100 dark:bg-nutrition-600/10',
+    borderClass: 'border-nutrition-200 dark:border-nutrition-600/20',
+    textColorClass: 'text-nutrition-700 dark:text-nutrition-400',
+    barColorClass: 'bg-nutrition-500 dark:bg-nutrition-400',
   },
   smoking: {
     title: 'Rauchstopp',
     emoji: '🚭',
     streakLabel: 'Tage rauchfrei',
-    bgClass: 'bg-smoking-100',
-    borderClass: 'border-smoking-200',
-    textColorClass: 'text-smoking-700',
-    barColorClass: 'bg-smoking-500',
+    bgClass: 'bg-smoking-100 dark:bg-smoking-600/10',
+    borderClass: 'border-smoking-200 dark:border-smoking-600/20',
+    textColorClass: 'text-smoking-700 dark:text-smoking-400',
+    barColorClass: 'bg-smoking-500 dark:bg-smoking-400',
   },
 }
 
@@ -57,27 +57,26 @@ export function HabitPillar({ pillar, streak, totalFulfilled, totalEntries, days
 
   return (
     <div className={`rounded-2xl border ${cfg.borderClass} ${cfg.bgClass} overflow-hidden`}>
-      {/* Farbiger Akzentbalken oben */}
       <div className={`h-1 ${cfg.barColorClass}`} />
       <div className="p-5 space-y-5">
-      <div className="flex items-center gap-2">
-        <span className="text-xl" aria-hidden="true">{cfg.emoji}</span>
-        <h3 className={`font-display font-semibold text-base ${cfg.textColorClass}`}>
-          {cfg.title}
-        </h3>
-      </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xl" aria-hidden="true">{cfg.emoji}</span>
+          <h3 className={`font-display font-semibold text-base ${cfg.textColorClass}`}>
+            {cfg.title}
+          </h3>
+        </div>
 
-      <HabitStreak
-        current={streak.current}
-        longest={streak.longest}
-        totalFulfilled={totalFulfilled}
-        totalEntries={totalEntries}
-        label={cfg.streakLabel}
-        textColorClass={cfg.textColorClass}
-        barColorClass={cfg.barColorClass}
-      />
+        <HabitStreak
+          current={streak.current}
+          longest={streak.longest}
+          totalFulfilled={totalFulfilled}
+          totalEntries={totalEntries}
+          label={cfg.streakLabel}
+          textColorClass={cfg.textColorClass}
+          barColorClass={cfg.barColorClass}
+        />
 
-      <HabitHeatmap days={days} pillar={pillar} />
+        <HabitHeatmap days={days} pillar={pillar} />
       </div>
     </div>
   )

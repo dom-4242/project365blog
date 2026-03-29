@@ -96,7 +96,7 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+        <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-lg text-sm text-red-700 dark:text-red-400">
           {error}
         </div>
       )}
@@ -109,7 +109,7 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Titel des Eintrags"
           required
-          className="w-full font-display text-2xl font-bold bg-transparent border-0 border-b-2 border-sand-200 focus:border-nutrition-500 focus:outline-none pb-2 text-[#1a1714] placeholder:text-sand-300 transition-colors"
+          className="w-full font-display text-2xl font-bold bg-transparent border-0 border-b-2 border-sand-200 dark:border-[#4a4540] focus:border-nutrition-500 focus:outline-none pb-2 text-[#1a1714] dark:text-[#faf9f7] placeholder:text-sand-300 transition-colors"
         />
       </div>
 
@@ -122,7 +122,7 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
             value={date}
             onChange={(e) => handleDateChange(e.target.value)}
             required
-            className="border border-sand-200 rounded-lg px-3 py-1.5 text-sm text-[#2d2926] focus:outline-none focus:border-sand-400 bg-white"
+            className="border border-sand-200 dark:border-[#4a4540] rounded-lg px-3 py-1.5 text-sm text-[#2d2926] dark:text-[#e8e4dc] focus:outline-none focus:border-sand-400 bg-white dark:bg-[#3a3531]"
           />
         </div>
 
@@ -140,10 +140,10 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
             readOnly={mode === 'edit'}
             required
             className={clsx(
-              'w-full border border-sand-200 rounded-lg px-3 py-1.5 text-sm font-mono focus:outline-none bg-white',
+              'w-full border border-sand-200 dark:border-[#4a4540] rounded-lg px-3 py-1.5 text-sm font-mono focus:outline-none bg-white dark:bg-[#3a3531]',
               mode === 'edit'
                 ? 'text-sand-400 cursor-default'
-                : 'text-[#2d2926] focus:border-sand-400'
+                : 'text-[#2d2926] dark:text-[#e8e4dc] focus:border-sand-400'
             )}
           />
         </div>
@@ -178,7 +178,7 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
           value={tags}
           onChange={(e) => setTags(e.target.value)}
           placeholder="motivation, training, ernährung"
-          className="w-full border border-sand-200 rounded-lg px-3 py-1.5 text-sm text-[#2d2926] focus:outline-none focus:border-sand-400 bg-white"
+          className="w-full border border-sand-200 dark:border-[#4a4540] rounded-lg px-3 py-1.5 text-sm text-[#2d2926] dark:text-[#e8e4dc] focus:outline-none focus:border-sand-400 bg-white dark:bg-[#3a3531]"
         />
       </div>
 
@@ -206,7 +206,7 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
           onChange={(e) => setExcerpt(e.target.value)}
           rows={2}
           placeholder="Kurze Beschreibung für den Feed..."
-          className="w-full border border-sand-200 rounded-lg px-3 py-2 text-sm text-[#2d2926] focus:outline-none focus:border-sand-400 bg-white resize-none"
+          className="w-full border border-sand-200 dark:border-[#4a4540] rounded-lg px-3 py-2 text-sm text-[#2d2926] dark:text-[#e8e4dc] focus:outline-none focus:border-sand-400 bg-white dark:bg-[#3a3531] resize-none"
         />
       </div>
 
@@ -225,7 +225,7 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
         <button
           type="button"
           onClick={() => router.back()}
-          className="text-sm text-sand-500 hover:text-[#1a1714] transition-colors"
+          className="text-sm text-sand-500 hover:text-[#1a1714] dark:hover:text-[#faf9f7] transition-colors"
         >
           ← Abbrechen
         </button>
