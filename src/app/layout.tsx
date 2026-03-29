@@ -5,6 +5,7 @@ import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { AuthSessionProvider } from '@/components/providers/SessionProvider'
 import { ThemeProvider } from '@/components/providers/ThemeProvider'
+import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from '@/lib/site'
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -19,9 +20,27 @@ const lora = Lora({
 })
 
 export const metadata: Metadata = {
-  title: 'Project 365 — Tägliches Journal',
-  description:
-    'Ein öffentliches 365-Tage-Projekt: Tägliche Einträge, Habit-Tracking und Metriken-Visualisierung.',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: `${SITE_NAME} — Tägliches Journal`,
+    template: `%s — ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    type: 'website',
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} — Tägliches Journal`,
+    description: SITE_DESCRIPTION,
+    images: [{ url: '/og-default.png', width: 1200, height: 630, alt: SITE_NAME }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `${SITE_NAME} — Tägliches Journal`,
+    description: SITE_DESCRIPTION,
+    images: ['/og-default.png'],
+  },
+  robots: { index: true, follow: true },
+  alternates: { canonical: SITE_URL },
 }
 
 interface RootLayoutProps {
