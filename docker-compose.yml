@@ -19,7 +19,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: project365
-      POSTGRES_PASSWORD: ${DB_PASSWORD:?Fehler: DB_PASSWORD muss in .env gesetzt sein}
+      POSTGRES_PASSWORD: "${DB_PASSWORD:?DB_PASSWORD muss in .env gesetzt sein}"
       POSTGRES_DB: project365blog
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -32,6 +32,7 @@ services:
 
   # --- Next.js App ---
   web:
+    build: .
     image: ${IMAGE:-ghcr.io/dominiquestampfli/project365blog:latest}
     restart: unless-stopped
     ports:

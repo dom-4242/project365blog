@@ -7,11 +7,9 @@ FROM node:20-alpine AS deps
 RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml ./
-COPY prisma ./prisma/
+COPY .npmrc package.json pnpm-lock.yaml ./
 
 RUN pnpm install --frozen-lockfile
-RUN pnpm db:generate
 
 # --- Stage 2: Build ---
 FROM node:20-alpine AS builder
@@ -20,6 +18,9 @@ WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# Generate Prisma Client (schema.prisma is now present)
+RUN pnpm db:generate
 
 # Dummy DB URL für Build (keine DB zur Build-Zeit benötigt)
 ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
@@ -44,13 +45,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 # Prisma Client (Runtime) + CLI (für migrate deploy beim Start)
-COPY --from=deps /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=deps /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=deps /app/node_modules/prisma ./node_modules/prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 COPY --from=builder /app/prisma ./prisma
-
-# MDX Content (wird zur Runtime gelesen)
-COPY --from=builder /app/content ./content
 
 # Entrypoint: Migrations + Server
 COPY docker-entrypoint.sh ./
