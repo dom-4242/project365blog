@@ -40,7 +40,10 @@ export const metadata: Metadata = {
     images: ['/og-default.png'],
   },
   robots: { index: true, follow: true },
-  alternates: { canonical: SITE_URL },
+  alternates: {
+    canonical: SITE_URL,
+    types: { 'application/rss+xml': `${SITE_URL}/feed.xml` },
+  },
 }
 
 interface RootLayoutProps {
