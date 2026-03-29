@@ -22,7 +22,8 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  const date = getYesterdayDate()
+  const dateParam = request.nextUrl.searchParams.get('date')
+  const date = dateParam ?? getYesterdayDate()
 
   try {
     const result = await syncFitbitDay(date, { accessToken, refreshToken }, prisma)

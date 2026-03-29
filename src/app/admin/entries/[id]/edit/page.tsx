@@ -17,6 +17,7 @@ export default async function EditEntryPage({ params }: EditEntryPageProps) {
     date: entry.date.toISOString().slice(0, 10),
     content: entry.content,
     excerpt: entry.excerpt ?? '',
+    bannerUrl: entry.bannerUrl ?? undefined,
     movement: entry.movement,
     nutrition: entry.nutrition,
     smoking: entry.smoking,
