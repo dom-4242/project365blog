@@ -61,20 +61,20 @@ export function HabitBadges({ habits }: HabitBadgesProps) {
       <HabitBadge
         label={MOVEMENT_LABELS[habits.movement]}
         fulfilled={isMovementFulfilled(habits.movement)}
-        colorClass="bg-movement-100 text-movement-700"
-        dimClass="bg-sand-100 text-sand-500"
+        colorClass="bg-movement-100 dark:bg-movement-600/20 text-movement-700 dark:text-movement-400"
+        dimClass="bg-sand-100 dark:bg-[#3a3531] text-sand-500"
       />
       <HabitBadge
         label={NUTRITION_LABELS[habits.nutrition]}
         fulfilled={isNutritionFulfilled(habits.nutrition)}
-        colorClass="bg-nutrition-100 text-nutrition-700"
-        dimClass="bg-sand-100 text-sand-500"
+        colorClass="bg-nutrition-100 dark:bg-nutrition-600/20 text-nutrition-700 dark:text-nutrition-400"
+        dimClass="bg-sand-100 dark:bg-[#3a3531] text-sand-500"
       />
       <HabitBadge
         label={SMOKING_LABELS[habits.smoking]}
         fulfilled={isSmokingFulfilled(habits.smoking)}
-        colorClass="bg-smoking-100 text-smoking-700"
-        dimClass="bg-sand-100 text-sand-500"
+        colorClass="bg-smoking-100 dark:bg-smoking-600/20 text-smoking-700 dark:text-smoking-400"
+        dimClass="bg-sand-100 dark:bg-[#3a3531] text-sand-500"
       />
     </div>
   )

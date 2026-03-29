@@ -46,7 +46,7 @@ export function HabitStreak({
             </span>
             <span>{pct}%</span>
           </div>
-          <div className="h-1 bg-sand-200 rounded-full overflow-hidden">
+          <div className="h-1 bg-sand-200 dark:bg-[#4a4540] rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full ${barColorClass}`}
               style={{ width: `${pct}%` }}

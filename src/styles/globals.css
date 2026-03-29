@@ -16,14 +16,23 @@
     text-rendering: optimizeLegibility;
   }
 
+  .dark body {
+    background-color: #1a1714;
+    color: #e8e4dc;
+  }
+
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display), Georgia, serif;
   }
 
-  /* Warme Auswahlfarbe passend zum Projekt-Stil */
   ::selection {
     background-color: #fde68a;
     color: #1a1714;
+  }
+
+  .dark ::selection {
+    background-color: #b45309;
+    color: #faf9f7;
   }
 
   :focus-visible {
@@ -31,10 +40,30 @@
     outline-offset: 2px;
     border-radius: 2px;
   }
+
+  /* Chart CSS variables — used by Recharts SVG elements */
+  :root {
+    --chart-grid: #e8e4dc;
+    --chart-axis: #b5aca0;
+    --chart-axis-line: #e8e4dc;
+    --chart-tooltip-bg: #ffffff;
+    --chart-tooltip-border: #e8e4dc;
+    --chart-tooltip-text: #1a1714;
+    --chart-tooltip-muted: #b5aca0;
+  }
+
+  .dark {
+    --chart-grid: #4a4540;
+    --chart-axis: #9a9088;
+    --chart-axis-line: #4a4540;
+    --chart-tooltip-bg: #2d2926;
+    --chart-tooltip-border: #4a4540;
+    --chart-tooltip-text: #faf9f7;
+    --chart-tooltip-muted: #9a9088;
+  }
 }
 
 @layer components {
-  /* Initiale für Artikel-Texte */
   .prose-dropcap > p:first-of-type::first-letter {
     font-family: var(--font-display), Georgia, serif;
     font-size: 3.5em;
@@ -44,5 +73,9 @@
     margin-right: 0.1em;
     margin-top: 0.08em;
     color: #1a1714;
+  }
+
+  .dark .prose-dropcap > p:first-of-type::first-letter {
+    color: #faf9f7;
   }
 }

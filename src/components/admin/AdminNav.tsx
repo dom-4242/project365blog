@@ -25,8 +25,8 @@ export function AdminNav() {
             className={clsx(
               'px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
               isActive
-                ? 'bg-sand-100 text-[#1a1714]'
-                : 'text-sand-500 hover:text-[#1a1714] hover:bg-sand-50'
+                ? 'bg-sand-100 dark:bg-[#3a3531] text-[#1a1714] dark:text-[#faf9f7]'
+                : 'text-sand-500 hover:text-[#1a1714] dark:hover:text-[#faf9f7] hover:bg-sand-50 dark:hover:bg-[#2d2926]'
             )}
           >
             {label}

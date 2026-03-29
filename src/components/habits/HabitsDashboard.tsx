@@ -53,7 +53,7 @@ export async function HabitsDashboard() {
   return (
     <section className="mb-14">
       <div className="flex items-baseline gap-3 mb-5">
-        <h2 className="font-display text-xl font-bold text-[#1a1714]">Die drei Säulen</h2>
+        <h2 className="font-display text-xl font-bold text-[#1a1714] dark:text-[#faf9f7]">Die drei Säulen</h2>
         <span className="text-xs text-sand-400 font-medium tracking-wide uppercase">
           Tag {entries.length} von 365
         </span>
