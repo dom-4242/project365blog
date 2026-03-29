@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { ThemeToggle } from './ThemeToggle'
+import { SearchModal } from '@/components/search/SearchModal'
 
 export function Navigation() {
   return (
@@ -10,6 +11,7 @@ export function Navigation() {
       >
         Journal
       </Link>
+      <SearchModal />
       <ThemeToggle />
     </nav>
   )
