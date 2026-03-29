@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import type { MetadataRoute } from 'next'
 import { getAllEntries } from '@/lib/journal'
 import { SITE_URL } from '@/lib/site'
