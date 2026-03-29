@@ -220,7 +220,7 @@ export function SearchModal() {
               <div className="px-4 py-10 text-center">
                 <p className="text-sm text-sand-500">
                   Keine Einträge gefunden für{' '}
-                  <span className="font-medium text-[#1a1714] dark:text-[#faf9f7]">„{query}"</span>
+                  <span className="font-medium text-[#1a1714] dark:text-[#faf9f7]">&bdquo;{query}&ldquo;</span>
                 </p>
               </div>
             )}
