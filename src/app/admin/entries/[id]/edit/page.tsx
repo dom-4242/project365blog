@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { EntryForm } from '@/components/admin/EntryForm'
