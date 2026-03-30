@@ -1,12 +1,20 @@
+export const dynamic = 'force-dynamic'
+
 import Link from 'next/link'
 import { prisma } from '@/lib/db'
 import { getDayNumber } from '@/lib/journal'
+import { DeleteEntryButton } from '@/components/admin/DeleteEntryButton'
+import { FlashMessage } from '@/components/admin/FlashMessage'
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString('de-CH', { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
-export default async function EntriesPage() {
+interface EntriesPageProps {
+  searchParams: { deleted?: string }
+}
+
+export default async function EntriesPage({ searchParams }: EntriesPageProps) {
   const entries = await prisma.journalEntry.findMany({
     orderBy: { date: 'desc' },
     select: {
@@ -35,6 +43,10 @@ export default async function EntriesPage() {
           Neuer Eintrag
         </Link>
       </div>
+
+      {searchParams.deleted && (
+        <FlashMessage message="Eintrag wurde erfolgreich gelöscht." />
+      )}
 
       {entries.length === 0 ? (
         <div className="text-center py-16 text-sand-400">
@@ -84,6 +96,7 @@ export default async function EntriesPage() {
                   >
                     Bearbeiten
                   </Link>
+                  <DeleteEntryButton id={entry.id} title={entry.title} />
                 </div>
               </div>
             )
