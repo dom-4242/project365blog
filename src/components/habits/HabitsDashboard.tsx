@@ -9,6 +9,7 @@ import {
   getSmokingLevel,
 } from '@/lib/habits'
 import { HabitPillar } from './HabitPillar'
+import { AnimateOnScroll } from '@/components/ui/AnimateOnScroll'
 
 function generateDateRange(from: string, to: string): string[] {
   const dates: string[] = []
@@ -60,27 +61,33 @@ export async function HabitsDashboard() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <HabitPillar
-          pillar="movement"
-          streak={movementStreak}
-          totalFulfilled={movementFulfilled}
-          totalEntries={entries.length}
-          days={movementDays}
-        />
-        <HabitPillar
-          pillar="nutrition"
-          streak={nutritionStreak}
-          totalFulfilled={nutritionFulfilled}
-          totalEntries={entries.length}
-          days={nutritionDays}
-        />
-        <HabitPillar
-          pillar="smoking"
-          streak={smokingStreak}
-          totalFulfilled={smokingFulfilled}
-          totalEntries={entries.length}
-          days={smokingDays}
-        />
+        <AnimateOnScroll delay={0}>
+          <HabitPillar
+            pillar="movement"
+            streak={movementStreak}
+            totalFulfilled={movementFulfilled}
+            totalEntries={entries.length}
+            days={movementDays}
+          />
+        </AnimateOnScroll>
+        <AnimateOnScroll delay={100}>
+          <HabitPillar
+            pillar="nutrition"
+            streak={nutritionStreak}
+            totalFulfilled={nutritionFulfilled}
+            totalEntries={entries.length}
+            days={nutritionDays}
+          />
+        </AnimateOnScroll>
+        <AnimateOnScroll delay={200}>
+          <HabitPillar
+            pillar="smoking"
+            streak={smokingStreak}
+            totalFulfilled={smokingFulfilled}
+            totalEntries={entries.length}
+            days={smokingDays}
+          />
+        </AnimateOnScroll>
       </div>
     </section>
   )

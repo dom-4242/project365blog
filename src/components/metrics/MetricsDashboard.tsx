@@ -5,6 +5,7 @@ import { BodyFatChart } from './BodyFatChart'
 import type { WeightDataPoint } from './WeightChart'
 import type { StepsDataPoint } from './StepsChart'
 import type { BodyFatDataPoint } from './BodyFatChart'
+import { AnimateOnScroll } from '@/components/ui/AnimateOnScroll'
 
 function toDateString(date: Date | string): string {
   if (typeof date === 'string') return date
@@ -57,25 +58,27 @@ export async function MetricsDashboard() {
       {!hasAnyData ? (
         <EmptyState />
       ) : (
-        <div className="space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {hasWeight && (
-              <div className="sm:col-span-2">
-                <WeightChart data={weightData} latestWeight={summary.latestWeight} />
-              </div>
-            )}
-            {hasSteps && (
-              <div className={!hasWeight ? 'sm:col-span-3' : ''}>
-                <StepsChart data={stepsData} avgSteps={summary.avgSteps30d} />
-              </div>
-            )}
-            {!hasWeight && !hasSteps && null}
-          </div>
+        <AnimateOnScroll>
+          <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {hasWeight && (
+                <div className="sm:col-span-2">
+                  <WeightChart data={weightData} latestWeight={summary.latestWeight} />
+                </div>
+              )}
+              {hasSteps && (
+                <div className={!hasWeight ? 'sm:col-span-3' : ''}>
+                  <StepsChart data={stepsData} avgSteps={summary.avgSteps30d} />
+                </div>
+              )}
+              {!hasWeight && !hasSteps && null}
+            </div>
 
-          {hasBodyFat && (
-            <BodyFatChart data={bodyFatData} latestBodyFat={summary.latestBodyFat} />
-          )}
-        </div>
+            {hasBodyFat && (
+              <BodyFatChart data={bodyFatData} latestBodyFat={summary.latestBodyFat} />
+            )}
+          </div>
+        </AnimateOnScroll>
       )}
     </section>
   )

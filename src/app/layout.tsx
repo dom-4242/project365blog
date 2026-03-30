@@ -3,6 +3,7 @@ import { Playfair_Display, Lora } from 'next/font/google'
 import '@/styles/globals.css'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
+import { PageTransition } from '@/components/layout/PageTransition'
 import { AuthSessionProvider } from '@/components/providers/SessionProvider'
 import { ThemeProvider } from '@/components/providers/ThemeProvider'
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from '@/lib/site'
@@ -57,7 +58,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <ThemeProvider>
           <AuthSessionProvider>
             <Header />
-            <main className="min-h-screen">{children}</main>
+            <main className="min-h-screen">
+              <PageTransition>{children}</PageTransition>
+            </main>
             <Footer />
           </AuthSessionProvider>
         </ThemeProvider>

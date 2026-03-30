@@ -2,6 +2,66 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =====================================================
+   Animation keyframes
+   ===================================================== */
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes emoji-pop {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.55) rotate(-8deg); }
+  65%  { transform: scale(0.88) rotate(4deg); }
+  82%  { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+@keyframes burst {
+  0%   { transform: scale(1); opacity: 0.45; }
+  100% { transform: scale(2.8); opacity: 0; }
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fade-in 0.45s ease-out both;
+  }
+
+  .animate-emoji-pop {
+    animation: emoji-pop 0.42s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  }
+
+  .animate-burst {
+    animation: burst 0.55s ease-out forwards;
+  }
+
+  .animate-skeleton {
+    animation: skeleton-pulse 1.6s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fade-in,
+    .animate-emoji-pop,
+    .animate-burst,
+    .animate-skeleton {
+      animation: none;
+    }
+  }
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
