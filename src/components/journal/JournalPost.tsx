@@ -4,6 +4,7 @@ import type { JournalEntry } from '@/lib/journal'
 import { getDayNumber } from '@/lib/journal'
 import { HabitBadges } from './HabitBadges'
 import { ReactionBar } from '@/components/reactions/ReactionBar'
+import { getAuthSession } from '@/lib/auth'
 
 interface JournalPostProps {
   entry: JournalEntry
@@ -18,7 +19,9 @@ function formatDate(dateStr: string): string {
   })
 }
 
-export function JournalPost({ entry }: JournalPostProps) {
+export async function JournalPost({ entry }: JournalPostProps) {
+  const session = await getAuthSession()
+  const isAdmin = !!session?.user?.isAdmin
   const dayNumber = getDayNumber(entry.date)
 
   return (
@@ -45,6 +48,17 @@ export function JournalPost({ entry }: JournalPostProps) {
           <time className="text-sm text-sand-400" dateTime={entry.date}>
             {formatDate(entry.date)}
           </time>
+          {isAdmin && (
+            <>
+              <span className="text-sand-300 dark:text-[#4a4540] select-none" aria-hidden="true">·</span>
+              <Link
+                href={`/admin/entries/${entry.id}/edit`}
+                className="text-xs font-medium text-nutrition-600 dark:text-nutrition-500 hover:text-nutrition-700 dark:hover:text-nutrition-400 transition-colors"
+              >
+                Bearbeiten ✎
+              </Link>
+            </>
+          )}
         </div>
 
         <h1 className="font-display text-3xl sm:text-4xl font-bold leading-tight text-[#1a1714] dark:text-[#faf9f7] mb-5">
