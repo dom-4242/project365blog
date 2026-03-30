@@ -1,0 +1,52 @@
+{
+  "Navigation": {
+    "journal": "Journal",
+    "admin": "Admin"
+  },
+  "HomePage": {
+    "tagline": "A public project",
+    "headline": "365 Days.\nPublic. Honest.",
+    "description": "Daily entries about movement, nutrition and the journey to quit smoking — with real numbers, good days and bad.",
+    "entriesHeading": "Entries"
+  },
+  "HabitsDashboard": {
+    "heading": "The Three Pillars",
+    "dayCount": "Day {count} of 365"
+  },
+  "MetricsDashboard": {
+    "heading": "Metrics",
+    "noData": "No metrics yet",
+    "noDataHint": "Data is automatically imported daily via Fitbit."
+  },
+  "JournalFeed": {
+    "empty": "No entries yet",
+    "emptyHint": "The first entries are coming soon."
+  },
+  "JournalPost": {
+    "day": "Day {number}",
+    "back": "← Back to Journal",
+    "edit": "Edit ✎"
+  },
+  "Footer": {
+    "tagline": "365 Days · Public · Honest",
+    "rss": "RSS"
+  },
+  "HabitBadges": {
+    "movement": {
+      "minimal": "Low activity",
+      "steps_only": "10k+ steps",
+      "steps_trained": "10k+ & workout"
+    },
+    "nutrition": {
+      "none": "No healthy meal",
+      "one": "1 healthy meal",
+      "two": "2 healthy meals",
+      "three": "3 healthy meals"
+    },
+    "smoking": {
+      "smoked": "Smoked",
+      "replacement": "NRT used",
+      "none": "Smoke-free"
+    }
+  }
+}

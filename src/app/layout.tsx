@@ -1,8 +1,6 @@
 import type { Metadata } from 'next'
 import { Playfair_Display, Lora } from 'next/font/google'
 import '@/styles/globals.css'
-import { Header } from '@/components/layout/Header'
-import { Footer } from '@/components/layout/Footer'
 import { AuthSessionProvider } from '@/components/providers/SessionProvider'
 import { ThemeProvider } from '@/components/providers/ThemeProvider'
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from '@/lib/site'
@@ -56,9 +54,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <body className="bg-sand-50 dark:bg-[#1a1714] text-[#2d2926] dark:text-[#e8e4dc] font-body antialiased">
         <ThemeProvider>
           <AuthSessionProvider>
-            <Header />
-            <main className="min-h-screen">{children}</main>
-            <Footer />
+            {children}
           </AuthSessionProvider>
         </ThemeProvider>
       </body>
