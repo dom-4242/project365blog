@@ -1,0 +1,52 @@
+{
+  "Navigation": {
+    "journal": "Journal",
+    "admin": "Admin"
+  },
+  "HomePage": {
+    "tagline": "Ein öffentliches Projekt",
+    "headline": "365 Tage.\nÖffentlich. Ehrlich.",
+    "description": "Tägliche Einträge über Bewegung, Ernährung und den Weg zum Rauchstopp — mit echten Zahlen, guten und schlechten Tagen.",
+    "entriesHeading": "Einträge"
+  },
+  "HabitsDashboard": {
+    "heading": "Die drei Säulen",
+    "dayCount": "Tag {count} von 365"
+  },
+  "MetricsDashboard": {
+    "heading": "Metriken",
+    "noData": "Noch keine Metriken",
+    "noDataHint": "Daten werden täglich via Fitbit automatisch importiert."
+  },
+  "JournalFeed": {
+    "empty": "Noch keine Einträge",
+    "emptyHint": "Die ersten Einträge folgen bald."
+  },
+  "JournalPost": {
+    "day": "Tag {number}",
+    "back": "← Zurück zum Journal",
+    "edit": "Bearbeiten ✎"
+  },
+  "Footer": {
+    "tagline": "365 Tage · Öffentlich · Ehrlich",
+    "rss": "RSS"
+  },
+  "HabitBadges": {
+    "movement": {
+      "minimal": "Wenig Bewegung",
+      "steps_only": "10k+ Schritte",
+      "steps_trained": "10k+ & Training"
+    },
+    "nutrition": {
+      "none": "Keine ges. Mahlzeit",
+      "one": "1 ges. Mahlzeit",
+      "two": "2 ges. Mahlzeiten",
+      "three": "3 ges. Mahlzeiten"
+    },
+    "smoking": {
+      "smoked": "Geraucht",
+      "replacement": "Nikotinersatz",
+      "none": "Rauchfrei"
+    }
+  }
+}
