@@ -20,6 +20,7 @@ export interface HabitsFrontmatter {
 }
 
 export interface JournalEntry {
+  id: string
   slug: string
   title: string
   date: string // YYYY-MM-DD
@@ -61,6 +62,7 @@ function toDateString(date: Date): string {
 
 function toMeta(entry: PrismaJournalEntry): JournalEntryMeta {
   return {
+    id: entry.id,
     slug: entry.slug,
     title: entry.title,
     date: toDateString(entry.date),
