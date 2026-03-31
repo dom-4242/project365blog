@@ -6,9 +6,10 @@ import { translateEntry } from '@/app/admin/entries/actions'
 interface TranslateButtonProps {
   id: string
   isTranslated: boolean
+  isStale?: boolean
 }
 
-export function TranslateButton({ id, isTranslated }: TranslateButtonProps) {
+export function TranslateButton({ id, isTranslated, isStale = false }: TranslateButtonProps) {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
@@ -20,18 +21,27 @@ export function TranslateButton({ id, isTranslated }: TranslateButtonProps) {
     })
   }
 
+  const isOutdated = isTranslated && isStale
+
   return (
     <div className="relative">
       <button
         onClick={handleClick}
         disabled={isPending}
-        title={isTranslated ? 'Übersetzung aktualisieren' : 'Ins Englische übersetzen'}
+        title={
+          isPending ? 'Übersetze…'
+          : isOutdated ? 'Übersetzung ist veraltet — neu übersetzen'
+          : isTranslated ? 'Übersetzung aktualisieren'
+          : 'Ins Englische übersetzen'
+        }
         className={`text-xs px-3 py-1.5 border rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
           error
             ? 'border-red-300 dark:border-red-700 text-red-600 dark:text-red-400'
-            : isTranslated
-              ? 'border-movement-300 dark:border-movement-700 text-movement-700 dark:text-movement-400 hover:bg-movement-50 dark:hover:bg-movement-900/20'
-              : 'border-sand-200 dark:border-[#4a4540] text-sand-600 dark:text-sand-400 hover:border-sand-300 dark:hover:border-[#5a5550] hover:text-[#1a1714] dark:hover:text-[#faf9f7]'
+            : isOutdated
+              ? 'border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20'
+              : isTranslated
+                ? 'border-movement-300 dark:border-movement-700 text-movement-700 dark:text-movement-400 hover:bg-movement-50 dark:hover:bg-movement-900/20'
+                : 'border-sand-200 dark:border-[#4a4540] text-sand-600 dark:text-sand-400 hover:border-sand-300 dark:hover:border-[#5a5550] hover:text-[#1a1714] dark:hover:text-[#faf9f7]'
         }`}
       >
         {isPending ? (
@@ -48,15 +58,22 @@ export function TranslateButton({ id, isTranslated }: TranslateButtonProps) {
             </svg>
             Fehler
           </span>
-        ) : (
+        ) : isOutdated ? (
           <span className="flex items-center gap-1.5">
-            {isTranslated && (
-              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M20 6L9 17l-5-5" />
-              </svg>
-            )}
-            {isTranslated ? 'EN ✓' : 'EN übersetzen'}
+            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+            EN veraltet
           </span>
+        ) : isTranslated ? (
+          <span className="flex items-center gap-1.5">
+            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M20 6L9 17l-5-5" />
+            </svg>
+            EN ✓
+          </span>
+        ) : (
+          <span>EN übersetzen</span>
         )}
       </button>
 

@@ -64,7 +64,7 @@ export async function createEntry(data: EntryFormData): Promise<ActionResult> {
 
     revalidatePath('/')
     revalidatePath('/admin/entries')
-    revalidatePath(`/journal/${data.slug}`)
+    revalidatePath(`/de/journal/${data.slug}`)
 
     return { slug: data.slug }
   } catch (e) {
@@ -99,7 +99,9 @@ export async function updateEntry(id: string, data: EntryFormData): Promise<Acti
 
     revalidatePath('/')
     revalidatePath('/admin/entries')
-    revalidatePath(`/journal/${entry.slug}`)
+    revalidatePath('/admin/translations')
+    revalidatePath(`/de/journal/${entry.slug}`)
+    revalidatePath(`/en/journal/${entry.slug}`)
 
     return { slug: entry.slug }
   } catch (e) {
