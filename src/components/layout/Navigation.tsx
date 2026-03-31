@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { ThemeToggle } from './ThemeToggle'
+import { LocaleSwitcher } from './LocaleSwitcher'
 import { SearchModal } from '@/components/search/SearchModal'
 import { getAuthSession } from '@/lib/auth'
 
@@ -18,6 +19,7 @@ export async function Navigation() {
         {t('journal')}
       </Link>
       <SearchModal />
+      <LocaleSwitcher />
       {isAdmin && (
         <Link
           href="/admin"

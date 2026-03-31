@@ -5,6 +5,10 @@
     "ariaLabel": "Hauptnavigation",
     "adminTitle": "Admin-Bereich"
   },
+  "LocaleSwitcher": {
+    "label": "EN",
+    "ariaLabel": "Switch to English"
+  },
   "HomePage": {
     "tagline": "Ein öffentliches Projekt",
     "headline": "365 Tage.<br/>Öffentlich. Ehrlich.",
