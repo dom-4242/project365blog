@@ -24,10 +24,11 @@ export default async function EntriesPage({ searchParams }: EntriesPageProps) {
       title: true,
       date: true,
       published: true,
+      updatedAt: true,
       movement: true,
       nutrition: true,
       smoking: true,
-      translation: { select: { id: true } },
+      translation: { select: { updatedAt: true } },
     },
   })
 
@@ -62,6 +63,7 @@ export default async function EntriesPage({ searchParams }: EntriesPageProps) {
           {entries.map((entry) => {
             const dateStr = entry.date.toISOString().slice(0, 10)
             const isTranslated = !!entry.translation
+            const isStale = isTranslated && entry.translation!.updatedAt < entry.updatedAt
             return (
               <div
                 key={entry.id}
@@ -86,7 +88,7 @@ export default async function EntriesPage({ searchParams }: EntriesPageProps) {
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
-                  <TranslateButton id={entry.id} isTranslated={isTranslated} />
+                  <TranslateButton id={entry.id} isTranslated={isTranslated} isStale={isStale} />
                   <Link
                     href={`/journal/${entry.slug}`}
                     target="_blank"

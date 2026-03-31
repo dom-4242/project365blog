@@ -7,6 +7,7 @@ import { clsx } from 'clsx'
 const navItems = [
   { href: '/admin', label: 'Dashboard', exact: true },
   { href: '/admin/entries', label: 'Einträge', exact: false },
+  { href: '/admin/translations', label: 'Übersetzungen', exact: false },
   { href: '/admin/metrics', label: 'Metriken', exact: false },
   { href: '/admin/fitbit', label: 'Fitbit', exact: false },
 ]
