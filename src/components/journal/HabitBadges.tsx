@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl'
 import type { HabitsFrontmatter } from '@/lib/journal'
 import { isMovementFulfilled, isNutritionFulfilled, isSmokingFulfilled } from '@/lib/habits'
 
@@ -36,42 +37,25 @@ function HabitBadge({ label, fulfilled, level = 'full', colorClass, dimClass }: 
   )
 }
 
-const MOVEMENT_LABELS: Record<HabitsFrontmatter['movement'], string> = {
-  minimal: 'Minimal',
-  steps_only: '10k+',
-  steps_trained: '10k+ & Training',
-}
-
-const NUTRITION_LABELS: Record<HabitsFrontmatter['nutrition'], string> = {
-  none: '0 Mahlzeiten',
-  one: '1 Mahlzeit',
-  two: '2 Mahlzeiten',
-  three: '3 Mahlzeiten',
-}
-
-const SMOKING_LABELS: Record<HabitsFrontmatter['smoking'], string> = {
-  smoked: 'Geraucht',
-  replacement: 'Ersatz',
-  none: 'Rauchfrei',
-}
-
 export function HabitBadges({ habits }: HabitBadgesProps) {
+  const t = useTranslations('HabitBadges')
+
   return (
     <div className="flex flex-wrap gap-1.5">
       <HabitBadge
-        label={MOVEMENT_LABELS[habits.movement]}
+        label={t(`movement.${habits.movement}` as 'movement.minimal')}
         fulfilled={isMovementFulfilled(habits.movement)}
         colorClass="bg-movement-100 dark:bg-movement-600/20 text-movement-700 dark:text-movement-400"
         dimClass="bg-sand-100 dark:bg-[#3a3531] text-sand-500"
       />
       <HabitBadge
-        label={NUTRITION_LABELS[habits.nutrition]}
+        label={t(`nutrition.${habits.nutrition}` as 'nutrition.none')}
         fulfilled={isNutritionFulfilled(habits.nutrition)}
         colorClass="bg-nutrition-100 dark:bg-nutrition-600/20 text-nutrition-700 dark:text-nutrition-400"
         dimClass="bg-sand-100 dark:bg-[#3a3531] text-sand-500"
       />
       <HabitBadge
-        label={SMOKING_LABELS[habits.smoking]}
+        label={t(`smoking.${habits.smoking}` as 'smoking.smoked')}
         fulfilled={isSmokingFulfilled(habits.smoking)}
         colorClass="bg-smoking-100 dark:bg-smoking-600/20 text-smoking-700 dark:text-smoking-400"
         dimClass="bg-sand-100 dark:bg-[#3a3531] text-sand-500"

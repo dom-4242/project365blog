@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { getTranslations, getLocale } from 'next-intl/server'
 import type { JournalEntry } from '@/lib/journal'
 import { getDayNumber } from '@/lib/journal'
 import { HabitBadges } from './HabitBadges'
@@ -10,19 +11,23 @@ interface JournalPostProps {
   entry: JournalEntry
 }
 
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('de-CH', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-}
-
 export async function JournalPost({ entry }: JournalPostProps) {
-  const session = await getAuthSession()
+  const [session, t, locale] = await Promise.all([
+    getAuthSession(),
+    getTranslations('JournalPost'),
+    getLocale(),
+  ])
   const isAdmin = !!session?.user?.isAdmin
   const dayNumber = getDayNumber(entry.date)
+
+  function formatDate(dateStr: string): string {
+    return new Date(dateStr).toLocaleDateString(locale, {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  }
 
   return (
     <article className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
@@ -42,7 +47,7 @@ export async function JournalPost({ entry }: JournalPostProps) {
       <header className="mb-10">
         <div className="flex items-center gap-3 mb-4">
           <span className="font-display font-bold text-xs tracking-widest uppercase text-sand-400 border border-sand-200 dark:border-[#4a4540] rounded px-2 py-0.5">
-            Tag {dayNumber}
+            {t('day', { number: dayNumber })}
           </span>
           <span className="text-sand-300 dark:text-[#4a4540] select-none" aria-hidden="true">·</span>
           <time className="text-sm text-sand-400" dateTime={entry.date}>
@@ -55,7 +60,7 @@ export async function JournalPost({ entry }: JournalPostProps) {
                 href={`/admin/entries/${entry.id}/edit`}
                 className="text-xs font-medium text-nutrition-600 dark:text-nutrition-500 hover:text-nutrition-700 dark:hover:text-nutrition-400 transition-colors"
               >
-                Bearbeiten ✎
+                {t('edit')}
               </Link>
             </>
           )}
@@ -97,7 +102,7 @@ export async function JournalPost({ entry }: JournalPostProps) {
           href="/"
           className="text-sm font-medium text-nutrition-700 dark:text-nutrition-400 hover:text-nutrition-600 transition-colors"
         >
-          ← Zurück zum Journal
+          {t('back')}
         </Link>
       </footer>
     </article>

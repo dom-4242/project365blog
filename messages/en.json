@@ -1,17 +1,60 @@
 {
   "Navigation": {
     "journal": "Journal",
-    "admin": "Admin"
+    "admin": "Admin",
+    "ariaLabel": "Main navigation",
+    "adminTitle": "Admin area"
   },
   "HomePage": {
     "tagline": "A public project",
-    "headline": "365 Days.\nPublic. Honest.",
+    "headline": "365 Days.<br/>Public. Honest.",
     "description": "Daily entries about movement, nutrition and the journey to quit smoking — with real numbers, good days and bad.",
     "entriesHeading": "Entries"
   },
   "HabitsDashboard": {
     "heading": "The Three Pillars",
     "dayCount": "Day {count} of 365"
+  },
+  "HabitPillar": {
+    "movement": {
+      "title": "Movement",
+      "streakLabel": "active days"
+    },
+    "nutrition": {
+      "title": "Nutrition",
+      "streakLabel": "healthy days"
+    },
+    "smoking": {
+      "title": "No smoking",
+      "streakLabel": "smoke-free days"
+    }
+  },
+  "HabitStreak": {
+    "record": "= personal record 🏆",
+    "longestRecord": "Record: {days} days",
+    "outOf": "{fulfilled} of {total} {unit}",
+    "day": "day",
+    "days": "days"
+  },
+  "HabitHeatmap": {
+    "noEntry": "No entry",
+    "movement": {
+      "minimal": "Low activity",
+      "steps": "10,000+ steps",
+      "stepsAndTraining": "10,000+ steps & workout"
+    },
+    "nutrition": {
+      "none": "No healthy meal",
+      "one": "1 healthy meal",
+      "two": "2 healthy meals",
+      "three": "3 healthy meals"
+    },
+    "smoking": {
+      "smoked": "Smoked",
+      "replacement": "NRT used",
+      "smokeFree": "Smoke-free"
+    },
+    "dayCount": "{count, plural, one {# day} other {# days}} since project start"
   },
   "MetricsDashboard": {
     "heading": "Metrics",
@@ -29,7 +72,8 @@
   },
   "Footer": {
     "tagline": "365 Days · Public · Honest",
-    "rss": "RSS"
+    "rss": "RSS",
+    "rssTitle": "Subscribe to RSS feed"
   },
   "HabitBadges": {
     "movement": {

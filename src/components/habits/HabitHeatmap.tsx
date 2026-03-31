@@ -1,3 +1,5 @@
+import { useTranslations, useLocale } from 'next-intl'
+
 type Pillar = 'movement' | 'nutrition' | 'smoking'
 
 // All class names must be static strings for Tailwind to include them
@@ -24,10 +26,11 @@ const COLOR_BY_LEVEL: Record<Pillar, string[]> = {
   ],
 }
 
-const LABEL_BY_LEVEL: Record<Pillar, string[]> = {
-  movement:  ['Kein Eintrag', 'Minimal aktiv', '10.000+ Schritte', '10.000+ Schritte & Training'],
-  nutrition: ['Kein Eintrag', 'Keine gesunde Mahlzeit', '1 gesunde Mahlzeit', '2 gesunde Mahlzeiten', '3 gesunde Mahlzeiten'],
-  smoking:   ['Kein Eintrag', 'Geraucht', 'Nikotinersatz', 'Rauchfrei'],
+// Maps level (0-based, i.e. level+1) to translation key within HabitHeatmap namespace
+const LEVEL_KEYS: Record<Pillar, string[]> = {
+  movement:  ['movement.minimal', 'movement.steps', 'movement.stepsAndTraining'],
+  nutrition: ['nutrition.none', 'nutrition.one', 'nutrition.two', 'nutrition.three'],
+  smoking:   ['smoking.smoked', 'smoking.replacement', 'smoking.smokeFree'],
 }
 
 interface HabitHeatmapProps {
@@ -35,36 +38,43 @@ interface HabitHeatmapProps {
   pillar: Pillar
 }
 
-function formatDateShort(dateStr: string): string {
-  return new Date(dateStr + 'T00:00:00').toLocaleDateString('de-CH', {
-    day: 'numeric',
-    month: 'short',
-  })
-}
-
 export function HabitHeatmap({ days, pillar }: HabitHeatmapProps) {
+  const t = useTranslations('HabitHeatmap')
+  const locale = useLocale()
   const colors = COLOR_BY_LEVEL[pillar]
-  const labels = LABEL_BY_LEVEL[pillar]
+  const levelKeys = LEVEL_KEYS[pillar]
 
   const visible = days.slice(-90)
+
+  function formatDateShort(dateStr: string): string {
+    return new Date(dateStr + 'T00:00:00').toLocaleDateString(locale, {
+      day: 'numeric',
+      month: 'short',
+    })
+  }
+
+  function getLabel(level: number): string {
+    if (level === -1) return t('noEntry')
+    const key = levelKeys[level]
+    return key ? t(key as Parameters<typeof t>[0]) : t('noEntry')
+  }
 
   return (
     <div className="space-y-1.5">
       <div className="flex flex-wrap gap-0.5">
         {visible.map(({ date, level }) => {
           const colorClass = colors[level + 1] ?? 'bg-sand-100 dark:bg-[#2d2926]'
-          const labelText = labels[level + 1] ?? 'Kein Eintrag'
           return (
             <div
               key={date}
-              title={`${formatDateShort(date)} — ${labelText}`}
+              title={`${formatDateShort(date)} — ${getLabel(level)}`}
               className={`w-3 h-3 rounded-sm ${colorClass}`}
             />
           )
         })}
       </div>
       <p className="text-xs text-sand-400">
-        {visible.length} {visible.length === 1 ? 'Tag' : 'Tage'} seit Projektstart
+        {t('dayCount', { count: visible.length })}
       </p>
     </div>
   )
