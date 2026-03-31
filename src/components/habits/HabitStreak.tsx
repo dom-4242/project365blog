@@ -1,3 +1,5 @@
+import { useTranslations } from 'next-intl'
+
 interface HabitStreakProps {
   current: number
   longest: number
@@ -17,6 +19,7 @@ export function HabitStreak({
   textColorClass,
   barColorClass,
 }: HabitStreakProps) {
+  const t = useTranslations('HabitStreak')
   const pct = totalEntries > 0 ? Math.round((totalFulfilled / totalEntries) * 100) : 0
   const isRecord = current > 0 && current === longest && longest > 1
 
@@ -31,9 +34,9 @@ export function HabitStreak({
         </div>
         <p className="text-xs text-sand-400 mt-1 h-4">
           {isRecord
-            ? '= persönlicher Rekord 🏆'
+            ? t('record')
             : longest > current && longest > 0
-              ? `Rekord: ${longest} Tage`
+              ? t('longestRecord', { days: longest })
               : ''}
         </p>
       </div>
@@ -42,7 +45,11 @@ export function HabitStreak({
         <div className="space-y-1">
           <div className="flex justify-between text-xs text-sand-400">
             <span>
-              {totalFulfilled} von {totalEntries} {totalEntries === 1 ? 'Tag' : 'Tagen'}
+              {t('outOf', {
+                fulfilled: totalFulfilled,
+                total: totalEntries,
+                unit: totalEntries === 1 ? t('day') : t('days'),
+              })}
             </span>
             <span>{pct}%</span>
           </div>

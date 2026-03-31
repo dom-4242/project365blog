@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server'
 import { getAllEntries, PROJECT_START_DATE } from '@/lib/journal'
 import {
   calculateStreak,
@@ -22,7 +23,7 @@ function generateDateRange(from: string, to: string): string[] {
 }
 
 export async function HabitsDashboard() {
-  const entries = await getAllEntries() // newest first
+  const [entries, t] = await Promise.all([getAllEntries(), getTranslations('HabitsDashboard')])
   const entryMap = new Map(entries.map((e) => [e.date, e]))
 
   const today = new Date().toISOString().slice(0, 10)
@@ -53,9 +54,9 @@ export async function HabitsDashboard() {
   return (
     <section className="mb-14">
       <div className="flex items-baseline gap-3 mb-5">
-        <h2 className="font-display text-xl font-bold text-[#1a1714] dark:text-[#faf9f7]">Die drei Säulen</h2>
+        <h2 className="font-display text-xl font-bold text-[#1a1714] dark:text-[#faf9f7]">{t('heading')}</h2>
         <span className="text-xs text-sand-400 font-medium tracking-wide uppercase">
-          Tag {entries.length} von 365
+          {t('dayCount', { count: entries.length })}
         </span>
       </div>
 

@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl'
 import type { StreakResult } from '@/lib/habits'
 import { HabitStreak } from './HabitStreak'
 import { HabitHeatmap } from './HabitHeatmap'
@@ -5,9 +6,7 @@ import { HabitHeatmap } from './HabitHeatmap'
 type Pillar = 'movement' | 'nutrition' | 'smoking'
 
 interface PillarConfig {
-  title: string
   emoji: string
-  streakLabel: string
   bgClass: string
   borderClass: string
   textColorClass: string
@@ -16,27 +15,21 @@ interface PillarConfig {
 
 const PILLAR_CONFIG: Record<Pillar, PillarConfig> = {
   movement: {
-    title: 'Bewegung',
     emoji: '🏃',
-    streakLabel: 'Tage aktiv',
     bgClass: 'bg-movement-100 dark:bg-movement-600/10',
     borderClass: 'border-movement-200 dark:border-movement-600/20',
     textColorClass: 'text-movement-700 dark:text-movement-400',
     barColorClass: 'bg-movement-500 dark:bg-movement-400',
   },
   nutrition: {
-    title: 'Ernährung',
     emoji: '🥗',
-    streakLabel: 'Tage gesund',
     bgClass: 'bg-nutrition-100 dark:bg-nutrition-600/10',
     borderClass: 'border-nutrition-200 dark:border-nutrition-600/20',
     textColorClass: 'text-nutrition-700 dark:text-nutrition-400',
     barColorClass: 'bg-nutrition-500 dark:bg-nutrition-400',
   },
   smoking: {
-    title: 'Rauchstopp',
     emoji: '🚭',
-    streakLabel: 'Tage rauchfrei',
     bgClass: 'bg-smoking-100 dark:bg-smoking-600/10',
     borderClass: 'border-smoking-200 dark:border-smoking-600/20',
     textColorClass: 'text-smoking-700 dark:text-smoking-400',
@@ -53,7 +46,10 @@ interface HabitPillarProps {
 }
 
 export function HabitPillar({ pillar, streak, totalFulfilled, totalEntries, days }: HabitPillarProps) {
+  const t = useTranslations('HabitPillar')
   const cfg = PILLAR_CONFIG[pillar]
+  const title = t(`${pillar}.title` as `movement.title`)
+  const streakLabel = t(`${pillar}.streakLabel` as `movement.streakLabel`)
 
   return (
     <div className={`rounded-2xl border ${cfg.borderClass} ${cfg.bgClass} overflow-hidden`}>
@@ -62,7 +58,7 @@ export function HabitPillar({ pillar, streak, totalFulfilled, totalEntries, days
         <div className="flex items-center gap-2">
           <span className="text-xl" aria-hidden="true">{cfg.emoji}</span>
           <h3 className={`font-display font-semibold text-base ${cfg.textColorClass}`}>
-            {cfg.title}
+            {title}
           </h3>
         </div>
 
@@ -71,7 +67,7 @@ export function HabitPillar({ pillar, streak, totalFulfilled, totalEntries, days
           longest={streak.longest}
           totalFulfilled={totalFulfilled}
           totalEntries={totalEntries}
-          label={cfg.streakLabel}
+          label={streakLabel}
           textColorClass={cfg.textColorClass}
           barColorClass={cfg.barColorClass}
         />

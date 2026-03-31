@@ -1,17 +1,60 @@
 {
   "Navigation": {
     "journal": "Journal",
-    "admin": "Admin"
+    "admin": "Admin",
+    "ariaLabel": "Hauptnavigation",
+    "adminTitle": "Admin-Bereich"
   },
   "HomePage": {
     "tagline": "Ein öffentliches Projekt",
-    "headline": "365 Tage.\nÖffentlich. Ehrlich.",
+    "headline": "365 Tage.<br/>Öffentlich. Ehrlich.",
     "description": "Tägliche Einträge über Bewegung, Ernährung und den Weg zum Rauchstopp — mit echten Zahlen, guten und schlechten Tagen.",
     "entriesHeading": "Einträge"
   },
   "HabitsDashboard": {
     "heading": "Die drei Säulen",
     "dayCount": "Tag {count} von 365"
+  },
+  "HabitPillar": {
+    "movement": {
+      "title": "Bewegung",
+      "streakLabel": "Tage aktiv"
+    },
+    "nutrition": {
+      "title": "Ernährung",
+      "streakLabel": "Tage gesund"
+    },
+    "smoking": {
+      "title": "Rauchstopp",
+      "streakLabel": "Tage rauchfrei"
+    }
+  },
+  "HabitStreak": {
+    "record": "= persönlicher Rekord 🏆",
+    "longestRecord": "Rekord: {days} Tage",
+    "outOf": "{fulfilled} von {total} {unit}",
+    "day": "Tag",
+    "days": "Tagen"
+  },
+  "HabitHeatmap": {
+    "noEntry": "Kein Eintrag",
+    "movement": {
+      "minimal": "Minimal aktiv",
+      "steps": "10.000+ Schritte",
+      "stepsAndTraining": "10.000+ Schritte & Training"
+    },
+    "nutrition": {
+      "none": "Keine gesunde Mahlzeit",
+      "one": "1 gesunde Mahlzeit",
+      "two": "2 gesunde Mahlzeiten",
+      "three": "3 gesunde Mahlzeiten"
+    },
+    "smoking": {
+      "smoked": "Geraucht",
+      "replacement": "Nikotinersatz",
+      "smokeFree": "Rauchfrei"
+    },
+    "dayCount": "{count, plural, one {# Tag} other {# Tage}} seit Projektstart"
   },
   "MetricsDashboard": {
     "heading": "Metriken",
@@ -29,7 +72,8 @@
   },
   "Footer": {
     "tagline": "365 Tage · Öffentlich · Ehrlich",
-    "rss": "RSS"
+    "rss": "RSS",
+    "rssTitle": "RSS-Feed abonnieren"
   },
   "HabitBadges": {
     "movement": {
