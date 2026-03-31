@@ -72,7 +72,8 @@
   "JournalPost": {
     "day": "Tag {number}",
     "back": "← Zurück zum Journal",
-    "edit": "Bearbeiten ✎"
+    "edit": "Bearbeiten ✎",
+    "aiTranslated": "KI-übersetzt"
   },
   "Footer": {
     "tagline": "365 Tage · Öffentlich · Ehrlich",

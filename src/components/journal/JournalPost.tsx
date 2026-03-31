@@ -9,9 +9,10 @@ import { getAuthSession } from '@/lib/auth'
 
 interface JournalPostProps {
   entry: JournalEntry
+  isTranslated?: boolean
 }
 
-export async function JournalPost({ entry }: JournalPostProps) {
+export async function JournalPost({ entry, isTranslated = false }: JournalPostProps) {
   const [session, t, locale] = await Promise.all([
     getAuthSession(),
     getTranslations('JournalPost'),
@@ -97,13 +98,21 @@ export async function JournalPost({ entry }: JournalPostProps) {
         <ReactionBar slug={entry.slug} />
       </div>
 
-      <footer className="mt-8 pt-6 border-t border-sand-100 dark:border-[#3a3531]">
+      <footer className="mt-8 pt-6 border-t border-sand-100 dark:border-[#3a3531] flex items-center justify-between gap-4">
         <Link
           href="/"
           className="text-sm font-medium text-nutrition-700 dark:text-nutrition-400 hover:text-nutrition-600 transition-colors"
         >
           {t('back')}
         </Link>
+        {isTranslated && (
+          <span className="text-xs text-sand-400 flex items-center gap-1">
+            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+            </svg>
+            {t('aiTranslated')}
+          </span>
+        )}
       </footer>
     </article>
   )

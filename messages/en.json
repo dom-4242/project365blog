@@ -72,7 +72,8 @@
   "JournalPost": {
     "day": "Day {number}",
     "back": "← Back to Journal",
-    "edit": "Edit ✎"
+    "edit": "Edit ✎",
+    "aiTranslated": "AI-translated"
   },
   "Footer": {
     "tagline": "365 Days · Public · Honest",

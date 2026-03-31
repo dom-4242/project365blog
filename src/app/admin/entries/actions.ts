@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
+import { translateEntryToEnglish } from '@/lib/translate'
 import { MovementLevel, NutritionLevel, SmokingStatus } from '@prisma/client'
 
 export interface EntryFormData {
@@ -119,5 +120,51 @@ export async function deleteEntry(id: string): Promise<ActionResult> {
   } catch (e) {
     console.error('deleteEntry:', e)
     return { error: 'Fehler beim Löschen' }
+  }
+}
+
+export async function translateEntry(id: string): Promise<ActionResult> {
+  const session = await requireAdmin()
+  if (!session) return { error: 'Nicht autorisiert' }
+
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return { error: 'ANTHROPIC_API_KEY nicht konfiguriert' }
+  }
+
+  const entry = await prisma.journalEntry.findUnique({ where: { id } })
+  if (!entry) return { error: 'Eintrag nicht gefunden' }
+
+  try {
+    const translated = await translateEntryToEnglish({
+      title: entry.title,
+      content: entry.content,
+      excerpt: entry.excerpt,
+    })
+
+    await prisma.translation.upsert({
+      where: { entryId: id },
+      create: {
+        entryId: id,
+        locale: 'en',
+        title: translated.title,
+        content: translated.content,
+        excerpt: translated.excerpt,
+      },
+      update: {
+        title: translated.title,
+        content: translated.content,
+        excerpt: translated.excerpt,
+        updatedAt: new Date(),
+      },
+    })
+
+    revalidatePath('/admin/entries')
+    revalidatePath(`/en/journal/${entry.slug}`)
+
+    return {}
+  } catch (e) {
+    console.error('translateEntry:', e)
+    const message = e instanceof Error ? e.message : 'Übersetzung fehlgeschlagen'
+    return { error: message }
   }
 }

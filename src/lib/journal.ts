@@ -97,11 +97,26 @@ export async function getAllEntries(): Promise<JournalEntryMeta[]> {
 }
 
 export async function getEntryBySlug(slug: string): Promise<JournalEntry | null> {
-  const entry = await prisma.journalEntry.findUnique({
-    where: { slug },
-  })
+  const entry = await prisma.journalEntry.findUnique({ where: { slug } })
   if (!entry || !entry.published) return null
   return toFull(entry)
+}
+
+export async function getEntryBySlugWithTranslation(
+  slug: string,
+): Promise<{ entry: JournalEntry; translation: { title: string; content: string; excerpt: string } | null } | null> {
+  const row = await prisma.journalEntry.findUnique({
+    where: { slug },
+    include: { translation: true },
+  })
+  if (!row || !row.published) return null
+
+  const entry = toFull(row)
+  const translation = row.translation
+    ? { title: row.translation.title, content: row.translation.content, excerpt: row.translation.excerpt ?? '' }
+    : null
+
+  return { entry, translation }
 }
 
 // =============================================

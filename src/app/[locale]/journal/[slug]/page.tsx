@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import { getEntryBySlug } from '@/lib/journal'
+import { getEntryBySlugWithTranslation } from '@/lib/journal'
 import { JournalPost } from '@/components/journal/JournalPost'
 import { SITE_NAME, SITE_URL, stripHtml } from '@/lib/site'
 
@@ -14,32 +14,34 @@ interface JournalPostPageProps {
 }
 
 export async function generateMetadata({ params }: JournalPostPageProps): Promise<Metadata> {
-  const entry = await getEntryBySlug(params.slug)
-  if (!entry) return {}
+  const result = await getEntryBySlugWithTranslation(params.slug)
+  if (!result) return {}
 
-  const description = entry.excerpt
-    ? entry.excerpt
-    : stripHtml(entry.content).slice(0, 160).trimEnd() + '…'
+  const { entry, translation } = result
+  const useTranslation = params.locale === 'en' && translation !== null
+  const title = useTranslation ? translation!.title : entry.title
+  const excerptSource = useTranslation ? (translation!.excerpt || translation!.title) : (entry.excerpt ?? '')
+  const description = excerptSource || stripHtml(entry.content).slice(0, 160).trimEnd() + '…'
 
   const url = `${SITE_URL}/${params.locale}/journal/${entry.slug}`
   const ogImage = entry.banner ? entry.banner : '/og-default.png'
 
   return {
-    title: entry.title,
+    title,
     description,
     alternates: { canonical: url },
     openGraph: {
       type: 'article',
       url,
       siteName: SITE_NAME,
-      title: entry.title,
+      title,
       description,
-      images: [{ url: ogImage, width: 1600, height: 700, alt: entry.title }],
+      images: [{ url: ogImage, width: 1600, height: 700, alt: title }],
       publishedTime: entry.date,
     },
     twitter: {
       card: 'summary_large_image',
-      title: entry.title,
+      title,
       description,
       images: [ogImage],
     },
@@ -47,18 +49,25 @@ export async function generateMetadata({ params }: JournalPostPageProps): Promis
 }
 
 export default async function JournalPostPage({ params }: JournalPostPageProps) {
-  const entry = await getEntryBySlug(params.slug)
-  if (!entry) notFound()
+  const result = await getEntryBySlugWithTranslation(params.slug)
+  if (!result) notFound()
+
+  const { entry, translation } = result
+  const useTranslation = params.locale === 'en' && translation !== null
+
+  const displayEntry = useTranslation
+    ? { ...entry, title: translation!.title, content: translation!.content, excerpt: translation!.excerpt || entry.excerpt }
+    : entry
 
   const url = `${SITE_URL}/${params.locale}/journal/${entry.slug}`
-  const description = entry.excerpt
-    ? entry.excerpt
+  const description = displayEntry.excerpt
+    ? displayEntry.excerpt
     : stripHtml(entry.content).slice(0, 160).trimEnd() + '…'
 
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
-    headline: entry.title,
+    headline: displayEntry.title,
     description,
     datePublished: entry.date,
     url,
@@ -82,7 +91,7 @@ export default async function JournalPostPage({ params }: JournalPostPageProps) 
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <JournalPost entry={entry} />
+      <JournalPost entry={displayEntry} isTranslated={useTranslation} />
     </>
   )
 }
