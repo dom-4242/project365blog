@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { prisma } from '@/lib/db'
 import { getDayNumber } from '@/lib/journal'
 import { DeleteEntryButton } from '@/components/admin/DeleteEntryButton'
+import { TranslateButton } from '@/components/admin/TranslateButton'
 import { FlashMessage } from '@/components/admin/FlashMessage'
 
 function formatDate(date: Date): string {
@@ -26,6 +27,7 @@ export default async function EntriesPage({ searchParams }: EntriesPageProps) {
       movement: true,
       nutrition: true,
       smoking: true,
+      translation: { select: { id: true } },
     },
   })
 
@@ -59,6 +61,7 @@ export default async function EntriesPage({ searchParams }: EntriesPageProps) {
         <div className="space-y-2">
           {entries.map((entry) => {
             const dateStr = entry.date.toISOString().slice(0, 10)
+            const isTranslated = !!entry.translation
             return (
               <div
                 key={entry.id}
@@ -83,6 +86,7 @@ export default async function EntriesPage({ searchParams }: EntriesPageProps) {
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
+                  <TranslateButton id={entry.id} isTranslated={isTranslated} />
                   <Link
                     href={`/journal/${entry.slug}`}
                     target="_blank"
