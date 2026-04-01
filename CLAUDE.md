@@ -46,38 +46,65 @@ project365blog/
 │   └── en.json                        ← Englische UI-Übersetzungen
 ├── src/
 │   ├── app/
+│   │   ├── layout.tsx                 ← Root Layout (nicht-locale)
+│   │   ├── page.tsx                   ← Root Redirect
 │   │   ├── [locale]/                  ← Locale-Routing (next-intl)
-│   │   │   ├── layout.tsx             ← Root Layout mit Navigation
+│   │   │   ├── layout.tsx             ← Locale Layout mit Navigation
 │   │   │   ├── page.tsx               ← Startseite: Habits + Metriken + Feed
-│   │   │   ├── journal/
-│   │   │   │   └── [slug]/
-│   │   │   │       └── page.tsx       ← Einzelner Journal-Eintrag
-│   │   │   └── admin/
-│   │   │       ├── page.tsx           ← Admin-Dashboard
-│   │   │       ├── entries/
-│   │   │       │   ├── new/page.tsx   ← Neuer Eintrag (Tiptap Editor)
-│   │   │       │   └── [id]/edit/     ← Eintrag bearbeiten
-│   │   │       ├── metrics/           ← Manuelle Metriken-Erfassung
-│   │   │       └── translations/      ← Übersetzungs-Verwaltung
-│   │   └── api/
-│   │       ├── reactions/route.ts     ← Emoji-Reactions API (GET/POST)
-│   │       ├── fitbit/                ← Fitbit OAuth & Sync
-│   │       ├── health-import/         ← Apple Health Webhook
-│   │       └── translate/             ← AI-Übersetzung via Claude API
+│   │   │   ├── loading.tsx            ← Loading State
+│   │   │   └── journal/
+│   │   │       └── [slug]/
+│   │   │           └── page.tsx       ← Einzelner Journal-Eintrag
+│   │   ├── admin/                     ← Admin (KEIN Locale-Routing)
+│   │   │   ├── layout.tsx             ← Admin Layout
+│   │   │   ├── page.tsx               ← Admin-Dashboard
+│   │   │   ├── login/page.tsx         ← Login-Seite
+│   │   │   ├── entries/
+│   │   │   │   ├── page.tsx           ← Eintragsliste
+│   │   │   │   ├── actions.ts         ← Server Actions
+│   │   │   │   ├── new/page.tsx       ← Neuer Eintrag (Tiptap Editor)
+│   │   │   │   └── [id]/edit/         ← Eintrag bearbeiten
+│   │   │   ├── metrics/               ← Manuelle Metriken-Erfassung
+│   │   │   ├── fitbit/                ← Fitbit OAuth Admin-UI
+│   │   │   └── translations/          ← Übersetzungs-Verwaltung
+│   │   ├── api/
+│   │   │   ├── reactions/route.ts     ← Emoji-Reactions API (GET/POST)
+│   │   │   ├── auth/[...nextauth]/    ← NextAuth Route Handler
+│   │   │   ├── admin/upload/route.ts  ← Banner-Bild Upload
+│   │   │   ├── cron/fitbit-sync/      ← Fitbit Cron-Sync
+│   │   │   ├── health-import/         ← Apple Health Webhook
+│   │   │   └── search/route.ts        ← Suchfunktion API
+│   │   ├── feed.xml/route.ts          ← RSS-Feed
+│   │   ├── robots.ts                  ← robots.txt
+│   │   └── sitemap.ts                 ← Sitemap
 │   ├── components/
 │   │   ├── ui/                        ← Basis-UI-Komponenten
+│   │   ├── layout/                    ← Header, Footer, Navigation, LocaleSwitcher, ThemeToggle
 │   │   ├── habits/                    ← Drei-Säulen-Dashboard
 │   │   ├── metrics/                   ← Charts (Gewicht, Schritte)
 │   │   ├── journal/                   ← Feed & Posts
 │   │   ├── reactions/                 ← Emoji-Reactions
+│   │   ├── search/                    ← SearchModal
+│   │   ├── providers/                 ← SessionProvider, ThemeProvider
 │   │   └── admin/                     ← Admin-spezifische Komponenten
+│   ├── i18n/                          ← next-intl Konfiguration
+│   │   ├── navigation.ts             ← Locale-aware Navigation
+│   │   ├── request.ts                ← Server-side i18n
+│   │   └── routing.ts                ← Routing Config
 │   ├── lib/
-│   │   ├── prisma.ts                  ← Prisma Client Singleton
+│   │   ├── db.ts                      ← Prisma Client Singleton
+│   │   ├── auth.ts                    ← NextAuth Konfiguration
 │   │   ├── journal.ts                 ← Journal-Einträge (DB Queries)
 │   │   ├── habits.ts                  ← Habits-Logik & Streak-Berechnung
 │   │   ├── metrics.ts                 ← Metriken-Aggregation
 │   │   ├── fitbit.ts                  ← Fitbit API Client
-│   │   └── translate.ts              ← Übersetzungs-Logik (Claude API)
+│   │   ├── apple-health.ts            ← Apple Health Import
+│   │   ├── translate.ts               ← Übersetzungs-Logik (Claude API)
+│   │   ├── site.ts                    ← Site-Metadaten
+│   │   └── utils.ts                   ← Allgemeine Hilfsfunktionen
+│   ├── styles/globals.css             ← Globale Styles
+│   ├── types/next-auth.d.ts           ← NextAuth Type-Erweiterungen
+│   ├── test/setup.ts                  ← Test-Setup (Vitest)
 │   └── middleware.ts                  ← Auth-Schutz für /admin/*
 ├── public/images/journal/             ← Banner-Bilder (Upload)
 ├── Dockerfile                         ← Multi-stage Build (Alpine)
@@ -102,8 +129,8 @@ Kein MDX, kein Git-Commit für Content — alles läuft über das Web-CMS.
 **Säule 1 — Bewegung & Training** (MovementLevel):
 
 - `MINIMAL` → Minimale Schritte, kein Training
-- `ACTIVE` → Über 10'000 Schritte
-- `TRAINING` → Über 10'000 Schritte + Training
+- `STEPS_ONLY` → Über 10'000 Schritte
+- `STEPS_TRAINED` → Über 10'000 Schritte + Training
 
 **Säule 2 — Ernährung** (NutritionLevel):
 
@@ -137,27 +164,22 @@ Kein MDX, kein Git-Commit für Content — alles läuft über das Web-CMS.
 
 model JournalEntry {
   id             String          @id @default(cuid())
-  date           DateTime        @unique @db.Date
+  date           DateTime        @db.Date
   slug           String          @unique     // Default: Datum (2026-03-26)
   title          String
   content        String          @db.Text    // HTML von Tiptap Editor
   excerpt        String?
-  bannerImage    String?         // Pfad zum Banner-Bild
+  bannerUrl      String?         // Pfad zum Banner-Bild
   tags           String[]        @default([])
-  published      Boolean         @default(false)
+  published      Boolean         @default(true)
 
   // Die drei Säulen — Pflichtfelder
-  habitMovement  MovementLevel
-  habitNutrition NutritionLevel
-  habitSmoking   SmokingStatus
-
-  // Übersetzung
-  translatedTitle   String?
-  translatedContent String?      @db.Text
-  translatedAt      DateTime?
-  translationHash   String?      // Hash des Originals, um Änderungen zu erkennen
+  movement       MovementLevel
+  nutrition      NutritionLevel
+  smoking        SmokingStatus
 
   reactions      Reaction[]
+  translation    Translation?    // 1:1 Relation zum Übersetzungs-Model
 
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
@@ -168,8 +190,8 @@ model JournalEntry {
 
 enum MovementLevel {
   MINIMAL
-  ACTIVE
-  TRAINING
+  STEPS_ONLY
+  STEPS_TRAINED
 }
 
 enum NutritionLevel {
@@ -240,14 +262,32 @@ enum ReactionType {
   MUSCLE           // 💪  Motivierend
   STAR             // ⭐  Inspirierend
 }
+
+model Translation {
+  id              String        @id @default(cuid())
+  locale          String        // z.B. "en"
+  title           String
+  content         String        @db.Text
+  contentHash     String        // Hash des DE-Originals, um Änderungen zu erkennen
+
+  journalEntry    JournalEntry  @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  entryId         String        @unique   // 1:1 Relation
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([entryId])
+}
 ```
 
 ### Datenbank-Regeln
 
 - **JournalEntry:** Einzige Content-Quelle. Enthält Text (HTML von Tiptap), Habits und Metadaten.
-  Habits sind direkt im Entry eingebettet (kein separates DailyHabits-Model).
+  Habits sind direkt im Entry eingebettet (movement, nutrition, smoking — nicht als separates Model).
+- **Translation:** Separates Model mit 1:1 Relation zu JournalEntry. Enthält übersetzte Inhalte
+  und einen contentHash um Änderungen am Original zu erkennen.
 - **DailyMetrics:** Automatisch via API-Sync ODER manuell im Admin-Bereich. Alles optional.
-- **Reactions:** Verknüpft via Foreign Key mit JournalEntry. IP nur als SHA-256 Hash.
+- **Reactions:** Verknüpft via Foreign Key mit JournalEntry (onDelete: Cascade). IP nur als SHA-256 Hash.
 - Bei Metriken-Konflikten: Geräte-Daten (FITBIT/APPLE_HEALTH) > MANUAL.
 
 ### Umgebungsvariablen
@@ -255,6 +295,7 @@ enum ReactionType {
 ```env
 # .env.example
 DATABASE_URL="postgresql://project365:password@localhost:5432/project365blog"
+DB_PASSWORD="..."                    # Docker Compose Variable
 NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_SECRET="..."
 GOOGLE_CLIENT_ID="..."
@@ -264,6 +305,12 @@ ADMIN_EMAIL="deine@email.com"
 # Fitbit API
 FITBIT_CLIENT_ID="..."
 FITBIT_CLIENT_SECRET="..."
+FITBIT_ACCESS_TOKEN="..."            # Gespeichertes OAuth Access Token
+FITBIT_REFRESH_TOKEN="..."           # Gespeichertes OAuth Refresh Token
+
+# Cron & Webhooks
+CRON_SECRET="..."                    # Schützt /api/cron/* Routen
+HEALTH_IMPORT_API_KEY="..."          # Schützt Apple Health Webhook
 
 # Claude API (für Übersetzungen)
 ANTHROPIC_API_KEY="..."
@@ -435,9 +482,10 @@ via "Health Auto Export" App → REST-Webhook.
 
 ### ADR-006: Übersetzungs-Strategie (Phase 3)
 
-AI-Übersetzung via Claude API. Einträge werden auf Deutsch erfasst, Übersetzungen
-in der DB gecacht (translatedTitle, translatedContent, translationHash auf JournalEntry).
-Admin-UI für Übersetzungs-Verwaltung und Kosten-Tracking. next-intl für UI-Strings.
+AI-Übersetzung via Claude API. Einträge werden auf Deutsch erfasst. Übersetzungen werden in einem
+separaten Translation-Model gespeichert (1:1 Relation zu JournalEntry) mit contentHash zur
+Erkennung von Änderungen am Original. Admin-UI für Übersetzungs-Verwaltung und Kosten-Tracking.
+next-intl für UI-Strings (messages/de.json, messages/en.json).
 
 ### ADR-007: Tiptap als Rich-Text Editor
 
@@ -489,6 +537,10 @@ pnpm db:studio              # Prisma Studio öffnen (DB GUI)
 # Einträge werden unter /admin/entries/new im Browser erstellt.
 # Kein CLI-Befehl nötig für neue Einträge.
 
+# Legacy (noch in package.json, evtl. entfernen)
+# pnpm db:sync              # Frontmatter-Habits → DB (aus MDX-Ära)
+# pnpm new-entry            # MDX-Eintrag erstellen (aus MDX-Ära)
+
 # Docker
 docker compose up -d        # Container starten
 docker compose down         # Container stoppen
@@ -504,3 +556,10 @@ docker compose build        # Image neu bauen
 - **Reverse Proxy:** Nginx Proxy Manager
 - **Repository:** github.com/dom-4242/project365blog
 - **Projektpfad lokal:** /Users/dominiquestampfli/Documents/13_Dev/6_Project365Blog
+
+## Bekannte Aufräum-Aufgaben
+
+- Duplikat-Dateien löschen (vermutlich Copy-Paste-Versehen):
+  `HabitBadges 2.tsx`, `JournalFeed 2.tsx`, `JournalPost 2.tsx`,
+  `LocaleSwitcher 2.tsx`, `navigation 2.ts`
+- Legacy-Scripts aus package.json entfernen (`db:sync`, `new-entry`)
