@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { useLocale, useTranslations } from 'next-intl'
 import type { SearchResult } from '@/app/api/search/route'
 
 // =============================================
@@ -24,23 +25,21 @@ function Highlight({ text, query }: { text: string; query: string }) {
 }
 
 // =============================================
-// Format date
-// =============================================
-
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('de-CH', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
-}
-
-// =============================================
 // SearchModal
 // =============================================
 
 export function SearchModal() {
   const router = useRouter()
+  const locale = useLocale()
+  const t = useTranslations('SearchModal')
+
+  function formatDate(dateStr: string): string {
+    return new Date(dateStr).toLocaleDateString(locale, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    })
+  }
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
@@ -123,7 +122,7 @@ export function SearchModal() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        aria-label="Suchen"
+        aria-label={t('ariaLabel')}
         className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sand-500 hover:text-[#1a1714] dark:hover:text-[#faf9f7] hover:bg-sand-100 dark:hover:bg-[#2d2926] transition-colors"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
@@ -141,7 +140,7 @@ export function SearchModal() {
           className="fixed inset-0 z-50 flex items-start justify-center pt-[12vh] px-4"
           role="dialog"
           aria-modal="true"
-          aria-label="Suche"
+          aria-label={t('dialogAriaLabel')}
         >
           {/* Backdrop */}
           <div
@@ -164,7 +163,7 @@ export function SearchModal() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={onKeyDown}
-                placeholder="Einträge durchsuchen…"
+                placeholder={t('placeholder')}
                 className="flex-1 py-4 text-sm text-[#1a1714] dark:text-[#faf9f7] bg-transparent focus:outline-none placeholder:text-sand-400"
               />
               {loading && (
@@ -201,7 +200,7 @@ export function SearchModal() {
                           <Highlight text={result.title} query={query} />
                         </span>
                         <span className="text-xs text-sand-400 shrink-0">
-                          Tag {result.dayNumber} · {formatDate(result.date)}
+                          {t('day')} {result.dayNumber} · {formatDate(result.date)}
                         </span>
                       </div>
                       {result.excerpt && (
@@ -219,7 +218,7 @@ export function SearchModal() {
             {showEmpty && (
               <div className="px-4 py-10 text-center">
                 <p className="text-sm text-sand-500">
-                  Keine Einträge gefunden für{' '}
+                  {t('noResults')}{' '}
                   <span className="font-medium text-[#1a1714] dark:text-[#faf9f7]">&bdquo;{query}&ldquo;</span>
                 </p>
               </div>
@@ -228,7 +227,7 @@ export function SearchModal() {
             {/* Idle hint */}
             {!loading && query.trim().length < 2 && (
               <div className="px-4 py-6 text-center">
-                <p className="text-xs text-sand-400">Mindestens 2 Zeichen eingeben</p>
+                <p className="text-xs text-sand-400">{t('minChars')}</p>
               </div>
             )}
 

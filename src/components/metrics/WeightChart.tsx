@@ -1,5 +1,6 @@
 'use client'
 
+import { useLocale, useTranslations } from 'next-intl'
 import {
   LineChart,
   Line,
@@ -21,25 +22,26 @@ interface TooltipProps {
   label?: string
 }
 
-function formatDateShort(dateStr: string): string {
-  return new Date(dateStr + 'T00:00:00').toLocaleDateString('de-CH', {
+function formatDateShort(dateStr: string, locale: string): string {
+  return new Date(dateStr + 'T00:00:00').toLocaleDateString(locale, {
     day: 'numeric',
     month: 'short',
   })
 }
 
-function formatDateLong(dateStr: string): string {
-  return new Date(dateStr + 'T00:00:00').toLocaleDateString('de-CH', {
+function formatDateLong(dateStr: string, locale: string): string {
+  return new Date(dateStr + 'T00:00:00').toLocaleDateString(locale, {
     day: 'numeric',
     month: 'long',
   })
 }
 
 function WeightTooltip({ active, payload, label }: TooltipProps) {
+  const locale = useLocale()
   if (!active || !payload?.length) return null
   return (
     <div className="bg-white dark:bg-[#2d2926] border border-sand-200 dark:border-[#4a4540] rounded-lg px-3 py-2 text-sm shadow-sm">
-      <p className="text-sand-400 text-xs mb-0.5">{formatDateLong(label ?? '')}</p>
+      <p className="text-sand-400 text-xs mb-0.5">{formatDateLong(label ?? '', locale)}</p>
       <p className="font-semibold text-[#1a1714] dark:text-[#faf9f7]">{payload[0].value.toFixed(1)} kg</p>
     </div>
   )
@@ -51,6 +53,8 @@ interface WeightChartProps {
 }
 
 export function WeightChart({ data, latestWeight }: WeightChartProps) {
+  const locale = useLocale()
+  const t = useTranslations('Charts')
   const weights = data.map((d) => d.weight)
   const min = Math.min(...weights)
   const max = Math.max(...weights)
@@ -60,7 +64,7 @@ export function WeightChart({ data, latestWeight }: WeightChartProps) {
   return (
     <div className="bg-white dark:bg-[#2d2926] rounded-2xl border border-sand-200 dark:border-[#4a4540] p-5 h-full">
       <div className="flex items-baseline justify-between mb-4">
-        <h3 className="font-display font-semibold text-sm text-[#1a1714] dark:text-[#faf9f7]">Gewicht</h3>
+        <h3 className="font-display font-semibold text-sm text-[#1a1714] dark:text-[#faf9f7]">{t('weight')}</h3>
         {latestWeight !== undefined && (
           <span className="text-2xl font-bold font-display text-nutrition-700 dark:text-nutrition-400">
             {latestWeight.toFixed(1)}{' '}
@@ -74,7 +78,7 @@ export function WeightChart({ data, latestWeight }: WeightChartProps) {
           <XAxis
             dataKey="date"
             tick={{ fontSize: 10, fill: 'var(--chart-axis)' }}
-            tickFormatter={formatDateShort}
+            tickFormatter={(v) => formatDateShort(v, locale)}
             tickLine={false}
             axisLine={{ stroke: 'var(--chart-axis-line)' }}
             interval="preserveStartEnd"

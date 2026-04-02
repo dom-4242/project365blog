@@ -7,6 +7,7 @@ import { clsx } from 'clsx'
 import { TiptapEditor } from './TiptapEditor'
 import { HabitsPicker } from './HabitsPicker'
 import { BannerUpload } from './BannerUpload'
+import { EntryPreview } from './EntryPreview'
 import { createEntry, updateEntry, type EntryFormData } from '@/app/admin/entries/actions'
 
 // =============================================
@@ -53,6 +54,7 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
   const [tags, setTags] = useState<string>(initial?.tags?.join(', ') ?? '')
   const [published, setPublished] = useState(initial?.published ?? true)
   const [error, setError] = useState<string | null>(null)
+  const [isPreview, setIsPreview] = useState(false)
 
   // Auto-generate slug from date when creating
   function handleDateChange(value: string) {
@@ -94,6 +96,47 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
   }
 
   return (
+    <div className="space-y-4">
+      {/* Editor / Vorschau Toggle */}
+      <div className="flex items-center gap-1 bg-sand-100 dark:bg-[#2d2926] rounded-lg p-1 w-fit">
+        <button
+          type="button"
+          onClick={() => setIsPreview(false)}
+          className={clsx(
+            'px-3 py-1 rounded-md text-sm font-medium transition-colors',
+            !isPreview
+              ? 'bg-white dark:bg-[#3a3531] text-[#1a1714] dark:text-[#faf9f7] shadow-sm'
+              : 'text-sand-500 hover:text-[#1a1714] dark:hover:text-[#faf9f7]'
+          )}
+        >
+          Bearbeiten
+        </button>
+        <button
+          type="button"
+          onClick={() => setIsPreview(true)}
+          className={clsx(
+            'px-3 py-1 rounded-md text-sm font-medium transition-colors',
+            isPreview
+              ? 'bg-white dark:bg-[#3a3531] text-[#1a1714] dark:text-[#faf9f7] shadow-sm'
+              : 'text-sand-500 hover:text-[#1a1714] dark:hover:text-[#faf9f7]'
+          )}
+        >
+          Vorschau
+        </button>
+      </div>
+
+      {isPreview ? (
+        <EntryPreview
+          title={title}
+          date={date}
+          content={content}
+          movement={movement}
+          nutrition={nutrition}
+          smoking={smoking}
+          tags={tags}
+          bannerUrl={bannerUrl}
+        />
+      ) : (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
         <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-lg text-sm text-red-700 dark:text-red-400">
@@ -242,5 +285,7 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
         </button>
       </div>
     </form>
+      )}
+    </div>
   )
 }

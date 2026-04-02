@@ -80,6 +80,25 @@
     "rss": "RSS",
     "rssTitle": "RSS-Feed abonnieren"
   },
+  "Charts": {
+    "steps": "Schritte",
+    "avgPerDay": "Ø/Tag",
+    "goalLabel": "10k Ziel",
+    "weight": "Gewicht",
+    "bodyFat": "Körperfett"
+  },
+  "JournalCard": {
+    "day": "Tag {number}",
+    "readMore": "Weiterlesen →"
+  },
+  "SearchModal": {
+    "ariaLabel": "Suchen",
+    "dialogAriaLabel": "Suche",
+    "placeholder": "Einträge durchsuchen…",
+    "noResults": "Keine Einträge gefunden für",
+    "minChars": "Mindestens 2 Zeichen eingeben",
+    "day": "Tag"
+  },
   "HabitBadges": {
     "movement": {
       "minimal": "Wenig Bewegung",
