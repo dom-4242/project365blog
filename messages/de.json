@@ -17,7 +17,8 @@
   },
   "HabitsDashboard": {
     "heading": "Die drei Säulen",
-    "dayCount": "Tag {count} von 365"
+    "dayCount": "Tag {count} von 365",
+    "yearOverview": "Jahresübersicht"
   },
   "HabitPillar": {
     "movement": {
