@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
-import { getAllEntries } from '@/lib/journal'
+import { getAllEntriesForLocale } from '@/lib/journal'
 import { JournalFeed } from '@/components/journal/JournalFeed'
 import { HabitsDashboard } from '@/components/habits/HabitsDashboard'
 import { MetricsDashboard } from '@/components/metrics/MetricsDashboard'
@@ -57,7 +57,7 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
 }
 
 export default async function HomePage({ params }: HomePageProps) {
-  const [entries, t] = await Promise.all([getAllEntries(), getTranslations('HomePage')])
+  const [entries, t] = await Promise.all([getAllEntriesForLocale(params.locale), getTranslations('HomePage')])
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">

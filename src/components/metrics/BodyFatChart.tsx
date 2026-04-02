@@ -1,5 +1,6 @@
 'use client'
 
+import { useLocale, useTranslations } from 'next-intl'
 import {
   LineChart,
   Line,
@@ -21,25 +22,26 @@ interface TooltipProps {
   label?: string
 }
 
-function formatDateShort(dateStr: string): string {
-  return new Date(dateStr + 'T00:00:00').toLocaleDateString('de-CH', {
+function formatDateShort(dateStr: string, locale: string): string {
+  return new Date(dateStr + 'T00:00:00').toLocaleDateString(locale, {
     day: 'numeric',
     month: 'short',
   })
 }
 
-function formatDateLong(dateStr: string): string {
-  return new Date(dateStr + 'T00:00:00').toLocaleDateString('de-CH', {
+function formatDateLong(dateStr: string, locale: string): string {
+  return new Date(dateStr + 'T00:00:00').toLocaleDateString(locale, {
     day: 'numeric',
     month: 'long',
   })
 }
 
 function BodyFatTooltip({ active, payload, label }: TooltipProps) {
+  const locale = useLocale()
   if (!active || !payload?.length) return null
   return (
     <div className="bg-white dark:bg-[#2d2926] border border-sand-200 dark:border-[#4a4540] rounded-lg px-3 py-2 text-sm shadow-sm">
-      <p className="text-sand-400 text-xs mb-0.5">{formatDateLong(label ?? '')}</p>
+      <p className="text-sand-400 text-xs mb-0.5">{formatDateLong(label ?? '', locale)}</p>
       <p className="font-semibold text-[#1a1714] dark:text-[#faf9f7]">{payload[0].value.toFixed(1)} %</p>
     </div>
   )
@@ -51,6 +53,8 @@ interface BodyFatChartProps {
 }
 
 export function BodyFatChart({ data, latestBodyFat }: BodyFatChartProps) {
+  const locale = useLocale()
+  const t = useTranslations('Charts')
   const values = data.map((d) => d.bodyFat)
   const min = Math.min(...values)
   const max = Math.max(...values)
@@ -60,7 +64,7 @@ export function BodyFatChart({ data, latestBodyFat }: BodyFatChartProps) {
   return (
     <div className="bg-white dark:bg-[#2d2926] rounded-2xl border border-sand-200 dark:border-[#4a4540] p-5">
       <div className="flex items-baseline justify-between mb-4">
-        <h3 className="font-display font-semibold text-sm text-[#1a1714] dark:text-[#faf9f7]">Körperfett</h3>
+        <h3 className="font-display font-semibold text-sm text-[#1a1714] dark:text-[#faf9f7]">{t('bodyFat')}</h3>
         {latestBodyFat !== undefined && (
           <span className="text-2xl font-bold font-display text-[#6b6560] dark:text-[#9a9088]">
             {latestBodyFat.toFixed(1)}{' '}
@@ -74,7 +78,7 @@ export function BodyFatChart({ data, latestBodyFat }: BodyFatChartProps) {
           <XAxis
             dataKey="date"
             tick={{ fontSize: 10, fill: 'var(--chart-axis)' }}
-            tickFormatter={formatDateShort}
+            tickFormatter={(v) => formatDateShort(v, locale)}
             tickLine={false}
             axisLine={{ stroke: 'var(--chart-axis-line)' }}
             interval="preserveStartEnd"

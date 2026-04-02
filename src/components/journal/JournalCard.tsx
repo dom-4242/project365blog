@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { getLocale, getTranslations } from 'next-intl/server'
 import type { JournalEntryMeta } from '@/lib/journal'
 import { getDayNumber } from '@/lib/journal'
 import { HabitBadges } from './HabitBadges'
@@ -8,17 +9,22 @@ interface JournalCardProps {
   entry: JournalEntryMeta
 }
 
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('de-CH', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-}
+export async function JournalCard({ entry }: JournalCardProps) {
+  const [locale, t] = await Promise.all([
+    getLocale(),
+    getTranslations('JournalCard'),
+  ])
 
-export function JournalCard({ entry }: JournalCardProps) {
   const excerpt = entry.excerpt ?? ''
   const dayNumber = getDayNumber(entry.date)
+
+  function formatDate(dateStr: string): string {
+    return new Date(dateStr).toLocaleDateString(locale, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  }
 
   return (
     <article className="group bg-white dark:bg-[#2d2926] rounded-2xl border border-sand-200 dark:border-[#4a4540] shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden">
@@ -48,7 +54,7 @@ export function JournalCard({ entry }: JournalCardProps) {
         <div className="px-6 py-5 space-y-3">
           <div className="flex items-center gap-2.5">
             <span className="font-display font-bold text-xs tracking-widest uppercase text-sand-400 border border-sand-200 dark:border-[#4a4540] rounded px-1.5 py-0.5">
-              Tag {dayNumber}
+              {t('day', { number: dayNumber })}
             </span>
             <span className="text-sand-300 dark:text-[#4a4540] select-none" aria-hidden="true">·</span>
             <time className="text-xs text-sand-400" dateTime={entry.date}>
@@ -69,7 +75,7 @@ export function JournalCard({ entry }: JournalCardProps) {
           <div className="flex items-center justify-between gap-4 pt-1 border-t border-sand-100 dark:border-[#3a3531]">
             <HabitBadges habits={entry.habits} />
             <span className="text-xs font-semibold text-nutrition-600 dark:text-nutrition-400 group-hover:text-nutrition-700 shrink-0 transition-colors">
-              Weiterlesen →
+              {t('readMore')}
             </span>
           </div>
         </div>

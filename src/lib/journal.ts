@@ -96,6 +96,25 @@ export async function getAllEntries(): Promise<JournalEntryMeta[]> {
   return entries.map(toMeta)
 }
 
+export async function getAllEntriesForLocale(locale: string): Promise<JournalEntryMeta[]> {
+  if (locale === 'de') return getAllEntries()
+
+  const entries = await prisma.journalEntry.findMany({
+    where: { published: true },
+    orderBy: { date: 'desc' },
+    include: { translation: true },
+  })
+
+  return entries.map((entry) => {
+    const meta = toMeta(entry)
+    if (entry.translation) {
+      meta.title = entry.translation.title
+      if (entry.translation.excerpt) meta.excerpt = entry.translation.excerpt
+    }
+    return meta
+  })
+}
+
 export async function getEntryBySlug(slug: string): Promise<JournalEntry | null> {
   const entry = await prisma.journalEntry.findUnique({ where: { slug } })
   if (!entry || !entry.published) return null
