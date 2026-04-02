@@ -10,6 +10,7 @@ import {
   getSmokingLevel,
 } from '@/lib/habits'
 import { HabitPillar } from './HabitPillar'
+import { HabitYearGrid } from './HabitYearGrid'
 
 function generateDateRange(from: string, to: string): string[] {
   const dates: string[] = []
@@ -83,6 +84,12 @@ export async function HabitsDashboard() {
           days={smokingDays}
         />
       </div>
+
+      <HabitYearGrid
+        movementDays={movementDays}
+        nutritionDays={nutritionDays}
+        smokingDays={smokingDays}
+      />
     </section>
   )
 }

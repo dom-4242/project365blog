@@ -1,7 +1,6 @@
 import { useTranslations } from 'next-intl'
 import type { StreakResult } from '@/lib/habits'
 import { HabitStreak } from './HabitStreak'
-import { HabitHeatmap } from './HabitHeatmap'
 
 type Pillar = 'movement' | 'nutrition' | 'smoking'
 
@@ -71,8 +70,6 @@ export function HabitPillar({ pillar, streak, totalFulfilled, totalEntries, days
           textColorClass={cfg.textColorClass}
           barColorClass={cfg.barColorClass}
         />
-
-        <HabitHeatmap days={days} pillar={pillar} />
       </div>
     </div>
   )

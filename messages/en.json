@@ -17,7 +17,8 @@
   },
   "HabitsDashboard": {
     "heading": "The Three Pillars",
-    "dayCount": "Day {count} of 365"
+    "dayCount": "Day {count} of 365",
+    "yearOverview": "Year overview"
   },
   "HabitPillar": {
     "movement": {
