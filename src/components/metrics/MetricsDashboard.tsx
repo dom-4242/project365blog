@@ -1,6 +1,7 @@
 import { useTranslations } from 'next-intl'
 import { getTranslations } from 'next-intl/server'
 import { getWeightHistory, getStepsHistory, getBodyFatHistory, getLatestMetrics } from '@/lib/metrics'
+import { getProfile } from '@/lib/profile'
 import { WeightChart } from './WeightChart'
 import { StepsChart } from './StepsChart'
 import { BodyFatChart } from './BodyFatChart'
@@ -26,11 +27,12 @@ function EmptyState() {
 export async function MetricsDashboard() {
   const t = await getTranslations('MetricsDashboard')
 
-  const [weightRaw, stepsRaw, bodyFatRaw, summary] = await Promise.all([
+  const [weightRaw, stepsRaw, bodyFatRaw, summary, profile] = await Promise.all([
     getWeightHistory(90),
     getStepsHistory(30),
     getBodyFatHistory(90),
     getLatestMetrics(),
+    getProfile(),
   ])
 
   const weightData: WeightDataPoint[] = weightRaw.map((d) => ({
@@ -69,7 +71,7 @@ export async function MetricsDashboard() {
             )}
             {hasSteps && (
               <div className={!hasWeight ? 'sm:col-span-3' : ''}>
-                <StepsChart data={stepsData} avgSteps={summary.avgSteps30d} />
+                <StepsChart data={stepsData} avgSteps={summary.avgSteps30d} stepsGoal={profile.targetSteps ?? 10000} />
               </div>
             )}
             {!hasWeight && !hasSteps && null}

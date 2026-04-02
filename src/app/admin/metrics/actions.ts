@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
+import { getProfile, calculateBmi } from '@/lib/profile'
 
 export interface MetricsFormData {
   date: string
@@ -42,10 +43,21 @@ export async function upsertMetrics(data: MetricsFormData): Promise<MetricsActio
 
   const date = new Date(data.date)
 
+  const weight = toFloat(data.weight)
+  let bmi = toFloat(data.bmi)
+
+  // Auto-calculate BMI when field is empty but height is configured
+  if (bmi === null && weight !== null) {
+    const profile = await getProfile()
+    if (profile.heightCm) {
+      bmi = calculateBmi(weight, profile.heightCm)
+    }
+  }
+
   const payload = {
-    weight: toFloat(data.weight),
+    weight,
     bodyFat: toFloat(data.bodyFat),
-    bmi: toFloat(data.bmi),
+    bmi,
     steps: toInt(data.steps),
     activeMinutes: toInt(data.activeMinutes),
     caloriesBurned: toInt(data.caloriesBurned),

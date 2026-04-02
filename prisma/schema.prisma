@@ -109,6 +109,19 @@ enum MetricSource {
 }
 
 // =============================================
+// BENUTZER-PROFIL — Statische persönliche Werte
+// Singleton-Zeile (id = "singleton")
+// =============================================
+
+model UserProfile {
+  id           String   @id @default("singleton")
+  heightCm     Float?   // Körpergrösse in cm
+  targetWeight Float?   // Zielgewicht in kg
+  targetSteps  Int?     // Tagesziel Schritte
+  updatedAt    DateTime @updatedAt
+}
+
+// =============================================
 // EMOJI-REACTIONS — Leser-Interaktion
 // =============================================
 
