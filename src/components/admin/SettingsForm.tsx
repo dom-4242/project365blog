@@ -1,0 +1,132 @@
+'use client'
+
+import { useState, useTransition } from 'react'
+import { upsertProfile, type ProfileFormData } from '@/app/admin/settings/actions'
+
+interface SettingsFormProps {
+  initial: ProfileFormData
+}
+
+interface FieldProps {
+  label: string
+  unit: string
+  hint?: string
+  value: string
+  onChange: (v: string) => void
+  placeholder?: string
+  step?: string
+  inputMode?: React.HTMLAttributes<HTMLInputElement>['inputMode']
+}
+
+function SettingField({ label, unit, hint, value, onChange, placeholder = '—', step = 'any', inputMode = 'decimal' }: FieldProps) {
+  return (
+    <div>
+      <label className="block text-xs font-medium text-sand-500 mb-1">
+        {label} <span className="font-normal text-sand-400">({unit})</span>
+      </label>
+      {hint && <p className="text-xs text-sand-400 mb-1.5">{hint}</p>}
+      <input
+        type="number"
+        inputMode={inputMode}
+        step={step}
+        min={0}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full border border-sand-200 dark:border-[#4a4540] rounded-lg px-3 py-1.5 text-sm text-[#2d2926] dark:text-[#e8e4dc] focus:outline-none focus:border-sand-400 bg-white dark:bg-[#3a3531]"
+      />
+    </div>
+  )
+}
+
+export function SettingsForm({ initial }: SettingsFormProps) {
+  const [isPending, startTransition] = useTransition()
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
+
+  const [heightCm, setHeightCm] = useState(initial.heightCm)
+  const [targetWeight, setTargetWeight] = useState(initial.targetWeight)
+  const [targetSteps, setTargetSteps] = useState(initial.targetSteps)
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setError(null)
+    setSuccess(false)
+
+    startTransition(async () => {
+      const result = await upsertProfile({ heightCm, targetWeight, targetSteps })
+      if (result.error) {
+        setError(result.error)
+      } else {
+        setSuccess(true)
+      }
+    })
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Körperprofil */}
+      <div className="bg-white dark:bg-[#2d2926] rounded-2xl border border-sand-200 dark:border-[#4a4540] p-5">
+        <h3 className="font-display text-sm font-semibold text-[#1a1714] dark:text-[#faf9f7] mb-1">Körperprofil</h3>
+        <p className="text-xs text-sand-400 mb-4">Wird für die automatische BMI-Berechnung verwendet.</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <SettingField
+            label="Körpergrösse"
+            unit="cm"
+            value={heightCm}
+            onChange={setHeightCm}
+            placeholder="z. B. 178"
+            step="0.1"
+          />
+        </div>
+      </div>
+
+      {/* Ziele */}
+      <div className="bg-white dark:bg-[#2d2926] rounded-2xl border border-sand-200 dark:border-[#4a4540] p-5">
+        <h3 className="font-display text-sm font-semibold text-[#1a1714] dark:text-[#faf9f7] mb-1">Ziele</h3>
+        <p className="text-xs text-sand-400 mb-4">Persönliche Zielwerte für die Metriken-Darstellung.</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <SettingField
+            label="Zielgewicht"
+            unit="kg"
+            value={targetWeight}
+            onChange={setTargetWeight}
+            placeholder="z. B. 85"
+            step="0.1"
+          />
+          <SettingField
+            label="Tagesziel Schritte"
+            unit="Schritte"
+            value={targetSteps}
+            onChange={setTargetSteps}
+            placeholder="z. B. 10000"
+            step="500"
+            inputMode="numeric"
+          />
+        </div>
+      </div>
+
+      {/* Feedback */}
+      {error && (
+        <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-lg text-sm text-red-700 dark:text-red-400">
+          {error}
+        </div>
+      )}
+      {success && (
+        <div className="p-3 bg-movement-50 dark:bg-movement-600/10 border border-movement-200 dark:border-movement-600/20 rounded-lg text-sm text-movement-700 dark:text-movement-400">
+          Einstellungen gespeichert.
+        </div>
+      )}
+
+      <div className="flex justify-end">
+        <button
+          type="submit"
+          disabled={isPending}
+          className="px-6 py-2.5 bg-movement-600 text-white rounded-xl text-sm font-medium hover:bg-movement-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          {isPending ? 'Speichern...' : 'Einstellungen speichern'}
+        </button>
+      </div>
+    </form>
+  )
+}

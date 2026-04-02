@@ -10,6 +10,7 @@ const navItems = [
   { href: '/admin/translations', label: 'Übersetzungen', exact: false },
   { href: '/admin/metrics', label: 'Metriken', exact: false },
   { href: '/admin/fitbit', label: 'Fitbit', exact: false },
+  { href: '/admin/settings', label: 'Einstellungen', exact: false },
 ]
 
 export function AdminNav() {

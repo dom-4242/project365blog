@@ -83,7 +83,7 @@
   "Charts": {
     "steps": "Steps",
     "avgPerDay": "avg/day",
-    "goalLabel": "10k goal",
+    "goalLabel": "goal",
     "weight": "Weight",
     "bodyFat": "Body fat"
   },

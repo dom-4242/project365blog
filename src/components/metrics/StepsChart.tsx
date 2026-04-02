@@ -56,9 +56,10 @@ function StepsTooltip({ active, payload, label }: TooltipProps) {
 interface StepsChartProps {
   data: StepsDataPoint[]
   avgSteps?: number
+  stepsGoal?: number
 }
 
-export function StepsChart({ data, avgSteps }: StepsChartProps) {
+export function StepsChart({ data, avgSteps, stepsGoal = 10000 }: StepsChartProps) {
   const locale = useLocale()
   const t = useTranslations('Charts')
 
@@ -91,11 +92,11 @@ export function StepsChart({ data, avgSteps }: StepsChartProps) {
             axisLine={false}
           />
           <ReferenceLine
-            y={10000}
+            y={stepsGoal}
             stroke="#16a34a"
             strokeDasharray="4 3"
             strokeWidth={1.5}
-            label={{ value: t('goalLabel'), position: 'insideTopRight', fontSize: 10, fill: '#16a34a' }}
+            label={{ value: `${formatSteps(stepsGoal)} ${t('goalLabel')}`, position: 'insideTopRight', fontSize: 10, fill: '#16a34a' }}
           />
           <Tooltip content={<StepsTooltip />} />
           <Bar
