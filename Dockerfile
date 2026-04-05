@@ -4,7 +4,7 @@
 
 # --- Stage 1: Dependencies ---
 FROM node:20-alpine AS deps
-RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+RUN apk add --no-cache openssl && corepack enable && corepack prepare pnpm@9.15.0 --activate
 WORKDIR /app
 
 COPY .npmrc package.json pnpm-lock.yaml ./
@@ -13,7 +13,7 @@ RUN pnpm install --frozen-lockfile
 
 # --- Stage 2: Build ---
 FROM node:20-alpine AS builder
-RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+RUN apk add --no-cache openssl && corepack enable && corepack prepare pnpm@9.15.0 --activate
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
@@ -34,6 +34,8 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+
+RUN apk add --no-cache openssl
 
 # Unprivileged user
 RUN addgroup --system --gid 1001 nodejs
