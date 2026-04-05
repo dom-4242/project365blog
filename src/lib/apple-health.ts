@@ -51,7 +51,10 @@ function extractDate(dateStr: string): string {
 }
 
 function findMetric(metrics: HealthMetric[], ...names: string[]): HealthMetric | undefined {
-  return metrics.find((m) => names.some((n) => m.name.toLowerCase() === n.toLowerCase()))
+  // Normalize: lowercase + underscores → spaces to match both "step count" and "step_count"
+  const normalize = (s: string) => s.toLowerCase().replace(/_/g, ' ')
+  const normalizedNames = names.map(normalize)
+  return metrics.find((m) => normalizedNames.includes(normalize(m.name)))
 }
 
 function sumByDate(metric: HealthMetric): Map<string, number> {
@@ -143,7 +146,7 @@ export function parseHealthPayload(payload: HealthPayload): Map<string, DayHealt
   }
 
   // Distance — convert miles to km if needed
-  const distanceMetric = findMetric(metrics, 'walking + running distance', 'distance walking running')
+  const distanceMetric = findMetric(metrics, 'walking + running distance', 'walking running distance', 'distance walking running')
   if (distanceMetric) {
     const isMiles = distanceMetric.units.toLowerCase() === 'mi'
     for (const [date, dist] of sumByDate(distanceMetric)) {
