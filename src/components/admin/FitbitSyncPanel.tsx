@@ -15,9 +15,6 @@ function ResultRow({ r }: { r: FitbitSyncResult }) {
       <td className="px-4 py-2.5 text-[#2d2926] dark:text-[#e8e4dc]">{r.weight != null ? `${r.weight} kg` : '—'}</td>
       <td className="px-4 py-2.5 text-[#2d2926] dark:text-[#e8e4dc]">{r.bodyFat != null ? `${r.bodyFat}%` : '—'}</td>
       <td className="px-4 py-2.5 text-[#2d2926] dark:text-[#e8e4dc]">
-        {r.steps != null ? r.steps.toLocaleString('de-CH') : '—'}
-      </td>
-      <td className="px-4 py-2.5 text-[#2d2926] dark:text-[#e8e4dc]">
         {r.activeMinutes != null ? `${r.activeMinutes} min` : '—'}
       </td>
       <td className="px-4 py-2.5 text-[#2d2926] dark:text-[#e8e4dc]">
@@ -60,7 +57,6 @@ function SyncResultDisplay({ outcome }: { outcome: SyncActionResult }) {
                 <th className="px-4 py-2.5 font-medium">Datum</th>
                 <th className="px-4 py-2.5 font-medium">Gewicht</th>
                 <th className="px-4 py-2.5 font-medium">Körperfett</th>
-                <th className="px-4 py-2.5 font-medium">Schritte</th>
                 <th className="px-4 py-2.5 font-medium">Aktiv</th>
                 <th className="px-4 py-2.5 font-medium">HR</th>
               </tr>

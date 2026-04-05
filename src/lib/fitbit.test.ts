@@ -264,7 +264,6 @@ describe('syncFitbitDay', () => {
     expect(call.create.source).toBe('FITBIT')
 
     expect(result.weight).toBe(85.2)
-    expect(result.steps).toBeUndefined()
     expect(result.newTokens).toBeUndefined()
   })
 
@@ -290,7 +289,6 @@ describe('syncFitbitDay', () => {
     const result = await syncFitbitDay('2026-03-25', TOKENS, prismaMock)
 
     expect(result.weight).toBeUndefined()
-    expect(result.steps).toBeUndefined()
     expect(upsert).toHaveBeenCalledOnce()
   })
 
@@ -332,7 +330,6 @@ describe('syncFitbitDay', () => {
     expect(result.newTokens?.accessToken).toBe('new-access')
     expect(result.newTokens?.refreshToken).toBe('new-refresh')
     expect(result.weight).toBe(85.2)
-    expect(result.steps).toBeUndefined()
 
     // Refresh endpoint was called exactly once despite two 401s
     const refreshCalls = fetchMock.mock.calls.filter(
