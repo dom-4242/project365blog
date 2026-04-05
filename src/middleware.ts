@@ -21,7 +21,26 @@ export async function middleware(req: NextRequest) {
   }
 
   // ── Public routes: next-intl locale routing ─────────────────────
-  return intlMiddleware(req)
+  const response = intlMiddleware(req)
+
+  // ── Analytics tracking (fire-and-forget) ─────────────────────────
+  const isLocaleRoute = /^\/(de|en)(\/|$)/.test(pathname)
+  const internalSecret = process.env.INTERNAL_SECRET
+  if (isLocaleRoute && internalSecret) {
+    const ua = req.headers.get('user-agent') ?? ''
+    const ip =
+      req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+      req.headers.get('x-real-ip') ??
+      '0.0.0.0'
+    const referrer = req.headers.get('referer') ?? ''
+    void fetch(new URL('/api/internal/track', req.url).toString(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-internal-secret': internalSecret },
+      body: JSON.stringify({ path: pathname, referrer, ua, ip }),
+    }).catch(() => undefined)
+  }
+
+  return response
 }
 
 export const config = {
