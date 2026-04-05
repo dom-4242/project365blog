@@ -44,7 +44,6 @@ export async function GET(request: NextRequest) {
         weight: result.weight,
         bodyFat: result.bodyFat,
         bmi: result.bmi,
-        steps: result.steps,
         activeMinutes: result.activeMinutes,
         caloriesBurned: result.caloriesBurned,
         distance: result.distance,
