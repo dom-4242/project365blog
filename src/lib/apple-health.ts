@@ -222,11 +222,8 @@ export function mergeWithExisting(
     bodyFat: hadFitbit && existing.bodyFat !== null ? existing.bodyFat : (incoming.bodyFat ?? existing.bodyFat),
     bmi: existing.bmi, // BMI is always derived from Fitbit scale
 
-    // Steps: higher value wins
-    steps:
-      incoming.steps !== undefined && existing.steps !== null
-        ? Math.max(incoming.steps, existing.steps)
-        : (incoming.steps ?? existing.steps),
+    // Steps: Apple Health wins (only Apple Watch counts steps, Fitbit steps ignored)
+    steps: incoming.steps ?? existing.steps,
 
     // Resting HR: Apple Watch wins (better sensor for continuous HR)
     restingHR: incoming.restingHR ?? existing.restingHR,

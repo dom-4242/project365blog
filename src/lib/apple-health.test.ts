@@ -186,14 +186,14 @@ describe('mergeWithExisting', () => {
     expect(result.weight).toBe(94.0)
   })
 
-  it('takes higher step count', () => {
+  it('Apple Health steps win over Fitbit steps', () => {
     const result = mergeWithExisting(fitbitRecord, { steps: 11000 })
     expect(result.steps).toBe(11000)
   })
 
-  it('keeps Fitbit steps when Apple steps are lower', () => {
+  it('Apple Health steps win even when lower than Fitbit steps', () => {
     const result = mergeWithExisting(fitbitRecord, { steps: 3000 })
-    expect(result.steps).toBe(8500)
+    expect(result.steps).toBe(3000)
   })
 
   it('Apple Watch restingHR overwrites Fitbit restingHR', () => {

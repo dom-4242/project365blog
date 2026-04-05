@@ -256,7 +256,7 @@ describe('syncFitbitDay', () => {
     expect(call.create.weight).toBe(85.2)
     expect(call.create.bodyFat).toBe(22.3)
     expect(call.create.bmi).toBe(27.5)
-    expect(call.create.steps).toBe(11234)
+    expect(call.create.steps).toBeUndefined()
     expect(call.create.activeMinutes).toBe(55) // 20 + 35
     expect(call.create.caloriesBurned).toBe(2450)
     expect(call.create.distance).toBe(8.4)
@@ -264,6 +264,7 @@ describe('syncFitbitDay', () => {
     expect(call.create.source).toBe('FITBIT')
 
     expect(result.weight).toBe(85.2)
+    expect(result.steps).toBeUndefined()
     expect(result.newTokens).toBeUndefined()
   })
 
@@ -331,7 +332,7 @@ describe('syncFitbitDay', () => {
     expect(result.newTokens?.accessToken).toBe('new-access')
     expect(result.newTokens?.refreshToken).toBe('new-refresh')
     expect(result.weight).toBe(85.2)
-    expect(result.steps).toBe(11234)
+    expect(result.steps).toBeUndefined()
 
     // Refresh endpoint was called exactly once despite two 401s
     const refreshCalls = fetchMock.mock.calls.filter(

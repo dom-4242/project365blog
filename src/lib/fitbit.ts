@@ -34,7 +34,6 @@ export interface FitbitSyncResult {
   weight?: number
   bodyFat?: number
   bmi?: number
-  steps?: number
   activeMinutes?: number
   caloriesBurned?: number
   distance?: number
@@ -209,7 +208,7 @@ export async function syncFitbitDay(
     weight: bodyLog?.weight ?? null,
     bodyFat: bodyLog?.fat ?? null,
     bmi: bodyLog?.bmi ?? null,
-    steps: activitySummary?.steps ?? null,
+    // Steps are tracked exclusively via Apple Watch (Apple Health) — Fitbit steps ignored
     activeMinutes: activeMinutes ?? null,
     caloriesBurned: activitySummary?.caloriesOut ?? null,
     distance: totalDistance ?? null,
@@ -228,7 +227,6 @@ export async function syncFitbitDay(
     weight: bodyLog?.weight,
     bodyFat: bodyLog?.fat,
     bmi: bodyLog?.bmi,
-    steps: activitySummary?.steps,
     activeMinutes,
     caloriesBurned: activitySummary?.caloriesOut,
     distance: totalDistance,
