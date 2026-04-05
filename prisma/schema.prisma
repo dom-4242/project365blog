@@ -144,3 +144,20 @@ enum ReactionType {
   MUSCLE
   STAR
 }
+
+// =============================================
+// SEITENAUFRUFE — Privacy-first Analytics
+// Kein Cookie, keine IP-Speicherung
+// sessionHash = SHA-256(IP+UA+Date+Salt), tagesbezogen
+// =============================================
+
+model PageView {
+  id          String   @id @default(cuid())
+  path        String                          // Normalisierter Pfad ohne Locale (/journal/slug)
+  referrer    String?                         // Nur Hostname des Referrers
+  sessionHash String                          // Tagesbezogener Hash — nie auf Person zurückführbar
+  timestamp   DateTime @default(now())
+
+  @@index([timestamp])
+  @@index([path])
+}
