@@ -27,7 +27,15 @@ export async function POST(request: NextRequest) {
   }
 
   if (!payload?.data?.metrics) {
+    console.log('[health-import] Invalid payload — top-level keys:', Object.keys(payload ?? {}))
+    if (payload?.data) console.log('[health-import] data keys:', Object.keys(payload.data))
     return NextResponse.json({ error: 'Invalid payload: missing data.metrics' }, { status: 400 })
+  }
+
+  const metrics = payload.data.metrics!
+  console.log(`[health-import] Received ${metrics.length} metrics:`, metrics.map((m) => m.name))
+  if (metrics.length > 0) {
+    console.log('[health-import] Sample first entry of first metric:', metrics[0].data?.[0])
   }
 
   const dayDataMap = parseHealthPayload(payload)
