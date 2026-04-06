@@ -146,6 +146,24 @@ enum ReactionType {
 }
 
 // =============================================
+// MONATS-ZUSAMMENFASSUNGEN — AI-generierte Rückblicke
+// Quelle: Claude API, einmal pro Monat generiert
+// =============================================
+
+model MonthSummary {
+  id          String   @id @default(cuid())
+  year        Int
+  month       Int      // 1–12
+  contentDe   String   @db.Text
+  contentEn   String?  @db.Text
+  generatedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([year, month])
+  @@index([year, month])
+}
+
+// =============================================
 // SEITENAUFRUFE — Privacy-first Analytics
 // Kein Cookie, keine IP-Speicherung
 // sessionHash = SHA-256(IP+UA+Date+Salt), tagesbezogen

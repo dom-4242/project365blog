@@ -100,6 +100,14 @@
     "minChars": "Mindestens 2 Zeichen eingeben",
     "day": "Tag"
   },
+  "MonthlySummary": {
+    "overviewHeading": "Monats-Zusammenfassungen",
+    "overviewDescription": "AI-generierte Rückblicke auf jeden Monat des Projekts.",
+    "noSummaries": "Noch keine Zusammenfassungen vorhanden.",
+    "generatedOn": "Erstellt am {date}",
+    "summaryLabel": "Monats-Rückblick",
+    "backToOverview": "Alle Zusammenfassungen"
+  },
   "HabitBadges": {
     "movement": {
       "minimal": "Wenig Bewegung",
