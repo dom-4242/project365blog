@@ -37,7 +37,7 @@ services:
     image: ${IMAGE:-ghcr.io/dom-4242/project365blog:latest}
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "${APP_PORT:-3000}:3000"
     environment:
       DATABASE_URL: "postgresql://project365:${DB_PASSWORD}@db:5432/project365blog"
       FITBIT_CLIENT_ID: ${FITBIT_CLIENT_ID:-}
