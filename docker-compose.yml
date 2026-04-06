@@ -38,14 +38,12 @@ services:
     restart: unless-stopped
     ports:
       - "${APP_PORT:-3000}:3000"
+    env_file:
+      - path: .env
+        required: false
     environment:
+      # DATABASE_URL wird explizit gesetzt damit der DB-Hostname stimmt
       DATABASE_URL: "postgresql://project365:${DB_PASSWORD}@db:5432/project365blog"
-      FITBIT_CLIENT_ID: ${FITBIT_CLIENT_ID:-}
-      FITBIT_CLIENT_SECRET: ${FITBIT_CLIENT_SECRET:-}
-      FITBIT_ACCESS_TOKEN: ${FITBIT_ACCESS_TOKEN:-}
-      FITBIT_REFRESH_TOKEN: ${FITBIT_REFRESH_TOKEN:-}
-      HEALTH_IMPORT_API_KEY: ${HEALTH_IMPORT_API_KEY:-}
-      CRON_SECRET: ${CRON_SECRET:-}
     volumes:
       - uploads:/app/public/images/journal
     depends_on:
