@@ -1,625 +1,215 @@
-# Project 365 Blog
+# Project 365 Blog — CLAUDE.md
+
+> **Achtung:** Diese Datei ist die zentrale Kontextquelle für Claude Code. Niemals teilweise überschreiben — immer vollständig validieren vor dem Commit.
 
 ## Projektübersicht
 
-Ein öffentliches tägliches Journal (365-Tage-Projekt) mit integriertem Habit-Tracking und Metriken-Visualisierung.
-Der Blog dient als Accountability-Tool: tägliche Einträge dokumentieren Fortschritte, Gewohnheiten werden getrackt und Metriken über Zeit visualisiert.
+Öffentliches tägliches Journal (365-Tage-Projekt) mit integriertem Habit-Tracking und Metriken-Visualisierung. Self-hosted im HomeLab.
 
-**Kernidee:** Persönliche Veränderung öffentlich dokumentieren — ehrlich, aber ohne sehr private Details.
+- **Domain:** project365.dom42.ch
+- **Repo:** github.com/dom-4242/project365blog (public)
+- **Server:** pilab01 / pilab01.lab.dom42.ch
+- **Lokal:** /Users/dominiquestampfli/Documents/13_Dev/6_Project365Blog
 
 ## Tech Stack
 
-- **Framework:** Next.js 14+ (App Router, Server Components, Server Actions)
-- **Sprache:** TypeScript (strict mode)
-- **Styling:** Tailwind CSS
-- **Content:** Datenbank-basiert mit Rich-Text Editor (Web-CMS)
-- **Auth:** NextAuth.js mit Google OAuth (Single-Admin)
-- **Rich-Text Editor:** Tiptap (headless, erweiterbar, Markdown-kompatibel)
-- **i18n:** next-intl mit Locale-Routing (/de, /en)
-- **Datenbank:** PostgreSQL (Docker Container)
-- **ORM:** Prisma (Type-safe, Schema-first, Migrations)
-- **Charts:** Recharts für Metriken-Visualisierung
-- **Deployment:** Docker Compose → HomeLab (Self-Hosted)
-- **CI/CD:** GitHub Actions
-- **Package Manager:** pnpm
+- Next.js 14+ (App Router)
+- TypeScript (strict mode)
+- Tailwind CSS
+- PostgreSQL + Prisma ORM
+- NextAuth.js (Google OAuth, Single-Admin)
+- Tiptap Rich-Text Editor
+- next-intl (i18n: DE, EN — Phase 5c erweitert um PT, FR, IT, ES)
+- Docker Compose (Production)
+- Recharts (Visualisierungen)
+- Claude API (AI-Übersetzungen, Monats-Zusammenfassungen)
+
+## Architektur-Entscheidungen
+
+### ADR-001: Database-first Content
+
+Journal-Einträge werden in PostgreSQL gespeichert (JournalEntry Model), nicht als MDX-Dateien. Der Tiptap Editor speichert Rich-Text als JSON/HTML in der DB.
+
+### Routing
+
+- Public: `/[locale]/` (de, en) — next-intl
+- Admin: `/admin/` (Root-Level, **nicht** unter `[locale]`)
+- Admin bleibt nur auf Deutsch
+
+### Drei Säulen (Habits)
+
+**Bewegung & Training** (MovementLevel Enum):
+
+- `MINIMAL` — Unter 10k Schritte, kein Training ❌
+- `STEPS_ONLY` — 10k+ Schritte, kein Training ✅
+- `TRAINED_ONLY` — Training absolviert, unter 10k Schritte ✅ _(NEU in Phase 5a)_
+- `STEPS_TRAINED` — 10k+ Schritte + Training ✅
+
+**Ernährung** (NutritionLevel Enum):
+
+- `NONE` — 0 Mahlzeiten ❌
+- `ONE_MEAL` — 1 Mahlzeit ❌
+- `TWO_MEALS` — 2 Mahlzeiten ✅ (Minimum für Zielerfüllung)
+- `THREE_MEALS` — 3 Mahlzeiten ✅
+
+**Rauchstopp** (SmokingLevel Enum):
+
+- `SMOKED` — Geraucht ❌
+- `NICOTINE_REPLACEMENT` — Nikotinersatz ✅ (Minimum für Zielerfüllung)
+- `SMOKE_FREE` — Rauchfrei ohne Hilfsmittel ✅
+
+### Design-System: Catppuccin (ab Phase 5b)
+
+- Light Mode: Catppuccin **Latte**
+- Dark Mode: Catppuccin **Mocha**
+- Referenz: https://catppuccin.com/palette
+- npm: @catppuccin/palette
+
+## Schema-Details (wichtig!)
+
+- Feld `bannerUrl` (nicht `bannerImage` oder `imageUrl`)
+- Felder `movement`, `nutrition`, `smoking` (nicht `habitMovement` etc.)
+- `published` Default: `true`
+- Übersetzungen: separates `Translation` Model
+- Prisma Client Singleton: `lib/db.ts`
+- Duplicate Component Files existieren: `HabitBadges 2.tsx` etc. (aufräumen wenn möglich)
+
+## Environment Variables
+
+```
+DATABASE_URL=postgresql://...
+NEXTAUTH_SECRET=...
+NEXTAUTH_URL=...
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+ADMIN_EMAIL=...
+FITBIT_CLIENT_ID=23VD2F
+FITBIT_CLIENT_SECRET=... (Rotation ausstehend!)
+FITBIT_USER_ID=6RWGGH
+HEALTH_IMPORT_TOKEN=...
+ANTHROPIC_API_KEY=...
+```
 
 ## Projektstruktur
 
 ```
 project365blog/
-├── CLAUDE.md                          ← Diese Datei
-├── README.md
-├── .npmrc                             ← node-linker=hoisted (für Docker/Prisma)
-├── .github/
-│   ├── ISSUE_TEMPLATE/
-│   │   ├── feature.md
-│   │   └── bug.md
-│   └── workflows/
-│       ├── ci.yml                     ← Lint, Test, Build bei PR
-│       └── deploy.yml                 ← Docker Build & Push bei Merge in main
-├── prisma/
-│   ├── schema.prisma                  ← Datenbank-Schema
-│   ├── migrations/                    ← Auto-generierte Migrations
-│   └── seed.ts                        ← Seed-Daten für Entwicklung
-├── messages/
-│   ├── de.json                        ← Deutsche UI-Übersetzungen
-│   └── en.json                        ← Englische UI-Übersetzungen
-├── src/
-│   ├── app/
-│   │   ├── layout.tsx                 ← Root Layout (nicht-locale)
-│   │   ├── page.tsx                   ← Root Redirect
-│   │   ├── [locale]/                  ← Locale-Routing (next-intl)
-│   │   │   ├── layout.tsx             ← Locale Layout mit Navigation
-│   │   │   ├── page.tsx               ← Startseite: Habits + Metriken + Feed
-│   │   │   ├── loading.tsx            ← Loading State
-│   │   │   └── journal/
-│   │   │       └── [slug]/
-│   │   │           └── page.tsx       ← Einzelner Journal-Eintrag
-│   │   ├── admin/                     ← Admin (KEIN Locale-Routing)
-│   │   │   ├── layout.tsx             ← Admin Layout
-│   │   │   ├── page.tsx               ← Admin-Dashboard
-│   │   │   ├── login/page.tsx         ← Login-Seite
-│   │   │   ├── entries/
-│   │   │   │   ├── page.tsx           ← Eintragsliste
-│   │   │   │   ├── actions.ts         ← Server Actions
-│   │   │   │   ├── new/page.tsx       ← Neuer Eintrag (Tiptap Editor)
-│   │   │   │   └── [id]/edit/         ← Eintrag bearbeiten
-│   │   │   ├── metrics/               ← Manuelle Metriken-Erfassung
-│   │   │   ├── fitbit/                ← Fitbit OAuth Admin-UI
-│   │   │   └── translations/          ← Übersetzungs-Verwaltung
-│   │   ├── api/
-│   │   │   ├── reactions/route.ts     ← Emoji-Reactions API (GET/POST)
-│   │   │   ├── auth/[...nextauth]/    ← NextAuth Route Handler
-│   │   │   ├── admin/upload/route.ts  ← Banner-Bild Upload
-│   │   │   ├── cron/fitbit-sync/      ← Fitbit Cron-Sync
-│   │   │   ├── health-import/         ← Apple Health Webhook
-│   │   │   └── search/route.ts        ← Suchfunktion API
-│   │   ├── feed.xml/route.ts          ← RSS-Feed
-│   │   ├── robots.ts                  ← robots.txt
-│   │   └── sitemap.ts                 ← Sitemap
-│   ├── components/
-│   │   ├── ui/                        ← Basis-UI-Komponenten
-│   │   ├── layout/                    ← Header, Footer, Navigation, LocaleSwitcher, ThemeToggle
-│   │   ├── habits/                    ← Drei-Säulen-Dashboard
-│   │   ├── metrics/                   ← Charts (Gewicht, Schritte)
-│   │   ├── journal/                   ← Feed & Posts
-│   │   ├── reactions/                 ← Emoji-Reactions
-│   │   ├── search/                    ← SearchModal
-│   │   ├── providers/                 ← SessionProvider, ThemeProvider
-│   │   └── admin/                     ← Admin-spezifische Komponenten
-│   ├── i18n/                          ← next-intl Konfiguration
-│   │   ├── navigation.ts             ← Locale-aware Navigation
-│   │   ├── request.ts                ← Server-side i18n
-│   │   └── routing.ts                ← Routing Config
-│   ├── lib/
-│   │   ├── db.ts                      ← Prisma Client Singleton
-│   │   ├── auth.ts                    ← NextAuth Konfiguration
-│   │   ├── journal.ts                 ← Journal-Einträge (DB Queries)
-│   │   ├── habits.ts                  ← Habits-Logik & Streak-Berechnung
-│   │   ├── metrics.ts                 ← Metriken-Aggregation
-│   │   ├── fitbit.ts                  ← Fitbit API Client
-│   │   ├── apple-health.ts            ← Apple Health Import
-│   │   ├── translate.ts               ← Übersetzungs-Logik (Claude API)
-│   │   ├── site.ts                    ← Site-Metadaten
-│   │   └── utils.ts                   ← Allgemeine Hilfsfunktionen
-│   ├── styles/globals.css             ← Globale Styles
-│   ├── types/next-auth.d.ts           ← NextAuth Type-Erweiterungen
-│   ├── test/setup.ts                  ← Test-Setup (Vitest)
-│   └── middleware.ts                  ← Auth-Schutz für /admin/*
-├── public/images/journal/             ← Banner-Bilder (Upload)
-├── Dockerfile                         ← Multi-stage Build (Alpine)
-└── docker-compose.yml                 ← Next.js + PostgreSQL
+├── CLAUDE.md              → Diese Datei
+├── prisma/schema.prisma   → Datenbank-Schema
+├── src/app/               → Next.js Pages & API Routes
+│   ├── [locale]/          → Öffentliche Seiten (i18n)
+│   └── admin/             → Admin-Bereich (nur DE, kein [locale])
+├── src/components/        → React-Komponenten
+│   ├── habits/            → Drei-Säulen-Dashboard
+│   ├── metrics/           → Charts (Gewicht, Schritte)
+│   ├── journal/           → Feed & Posts
+│   └── reactions/         → Emoji-Reactions
+├── src/lib/               → Business-Logik
+├── messages/              → i18n Message Files (de.json, en.json)
+├── content/journal/       → Legacy MDX (nicht mehr aktiv genutzt)
+├── public/images/journal/ → Banner-Bilder
+├── scripts/               → Utility Scripts
+└── .github/workflows/     → CI/CD Pipelines
 ```
 
-## Content-Format: Journal-Einträge
-
-Einträge werden **im Browser über einen Rich-Text Editor** erstellt und in der Datenbank gespeichert.
-Kein MDX, kein Git-Commit für Content — alles läuft über das Web-CMS.
-
-**Wichtig:** Es gibt eine klare Trennung zwischen **Gewohnheiten** und **Metriken**.
-
-- **Gewohnheiten (Habits):** Die drei Säulen des Projekts. Subjektive tägliche Selbsteinschätzung
-  mit definierten Erfüllungsgraden. Werden im Journal-Editor als Pflichtfelder erfasst.
-- **Metriken (Metrics):** Objektive, messbare Körper- und Aktivitätswerte.
-  Werden primär automatisch via APIs (Fitbit, Apple Health) importiert.
-  Können optional auch manuell im Admin-Bereich eingetragen werden.
-
-### Die drei Säulen (Habits)
-
-**Säule 1 — Bewegung & Training** (MovementLevel):
-
-- `MINIMAL` → Minimale Schritte, kein Training
-- `STEPS_ONLY` → Über 10'000 Schritte
-- `STEPS_TRAINED` → Über 10'000 Schritte + Training
-
-**Säule 2 — Ernährung** (NutritionLevel):
-
-- `NONE` → Keine gesunde Mahlzeit
-- `ONE` → Eine gesunde Mahlzeit
-- `TWO` → Zwei gesunde Mahlzeiten
-- `THREE` → Drei gesunde Mahlzeiten
-
-**Säule 3 — Rauchstopp** (SmokingStatus):
-
-- `SMOKED` → Es wurde geraucht
-- `REPLACEMENT` → Nicht geraucht, aber Nikotinersatz
-- `NONE` → Rauchfrei ohne Hilfsmittel
-
-### Metriken (automatisch via API oder manuell)
-
-- Gewicht (kg) — Fitbit Aria Waage
-- Körperfettanteil (%) — Fitbit Aria Waage
-- BMI — berechnet aus Gewicht + Körpergrösse
-- Schritte — Fitbit / Apple Watch
-- Aktive Minuten — Fitbit
-- Verbrannte Kalorien — Fitbit
-- Distanz (km) — Fitbit
-- Ruheherzfrequenz (bpm) — Fitbit / Apple Watch
-- Schlafdauer (min) — Fitbit / Apple Watch
-
-## Datenbank-Schema (Prisma)
-
-```prisma
-// prisma/schema.prisma
-
-model JournalEntry {
-  id             String          @id @default(cuid())
-  date           DateTime        @db.Date
-  slug           String          @unique     // Default: Datum (2026-03-26)
-  title          String
-  content        String          @db.Text    // HTML von Tiptap Editor
-  excerpt        String?
-  bannerUrl      String?         // Pfad zum Banner-Bild
-  tags           String[]        @default([])
-  published      Boolean         @default(true)
-
-  // Die drei Säulen — Pflichtfelder
-  movement       MovementLevel
-  nutrition      NutritionLevel
-  smoking        SmokingStatus
-
-  reactions      Reaction[]
-  translation    Translation?    // 1:1 Relation zum Übersetzungs-Model
-
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-
-  @@index([date])
-  @@index([published])
-}
-
-enum MovementLevel {
-  MINIMAL
-  STEPS_ONLY
-  STEPS_TRAINED
-}
-
-enum NutritionLevel {
-  NONE
-  ONE
-  TWO
-  THREE
-}
-
-enum SmokingStatus {
-  SMOKED
-  REPLACEMENT
-  NONE
-}
-
-model DailyMetrics {
-  id             String        @id @default(cuid())
-  date           DateTime      @unique @db.Date
-
-  // Körperdaten (Quelle: Fitbit Aria / manuell)
-  weight         Float?        // kg
-  bodyFat        Float?        // % Körperfettanteil
-  bmi            Float?        // BMI
-
-  // Aktivität (Quelle: Fitbit/Apple Watch oder manuell)
-  steps          Int?          // Tagesschritte
-  activeMinutes  Int?          // Aktive Minuten
-  caloriesBurned Int?          // Verbrannte Kalorien
-  distance       Float?        // Distanz in km
-
-  // Vitaldaten (Quelle: Apple Watch/Fitbit)
-  restingHR      Int?          // Ruheherzfrequenz (bpm)
-  sleepDuration  Int?          // Schlafdauer in Minuten
-
-  source         MetricSource  @default(MANUAL)
-
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-
-  @@index([date])
-}
-
-enum MetricSource {
-  MANUAL           // Manuell im Admin-Bereich eingetragen
-  FITBIT           // Automatisch von Fitbit API
-  APPLE_HEALTH     // Automatisch von Apple Health (via Health Auto Export)
-  MERGED           // Kombination aus mehreren Quellen
-}
-
-model Reaction {
-  id           String       @id @default(cuid())
-  emoji        ReactionType
-  ipHash       String       // SHA-256 Hash der IP (Spam-Schutz)
-
-  journalEntry JournalEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
-  entryId      String
-
-  createdAt    DateTime     @default(now())
-
-  @@unique([entryId, emoji, ipHash])  // Ein Emoji pro IP pro Eintrag
-  @@index([entryId])
-}
-
-enum ReactionType {
-  HEART            // ❤️  Berührt mich
-  CLAP             // 👏  Gut gemacht
-  FIRE             // 🔥  Stark
-  MUSCLE           // 💪  Motivierend
-  STAR             // ⭐  Inspirierend
-}
-
-model Translation {
-  id              String        @id @default(cuid())
-  locale          String        // z.B. "en"
-  title           String
-  content         String        @db.Text
-  contentHash     String        // Hash des DE-Originals, um Änderungen zu erkennen
-
-  journalEntry    JournalEntry  @relation(fields: [entryId], references: [id], onDelete: Cascade)
-  entryId         String        @unique   // 1:1 Relation
-
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-
-  @@index([entryId])
-}
-```
-
-### Datenbank-Regeln
-
-- **JournalEntry:** Einzige Content-Quelle. Enthält Text (HTML von Tiptap), Habits und Metadaten.
-  Habits sind direkt im Entry eingebettet (movement, nutrition, smoking — nicht als separates Model).
-- **Translation:** Separates Model mit 1:1 Relation zu JournalEntry. Enthält übersetzte Inhalte
-  und einen contentHash um Änderungen am Original zu erkennen.
-- **DailyMetrics:** Automatisch via API-Sync ODER manuell im Admin-Bereich. Alles optional.
-- **Reactions:** Verknüpft via Foreign Key mit JournalEntry (onDelete: Cascade). IP nur als SHA-256 Hash.
-- Bei Metriken-Konflikten: Geräte-Daten (FITBIT/APPLE_HEALTH) > MANUAL.
-
-### Umgebungsvariablen
-
-```env
-# .env.example
-DATABASE_URL="postgresql://project365:password@localhost:5432/project365blog"
-DB_PASSWORD="..."                    # Docker Compose Variable
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="..."
-GOOGLE_CLIENT_ID="..."
-GOOGLE_CLIENT_SECRET="..."
-ADMIN_EMAIL="deine@email.com"
-
-# Fitbit API
-FITBIT_CLIENT_ID="..."
-FITBIT_CLIENT_SECRET="..."
-FITBIT_ACCESS_TOKEN="..."            # Gespeichertes OAuth Access Token
-FITBIT_REFRESH_TOKEN="..."           # Gespeichertes OAuth Refresh Token
-
-# Cron & Webhooks
-CRON_SECRET="..."                    # Schützt /api/cron/* Routen
-HEALTH_IMPORT_API_KEY="..."          # Schützt Apple Health Webhook
-
-# Claude API (für Übersetzungen)
-ANTHROPIC_API_KEY="..."
-```
-
-## Features & Phasen
-
-### Phase 1 — MVP ✅ (abgeschlossen)
-
-- [x] Projektstruktur aufsetzen (Next.js, TypeScript, Tailwind, Prisma)
-- [x] PostgreSQL + Prisma Setup
-- [x] MDX-Integration & Habits-Sync
-- [x] Fitbit API Integration
-- [x] Journal Feed & Einzelansicht
-- [x] Emoji-Reactions (❤️ 👏 🔥 💪 ⭐)
-- [x] Gewohnheiten-Dashboard (Drei Säulen)
-- [x] Metriken-Dashboard (Charts)
-- [x] Docker Production Setup
-- [x] UI Styling & Redesign
-
-### Phase 1.5 — Web-CMS & Auth ✅ (abgeschlossen)
-
-- [x] NextAuth.js mit Google OAuth (Single-Admin)
-- [x] Admin-Bereich (/admin/) mit Middleware-Schutz
-- [x] JournalEntry DB-Model (Migration von MDX → DB)
-- [x] Rich-Text Editor (Tiptap) für Journal-Einträge
-- [x] Banner-Bild Upload
-- [x] Habits-Auswahl im Editor (Buttons für die drei Säulen)
-- [x] Manuelle Metriken-Erfassung im Admin-Bereich
-- [x] Admin-Dashboard mit Übersicht und Schnellzugriff
-
-### Phase 2 — Polish, Fitbit & Apple Health ✅ (abgeschlossen)
-
-- [x] Fitbit API in Betrieb nehmen und testen (#35)
-- [x] Dark Mode (#37)
-- [x] SEO-Optimierung — Meta-Tags, Open Graph, Sitemap, Structured Data (#38)
-- [x] RSS-Feed (#39)
-- [x] Suchfunktion über Einträge (#40)
-- [x] Smooth Animationen & Reaction-Effekte (#41)
-- [x] Eintrag löschen im Admin (#42)
-- [x] Admin-Link auf Startseite für eingeloggte User (#43)
-- [ ] ⏸️ Apple Health Integration (#36) — Code fertig, Automatisierung erst nach HomeLab Deployment
-
-**Noch offen:** HomeLab Deployment (Voraussetzung für Apple Health Automatisierung)
-
-### Phase 3 — Mehrsprachigkeit ✅ (abgeschlossen)
-
-- [x] next-intl Setup mit Locale-Routing /de, /en (#53)
-- [x] UI-Übersetzungen für Navigation, Footer und Dashboard (#54)
-- [x] Sprachumschalter in Navigation (#55)
-- [x] AI-Übersetzung der Journal-Einträge (DE → EN) via Claude API (#56)
-- [x] Übersetzungs-Cache und Admin-UI für Übersetzungen (#57)
-- [x] SEO für mehrsprachige Inhalte — hreflang, locale Meta-Tags (#58)
-
-### Phase 4 — Visualisierung, Analytics & Datenqualität (aktuell)
-
-- [ ] Übersetzungs-Lücken schliessen: Metriken-Diagramme, Vorschau-Box, Datumsformate i18n
-- [ ] Statische Werte: Körpergrösse, Ziele im Admin erfassbar (Grundlage für BMI etc.)
-- [ ] Jahres-Übersicht: GitHub-style Contribution Grid für die drei Säulen
-- [ ] Live-Vorschau: Eintrag im Editor vor Veröffentlichung ansehen
-- [ ] PostgreSQL Backup: Automatisiertes Backup mit Rotation und Restore-Script
-- [ ] Admin-Analytics: Seitenaufrufe & Besucher-Statistiken (privacy-first, kein externer Dienst)
-- [ ] Monats-Zusammenfassungen: AI-generierte Rückblicke per Claude API
-
-### Phase 5 — Community & Outreach (Backlog)
-
-- [ ] Vierte Säule / Spenden-Indikator (Betterplace-Kampagne)
-- [ ] Betterplace-Kampagne Integration
-- [ ] Zusätzliche Sprachen (PT, FR, IT, ES)
-- [ ] Social Media Strategie & Content Management
-- [ ] Emoji-Reactions auch in der Journal-Übersichtsseite
-- [ ] Catppuccin Design-Anpassung
-
-## Design-Richtlinien
-
-### Ästhetik
-
-- **Ton:** Warm, ehrlich, motivierend — kein klinisches Dashboard
-- **Stil:** Editorial/Magazine-inspiriert mit klarer Typografie
-- **Farbpalette:** Warme, erdige Töne als Basis; Akzentfarben für Metriken
-  - Gewicht: Blau-Töne
-  - Schritte: Grün-Töne
-  - Rauchen: Amber/Orange (Streak-Erfolge in Grün)
-- **Typografie:** Distinctive Display-Font für Überschriften, leserlicher Body-Font
-- **Layout:** Grosszügiger Whitespace, Bilder prominent, Metriken-Dashboard als visueller Hingucker
-- **Dark Mode:** Vollständig unterstützt (Tailwind dark: Klassen)
-
-### Responsive Breakpoints
-
-- Mobile: < 640px (primäre Erfahrung — Tagebuch wird oft mobil gelesen)
-- Tablet: 640px - 1024px
-- Desktop: > 1024px
-
-## Code-Konventionen
-
-### TypeScript
-
-- Strict mode aktiviert
-- Interfaces bevorzugen über Types (ausser für Unions)
-- Alle Komponenten-Props mit eigenem Interface definieren
-- Keine `any` — wenn nötig, `unknown` mit Type Guards
-
-### Komponenten
-
-- Functional Components mit Arrow Functions
-- Named Exports (kein Default Export ausser für Pages)
-- Co-located Tests: `ComponentName.test.tsx` neben `ComponentName.tsx`
-
-### Datei-Benennung
-
-- Komponenten: PascalCase (`JournalCard.tsx`)
-- Utilities/Libs: camelCase (`journal.ts`)
-- Bilder: Datum als Name (`2026-03-26.jpg`)
-
-### Git-Konventionen
-
-- **Branch-Naming:** `feature/ISSUE-NR-kurze-beschreibung` (z.B. `feature/12-metrics-dashboard`)
-- **Commit-Messages:** Conventional Commits auf Englisch
-  - `feat:` Neues Feature
-  - `fix:` Bug-Fix
-  - `chore:` Dependencies, Config
-  - `docs:` Dokumentation
-  - `style:` CSS, Formatting
-  - `refactor:` Code-Umbau ohne neue Funktion
-  - `test:` Tests hinzufügen/ändern
-- **PRs:** Immer gegen `main`, verlinkt mit Issue (`Closes #12`)
-- **Kein direkter Push auf main** — immer über PR (Ausnahme: reine Doku-Änderungen)
-- **Merge-Strategie:** Squash Merge mit `-d` Flag (Branch nach Merge löschen)
-
-### Testing
-
-- Unit Tests mit Vitest
-- Component Tests mit React Testing Library
-- DB-Tests mit Prisma Test-Utilities (separate Test-DB)
-- Metriken- und Habit-Berechnungen besonders gut abdecken
-- Mindestens Tests für: `lib/journal.ts`, `lib/habits.ts`, `lib/metrics.ts`,
-  Streak-Berechnung pro Säule, Reaction-API, Fitbit-Sync-Logik
-
-## Wichtige Entscheidungen (ADRs)
-
-### ADR-001: MDX → DB-first Content
-
-Ursprünglich MDX-Dateien im Git. Ab Phase 1.5 Migration auf DB-basierte Einträge mit
-Tiptap Rich-Text Editor. JournalEntry als primäres Content-Model, HTML in der DB gespeichert.
-Vorteile: Web-Editor, kein Git nötig für Content, einfachere Queries, Übersetzungen direkt am Model.
-
-### ADR-002: Drei-Säulen Habits als Pflichtfelder
-
-Die drei Gewohnheits-Säulen sind direkt im JournalEntry eingebettet (nicht als separates Model).
-Jeder Eintrag MUSS alle drei Säulen erfassen. Erfüllungsgrade als Prisma Enums mit klar
-definierten Stufen.
-
-### ADR-003: Emoji-Reactions statt Kommentare
-
-Anonyme Emoji-Reactions (❤️ 👏 🔥 💪 ⭐) statt Kommentar-System.
-IP wird nur als SHA-256 Hash gespeichert. Keine Kommentare — vermeidet Moderationsaufwand.
-
-### ADR-004: Docker Compose für Self-Hosting
-
-Deployment als Docker Compose Stack im HomeLab: Next.js (Standalone-Mode) + PostgreSQL.
-Reverse-Proxy (Nginx Proxy Manager) für HTTPS wird separat verwaltet.
-PostgreSQL-Daten auf einem Docker Volume mit regelmässigem Backup.
-
-### ADR-005: Fitbit API als primäre Metriken-Quelle
-
-Fitbit Web API (OAuth 2.0) für automatischen Import von Gewicht, Körperfett (Aria Waage),
-Schritte und Aktivitätsdaten. Täglicher Cron-Sync. Apple Health als ergänzende Quelle
-via "Health Auto Export" App → REST-Webhook.
-
-### ADR-006: Übersetzungs-Strategie (Phase 3)
-
-AI-Übersetzung via Claude API. Einträge werden auf Deutsch erfasst. Übersetzungen werden in einem
-separaten Translation-Model gespeichert (1:1 Relation zu JournalEntry) mit contentHash zur
-Erkennung von Änderungen am Original. Admin-UI für Übersetzungs-Verwaltung und Kosten-Tracking.
-next-intl für UI-Strings (messages/de.json, messages/en.json).
-
-### ADR-007: Tiptap als Rich-Text Editor
-
-Tiptap (headless, React-basiert) statt alternatives (Slate, ProseMirror direkt, Draft.js).
-Vorteile: Gute DX, erweiterbar, Markdown-Shortcuts, sauberer HTML-Output.
-Content wird als HTML in der DB gespeichert.
-
-## CI/CD Pipeline
-
-### Bei jedem PR / Push:
-
-1. Lint & Type-Check (ESLint + TypeScript)
-2. Tests (Vitest mit echter PostgreSQL-Testdatenbank)
-3. Build (Next.js Production Build)
-
-### Bei Merge in main:
-
-1. Docker-Image bauen
-2. Push zu GitHub Container Registry (`ghcr.io/dom-4242/project365blog`)
-3. (Geplant) HomeLab Deployment triggern
-
-### CI-Lessons Learned:
-
-- pnpm/action-setup: KEIN `version:` Feld setzen (nimmt automatisch aus packageManager)
-- CI verwendet `prisma migrate deploy` (nicht `migrate dev`)
-- sitemap.xml braucht `force-dynamic` Export
-- Dockerfile: `node-linker=hoisted` in .npmrc für flaches node_modules
-- Prisma: `binaryTargets = ["native", "linux-musl-openssl-3.0.x"]` für Alpine
-
-## Befehle
-
-```bash
-# Entwicklung
-pnpm dev                    # Dev-Server starten
-pnpm build                  # Production Build
-pnpm test                   # Tests ausführen
-pnpm test:watch             # Tests im Watch-Mode
-pnpm lint                   # ESLint ausführen
-pnpm type-check             # TypeScript Prüfung
-
-# Datenbank
-pnpm db:generate            # Prisma Client generieren
-pnpm db:migrate             # Migration erstellen und ausführen
-pnpm db:push                # Schema pushen ohne Migration (Dev)
-pnpm db:seed                # Seed-Daten laden
-pnpm db:studio              # Prisma Studio öffnen (DB GUI)
-
-# Content (via Web-Editor im Browser)
-# Einträge werden unter /admin/entries/new im Browser erstellt.
-# Kein CLI-Befehl nötig für neue Einträge.
-
-# Legacy (noch in package.json, evtl. entfernen)
-# pnpm db:sync              # Frontmatter-Habits → DB (aus MDX-Ära)
-# pnpm new-entry            # MDX-Eintrag erstellen (aus MDX-Ära)
-
-# Docker
-docker compose up -d        # Container starten
-docker compose down         # Container stoppen
-docker compose build        # Image neu bauen
-
-# Backup & Restore (auf dem HomeLab Host ausführen)
-./scripts/backup.sh                              # Manuelles Backup erstellen
-./scripts/restore.sh                             # Verfügbare Backups auflisten
-./scripts/restore.sh backup_2026-04-06_020000.sql.gz  # Backup einspielen
-```
-
-## Backup-Strategie
-
-### Automatisiertes Backup (HomeLab Cron)
-
-```bash
-# Cron-Job auf dem HomeLab Host einrichten:
-# Datei: /etc/cron.d/project365blog-backup
-0 2 * * * root /container/project365blog/scripts/backup.sh >> /var/log/project365blog-backup.log 2>&1
-```
-
-Scripts liegen im Repo unter `scripts/` und müssen auf dem HomeLab Host ausführbar sein:
-
-```bash
-chmod +x /container/project365blog/scripts/backup.sh
-chmod +x /container/project365blog/scripts/restore.sh
-```
-
-### Rotation
-
-| Typ       | Aufbewahrung                         |
-|-----------|--------------------------------------|
-| Täglich   | Letzte 7 Backups                     |
-| Wöchentlich | 1 pro Woche, letzte 4 Wochen       |
-| Monatlich | 1 pro Monat, letzte 3 Monate         |
-
-Backups liegen in `/container/project365blog/backups/` als `.sql.gz` Dateien.
-
-### Backup vor Updates
-
-```bash
-# IMMER vor docker compose pull/up ein Backup erstellen:
-/container/project365blog/scripts/backup.sh
-docker compose pull && docker compose up -d
-```
-
-### Optional: Healthcheck-Ping
-
-```bash
-# Umgebungsvariable setzen für Healthcheck-Ping (z.B. healthchecks.io):
-HEALTHCHECK_URL=https://hc-ping.com/your-uuid /container/project365blog/scripts/backup.sh
-```
-
-### Restore
-
-```bash
-# Verfügbare Backups anzeigen:
-./scripts/restore.sh
-
-# Backup einspielen (interaktiv mit Sicherheitsabfrage):
-./scripts/restore.sh backup_2026-04-06_020000.sql.gz
-
-# Nach dem Restore: Prisma Migrations prüfen:
-docker compose exec web npx prisma migrate deploy
-```
-
-## Umgebung
-
-- **Lokale Entwicklung:** macOS, VS Code / Terminal mit Claude Code
-- **Node.js:** 20 LTS
-- **Deployment:** Docker auf HomeLab-Server (pilab01.lab.dom42.ch)
-- **Volumes:** /container/project365blog/
-- **Reverse Proxy:** Nginx Proxy Manager
-- **Repository:** github.com/dom-4242/project365blog
-- **Projektpfad lokal:** /Users/dominiquestampfli/Documents/13_Dev/6_Project365Blog
-
-## Bekannte Aufräum-Aufgaben
-
-- Duplikat-Dateien löschen (vermutlich Copy-Paste-Versehen):
-  `HabitBadges 2.tsx`, `JournalFeed 2.tsx`, `JournalPost 2.tsx`,
-  `LocaleSwitcher 2.tsx`, `navigation 2.ts`
-- Legacy-Scripts aus package.json entfernen (`db:sync`, `new-entry`)
+## Workflow & Konventionen
+
+- **Git:** Feature Branch Workflow → Issue → Branch → Claude Code → PR → CI → Squash Merge mit `-d`
+- **Commits:** Conventional Commits in Englisch (`feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`)
+- **Direkt auf main:** Nur für Dokumentation/Content-Änderungen
+- **Issue-Nummern:** Nicht fortlaufend (GitHub zählt Issues + PRs zusammen)
+- **CI:** GitHub Actions — Lint, Type-Check, Tests (Vitest + PostgreSQL), Build
+- **Deploy:** Docker Image → ghcr.io/dom-4242/project365blog
+
+## CI/CD Hinweise
+
+- `pnpm/action-setup`: Keine `version:` angeben (packageManager in package.json)
+- CI: `migrate deploy` verwenden, nicht `migrate dev`
+- `force-dynamic` für `sitemap.xml`
+- Dockerfile: pnpm hoisted node_modules + Prisma Alpine Binary Targets
+
+## Integrations-Status
+
+### Fitbit API
+
+- OAuth 2.0, Client ID `23VD2F`, User `6RWGGH`
+- Access/Refresh Tokens vorhanden
+- ⚠️ Client Secret Rotation ausstehend
+- Cron-Container für automatischen Sync
+
+### Apple Health Auto Export
+
+- iOS App (Lifetime), POSTing an `/api/health-import`
+- Bearer Token Auth funktioniert (200 OK)
+- ⚠️ `daysProcessed: 0` — Parser `parseHealthPayload()` matcht nicht mit v2 Export-Format
+- Fix blockiert durch ausstehendes HomeLab Deployment
+
+### Infrastruktur
+
+- Nginx Proxy Manager: Container `nginxproxy`, DNS fix applied (`dns: 192.168.1.11`)
+- App Container: `app-web-1`, Compose Dir: `/container/project365blog/app`
+- ⚠️ HomeLab Deployment noch ausstehend
+
+## Abgeschlossene Phasen
+
+### Phase 1 — MVP ✅
+
+Next.js Setup, MDX, Habits-Sync, Fitbit API, Journal Feed, Reactions, Dashboard, Metriken, Docker, UI Redesign
+
+### Phase 1.5 — Web-CMS & Auth ✅
+
+NextAuth Google OAuth, JournalEntry DB-Model (Migration von MDX), Tiptap Editor, Habits-Auswahl, Banner Upload, Metriken-Erfassung, Admin-Dashboard
+
+### Phase 2 — Polish, Fitbit & Apple Health ✅
+
+Fitbit API live, Apple Health Integration, Dark Mode, SEO, RSS-Feed, Suche, Animationen, Eintrag löschen, Admin-Link
+
+### Phase 3 — Mehrsprachigkeit ✅
+
+next-intl Setup (/de, /en), UI-Übersetzungen, Sprachumschalter, AI-Übersetzung via Claude API, Übersetzungs-Cache, SEO hreflang
+
+### Phase 4 — Visualisierung, Analytics & Datenqualität ✅
+
+i18n-Lücken geschlossen, statische Werte (Grösse/Ziele), GitHub-style Contribution Grid, Live-Vorschau im Editor, PostgreSQL Backup-Strategie, Admin-Analytics (Privacy-first), AI-Monats-Zusammenfassungen
+
+## Aktuelle Phase: Phase 5
+
+### Phase 5a — Bugfixing & Aufräumen
+
+1. Banner-Bild wird im Feed nicht angezeigt (Bug)
+2. HTML-Tag `<br/>` im Startseiten-Titel (Bug)
+3. Drop-Cap (übergrosse Anfangsbuchstaben) entfernen (Bug)
+4. Säulen-Logik für Zielerfüllung anpassen (neue Stufe `TRAINED_ONLY`, Schwellen ändern)
+5. Security Review + Massnahmen
+6. Deploy-Webhook in GitHub Actions
+7. Admin → Startseite Link
+8. Excerpt-Feld klären/dokumentieren
+9. Favicon mit AI generieren
+
+### Phase 5b — UI/UX Redesign (Catppuccin)
+
+1. Catppuccin Design-System als Tailwind-Theme (Latte/Mocha)
+2. Public-Bereich Startseite neu strukturieren (Hero + Tabs/Sections)
+3. Admin-Bereich Navigation überarbeiten (Sidebar statt überladene Top-Nav)
+4. Projektbeschreibung auf Startseite für Besucher
+
+### Phase 5c — Neue Funktionen
+
+1. Starttag in Admin-Einstellungen definierbar
+2. Emoji-Reactions in Journal-Übersichtsseite (Feed)
+3. Zusätzliche Sprachen (PT, FR, IT, ES) — UI + AI-Übersetzung, Admin bleibt DE
+
+## Backlog (Phase 6+)
+
+- Vierte Säule / Spenden-Indikator (Betterplace)
+- Social Media Strategie
+- Live Location Map (OwnTracks)
+- Komoot Routen-Anzeige
+- Apple Health Parser Fix (nach HomeLab Deployment)
+
+## Bekannte Bugs (nicht in Issues)
+
+- Komisches Icon neben Abmelden im Admin
+- Banner Bild auswählen öffnet Fotos App auf Apple Geräten
+- Eintrag Vorschau Box nicht übersetzt bei maschineller Übersetzung
+- Health Auto Export automatische Ausführung geht nicht
