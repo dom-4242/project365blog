@@ -545,6 +545,66 @@ pnpm db:studio              # Prisma Studio öffnen (DB GUI)
 docker compose up -d        # Container starten
 docker compose down         # Container stoppen
 docker compose build        # Image neu bauen
+
+# Backup & Restore (auf dem HomeLab Host ausführen)
+./scripts/backup.sh                              # Manuelles Backup erstellen
+./scripts/restore.sh                             # Verfügbare Backups auflisten
+./scripts/restore.sh backup_2026-04-06_020000.sql.gz  # Backup einspielen
+```
+
+## Backup-Strategie
+
+### Automatisiertes Backup (HomeLab Cron)
+
+```bash
+# Cron-Job auf dem HomeLab Host einrichten:
+# Datei: /etc/cron.d/project365blog-backup
+0 2 * * * root /container/project365blog/scripts/backup.sh >> /var/log/project365blog-backup.log 2>&1
+```
+
+Scripts liegen im Repo unter `scripts/` und müssen auf dem HomeLab Host ausführbar sein:
+
+```bash
+chmod +x /container/project365blog/scripts/backup.sh
+chmod +x /container/project365blog/scripts/restore.sh
+```
+
+### Rotation
+
+| Typ       | Aufbewahrung                         |
+|-----------|--------------------------------------|
+| Täglich   | Letzte 7 Backups                     |
+| Wöchentlich | 1 pro Woche, letzte 4 Wochen       |
+| Monatlich | 1 pro Monat, letzte 3 Monate         |
+
+Backups liegen in `/container/project365blog/backups/` als `.sql.gz` Dateien.
+
+### Backup vor Updates
+
+```bash
+# IMMER vor docker compose pull/up ein Backup erstellen:
+/container/project365blog/scripts/backup.sh
+docker compose pull && docker compose up -d
+```
+
+### Optional: Healthcheck-Ping
+
+```bash
+# Umgebungsvariable setzen für Healthcheck-Ping (z.B. healthchecks.io):
+HEALTHCHECK_URL=https://hc-ping.com/your-uuid /container/project365blog/scripts/backup.sh
+```
+
+### Restore
+
+```bash
+# Verfügbare Backups anzeigen:
+./scripts/restore.sh
+
+# Backup einspielen (interaktiv mit Sicherheitsabfrage):
+./scripts/restore.sh backup_2026-04-06_020000.sql.gz
+
+# Nach dem Restore: Prisma Migrations prüfen:
+docker compose exec web npx prisma migrate deploy
 ```
 
 ## Umgebung
