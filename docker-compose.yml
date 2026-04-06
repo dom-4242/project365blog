@@ -34,8 +34,7 @@ services:
 
   # --- Next.js App ---
   web:
-    build: .
-    image: ${IMAGE:-ghcr.io/dominiquestampfli/project365blog:latest}
+    image: ${IMAGE:-ghcr.io/dom-4242/project365blog:latest}
     restart: unless-stopped
     ports:
       - "3000:3000"
