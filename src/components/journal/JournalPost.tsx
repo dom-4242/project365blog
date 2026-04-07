@@ -90,7 +90,7 @@ export async function JournalPost({ entry, isTranslated = false }: JournalPostPr
       <hr className="border-sand-200 dark:border-[#4a4540] mb-10" />
 
       <div
-        className="prose prose-stone prose-lg max-w-none prose-dropcap dark:prose-invert"
+        className="prose prose-stone prose-lg max-w-none dark:prose-invert"
         dangerouslySetInnerHTML={{ __html: entry.content }}
       />
 

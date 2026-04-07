@@ -186,7 +186,7 @@ export function EntryPreview({
         {/* Content */}
         {content ? (
           <div
-            className="prose prose-stone prose-lg max-w-none prose-dropcap dark:prose-invert"
+            className="prose prose-stone prose-lg max-w-none dark:prose-invert"
             dangerouslySetInnerHTML={{ __html: content }}
           />
         ) : (
