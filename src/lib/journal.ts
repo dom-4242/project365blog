@@ -2,6 +2,7 @@ import { MovementLevel, NutritionLevel, SmokingStatus } from '@prisma/client'
 import type { JournalEntry as PrismaJournalEntry } from '@prisma/client'
 import { prisma } from './db'
 
+/** @deprecated Use getProjectStartDate() from lib/project-config instead */
 export const PROJECT_START_DATE = '2026-03-26'
 const PROJECT_START = new Date('2026-03-26')
 
@@ -172,9 +173,11 @@ export function getExcerpt(content: string, maxLength = 160): string {
 
 /**
  * Gibt die Projekttagnummer für ein Datums-String zurück (YYYY-MM-DD).
- * Tag 1 = 2026-03-26.
+ * @param date - Datum des Eintrags (YYYY-MM-DD)
+ * @param startDate - Projekt-Startdatum (YYYY-MM-DD). Default: hardcodierter Fallback.
  */
-export function getDayNumber(date: string): number {
-  const ms = new Date(date).getTime() - PROJECT_START.getTime()
+export function getDayNumber(date: string, startDate?: string): number {
+  const start = startDate ? new Date(startDate) : PROJECT_START
+  const ms = new Date(date).getTime() - start.getTime()
   return Math.floor(ms / 86_400_000) + 1
 }

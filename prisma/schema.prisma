@@ -115,11 +115,12 @@ enum MetricSource {
 // =============================================
 
 model UserProfile {
-  id           String   @id @default("singleton")
-  heightCm     Float?   // Körpergrösse in cm
-  targetWeight Float?   // Zielgewicht in kg
-  targetSteps  Int?     // Tagesziel Schritte
-  updatedAt    DateTime @updatedAt
+  id               String   @id @default("singleton")
+  heightCm         Float?   // Körpergrösse in cm
+  targetWeight     Float?   // Zielgewicht in kg
+  targetSteps      Int?     // Tagesziel Schritte
+  projectStartDate String?  // Projekt-Startdatum YYYY-MM-DD (Default: 2026-03-26)
+  updatedAt        DateTime @updatedAt
 }
 
 // =============================================

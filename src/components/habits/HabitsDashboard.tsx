@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server'
-import { getAllEntries, PROJECT_START_DATE } from '@/lib/journal'
+import { getAllEntries } from '@/lib/journal'
+import { getProjectStartDate } from '@/lib/project-config'
 import {
   calculateStreak,
   isMovementFulfilled,
@@ -24,11 +25,15 @@ function generateDateRange(from: string, to: string): string[] {
 }
 
 export async function HabitsDashboard() {
-  const [entries, t] = await Promise.all([getAllEntries(), getTranslations('HabitsDashboard')])
+  const [entries, t, startDate] = await Promise.all([
+    getAllEntries(),
+    getTranslations('HabitsDashboard'),
+    getProjectStartDate(),
+  ])
   const entryMap = new Map(entries.map((e) => [e.date, e]))
 
   const today = new Date().toISOString().slice(0, 10)
-  const allDates = generateDateRange(PROJECT_START_DATE, today)
+  const allDates = generateDateRange(startDate, today)
 
   const movementDays = allDates.map((date) => ({
     date,

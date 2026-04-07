@@ -8,6 +8,7 @@ export interface ProfileFormData {
   heightCm: string
   targetWeight: string
   targetSteps: string
+  projectStartDate: string
 }
 
 export interface ProfileActionResult {
@@ -31,10 +32,27 @@ export async function upsertProfile(data: ProfileFormData): Promise<ProfileActio
   const session = await requireAdmin()
   if (!session) return { error: 'Nicht autorisiert' }
 
+  // Validate projectStartDate: must be YYYY-MM-DD and not in the future
+  let projectStartDate: string | null = null
+  if (data.projectStartDate.trim()) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(data.projectStartDate)) {
+      return { error: 'Startdatum muss im Format YYYY-MM-DD sein' }
+    }
+    const d = new Date(data.projectStartDate)
+    if (isNaN(d.getTime())) {
+      return { error: 'Ungültiges Startdatum' }
+    }
+    if (d > new Date()) {
+      return { error: 'Startdatum darf nicht in der Zukunft liegen' }
+    }
+    projectStartDate = data.projectStartDate
+  }
+
   const payload = {
     heightCm: toFloat(data.heightCm),
     targetWeight: toFloat(data.targetWeight),
     targetSteps: toInt(data.targetSteps),
+    projectStartDate,
   }
 
   try {
