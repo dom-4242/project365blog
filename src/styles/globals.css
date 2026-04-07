@@ -3,22 +3,82 @@
 @tailwind utilities;
 
 @layer base {
+  /* =============================================
+   * Catppuccin Latte — Light Mode
+   * https://catppuccin.com/palette
+   * ============================================= */
+  :root {
+    --ctp-rosewater: #dc8a78;
+    --ctp-flamingo:  #dd7878;
+    --ctp-pink:      #ea76cb;
+    --ctp-mauve:     #8839ef;
+    --ctp-red:       #d20f39;
+    --ctp-maroon:    #e64553;
+    --ctp-peach:     #fe640b;
+    --ctp-yellow:    #df8e1d;
+    --ctp-green:     #40a02b;
+    --ctp-teal:      #179299;
+    --ctp-sky:       #04a5e5;
+    --ctp-sapphire:  #209fb5;
+    --ctp-blue:      #1e66f5;
+    --ctp-lavender:  #7287fd;
+    --ctp-text:      #4c4f69;
+    --ctp-subtext1:  #5c5f77;
+    --ctp-subtext0:  #6c6f85;
+    --ctp-overlay2:  #7c7f93;
+    --ctp-overlay1:  #8c8fa1;
+    --ctp-overlay0:  #9ca0b0;
+    --ctp-surface2:  #acb0be;
+    --ctp-surface1:  #bcc0cc;
+    --ctp-surface0:  #ccd0da;
+    --ctp-base:      #eff1f5;
+    --ctp-mantle:    #e6e9ef;
+    --ctp-crust:     #dce0e8;
+  }
+
+  /* =============================================
+   * Catppuccin Mocha — Dark Mode
+   * ============================================= */
+  .dark {
+    --ctp-rosewater: #f5e0dc;
+    --ctp-flamingo:  #f2cdcd;
+    --ctp-pink:      #f5c2e7;
+    --ctp-mauve:     #cba6f7;
+    --ctp-red:       #f38ba8;
+    --ctp-maroon:    #eba0ac;
+    --ctp-peach:     #fab387;
+    --ctp-yellow:    #f9e2af;
+    --ctp-green:     #a6e3a1;
+    --ctp-teal:      #94e2d5;
+    --ctp-sky:       #89dceb;
+    --ctp-sapphire:  #74c7ec;
+    --ctp-blue:      #89b4fa;
+    --ctp-lavender:  #b4befe;
+    --ctp-text:      #cdd6f4;
+    --ctp-subtext1:  #bac2de;
+    --ctp-subtext0:  #a6adc8;
+    --ctp-overlay2:  #9399b2;
+    --ctp-overlay1:  #7f849c;
+    --ctp-overlay0:  #6c7086;
+    --ctp-surface2:  #585b70;
+    --ctp-surface1:  #45475a;
+    --ctp-surface0:  #313244;
+    --ctp-base:      #1e1e2e;
+    --ctp-mantle:    #181825;
+    --ctp-crust:     #11111b;
+  }
+
   html {
     scroll-behavior: smooth;
   }
 
   body {
     font-family: var(--font-body), Georgia, serif;
-    background-color: #faf9f7;
-    color: #2d2926;
+    background-color: var(--ctp-base);
+    color: var(--ctp-text);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-  }
-
-  .dark body {
-    background-color: #1a1714;
-    color: #e8e4dc;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -26,40 +86,26 @@
   }
 
   ::selection {
-    background-color: #fde68a;
-    color: #1a1714;
-  }
-
-  .dark ::selection {
-    background-color: #b45309;
-    color: #faf9f7;
+    background-color: var(--ctp-mauve);
+    color: var(--ctp-base);
   }
 
   :focus-visible {
-    outline: 2px solid #f59e0b;
+    outline: 2px solid var(--ctp-peach);
     outline-offset: 2px;
     border-radius: 2px;
   }
 
-  /* Chart CSS variables — used by Recharts SVG elements */
-  :root {
-    --chart-grid: #e8e4dc;
-    --chart-axis: #b5aca0;
-    --chart-axis-line: #e8e4dc;
-    --chart-tooltip-bg: #ffffff;
-    --chart-tooltip-border: #e8e4dc;
-    --chart-tooltip-text: #1a1714;
-    --chart-tooltip-muted: #b5aca0;
-  }
-
-  .dark {
-    --chart-grid: #4a4540;
-    --chart-axis: #9a9088;
-    --chart-axis-line: #4a4540;
-    --chart-tooltip-bg: #2d2926;
-    --chart-tooltip-border: #4a4540;
-    --chart-tooltip-text: #faf9f7;
-    --chart-tooltip-muted: #9a9088;
+  /* =============================================
+   * Chart CSS variables — used by Recharts SVG
+   * ============================================= */
+  :root, .dark {
+    --chart-grid:         var(--ctp-surface0);
+    --chart-axis:         var(--ctp-overlay1);
+    --chart-axis-line:    var(--ctp-surface0);
+    --chart-tooltip-bg:   var(--ctp-mantle);
+    --chart-tooltip-border: var(--ctp-surface0);
+    --chart-tooltip-text: var(--ctp-text);
+    --chart-tooltip-muted: var(--ctp-overlay1);
   }
 }
-

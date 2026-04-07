@@ -11,66 +11,126 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Basis: Warme, erdige Töne
+        // =============================================
+        // Catppuccin semantic tokens (CSS-var-based)
+        // Switch automatically between Latte and Mocha
+        // =============================================
+        ctp: {
+          rosewater: 'var(--ctp-rosewater)',
+          flamingo:  'var(--ctp-flamingo)',
+          pink:      'var(--ctp-pink)',
+          mauve:     'var(--ctp-mauve)',
+          red:       'var(--ctp-red)',
+          maroon:    'var(--ctp-maroon)',
+          peach:     'var(--ctp-peach)',
+          yellow:    'var(--ctp-yellow)',
+          green:     'var(--ctp-green)',
+          teal:      'var(--ctp-teal)',
+          sky:       'var(--ctp-sky)',
+          sapphire:  'var(--ctp-sapphire)',
+          blue:      'var(--ctp-blue)',
+          lavender:  'var(--ctp-lavender)',
+          text:      'var(--ctp-text)',
+          subtext1:  'var(--ctp-subtext1)',
+          subtext0:  'var(--ctp-subtext0)',
+          overlay2:  'var(--ctp-overlay2)',
+          overlay1:  'var(--ctp-overlay1)',
+          overlay0:  'var(--ctp-overlay0)',
+          surface2:  'var(--ctp-surface2)',
+          surface1:  'var(--ctp-surface1)',
+          surface0:  'var(--ctp-surface0)',
+          base:      'var(--ctp-base)',
+          mantle:    'var(--ctp-mantle)',
+          crust:     'var(--ctp-crust)',
+        },
+
+        // =============================================
+        // Surface scale — mapped to Catppuccin Latte
+        // Dark equivalents via hardcoded dark: classes
+        // (progressive migration to ctp-* planned)
+        // =============================================
         sand: {
-          50: '#faf9f7',
-          100: '#f2efe9',
-          200: '#e8e4dc',
-          300: '#d4cec3',
-          400: '#b5aca0',
-          500: '#9a9088',
-          600: '#7a706a',
+          50:  '#eff1f5', // Latte Base
+          100: '#e6e9ef', // Latte Mantle
+          200: '#dce0e8', // Latte Crust
+          300: '#acb0be', // Latte Surface2
+          400: '#8c8fa1', // Latte Overlay1
+          500: '#7c7f93', // Latte Overlay2
+          600: '#5c5f77', // Latte Subtext1
         },
-        // Säule Bewegung: Grün-Töne
+
+        // =============================================
+        // Säule Bewegung — Catppuccin Green
+        // Latte: #40a02b  |  Mocha: #a6e3a1
+        // =============================================
         movement: {
-          100: '#dcfce7',
-          200: '#bbf7d0',
-          400: '#4ade80',
-          500: '#22c55e',
-          600: '#16a34a',
-          700: '#15803d',
-          800: '#166534',
-          900: '#14532d',
+          100: '#e0f5d4',
+          200: '#b8e8a0',
+          400: '#62bc44',
+          500: '#40a02b',
+          600: '#2e7520',
+          700: '#1f5217',
+          800: '#12360e',
+          900: '#071d05',
         },
-        // Säule Ernährung: Orange/Amber-Töne
+
+        // =============================================
+        // Säule Ernährung — Catppuccin Peach
+        // Latte: #fe640b  |  Mocha: #fab387
+        // =============================================
         nutrition: {
-          100: '#fef3c7',
-          200: '#fde68a',
-          400: '#fbbf24',
-          500: '#f59e0b',
-          600: '#d97706',
-          700: '#b45309',
-          800: '#92400e',
-          900: '#78350f',
+          100: '#fde8d4',
+          200: '#fbc3a0',
+          400: '#fd8b50',
+          500: '#fe640b',
+          600: '#d44c08',
+          700: '#ab3806',
+          800: '#852804',
+          900: '#5e1c02',
         },
-        // Säule Rauchstopp: Blau-Töne
+
+        // =============================================
+        // Säule Rauchstopp — Catppuccin Blue
+        // Latte: #1e66f5  |  Mocha: #89b4fa
+        // =============================================
         smoking: {
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
+          100: '#dce8fd',
+          200: '#afc9fb',
+          400: '#5b91f7',
+          500: '#1e66f5',
+          600: '#1250c2',
+          700: '#0c3c92',
+          800: '#072a65',
+          900: '#031b40',
         },
       },
+
       fontFamily: {
         display: ['var(--font-display)', 'Georgia', 'serif'],
-        body: ['var(--font-body)', 'Georgia', 'serif'],
+        body:    ['var(--font-body)',    'Georgia', 'serif'],
       },
+
       typography: {
         DEFAULT: {
           css: {
-            '--tw-prose-body': '#2d2926',
-            '--tw-prose-headings': '#1a1714',
-            '--tw-prose-links': '#b45309',
-            '--tw-prose-bold': '#1a1714',
-            '--tw-prose-hr': '#e8e4dc',
-            '--tw-prose-quotes': '#6b6560',
-            '--tw-prose-quote-borders': '#d4cec3',
-            '--tw-prose-captions': '#9a9088',
-            '--tw-prose-code': '#1a1714',
+            '--tw-prose-body':          'var(--ctp-text)',
+            '--tw-prose-headings':      'var(--ctp-text)',
+            '--tw-prose-links':         'var(--ctp-peach)',
+            '--tw-prose-bold':          'var(--ctp-text)',
+            '--tw-prose-hr':            'var(--ctp-surface0)',
+            '--tw-prose-quotes':        'var(--ctp-subtext0)',
+            '--tw-prose-quote-borders': 'var(--ctp-surface1)',
+            '--tw-prose-captions':      'var(--ctp-overlay1)',
+            '--tw-prose-code':          'var(--ctp-text)',
+            '--tw-prose-invert-body':          'var(--ctp-text)',
+            '--tw-prose-invert-headings':      'var(--ctp-text)',
+            '--tw-prose-invert-links':         'var(--ctp-peach)',
+            '--tw-prose-invert-bold':          'var(--ctp-text)',
+            '--tw-prose-invert-hr':            'var(--ctp-surface0)',
+            '--tw-prose-invert-quotes':        'var(--ctp-subtext0)',
+            '--tw-prose-invert-quote-borders': 'var(--ctp-surface1)',
+            '--tw-prose-invert-captions':      'var(--ctp-overlay1)',
+            '--tw-prose-invert-code':          'var(--ctp-text)',
             fontFamily: 'var(--font-body), Georgia, serif',
             lineHeight: '1.75',
             maxWidth: 'none',
