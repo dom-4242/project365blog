@@ -26,6 +26,15 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
             <AdminNav />
           </div>
           <div className="flex items-center gap-3">
+            <Link
+              href="/de"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-sand-500 hover:text-[#1a1714] dark:hover:text-[#faf9f7] transition-colors"
+              title="Zur öffentlichen Seite"
+            >
+              ↗ Zur Seite
+            </Link>
             {session.user?.image && (
               // eslint-disable-next-line @next/next/no-img-element
               <img
