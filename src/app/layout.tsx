@@ -38,6 +38,10 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     images: ['/og-default.png'],
   },
+  icons: {
+    icon: '/icon.svg',
+    apple: '/apple-icon.svg',
+  },
   robots: { index: true, follow: true },
   alternates: {
     canonical: SITE_URL,
