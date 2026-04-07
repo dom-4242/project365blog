@@ -56,9 +56,9 @@ function fmt(n: number | null, decimals = 1, unit = ''): string {
 const SYSTEM_PROMPT = `Du bist ein einfühlsamer persönlicher Assistent, der monatliche Rückblicke für ein öffentliches Tagebuch-Projekt schreibt.
 
 "Project 365" ist ein öffentliches 365-Tage-Tagebuch. Der Autor dokumentiert täglich seine drei Gewohnheits-Säulen:
-- Bewegung: MINIMAL | STEPS_ONLY (10'000+ Schritte) | STEPS_TRAINED (10'000+ Schritte + Training)
-- Ernährung: NONE | ONE | TWO | THREE (gesunde Mahlzeiten pro Tag)
-- Rauchstopp: SMOKED | REPLACEMENT (Nikotinersatz) | NONE (rauchfrei)
+- Bewegung: MINIMAL | STEPS_ONLY (10'000+ Schritte) | TRAINED_ONLY (Training, unter 10k) | STEPS_TRAINED (10'000+ Schritte + Training)
+- Ernährung: NONE | ONE_MEAL | TWO_MEALS | THREE_MEALS (gesunde Mahlzeiten pro Tag)
+- Rauchstopp: SMOKED | NICOTINE_REPLACEMENT (Nikotinersatz) | SMOKE_FREE (rauchfrei)
 
 Schreibe einen motivierenden, ehrlichen Monatsrückblick in der Du-Form. Tone: warm, persönlich, ehrlich — kein klinisches Dashboard.
 
@@ -115,9 +115,9 @@ function buildPrompt(ctx: SummaryContext): string {
 Einträge: ${ctx.entryCount} von ~${new Date(ctx.year, ctx.month, 0).getDate()} Tagen
 
 HABITS-STATISTIK:
-- Bewegung gut (STEPS_ONLY oder STEPS_TRAINED): ${ctx.habitStats.movementGood}
+- Bewegung gut (STEPS_ONLY, TRAINED_ONLY oder STEPS_TRAINED): ${ctx.habitStats.movementGood}
 - Ernährung gut (mind. 2 Mahlzeiten): ${ctx.habitStats.nutritionGood}
-- Rauchfrei (NONE): ${ctx.habitStats.smokingClean}
+- Nicht geraucht (NICOTINE_REPLACEMENT oder SMOKE_FREE): ${ctx.habitStats.smokingClean}
 - Geraucht (SMOKED): ${ctx.habitStats.smokingSmoked}
 
 METRIKEN (Monatsdurchschnitt):
@@ -185,9 +185,9 @@ export async function generateAndSaveMonthSummary(year: number, month: number): 
       smoking: e.smoking,
     })),
     habitStats: {
-      movementGood: habitRate(movements, [MovementLevel.STEPS_ONLY, MovementLevel.STEPS_TRAINED]),
-      nutritionGood: habitRate(nutritions, [NutritionLevel.TWO, NutritionLevel.THREE]),
-      smokingClean: habitRate(smokings, [SmokingStatus.NONE]),
+      movementGood: habitRate(movements, [MovementLevel.STEPS_ONLY, MovementLevel.TRAINED_ONLY, MovementLevel.STEPS_TRAINED]),
+      nutritionGood: habitRate(nutritions, [NutritionLevel.TWO_MEALS, NutritionLevel.THREE_MEALS]),
+      smokingClean: habitRate(smokings, [SmokingStatus.NICOTINE_REPLACEMENT, SmokingStatus.SMOKE_FREE]),
       smokingSmoked: habitRate(smokings, [SmokingStatus.SMOKED]),
     },
     metrics: {

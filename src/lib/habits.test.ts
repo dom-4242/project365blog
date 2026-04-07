@@ -21,6 +21,9 @@ describe('isMovementFulfilled', () => {
   it('returns true for steps_only', () => {
     expect(isMovementFulfilled('steps_only')).toBe(true)
   })
+  it('returns true for trained_only', () => {
+    expect(isMovementFulfilled('trained_only')).toBe(true)
+  })
   it('returns true for steps_trained', () => {
     expect(isMovementFulfilled('steps_trained')).toBe(true)
   })
@@ -30,14 +33,14 @@ describe('isNutritionFulfilled', () => {
   it('returns false for none', () => {
     expect(isNutritionFulfilled('none')).toBe(false)
   })
-  it('returns true for one', () => {
-    expect(isNutritionFulfilled('one')).toBe(true)
+  it('returns false for one_meal', () => {
+    expect(isNutritionFulfilled('one_meal')).toBe(false)
   })
-  it('returns true for two', () => {
-    expect(isNutritionFulfilled('two')).toBe(true)
+  it('returns true for two_meals', () => {
+    expect(isNutritionFulfilled('two_meals')).toBe(true)
   })
-  it('returns true for three', () => {
-    expect(isNutritionFulfilled('three')).toBe(true)
+  it('returns true for three_meals', () => {
+    expect(isNutritionFulfilled('three_meals')).toBe(true)
   })
 })
 
@@ -45,11 +48,11 @@ describe('isSmokingFulfilled', () => {
   it('returns false for smoked', () => {
     expect(isSmokingFulfilled('smoked')).toBe(false)
   })
-  it('returns false for replacement', () => {
-    expect(isSmokingFulfilled('replacement')).toBe(false)
+  it('returns true for nicotine_replacement', () => {
+    expect(isSmokingFulfilled('nicotine_replacement')).toBe(true)
   })
-  it('returns true for none', () => {
-    expect(isSmokingFulfilled('none')).toBe(true)
+  it('returns true for smoke_free', () => {
+    expect(isSmokingFulfilled('smoke_free')).toBe(true)
   })
 })
 
@@ -64,11 +67,14 @@ describe('MOVEMENT_ENUM_MAP', () => {
   it('maps steps_only → STEPS_ONLY', () => {
     expect(MOVEMENT_ENUM_MAP.steps_only).toBe(MovementLevel.STEPS_ONLY)
   })
+  it('maps trained_only → TRAINED_ONLY', () => {
+    expect(MOVEMENT_ENUM_MAP.trained_only).toBe(MovementLevel.TRAINED_ONLY)
+  })
   it('maps steps_trained → STEPS_TRAINED', () => {
     expect(MOVEMENT_ENUM_MAP.steps_trained).toBe(MovementLevel.STEPS_TRAINED)
   })
   it('covers all MovementValue variants', () => {
-    expect(Object.keys(MOVEMENT_ENUM_MAP)).toHaveLength(3)
+    expect(Object.keys(MOVEMENT_ENUM_MAP)).toHaveLength(4)
   })
 })
 
@@ -76,14 +82,14 @@ describe('NUTRITION_ENUM_MAP', () => {
   it('maps none → NONE', () => {
     expect(NUTRITION_ENUM_MAP.none).toBe(NutritionLevel.NONE)
   })
-  it('maps one → ONE', () => {
-    expect(NUTRITION_ENUM_MAP.one).toBe(NutritionLevel.ONE)
+  it('maps one_meal → ONE_MEAL', () => {
+    expect(NUTRITION_ENUM_MAP.one_meal).toBe(NutritionLevel.ONE_MEAL)
   })
-  it('maps two → TWO', () => {
-    expect(NUTRITION_ENUM_MAP.two).toBe(NutritionLevel.TWO)
+  it('maps two_meals → TWO_MEALS', () => {
+    expect(NUTRITION_ENUM_MAP.two_meals).toBe(NutritionLevel.TWO_MEALS)
   })
-  it('maps three → THREE', () => {
-    expect(NUTRITION_ENUM_MAP.three).toBe(NutritionLevel.THREE)
+  it('maps three_meals → THREE_MEALS', () => {
+    expect(NUTRITION_ENUM_MAP.three_meals).toBe(NutritionLevel.THREE_MEALS)
   })
   it('covers all NutritionValue variants', () => {
     expect(Object.keys(NUTRITION_ENUM_MAP)).toHaveLength(4)
@@ -94,11 +100,11 @@ describe('SMOKING_ENUM_MAP', () => {
   it('maps smoked → SMOKED', () => {
     expect(SMOKING_ENUM_MAP.smoked).toBe(SmokingStatus.SMOKED)
   })
-  it('maps replacement → REPLACEMENT', () => {
-    expect(SMOKING_ENUM_MAP.replacement).toBe(SmokingStatus.REPLACEMENT)
+  it('maps nicotine_replacement → NICOTINE_REPLACEMENT', () => {
+    expect(SMOKING_ENUM_MAP.nicotine_replacement).toBe(SmokingStatus.NICOTINE_REPLACEMENT)
   })
-  it('maps none → NONE', () => {
-    expect(SMOKING_ENUM_MAP.none).toBe(SmokingStatus.NONE)
+  it('maps smoke_free → SMOKE_FREE', () => {
+    expect(SMOKING_ENUM_MAP.smoke_free).toBe(SmokingStatus.SMOKE_FREE)
   })
   it('covers all SmokingValue variants', () => {
     expect(Object.keys(SMOKING_ENUM_MAP)).toHaveLength(3)

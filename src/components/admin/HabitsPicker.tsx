@@ -14,13 +14,13 @@ import {
 // =============================================
 
 function isMovementFulfilled(m: MovementLevel): boolean {
-  return m === 'STEPS_ONLY' || m === 'STEPS_TRAINED'
+  return m === 'STEPS_ONLY' || m === 'TRAINED_ONLY' || m === 'STEPS_TRAINED'
 }
 function isNutritionFulfilled(n: NutritionLevel): boolean {
-  return n !== 'NONE'
+  return n === 'TWO_MEALS' || n === 'THREE_MEALS'
 }
 function isSmokingFulfilled(s: SmokingStatus): boolean {
-  return s === 'NONE'
+  return s === 'NICOTINE_REPLACEMENT' || s === 'SMOKE_FREE'
 }
 
 // =============================================

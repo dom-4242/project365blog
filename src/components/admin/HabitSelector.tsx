@@ -80,6 +80,12 @@ export const MOVEMENT_OPTIONS: HabitOption<MovementLevel>[] = [
     fulfillment: 'fulfilled',
   },
   {
+    value: 'TRAINED_ONLY',
+    label: 'Training',
+    description: 'Training absolviert, unter 10k Schritte',
+    fulfillment: 'fulfilled',
+  },
+  {
     value: 'STEPS_TRAINED',
     label: '10k+ & Training',
     description: 'Über 10k Schritte + Training',
@@ -95,19 +101,19 @@ export const NUTRITION_OPTIONS: HabitOption<NutritionLevel>[] = [
     fulfillment: 'unfulfilled',
   },
   {
-    value: 'ONE',
+    value: 'ONE_MEAL',
     label: '1 Mahlzeit',
     description: 'Eine gesunde Mahlzeit',
-    fulfillment: 'fulfilled',
+    fulfillment: 'unfulfilled',
   },
   {
-    value: 'TWO',
+    value: 'TWO_MEALS',
     label: '2 Mahlzeiten',
     description: 'Zwei gesunde Mahlzeiten',
     fulfillment: 'fulfilled',
   },
   {
-    value: 'THREE',
+    value: 'THREE_MEALS',
     label: '3 Mahlzeiten',
     description: 'Drei gesunde Mahlzeiten',
     fulfillment: 'fulfilled',
@@ -122,13 +128,13 @@ export const SMOKING_OPTIONS: HabitOption<SmokingStatus>[] = [
     fulfillment: 'unfulfilled',
   },
   {
-    value: 'REPLACEMENT',
+    value: 'NICOTINE_REPLACEMENT',
     label: 'Nikotinersatz',
     description: 'Nicht geraucht, aber Nikotinersatz',
-    fulfillment: 'partial',
+    fulfillment: 'fulfilled',
   },
   {
-    value: 'NONE',
+    value: 'SMOKE_FREE',
     label: 'Rauchfrei',
     description: 'Rauchfrei ohne Hilfsmittel',
     fulfillment: 'fulfilled',

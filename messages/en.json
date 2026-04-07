@@ -113,18 +113,19 @@
     "movement": {
       "minimal": "Low activity",
       "steps_only": "10k+ steps",
+      "trained_only": "Workout",
       "steps_trained": "10k+ & workout"
     },
     "nutrition": {
       "none": "No healthy meal",
-      "one": "1 healthy meal",
-      "two": "2 healthy meals",
-      "three": "3 healthy meals"
+      "one_meal": "1 healthy meal",
+      "two_meals": "2 healthy meals",
+      "three_meals": "3 healthy meals"
     },
     "smoking": {
       "smoked": "Smoked",
-      "replacement": "NRT used",
-      "none": "Smoke-free"
+      "nicotine_replacement": "NRT used",
+      "smoke_free": "Smoke-free"
     }
   }
 }
