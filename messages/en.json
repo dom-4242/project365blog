@@ -14,7 +14,13 @@
     "headline_1": "365 Days.",
     "headline_2": "Public. Honest.",
     "description": "Daily entries about movement, nutrition and the journey to quit smoking — with real numbers, good days and bad.",
-    "entriesHeading": "Entries"
+    "projectDescription": "I document every day of my life — publicly, honestly, without any gloss. Three habit pillars, real metrics, good and bad days. Accountability through transparency.",
+    "dayCounter": "Day {day} of 365",
+    "tabEntries": "Entries",
+    "tabHabits": "Habits",
+    "tabMetrics": "Metrics",
+    "entriesHeading": "Entries",
+    "allEntries": "Show all {count} entries"
   },
   "HabitsDashboard": {
     "heading": "The Three Pillars",

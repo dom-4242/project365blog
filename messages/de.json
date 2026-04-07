@@ -14,7 +14,13 @@
     "headline_1": "365 Tage.",
     "headline_2": "Öffentlich. Ehrlich.",
     "description": "Tägliche Einträge über Bewegung, Ernährung und den Weg zum Rauchstopp — mit echten Zahlen, guten und schlechten Tagen.",
-    "entriesHeading": "Einträge"
+    "projectDescription": "Ich dokumentiere jeden Tag meines Lebens — öffentlich, ehrlich, ohne Hochglanz. Drei Gewohnheits-Säulen, echte Metriken, gute und schlechte Tage. Accountability durch Transparenz.",
+    "dayCounter": "Tag {day} von 365",
+    "tabEntries": "Einträge",
+    "tabHabits": "Habits",
+    "tabMetrics": "Metriken",
+    "entriesHeading": "Einträge",
+    "allEntries": "Alle {count} Einträge anzeigen"
   },
   "HabitsDashboard": {
     "heading": "Die drei Säulen",
