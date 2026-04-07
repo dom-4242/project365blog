@@ -72,7 +72,7 @@ Journal-Einträge werden in PostgreSQL gespeichert (JournalEntry Model), nicht a
 - `published` Default: `true`
 - Übersetzungen: separates `Translation` Model
 - Prisma Client Singleton: `lib/db.ts`
-- Duplicate Component Files existieren: `HabitBadges 2.tsx` etc. (aufräumen wenn möglich)
+- Feld `excerpt`: Pflichtfeld im Sinne der UX — optional im Editor, aber aktiv genutzt für SEO Meta-Description, Open Graph, RSS-Feed, Suche (indexiert + angezeigt), Feed-Karten-Vorschau und AI-Monats-Zusammenfassungen. Wird automatisch aus Content generiert wenn leer (`extractExcerpt()` in `actions.ts`).
 
 ## Environment Variables
 
