@@ -20,7 +20,11 @@
     "tabHabits": "Habits",
     "tabMetrics": "Metrics",
     "entriesHeading": "Entries",
-    "allEntries": "Show all {count} entries"
+    "allEntries": "Show all {count} entries",
+    "streakDays": "days",
+    "streakMovement": "Current movement streak",
+    "streakNutrition": "Current nutrition streak",
+    "streakSmoking": "Current smoke-free streak"
   },
   "HabitsDashboard": {
     "heading": "The Three Pillars",

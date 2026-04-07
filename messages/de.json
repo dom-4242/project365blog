@@ -20,7 +20,11 @@
     "tabHabits": "Habits",
     "tabMetrics": "Metriken",
     "entriesHeading": "Einträge",
-    "allEntries": "Alle {count} Einträge anzeigen"
+    "allEntries": "Alle {count} Einträge anzeigen",
+    "streakDays": "Tage",
+    "streakMovement": "Aktuelle Bewegungs-Serie",
+    "streakNutrition": "Aktuelle Ernährungs-Serie",
+    "streakSmoking": "Aktuelle Rauchstopp-Serie"
   },
   "HabitsDashboard": {
     "heading": "Die drei Säulen",
