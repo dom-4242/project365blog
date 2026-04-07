@@ -39,20 +39,21 @@ function HabitBadge({ label, fulfilled, level = 'full', colorClass, dimClass }: 
 const MOVEMENT_LABELS: Record<HabitsFrontmatter['movement'], string> = {
   minimal: 'Minimal',
   steps_only: '10k+',
+  trained_only: 'Training',
   steps_trained: '10k+ & Training',
 }
 
 const NUTRITION_LABELS: Record<HabitsFrontmatter['nutrition'], string> = {
   none: '0 Mahlzeiten',
-  one: '1 Mahlzeit',
-  two: '2 Mahlzeiten',
-  three: '3 Mahlzeiten',
+  one_meal: '1 Mahlzeit',
+  two_meals: '2 Mahlzeiten',
+  three_meals: '3 Mahlzeiten',
 }
 
 const SMOKING_LABELS: Record<HabitsFrontmatter['smoking'], string> = {
   smoked: 'Geraucht',
-  replacement: 'Ersatz',
-  none: 'Rauchfrei',
+  nicotine_replacement: 'Ersatz',
+  smoke_free: 'Rauchfrei',
 }
 
 export function HabitBadges({ habits }: HabitBadgesProps) {

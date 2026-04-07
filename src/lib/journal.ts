@@ -9,9 +9,9 @@ const PROJECT_START = new Date('2026-03-26')
 // Types — öffentliche Schnittstelle (unverändert für Komponenten)
 // =============================================
 
-export type MovementValue = 'minimal' | 'steps_only' | 'steps_trained'
-export type NutritionValue = 'none' | 'one' | 'two' | 'three'
-export type SmokingValue = 'smoked' | 'replacement' | 'none'
+export type MovementValue = 'minimal' | 'steps_only' | 'trained_only' | 'steps_trained'
+export type NutritionValue = 'none' | 'one_meal' | 'two_meals' | 'three_meals'
+export type SmokingValue = 'smoked' | 'nicotine_replacement' | 'smoke_free'
 
 export interface HabitsFrontmatter {
   movement: MovementValue
@@ -40,20 +40,21 @@ export type JournalEntryMeta = Omit<JournalEntry, 'content'>
 const MOVEMENT_TO_VALUE: Record<MovementLevel, MovementValue> = {
   MINIMAL: 'minimal',
   STEPS_ONLY: 'steps_only',
+  TRAINED_ONLY: 'trained_only',
   STEPS_TRAINED: 'steps_trained',
 }
 
 const NUTRITION_TO_VALUE: Record<NutritionLevel, NutritionValue> = {
   NONE: 'none',
-  ONE: 'one',
-  TWO: 'two',
-  THREE: 'three',
+  ONE_MEAL: 'one_meal',
+  TWO_MEALS: 'two_meals',
+  THREE_MEALS: 'three_meals',
 }
 
 const SMOKING_TO_VALUE: Record<SmokingStatus, SmokingValue> = {
   SMOKED: 'smoked',
-  REPLACEMENT: 'replacement',
-  NONE: 'none',
+  NICOTINE_REPLACEMENT: 'nicotine_replacement',
+  SMOKE_FREE: 'smoke_free',
 }
 
 function toDateString(date: Date): string {

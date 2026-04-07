@@ -2,22 +2,22 @@ import { MovementLevel, NutritionLevel, SmokingStatus } from '@prisma/client'
 import { getAllEntries, type MovementValue, type NutritionValue, type SmokingValue } from './journal'
 
 // =============================================
-// Streak-Definitionen (Issue #3):
-//   Bewegung  ≥ STEPS_ONLY   → steps_only | steps_trained
-//   Ernährung ≥ ONE          → one | two | three
-//   Rauchstopp = NONE        → none (replacement zählt nicht)
+// Streak-Definitionen (Issue #87):
+//   Bewegung  ≥ STEPS_ONLY oder TRAINED_ONLY → steps_only | trained_only | steps_trained
+//   Ernährung ≥ TWO_MEALS                    → two_meals | three_meals
+//   Rauchstopp ≠ SMOKED                      → nicotine_replacement | smoke_free
 // =============================================
 
 export function isMovementFulfilled(movement: MovementValue): boolean {
-  return movement === 'steps_only' || movement === 'steps_trained'
+  return movement === 'steps_only' || movement === 'trained_only' || movement === 'steps_trained'
 }
 
 export function isNutritionFulfilled(nutrition: NutritionValue): boolean {
-  return nutrition === 'one' || nutrition === 'two' || nutrition === 'three'
+  return nutrition === 'two_meals' || nutrition === 'three_meals'
 }
 
 export function isSmokingFulfilled(smoking: SmokingValue): boolean {
-  return smoking === 'none'
+  return smoking === 'nicotine_replacement' || smoking === 'smoke_free'
 }
 
 // =============================================
@@ -27,20 +27,21 @@ export function isSmokingFulfilled(smoking: SmokingValue): boolean {
 export const MOVEMENT_ENUM_MAP: Record<MovementValue, MovementLevel> = {
   minimal: MovementLevel.MINIMAL,
   steps_only: MovementLevel.STEPS_ONLY,
+  trained_only: MovementLevel.TRAINED_ONLY,
   steps_trained: MovementLevel.STEPS_TRAINED,
 }
 
 export const NUTRITION_ENUM_MAP: Record<NutritionValue, NutritionLevel> = {
   none: NutritionLevel.NONE,
-  one: NutritionLevel.ONE,
-  two: NutritionLevel.TWO,
-  three: NutritionLevel.THREE,
+  one_meal: NutritionLevel.ONE_MEAL,
+  two_meals: NutritionLevel.TWO_MEALS,
+  three_meals: NutritionLevel.THREE_MEALS,
 }
 
 export const SMOKING_ENUM_MAP: Record<SmokingValue, SmokingStatus> = {
   smoked: SmokingStatus.SMOKED,
-  replacement: SmokingStatus.REPLACEMENT,
-  none: SmokingStatus.NONE,
+  nicotine_replacement: SmokingStatus.NICOTINE_REPLACEMENT,
+  smoke_free: SmokingStatus.SMOKE_FREE,
 }
 
 // =============================================
@@ -85,21 +86,22 @@ export function calculateStreak(values: boolean[]): StreakResult {
 // =============================================
 
 export function getMovementLevel(m: MovementValue): number {
-  if (m === 'steps_trained') return 2
-  if (m === 'steps_only') return 1
+  if (m === 'steps_trained') return 3
+  if (m === 'steps_only') return 2
+  if (m === 'trained_only') return 1
   return 0
 }
 
 export function getNutritionLevel(n: NutritionValue): number {
-  if (n === 'three') return 3
-  if (n === 'two') return 2
-  if (n === 'one') return 1
+  if (n === 'three_meals') return 3
+  if (n === 'two_meals') return 2
+  if (n === 'one_meal') return 1
   return 0
 }
 
 export function getSmokingLevel(s: SmokingValue): number {
-  if (s === 'none') return 2
-  if (s === 'replacement') return 1
+  if (s === 'smoke_free') return 2
+  if (s === 'nicotine_replacement') return 1
   return 0
 }
 

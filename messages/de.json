@@ -113,18 +113,19 @@
     "movement": {
       "minimal": "Wenig Bewegung",
       "steps_only": "10k+ Schritte",
+      "trained_only": "Training",
       "steps_trained": "10k+ & Training"
     },
     "nutrition": {
       "none": "Keine ges. Mahlzeit",
-      "one": "1 ges. Mahlzeit",
-      "two": "2 ges. Mahlzeiten",
-      "three": "3 ges. Mahlzeiten"
+      "one_meal": "1 ges. Mahlzeit",
+      "two_meals": "2 ges. Mahlzeiten",
+      "three_meals": "3 ges. Mahlzeiten"
     },
     "smoking": {
       "smoked": "Geraucht",
-      "replacement": "Nikotinersatz",
-      "none": "Rauchfrei"
+      "nicotine_replacement": "Nikotinersatz",
+      "smoke_free": "Rauchfrei"
     }
   }
 }

@@ -61,20 +61,21 @@ model Translation {
 enum MovementLevel {
   MINIMAL
   STEPS_ONLY
+  TRAINED_ONLY
   STEPS_TRAINED
 }
 
 enum NutritionLevel {
   NONE
-  ONE
-  TWO
-  THREE
+  ONE_MEAL
+  TWO_MEALS
+  THREE_MEALS
 }
 
 enum SmokingStatus {
   SMOKED
-  REPLACEMENT
-  NONE
+  NICOTINE_REPLACEMENT
+  SMOKE_FREE
 }
 
 // =============================================

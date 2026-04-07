@@ -1,0 +1,11 @@
+-- Add TRAINED_ONLY to MovementLevel
+ALTER TYPE "MovementLevel" ADD VALUE 'TRAINED_ONLY';
+
+-- Rename NutritionLevel values
+ALTER TYPE "NutritionLevel" RENAME VALUE 'ONE' TO 'ONE_MEAL';
+ALTER TYPE "NutritionLevel" RENAME VALUE 'TWO' TO 'TWO_MEALS';
+ALTER TYPE "NutritionLevel" RENAME VALUE 'THREE' TO 'THREE_MEALS';
+
+-- Rename SmokingStatus values
+ALTER TYPE "SmokingStatus" RENAME VALUE 'REPLACEMENT' TO 'NICOTINE_REPLACEMENT';
+ALTER TYPE "SmokingStatus" RENAME VALUE 'NONE' TO 'SMOKE_FREE';

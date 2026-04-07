@@ -11,28 +11,29 @@ import { getDayNumber } from '@/lib/journal'
 const MOVEMENT_LABELS: Record<MovementLevel, string> = {
   MINIMAL: 'Wenig Bewegung',
   STEPS_ONLY: '10k+ Schritte',
+  TRAINED_ONLY: 'Training',
   STEPS_TRAINED: '10k+ & Training',
 }
 const NUTRITION_LABELS: Record<NutritionLevel, string> = {
   NONE: 'Keine ges. Mahlzeit',
-  ONE: '1 ges. Mahlzeit',
-  TWO: '2 ges. Mahlzeiten',
-  THREE: '3 ges. Mahlzeiten',
+  ONE_MEAL: '1 ges. Mahlzeit',
+  TWO_MEALS: '2 ges. Mahlzeiten',
+  THREE_MEALS: '3 ges. Mahlzeiten',
 }
 const SMOKING_LABELS: Record<SmokingStatus, string> = {
   SMOKED: 'Geraucht',
-  REPLACEMENT: 'Nikotinersatz',
-  NONE: 'Rauchfrei',
+  NICOTINE_REPLACEMENT: 'Nikotinersatz',
+  SMOKE_FREE: 'Rauchfrei',
 }
 
 function isMovementOk(m: MovementLevel) {
-  return m === 'STEPS_ONLY' || m === 'STEPS_TRAINED'
+  return m === 'STEPS_ONLY' || m === 'TRAINED_ONLY' || m === 'STEPS_TRAINED'
 }
 function isNutritionOk(n: NutritionLevel) {
-  return n !== 'NONE'
+  return n === 'TWO_MEALS' || n === 'THREE_MEALS'
 }
 function isSmokingOk(s: SmokingStatus) {
-  return s === 'NONE'
+  return s === 'NICOTINE_REPLACEMENT' || s === 'SMOKE_FREE'
 }
 
 // =============================================
