@@ -63,19 +63,3 @@
   }
 }
 
-@layer components {
-  .prose-dropcap > p:first-of-type::first-letter {
-    font-family: var(--font-display), Georgia, serif;
-    font-size: 3.5em;
-    font-weight: 700;
-    float: left;
-    line-height: 0.82;
-    margin-right: 0.1em;
-    margin-top: 0.08em;
-    color: #1a1714;
-  }
-
-  .dark .prose-dropcap > p:first-of-type::first-letter {
-    color: #faf9f7;
-  }
-}
