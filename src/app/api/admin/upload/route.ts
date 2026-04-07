@@ -44,9 +44,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Datei darf maximal 5 MB gross sein' }, { status: 422 })
   }
 
-  // Dateiname aus Slug oder Timestamp
-  const slug = (formData.get('slug') as string | null)?.trim()
-  const filename = `${slug || Date.now()}${ext}`
+  // Dateiname aus Slug oder Timestamp — Slug sanitisieren um Path Traversal zu verhindern
+  const rawSlug = (formData.get('slug') as string | null)?.trim() ?? ''
+  const safeSlug = rawSlug.replace(/[^a-z0-9_-]/gi, '-').slice(0, 100)
+  const filename = `${safeSlug || Date.now()}${ext}`
 
   const uploadDir = path.join(process.cwd(), 'public', 'images', 'journal')
   await mkdir(uploadDir, { recursive: true })

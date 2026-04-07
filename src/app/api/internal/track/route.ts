@@ -21,7 +21,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true, skipped: 'bot' })
   }
 
-  const salt = process.env.ANALYTICS_SALT ?? 'default-salt'
+  const salt = process.env.ANALYTICS_SALT
+  if (!salt) {
+    console.warn('[track] ANALYTICS_SALT not set — pageview tracking skipped')
+    return NextResponse.json({ ok: true, skipped: 'no-salt' })
+  }
   const date = new Date().toISOString().slice(0, 10)
   const sessionHash = hashSession(ip, ua, date, salt)
   const normalizedPath = normalizePath(path)
