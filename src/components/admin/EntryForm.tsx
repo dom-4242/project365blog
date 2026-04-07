@@ -241,14 +241,14 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
       {/* Excerpt */}
       <div>
         <label className="block text-xs font-medium text-sand-500 mb-1">
-          Excerpt{' '}
-          <span className="text-sand-400 font-normal">(optional — wird sonst automatisch generiert)</span>
+          Kurzbeschreibung{' '}
+          <span className="text-sand-400 font-normal">(optional — für SEO, RSS, Suche &amp; Feed-Vorschau; wird sonst automatisch generiert)</span>
         </label>
         <textarea
           value={excerpt}
           onChange={(e) => setExcerpt(e.target.value)}
           rows={2}
-          placeholder="Kurze Beschreibung für den Feed..."
+          placeholder="1–2 Sätze, die den Eintrag zusammenfassen..."
           className="w-full border border-sand-200 dark:border-[#4a4540] rounded-lg px-3 py-2 text-sm text-[#2d2926] dark:text-[#e8e4dc] focus:outline-none focus:border-sand-400 bg-white dark:bg-[#3a3531] resize-none"
         />
       </div>
