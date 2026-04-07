@@ -2,7 +2,13 @@ export const dynamic = 'force-dynamic'
 
 import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
-import { getAllEntriesForLocale, getDayNumber, PROJECT_START_DATE } from '@/lib/journal'
+import { getAllEntriesForLocale, getDayNumber } from '@/lib/journal'
+import {
+  calculateStreak,
+  isMovementFulfilled,
+  isNutritionFulfilled,
+  isSmokingFulfilled,
+} from '@/lib/habits'
 import { JournalCardCompact } from '@/components/journal/JournalCardCompact'
 import { JournalFeed } from '@/components/journal/JournalFeed'
 import { HabitsDashboard } from '@/components/habits/HabitsDashboard'
@@ -71,6 +77,10 @@ export default async function HomePage({ params }: HomePageProps) {
   const previewEntries = entries.slice(0, FEED_PREVIEW_COUNT)
   const hasMore = entries.length > FEED_PREVIEW_COUNT
 
+  const movementStreak = calculateStreak(entries.map((e) => isMovementFulfilled(e.habits.movement)))
+  const nutritionStreak = calculateStreak(entries.map((e) => isNutritionFulfilled(e.habits.nutrition)))
+  const smokingStreak   = calculateStreak(entries.map((e) => isSmokingFulfilled(e.habits.smoking)))
+
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
 
@@ -89,19 +99,35 @@ export default async function HomePage({ params }: HomePageProps) {
           {t('description')}
         </p>
 
-        {/* Day counter + project description */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-xl bg-sand-100 dark:bg-[#313244] border border-sand-200 dark:border-[#45475a]">
-          <div className="flex-none text-center sm:text-left sm:border-r border-sand-200 dark:border-[#45475a] sm:pr-5">
+        {/* Day counter + streaks */}
+        <div className="p-4 rounded-xl bg-sand-100 dark:bg-[#313244] border border-sand-200 dark:border-[#45475a]">
+          <div className="flex items-baseline gap-3 mb-3">
             <p className="font-display text-3xl font-bold text-ctp-peach leading-none">
               {currentDay}
             </p>
-            <p className="text-xs text-sand-500 mt-0.5">
+            <p className="text-xs text-sand-500">
               {t('dayCounter', { day: currentDay })}
             </p>
           </div>
-          <p className="text-sm text-sand-500 leading-relaxed">
-            {t('projectDescription')}
-          </p>
+
+          {/* Habit streaks */}
+          <div className="flex gap-4">
+            <div className="flex items-center gap-1.5" title={t('streakMovement')}>
+              <span className="text-base leading-none">🏃</span>
+              <span className="text-sm font-semibold text-ctp-text tabular-nums">{movementStreak.current}</span>
+              <span className="text-xs text-sand-400">{t('streakDays')}</span>
+            </div>
+            <div className="flex items-center gap-1.5" title={t('streakNutrition')}>
+              <span className="text-base leading-none">🥗</span>
+              <span className="text-sm font-semibold text-ctp-text tabular-nums">{nutritionStreak.current}</span>
+              <span className="text-xs text-sand-400">{t('streakDays')}</span>
+            </div>
+            <div className="flex items-center gap-1.5" title={t('streakSmoking')}>
+              <span className="text-base leading-none">🚭</span>
+              <span className="text-sm font-semibold text-ctp-text tabular-nums">{smokingStreak.current}</span>
+              <span className="text-xs text-sand-400">{t('streakDays')}</span>
+            </div>
+          </div>
         </div>
       </header>
 
