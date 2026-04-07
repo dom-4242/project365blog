@@ -1,4 +1,4 @@
-import { getAuthSession } from '@/lib/auth'
+import { getAuthSession, requireAdmin } from '@/lib/auth'
 import Link from 'next/link'
 import { AdminNav } from '@/components/admin/AdminNav'
 
@@ -7,7 +7,7 @@ interface AdminLayoutProps {
 }
 
 export default async function AdminLayout({ children }: AdminLayoutProps) {
-  const session = await getAuthSession()
+  const session = await requireAdmin()
 
   // Login page renders without the admin chrome (no header/nav needed)
   if (!session) {
