@@ -1,6 +1,6 @@
-import { getAuthSession, requireAdmin } from '@/lib/auth'
 import Link from 'next/link'
-import { AdminNav } from '@/components/admin/AdminNav'
+import { requireAdmin } from '@/lib/auth'
+import { AdminSidebar, AdminNavMobile } from '@/components/admin/AdminNav'
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -9,28 +9,30 @@ interface AdminLayoutProps {
 export default async function AdminLayout({ children }: AdminLayoutProps) {
   const session = await requireAdmin()
 
-  // Login page renders without the admin chrome (no header/nav needed)
+  // Login page renders without the admin chrome
   if (!session) {
     return <>{children}</>
   }
 
   return (
-    <div className="min-h-screen bg-sand-100 dark:bg-[#141210]">
-      <header className="bg-white dark:bg-[#1a1714] border-b border-sand-200 dark:border-[#4a4540] sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <Link href="/admin" className="font-display text-base font-bold text-[#1a1714] dark:text-[#faf9f7]">
-              Project <span className="text-nutrition-600">365</span>{' '}
-              <span className="text-sand-400 font-normal text-sm">Admin</span>
-            </Link>
-            <AdminNav />
-          </div>
-          <div className="flex items-center gap-3">
+    <div className="min-h-screen bg-ctp-mantle">
+
+      {/* ── Top bar ───────────────────────────────── */}
+      <header className="sticky top-0 z-10 bg-ctp-base border-b border-ctp-surface0">
+        <div className="flex items-center justify-between px-4 sm:px-6 h-12">
+          {/* Logo */}
+          <Link href="/admin" className="font-display text-sm font-bold text-ctp-text">
+            Project <span className="text-ctp-peach">365</span>{' '}
+            <span className="text-ctp-overlay1 font-normal">Admin</span>
+          </Link>
+
+          {/* Right actions */}
+          <div className="flex items-center gap-4">
             <Link
               href="/de"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-sand-500 hover:text-[#1a1714] dark:hover:text-[#faf9f7] transition-colors"
+              className="text-xs text-ctp-subtext1 hover:text-ctp-text transition-colors"
               title="Zur öffentlichen Seite"
             >
               ↗ Zur Seite
@@ -40,19 +42,37 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
               <img
                 src={session.user.image}
                 alt={session.user.name ?? 'Admin'}
-                className="w-7 h-7 rounded-full"
+                className="w-6 h-6 rounded-full"
               />
             )}
             <Link
               href="/api/auth/signout"
-              className="text-sm text-sand-500 hover:text-[#1a1714] dark:hover:text-[#faf9f7] transition-colors"
+              className="text-xs text-ctp-subtext1 hover:text-ctp-text transition-colors"
             >
               Abmelden
             </Link>
           </div>
         </div>
+
+        {/* Mobile nav — horizontal scroll below top bar */}
+        <div className="md:hidden border-t border-ctp-surface0">
+          <AdminNavMobile />
+        </div>
       </header>
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8">{children}</main>
+
+      {/* ── Body: Sidebar + Content ───────────────── */}
+      <div className="flex">
+
+        {/* Sidebar — desktop only */}
+        <aside className="hidden md:block w-44 shrink-0 sticky top-12 h-[calc(100vh-3rem)] overflow-y-auto border-r border-ctp-surface0 bg-ctp-base">
+          <AdminSidebar />
+        </aside>
+
+        {/* Main content */}
+        <main className="flex-1 min-w-0 px-4 sm:px-6 py-8">
+          {children}
+        </main>
+      </div>
     </div>
   )
 }
