@@ -11,7 +11,8 @@
   },
   "HomePage": {
     "tagline": "A public project",
-    "headline": "365 Days.<br/>Public. Honest.",
+    "headline_1": "365 Days.",
+    "headline_2": "Public. Honest.",
     "description": "Daily entries about movement, nutrition and the journey to quit smoking — with real numbers, good days and bad.",
     "entriesHeading": "Entries"
   },

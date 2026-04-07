@@ -66,7 +66,8 @@ export default async function HomePage({ params }: HomePageProps) {
           {t('tagline')}
         </p>
         <h1 className="font-display text-4xl sm:text-5xl font-bold leading-tight text-[#1a1714] dark:text-[#faf9f7] mb-4">
-          {t.rich('headline', { br: () => <br /> })}
+          <span className="block">{t('headline_1')}</span>
+          <span className="block">{t('headline_2')}</span>
         </h1>
         <p className="text-lg text-[#6b6560] dark:text-[#9a9088] max-w-xl leading-relaxed">
           {t('description')}
