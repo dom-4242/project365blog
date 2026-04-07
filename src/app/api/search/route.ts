@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 import { type NextRequest } from 'next/server'
 import { prisma } from '@/lib/db'
 import { getDayNumber } from '@/lib/journal'
+import { getProjectStartDate } from '@/lib/project-config'
 import { stripHtml } from '@/lib/site'
 
 export interface SearchResult {
@@ -20,19 +21,22 @@ export async function GET(request: NextRequest) {
     return Response.json({ results: [] })
   }
 
-  const entries = await prisma.journalEntry.findMany({
-    where: {
-      published: true,
-      OR: [
-        { title: { contains: q, mode: 'insensitive' } },
-        { excerpt: { contains: q, mode: 'insensitive' } },
-        { content: { contains: q, mode: 'insensitive' } },
-      ],
-    },
-    select: { slug: true, title: true, date: true, excerpt: true, content: true },
-    orderBy: { date: 'desc' },
-    take: 8,
-  })
+  const [entries, startDate] = await Promise.all([
+    prisma.journalEntry.findMany({
+      where: {
+        published: true,
+        OR: [
+          { title: { contains: q, mode: 'insensitive' } },
+          { excerpt: { contains: q, mode: 'insensitive' } },
+          { content: { contains: q, mode: 'insensitive' } },
+        ],
+      },
+      select: { slug: true, title: true, date: true, excerpt: true, content: true },
+      orderBy: { date: 'desc' },
+      take: 8,
+    }),
+    getProjectStartDate(),
+  ])
 
   const results: SearchResult[] = entries.map((e) => {
     const dateStr = e.date.toISOString().slice(0, 10)
@@ -41,7 +45,7 @@ export async function GET(request: NextRequest) {
       title: e.title,
       date: dateStr,
       excerpt: e.excerpt ?? stripHtml(e.content).slice(0, 120),
-      dayNumber: getDayNumber(dateStr),
+      dayNumber: getDayNumber(dateStr, startDate),
     }
   })
 

@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { getTranslations, getLocale } from 'next-intl/server'
 import type { JournalEntry } from '@/lib/journal'
 import { getDayNumber } from '@/lib/journal'
+import { getProjectStartDate } from '@/lib/project-config'
 import { HabitBadges } from './HabitBadges'
 import { ReactionBar } from '@/components/reactions/ReactionBar'
 import { getAuthSession } from '@/lib/auth'
@@ -13,13 +14,14 @@ interface JournalPostProps {
 }
 
 export async function JournalPost({ entry, isTranslated = false }: JournalPostProps) {
-  const [session, t, locale] = await Promise.all([
+  const [session, t, locale, startDate] = await Promise.all([
     getAuthSession(),
     getTranslations('JournalPost'),
     getLocale(),
+    getProjectStartDate(),
   ])
   const isAdmin = !!session?.user?.isAdmin
-  const dayNumber = getDayNumber(entry.date)
+  const dayNumber = getDayNumber(entry.date, startDate)
 
   function formatDate(dateStr: string): string {
     return new Date(dateStr).toLocaleDateString(locale, {

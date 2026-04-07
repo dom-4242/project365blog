@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { prisma } from '@/lib/db'
 import { getDayNumber } from '@/lib/journal'
+import { getProjectStartDate } from '@/lib/project-config'
 import { TranslationEditForm } from '@/components/admin/TranslationEditForm'
 
 interface TranslationDetailPageProps {
@@ -15,10 +16,13 @@ function formatDate(date: Date): string {
 }
 
 export default async function TranslationDetailPage({ params }: TranslationDetailPageProps) {
-  const entry = await prisma.journalEntry.findUnique({
-    where: { id: params.entryId },
-    include: { translation: true },
-  })
+  const [entry, startDate] = await Promise.all([
+    prisma.journalEntry.findUnique({
+      where: { id: params.entryId },
+      include: { translation: true },
+    }),
+    getProjectStartDate(),
+  ])
 
   if (!entry) notFound()
 
@@ -44,7 +48,7 @@ export default async function TranslationDetailPage({ params }: TranslationDetai
             {entry.title}
           </h1>
           <div className="flex items-center gap-3 mt-1">
-            <span className="text-xs font-mono text-sand-400">Tag {getDayNumber(dateStr)}</span>
+            <span className="text-xs font-mono text-sand-400">Tag {getDayNumber(dateStr, startDate)}</span>
             <span className="text-xs text-sand-400">{formatDate(entry.date)}</span>
             {entry.translation && isStale && (
               <span className="text-xs px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-full">

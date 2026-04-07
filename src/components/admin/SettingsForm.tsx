@@ -47,6 +47,7 @@ export function SettingsForm({ initial }: SettingsFormProps) {
   const [heightCm, setHeightCm] = useState(initial.heightCm)
   const [targetWeight, setTargetWeight] = useState(initial.targetWeight)
   const [targetSteps, setTargetSteps] = useState(initial.targetSteps)
+  const [projectStartDate, setProjectStartDate] = useState(initial.projectStartDate)
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -54,7 +55,7 @@ export function SettingsForm({ initial }: SettingsFormProps) {
     setSuccess(false)
 
     startTransition(async () => {
-      const result = await upsertProfile({ heightCm, targetWeight, targetSteps })
+      const result = await upsertProfile({ heightCm, targetWeight, targetSteps, projectStartDate })
       if (result.error) {
         setError(result.error)
       } else {
@@ -103,6 +104,26 @@ export function SettingsForm({ initial }: SettingsFormProps) {
             step="500"
             inputMode="numeric"
           />
+        </div>
+      </div>
+
+      {/* Projekt */}
+      <div className="bg-white dark:bg-[#2d2926] rounded-2xl border border-sand-200 dark:border-[#4a4540] p-5">
+        <h3 className="font-display text-sm font-semibold text-[#1a1714] dark:text-[#faf9f7] mb-1">Projekt</h3>
+        <p className="text-xs text-sand-400 mb-4">Bestimmt den Projekttag für alle Anzeigen (Tag 1 = Startdatum).</p>
+        <div className="max-w-xs">
+          <label className="block text-xs font-medium text-sand-500 mb-1">
+            Startdatum <span className="font-normal text-sand-400">(YYYY-MM-DD)</span>
+          </label>
+          <input
+            type="date"
+            value={projectStartDate}
+            onChange={(e) => setProjectStartDate(e.target.value)}
+            max={new Date().toISOString().slice(0, 10)}
+            placeholder="2026-03-26"
+            className="w-full border border-sand-200 dark:border-[#4a4540] rounded-lg px-3 py-1.5 text-sm text-[#2d2926] dark:text-[#e8e4dc] focus:outline-none focus:border-sand-400 bg-white dark:bg-[#3a3531]"
+          />
+          <p className="text-xs text-sand-400 mt-1">Default: 2026-03-26 (falls nicht gesetzt)</p>
         </div>
       </div>
 

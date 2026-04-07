@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { getAuthSession } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { getDayNumber } from '@/lib/journal'
+import { getProjectStartDate } from '@/lib/project-config'
 
 function todayString() {
   return new Date().toISOString().slice(0, 10)
@@ -94,6 +95,8 @@ export default async function AdminPage() {
   const session = await getAuthSession()
   const today = todayString()
 
+  const startDate = await getProjectStartDate()
+
   const [todayEntry, todayMetrics, recentEntries, entryStats, latestMetrics] = await Promise.all([
     prisma.journalEntry.findFirst({ where: { date: new Date(today) }, select: { id: true, slug: true, title: true } }),
     prisma.dailyMetrics.findFirst({ where: { date: new Date(today) } }),
@@ -149,7 +152,7 @@ export default async function AdminPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <StatCard value={publishedCount} label="Einträge" sub="veröffentlicht" />
           <StatCard value={draftCount} label="Entwürfe" />
-          <StatCard value={getDayNumber(today)} label="Projekttag" sub="seit Start" />
+          <StatCard value={getDayNumber(today, startDate)} label="Projekttag" sub="seit Start" />
           <StatCard
             value={latestMetrics?.weight != null ? `${latestMetrics.weight} kg` : '—'}
             label="Letztes Gewicht"
@@ -205,7 +208,7 @@ export default async function AdminPage() {
               return (
                 <div key={entry.id} className="px-5 py-3 flex items-center gap-4">
                   <span className="text-xs font-mono text-sand-400 shrink-0 w-8 text-right">
-                    {getDayNumber(dateStr)}
+                    {getDayNumber(dateStr, startDate)}
                   </span>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-[#1a1714] dark:text-[#faf9f7] truncate">{entry.title}</p>

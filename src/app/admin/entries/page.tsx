@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import { prisma } from '@/lib/db'
 import { getDayNumber } from '@/lib/journal'
+import { getProjectStartDate } from '@/lib/project-config'
 import { DeleteEntryButton } from '@/components/admin/DeleteEntryButton'
 import { TranslateButton } from '@/components/admin/TranslateButton'
 import { FlashMessage } from '@/components/admin/FlashMessage'
@@ -16,21 +17,24 @@ interface EntriesPageProps {
 }
 
 export default async function EntriesPage({ searchParams }: EntriesPageProps) {
-  const entries = await prisma.journalEntry.findMany({
-    orderBy: { date: 'desc' },
-    select: {
-      id: true,
-      slug: true,
-      title: true,
-      date: true,
-      published: true,
-      updatedAt: true,
-      movement: true,
-      nutrition: true,
-      smoking: true,
-      translation: { select: { updatedAt: true } },
-    },
-  })
+  const [entries, startDate] = await Promise.all([
+    prisma.journalEntry.findMany({
+      orderBy: { date: 'desc' },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        date: true,
+        published: true,
+        updatedAt: true,
+        movement: true,
+        nutrition: true,
+        smoking: true,
+        translation: { select: { updatedAt: true } },
+      },
+    }),
+    getProjectStartDate(),
+  ])
 
   return (
     <div>
@@ -70,7 +74,7 @@ export default async function EntriesPage({ searchParams }: EntriesPageProps) {
                 className="bg-white dark:bg-[#2d2926] rounded-xl border border-sand-200 dark:border-[#4a4540] px-5 py-4 flex items-center gap-4 hover:border-sand-300 dark:hover:border-[#5a5550] transition-colors"
               >
                 <span className="text-xs font-mono text-sand-400 shrink-0 w-8 text-right">
-                  {getDayNumber(dateStr)}
+                  {getDayNumber(dateStr, startDate)}
                 </span>
 
                 <div className="flex-1 min-w-0">

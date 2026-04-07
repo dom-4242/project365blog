@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import { prisma } from '@/lib/db'
 import { getDayNumber } from '@/lib/journal'
+import { getProjectStartDate } from '@/lib/project-config'
 import { TranslateButton } from '@/components/admin/TranslateButton'
 
 type TranslationStatus = 'current' | 'stale' | 'missing'
@@ -51,17 +52,20 @@ function formatDate(date: Date): string {
 }
 
 export default async function TranslationsPage() {
-  const entries = await prisma.journalEntry.findMany({
-    orderBy: { date: 'desc' },
-    select: {
-      id: true,
-      slug: true,
-      title: true,
-      date: true,
-      updatedAt: true,
-      translation: { select: { updatedAt: true } },
-    },
-  })
+  const [entries, startDate] = await Promise.all([
+    prisma.journalEntry.findMany({
+      orderBy: { date: 'desc' },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        date: true,
+        updatedAt: true,
+        translation: { select: { updatedAt: true } },
+      },
+    }),
+    getProjectStartDate(),
+  ])
 
   const statuses = entries.map((e) => getStatus(e.updatedAt, e.translation))
   const countCurrent = statuses.filter((s) => s === 'current').length
@@ -106,7 +110,7 @@ export default async function TranslationsPage() {
                 className="bg-white dark:bg-[#2d2926] rounded-xl border border-sand-200 dark:border-[#4a4540] px-5 py-4 flex items-center gap-4 hover:border-sand-300 dark:hover:border-[#5a5550] transition-colors"
               >
                 <span className="text-xs font-mono text-sand-400 shrink-0 w-8 text-right">
-                  {getDayNumber(dateStr)}
+                  {getDayNumber(dateStr, startDate)}
                 </span>
 
                 <div className="flex-1 min-w-0">

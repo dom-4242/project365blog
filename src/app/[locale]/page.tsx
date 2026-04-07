@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 import { getAllEntriesForLocale, getDayNumber } from '@/lib/journal'
+import { getProjectStartDate } from '@/lib/project-config'
 import {
   calculateStreak,
   isMovementFulfilled,
@@ -67,13 +68,14 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
 const FEED_PREVIEW_COUNT = 12
 
 export default async function HomePage({ params }: HomePageProps) {
-  const [entries, t] = await Promise.all([
+  const [entries, t, startDate] = await Promise.all([
     getAllEntriesForLocale(params.locale),
     getTranslations('HomePage'),
+    getProjectStartDate(),
   ])
 
   const today = new Date().toISOString().slice(0, 10)
-  const currentDay = getDayNumber(today)
+  const currentDay = getDayNumber(today, startDate)
   const previewEntries = entries.slice(0, FEED_PREVIEW_COUNT)
   const hasMore = entries.length > FEED_PREVIEW_COUNT
 

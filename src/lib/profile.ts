@@ -4,6 +4,7 @@ export interface UserProfile {
   heightCm: number | null
   targetWeight: number | null
   targetSteps: number | null
+  projectStartDate: string | null
 }
 
 const PROFILE_ID = 'singleton'
@@ -14,6 +15,7 @@ export async function getProfile(): Promise<UserProfile> {
     heightCm: row?.heightCm ?? null,
     targetWeight: row?.targetWeight ?? null,
     targetSteps: row?.targetSteps ?? null,
+    projectStartDate: row?.projectStartDate ?? null,
   }
 }
 

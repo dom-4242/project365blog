@@ -8,6 +8,7 @@ export default async function SettingsPage() {
     heightCm: profile.heightCm?.toString() ?? '',
     targetWeight: profile.targetWeight?.toString() ?? '',
     targetSteps: profile.targetSteps?.toString() ?? '',
+    projectStartDate: profile.projectStartDate ?? '',
   }
 
   return (

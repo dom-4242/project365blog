@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { getLocale, getTranslations } from 'next-intl/server'
 import type { JournalEntryMeta } from '@/lib/journal'
 import { getDayNumber } from '@/lib/journal'
+import { getProjectStartDate } from '@/lib/project-config'
 import { isMovementFulfilled, isNutritionFulfilled, isSmokingFulfilled } from '@/lib/habits'
 
 interface JournalCardCompactProps {
@@ -10,12 +11,13 @@ interface JournalCardCompactProps {
 }
 
 export async function JournalCardCompact({ entry }: JournalCardCompactProps) {
-  const [locale, t] = await Promise.all([
+  const [locale, t, startDate] = await Promise.all([
     getLocale(),
     getTranslations('JournalCard'),
+    getProjectStartDate(),
   ])
 
-  const dayNumber = getDayNumber(entry.date)
+  const dayNumber = getDayNumber(entry.date, startDate)
 
   const movementOk = isMovementFulfilled(entry.habits.movement)
   const nutritionOk = isNutritionFulfilled(entry.habits.nutrition)
