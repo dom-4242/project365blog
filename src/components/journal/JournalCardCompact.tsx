@@ -5,6 +5,7 @@ import type { JournalEntryMeta } from '@/lib/journal'
 import { getDayNumber } from '@/lib/journal'
 import { getProjectStartDate } from '@/lib/project-config'
 import { isMovementFulfilled, isNutritionFulfilled, isSmokingFulfilled } from '@/lib/habits'
+import { ReactionBarCompact } from '@/components/reactions/ReactionBarCompact'
 
 interface JournalCardCompactProps {
   entry: JournalEntryMeta
@@ -35,7 +36,7 @@ export async function JournalCardCompact({ entry }: JournalCardCompactProps) {
     <article className="group">
       <Link
         href={`/journal/${entry.slug}`}
-        className="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-sand-100 dark:hover:bg-[#313244] transition-colors duration-150"
+        className="flex items-center gap-4 px-4 pt-3 pb-2 rounded-t-xl hover:bg-sand-100 dark:hover:bg-[#313244] transition-colors duration-150"
       >
         {/* Thumbnail */}
         <div className="relative flex-none w-14 h-14 rounded-lg overflow-hidden bg-sand-100 dark:bg-[#313244]">
@@ -77,6 +78,11 @@ export async function JournalCardCompact({ entry }: JournalCardCompactProps) {
           </h2>
         </div>
       </Link>
+
+      {/* Reactions — outside the Link to prevent navigation on click */}
+      <div className="px-4 pb-2 pl-[4.5rem]">
+        <ReactionBarCompact slug={entry.slug} />
+      </div>
     </article>
   )
 }
