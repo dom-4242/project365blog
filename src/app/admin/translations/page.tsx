@@ -61,16 +61,17 @@ export default async function TranslationsPage() {
         title: true,
         date: true,
         updatedAt: true,
-        translation: { select: { updatedAt: true } },
+        translations: { select: { locale: true, updatedAt: true } },
       },
     }),
     getProjectStartDate(),
   ])
 
-  const statuses = entries.map((e) => getStatus(e.updatedAt, e.translation))
-  const countCurrent = statuses.filter((s) => s === 'current').length
-  const countStale = statuses.filter((s) => s === 'stale').length
-  const countMissing = statuses.filter((s) => s === 'missing').length
+  const enStatuses = entries.map((e) => getStatus(e.updatedAt, e.translations.find((t) => t.locale === 'en') ?? null))
+  const ptStatuses = entries.map((e) => getStatus(e.updatedAt, e.translations.find((t) => t.locale === 'pt') ?? null))
+  const countCurrent = enStatuses.filter((s) => s === 'current').length
+  const countStale = enStatuses.filter((s) => s === 'stale').length
+  const countMissing = enStatuses.filter((s) => s === 'missing').length
 
   return (
     <div>
@@ -102,7 +103,8 @@ export default async function TranslationsPage() {
       ) : (
         <div className="space-y-2">
           {entries.map((entry, i) => {
-            const status = statuses[i]
+            const enStatus = enStatuses[i]
+            const ptStatus = ptStatuses[i]
             const dateStr = entry.date.toISOString().slice(0, 10)
             return (
               <div
@@ -120,13 +122,18 @@ export default async function TranslationsPage() {
                   <time className="text-xs text-sand-400">{formatDate(entry.date)}</time>
                 </div>
 
-                <StatusBadge status={status} />
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <span className="text-xs font-mono text-sand-400">EN</span>
+                  <StatusBadge status={enStatus} />
+                  <span className="text-xs font-mono text-sand-400 ml-2">PT</span>
+                  <StatusBadge status={ptStatus} />
+                </div>
 
                 <div className="flex items-center gap-2 shrink-0">
                   <TranslateButton
                     id={entry.id}
-                    isTranslated={status !== 'missing'}
-                    isStale={status === 'stale'}
+                    isTranslated={enStatus !== 'missing'}
+                    isStale={enStatus === 'stale'}
                   />
                   <Link
                     href={`/admin/translations/${entry.id}`}

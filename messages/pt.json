@@ -1,0 +1,141 @@
+{
+  "Navigation": {
+    "journal": "Diário",
+    "admin": "Admin",
+    "ariaLabel": "Navegação principal",
+    "adminTitle": "Área administrativa"
+  },
+  "LocaleSwitcher": {
+    "label": "DE",
+    "ariaLabel": "Mudar idioma"
+  },
+  "HomePage": {
+    "tagline": "Um projeto público",
+    "headline_1": "365 Dias.",
+    "headline_2": "Público. Honesto.",
+    "description": "Registros diários sobre movimento, alimentação e a jornada para parar de fumar — com números reais, dias bons e dias ruins.",
+    "projectDescription": "Documento cada dia da minha vida — publicamente, honestamente, sem filtros. Três pilares de hábitos, métricas reais, dias bons e ruins. Responsabilidade através da transparência.",
+    "dayCounter": "Dia {day} de 365",
+    "tabEntries": "Entradas",
+    "tabHabits": "Hábitos",
+    "tabMetrics": "Métricas",
+    "entriesHeading": "Entradas",
+    "allEntries": "Ver todas as {count} entradas",
+    "streakDays": "dias",
+    "streakMovement": "Sequência atual de movimento",
+    "streakNutrition": "Sequência atual de alimentação",
+    "streakSmoking": "Sequência atual sem fumar"
+  },
+  "HabitsDashboard": {
+    "heading": "Os Três Pilares",
+    "dayCount": "Dia {count} de 365",
+    "yearOverview": "Visão geral do ano"
+  },
+  "HabitPillar": {
+    "movement": {
+      "title": "Movimento",
+      "streakLabel": "dias ativos"
+    },
+    "nutrition": {
+      "title": "Alimentação",
+      "streakLabel": "dias saudáveis"
+    },
+    "smoking": {
+      "title": "Sem fumar",
+      "streakLabel": "dias sem fumar"
+    }
+  },
+  "HabitStreak": {
+    "record": "= recorde pessoal 🏆",
+    "longestRecord": "Recorde: {days} dias",
+    "outOf": "{fulfilled} de {total} {unit}",
+    "day": "dia",
+    "days": "dias"
+  },
+  "HabitHeatmap": {
+    "noEntry": "Sem entrada",
+    "movement": {
+      "minimal": "Pouca atividade",
+      "steps": "10.000+ passos",
+      "stepsAndTraining": "10.000+ passos e treino"
+    },
+    "nutrition": {
+      "none": "Nenhuma refeição saudável",
+      "one": "1 refeição saudável",
+      "two": "2 refeições saudáveis",
+      "three": "3 refeições saudáveis"
+    },
+    "smoking": {
+      "smoked": "Fumou",
+      "replacement": "Substituto de nicotina",
+      "smokeFree": "Sem fumar"
+    },
+    "dayCount": "{count, plural, one {# dia} other {# dias}} desde o início do projeto"
+  },
+  "MetricsDashboard": {
+    "heading": "Métricas",
+    "noData": "Ainda sem métricas",
+    "noDataHint": "Os dados são importados automaticamente todos os dias via Fitbit."
+  },
+  "JournalFeed": {
+    "empty": "Ainda sem entradas",
+    "emptyHint": "As primeiras entradas vêm em breve."
+  },
+  "JournalPost": {
+    "day": "Dia {number}",
+    "back": "← Voltar ao Diário",
+    "edit": "Editar ✎",
+    "aiTranslated": "Traduzido por IA"
+  },
+  "Footer": {
+    "tagline": "365 Dias · Público · Honesto",
+    "rss": "RSS",
+    "rssTitle": "Assinar feed RSS"
+  },
+  "Charts": {
+    "steps": "Passos",
+    "avgPerDay": "média/dia",
+    "goalLabel": "meta",
+    "weight": "Peso",
+    "bodyFat": "Gordura corporal"
+  },
+  "JournalCard": {
+    "day": "Dia {number}",
+    "readMore": "Ler mais →"
+  },
+  "SearchModal": {
+    "ariaLabel": "Pesquisar",
+    "dialogAriaLabel": "Pesquisa",
+    "placeholder": "Pesquisar entradas…",
+    "noResults": "Nenhuma entrada encontrada para",
+    "minChars": "Digite pelo menos 2 caracteres",
+    "day": "Dia"
+  },
+  "MonthlySummary": {
+    "overviewHeading": "Resumos Mensais",
+    "overviewDescription": "Retrospectivas geradas por IA para cada mês do projeto.",
+    "noSummaries": "Ainda sem resumos.",
+    "generatedOn": "Gerado em {date}",
+    "summaryLabel": "Retrospectiva Mensal",
+    "backToOverview": "Todos os resumos"
+  },
+  "HabitBadges": {
+    "movement": {
+      "minimal": "Pouca atividade",
+      "steps_only": "10k+ passos",
+      "trained_only": "Treino",
+      "steps_trained": "10k+ e treino"
+    },
+    "nutrition": {
+      "none": "Sem refeição saudável",
+      "one_meal": "1 refeição saudável",
+      "two_meals": "2 refeições saudáveis",
+      "three_meals": "3 refeições saudáveis"
+    },
+    "smoking": {
+      "smoked": "Fumou",
+      "nicotine_replacement": "Substituto de nicotina",
+      "smoke_free": "Sem fumar"
+    }
+  }
+}

@@ -104,14 +104,15 @@ export async function getAllEntriesForLocale(locale: string): Promise<JournalEnt
   const entries = await prisma.journalEntry.findMany({
     where: { published: true },
     orderBy: { date: 'desc' },
-    include: { translation: true },
+    include: { translations: { where: { locale } } },
   })
 
   return entries.map((entry) => {
     const meta = toMeta(entry)
-    if (entry.translation) {
-      meta.title = entry.translation.title
-      if (entry.translation.excerpt) meta.excerpt = entry.translation.excerpt
+    const translation = entry.translations[0] ?? null
+    if (translation) {
+      meta.title = translation.title
+      if (translation.excerpt) meta.excerpt = translation.excerpt
     }
     return meta
   })
@@ -125,16 +126,18 @@ export async function getEntryBySlug(slug: string): Promise<JournalEntry | null>
 
 export async function getEntryBySlugWithTranslation(
   slug: string,
+  locale: string,
 ): Promise<{ entry: JournalEntry; translation: { title: string; content: string; excerpt: string } | null } | null> {
   const row = await prisma.journalEntry.findUnique({
     where: { slug },
-    include: { translation: true },
+    include: { translations: { where: { locale } } },
   })
   if (!row || !row.published) return null
 
   const entry = toFull(row)
-  const translation = row.translation
-    ? { title: row.translation.title, content: row.translation.content, excerpt: row.translation.excerpt ?? '' }
+  const t = row.translations[0] ?? null
+  const translation = t
+    ? { title: t.title, content: t.content, excerpt: t.excerpt ?? '' }
     : null
 
   return { entry, translation }

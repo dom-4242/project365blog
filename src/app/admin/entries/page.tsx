@@ -30,7 +30,7 @@ export default async function EntriesPage({ searchParams }: EntriesPageProps) {
         movement: true,
         nutrition: true,
         smoking: true,
-        translation: { select: { updatedAt: true } },
+        translations: { select: { locale: true, updatedAt: true } },
       },
     }),
     getProjectStartDate(),
@@ -66,8 +66,9 @@ export default async function EntriesPage({ searchParams }: EntriesPageProps) {
         <div className="space-y-2">
           {entries.map((entry) => {
             const dateStr = entry.date.toISOString().slice(0, 10)
-            const isTranslated = !!entry.translation
-            const isStale = isTranslated && entry.translation!.updatedAt < entry.updatedAt
+            const enTranslation = entry.translations.find((t) => t.locale === 'en') ?? null
+            const isTranslated = !!enTranslation
+            const isStale = isTranslated && enTranslation!.updatedAt < entry.updatedAt
             return (
               <div
                 key={entry.id}

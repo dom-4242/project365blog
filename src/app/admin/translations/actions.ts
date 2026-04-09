@@ -8,6 +8,7 @@ export interface TranslationEditData {
   title: string
   excerpt: string
   content: string
+  locale: 'en' | 'pt'
 }
 
 export interface ActionResult {
@@ -28,10 +29,10 @@ export async function updateTranslation(entryId: string, data: TranslationEditDa
   if (!entry) return { error: 'Eintrag nicht gefunden' }
 
   await prisma.translation.upsert({
-    where: { entryId },
+    where: { entryId_locale: { entryId, locale: data.locale } },
     create: {
       entryId,
-      locale: 'en',
+      locale: data.locale,
       title: data.title.trim(),
       excerpt: data.excerpt.trim(),
       content: data.content.trim(),
@@ -45,7 +46,7 @@ export async function updateTranslation(entryId: string, data: TranslationEditDa
 
   revalidatePath('/admin/translations')
   revalidatePath(`/admin/translations/${entryId}`)
-  revalidatePath(`/en/journal/${entry.slug}`)
+  revalidatePath(`/${data.locale}/journal/${entry.slug}`)
 
   return {}
 }

@@ -14,12 +14,11 @@ interface JournalPostPageProps {
 }
 
 export async function generateMetadata({ params }: JournalPostPageProps): Promise<Metadata> {
-  const result = await getEntryBySlugWithTranslation(params.slug)
+  const result = await getEntryBySlugWithTranslation(params.slug, params.locale)
   if (!result) return {}
 
   const { entry, translation } = result
-  const isEn = params.locale === 'en'
-  const useTranslation = isEn && translation !== null
+  const useTranslation = params.locale !== 'de' && translation !== null
 
   const title = useTranslation ? translation!.title : entry.title
   const excerptSource = useTranslation
@@ -29,7 +28,8 @@ export async function generateMetadata({ params }: JournalPostPageProps): Promis
 
   const deUrl = `${SITE_URL}/de/journal/${entry.slug}`
   const enUrl = `${SITE_URL}/en/journal/${entry.slug}`
-  const canonicalUrl = isEn ? enUrl : deUrl
+  const ptUrl = `${SITE_URL}/pt/journal/${entry.slug}`
+  const canonicalUrl = `${SITE_URL}/${params.locale}/journal/${entry.slug}`
   const ogLocale = OG_LOCALE[params.locale] ?? OG_LOCALE.de
   const ogImage = entry.banner ? entry.banner : '/og-default.png'
 
@@ -37,8 +37,7 @@ export async function generateMetadata({ params }: JournalPostPageProps): Promis
     title,
     description,
     alternates: {
-      // Always declare both hreflang links — EN URL exists even without translation
-      ...buildAlternates(deUrl, enUrl),
+      ...buildAlternates(deUrl, enUrl, ptUrl),
       canonical: canonicalUrl,
     },
     openGraph: {
@@ -48,7 +47,6 @@ export async function generateMetadata({ params }: JournalPostPageProps): Promis
       title,
       description,
       locale: ogLocale,
-      alternateLocale: [isEn ? OG_LOCALE.de : OG_LOCALE.en],
       images: [{ url: ogImage, width: 1600, height: 700, alt: title }],
       publishedTime: entry.date,
     },
@@ -62,11 +60,11 @@ export async function generateMetadata({ params }: JournalPostPageProps): Promis
 }
 
 export default async function JournalPostPage({ params }: JournalPostPageProps) {
-  const result = await getEntryBySlugWithTranslation(params.slug)
+  const result = await getEntryBySlugWithTranslation(params.slug, params.locale)
   if (!result) notFound()
 
   const { entry, translation } = result
-  const useTranslation = params.locale === 'en' && translation !== null
+  const useTranslation = params.locale !== 'de' && translation !== null
 
   const displayEntry = useTranslation
     ? { ...entry, title: translation!.title, content: translation!.content, excerpt: translation!.excerpt || entry.excerpt }

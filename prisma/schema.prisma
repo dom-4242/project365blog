@@ -34,8 +34,8 @@ model JournalEntry {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  reactions   Reaction[]
-  translation Translation?
+  reactions    Reaction[]
+  translations Translation[]
 
   @@index([date])
   @@index([published])
@@ -48,7 +48,7 @@ model JournalEntry {
 
 model Translation {
   id        String       @id @default(cuid())
-  entryId   String       @unique
+  entryId   String
   locale    String       @default("en")
   title     String
   content   String       @db.Text
@@ -56,6 +56,8 @@ model Translation {
   entry     JournalEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
+
+  @@unique([entryId, locale])
 }
 
 enum MovementLevel {
