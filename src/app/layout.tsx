@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Playfair_Display, Lora } from 'next/font/google'
 import { getLocale } from 'next-intl/server'
+import { headers } from 'next/headers'
 import '@/styles/globals.css'
 import { AuthSessionProvider } from '@/components/providers/SessionProvider'
 import { ThemeProvider } from '@/components/providers/ThemeProvider'
@@ -54,11 +55,12 @@ interface RootLayoutProps {
 }
 
 export default async function RootLayout({ children }: RootLayoutProps) {
-  const locale = await getLocale()
+  const [locale, headersList] = await Promise.all([getLocale(), headers()])
+  const nonce = headersList.get('x-nonce') ?? undefined
   return (
     <html lang={locale} className={`${playfair.variable} ${lora.variable}`} suppressHydrationWarning>
       <body className="bg-sand-50 dark:bg-[#1a1714] text-[#2d2926] dark:text-[#e8e4dc] font-body antialiased">
-        <ThemeProvider>
+        <ThemeProvider nonce={nonce}>
           <AuthSessionProvider>
             {children}
           </AuthSessionProvider>
