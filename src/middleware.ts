@@ -26,8 +26,8 @@ function buildCsp(nonce: string): string {
 }
 
 /** Return a NextResponse.next() with the nonce forwarded in request headers. */
-function nextWithNonce(nonce: string, csp: string): NextResponse {
-  const requestHeaders = new Headers()
+function nextWithNonce(req: NextRequest, nonce: string, csp: string): NextResponse {
+  const requestHeaders = new Headers(req.headers)
   requestHeaders.set('x-nonce', nonce)
   const res = NextResponse.next({ request: { headers: requestHeaders } })
   res.headers.set('Content-Security-Policy', csp)
@@ -42,7 +42,7 @@ export async function middleware(req: NextRequest) {
   // ── Admin routes: NextAuth protection ──────────────────────────
   if (pathname.startsWith('/admin')) {
     if (pathname === '/admin/login') {
-      return nextWithNonce(nonce, csp)
+      return nextWithNonce(req, nonce, csp)
     }
     const token = await getToken({ req })
     if (!token) {
@@ -50,7 +50,7 @@ export async function middleware(req: NextRequest) {
       loginUrl.searchParams.set('callbackUrl', pathname)
       return NextResponse.redirect(loginUrl)
     }
-    return nextWithNonce(nonce, csp)
+    return nextWithNonce(req, nonce, csp)
   }
 
   // ── Public routes: next-intl locale routing ─────────────────────
