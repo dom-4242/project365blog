@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import { headers } from 'next/headers'
 import { getEntryBySlugWithTranslation } from '@/lib/journal'
 import { JournalPost } from '@/components/journal/JournalPost'
 import { SITE_NAME, SITE_URL, stripHtml, buildAlternates, OG_LOCALE } from '@/lib/site'
@@ -60,9 +61,13 @@ export async function generateMetadata({ params }: JournalPostPageProps): Promis
 }
 
 export default async function JournalPostPage({ params }: JournalPostPageProps) {
-  const result = await getEntryBySlugWithTranslation(params.slug, params.locale)
+  const [result, headersList] = await Promise.all([
+    getEntryBySlugWithTranslation(params.slug, params.locale),
+    headers(),
+  ])
   if (!result) notFound()
 
+  const nonce = headersList.get('x-nonce') ?? undefined
   const { entry, translation } = result
   const useTranslation = params.locale !== 'de' && translation !== null
 
@@ -101,6 +106,7 @@ export default async function JournalPostPage({ params }: JournalPostPageProps) 
     <>
       <script
         type="application/ld+json"
+        nonce={nonce}
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <JournalPost entry={displayEntry} isTranslated={useTranslation} />
