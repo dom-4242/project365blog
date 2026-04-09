@@ -2,6 +2,7 @@ import { createHash } from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { ReactionType } from '@prisma/client'
+import { rateLimit, getClientIp } from '@/lib/rate-limit'
 
 const VALID_EMOJIS = new Set<ReactionType>(['HEART', 'CLAP', 'FIRE', 'MUSCLE', 'STAR'])
 const EMPTY_COUNTS: Record<ReactionType, number> = {
@@ -48,6 +49,22 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  // Rate limit: 20 POSTs per minute per IP
+  const ip = getClientIp(request)
+  const rl = rateLimit(`reactions:POST:${ip}`, 20, 60_000)
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: 'Too many requests' },
+      {
+        status: 429,
+        headers: {
+          'Retry-After': String(Math.ceil(rl.resetIn / 1000)),
+          'X-RateLimit-Remaining': '0',
+        },
+      },
+    )
+  }
+
   let body: unknown
   try {
     body = await request.json()

@@ -2,8 +2,22 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { MetricSource } from '@prisma/client'
 import { parseHealthPayload, mergeWithExisting, type HealthPayload } from '@/lib/apple-health'
+import { rateLimit, getClientIp } from '@/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
+  // Rate limit: 10 requests per minute per IP (bulk import, rarely called more than once/sync)
+  const ip = getClientIp(request)
+  const rl = rateLimit(`health-import:POST:${ip}`, 10, 60_000)
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: 'Too many requests' },
+      {
+        status: 429,
+        headers: { 'Retry-After': String(Math.ceil(rl.resetIn / 1000)) },
+      },
+    )
+  }
+
   const expectedKey = process.env.HEALTH_IMPORT_API_KEY
   if (!expectedKey) {
     return NextResponse.json({ error: 'HEALTH_IMPORT_API_KEY not configured' }, { status: 500 })
