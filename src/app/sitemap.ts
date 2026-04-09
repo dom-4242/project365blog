@@ -11,7 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     select: {
       slug: true,
       date: true,
-      translation: { select: { updatedAt: true } },
+      translations: { select: { locale: true, updatedAt: true } },
     },
   })
 
@@ -29,6 +29,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily',
       priority: 0.9,
     },
+    {
+      url: `${SITE_URL}/pt`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.9,
+    },
   ]
 
   for (const entry of entries) {
@@ -42,11 +48,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     })
 
+    const enTranslation = entry.translations.find((t) => t.locale === 'en') ?? null
+    const ptTranslation = entry.translations.find((t) => t.locale === 'pt') ?? null
+
     // EN entry — only if translation exists (avoid duplicate-content penalty)
-    if (entry.translation) {
+    if (enTranslation) {
       routes.push({
         url: `${SITE_URL}/en/journal/${entry.slug}`,
-        lastModified: entry.translation.updatedAt,
+        lastModified: enTranslation.updatedAt,
+        changeFrequency: 'monthly',
+        priority: 0.7,
+      })
+    }
+
+    // PT entry — only if translation exists
+    if (ptTranslation) {
+      routes.push({
+        url: `${SITE_URL}/pt/journal/${entry.slug}`,
+        lastModified: ptTranslation.updatedAt,
         changeFrequency: 'monthly',
         priority: 0.7,
       })

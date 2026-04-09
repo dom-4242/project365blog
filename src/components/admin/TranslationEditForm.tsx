@@ -6,6 +6,7 @@ import { translateEntry } from '@/app/admin/entries/actions'
 
 interface TranslationEditFormProps {
   entryId: string
+  locale: 'en' | 'pt'
   initialTitle: string
   initialExcerpt: string
   initialContent: string
@@ -13,6 +14,7 @@ interface TranslationEditFormProps {
 
 export function TranslationEditForm({
   entryId,
+  locale,
   initialTitle,
   initialExcerpt,
   initialContent,
@@ -31,7 +33,7 @@ export function TranslationEditForm({
     setSaveError(null)
     setSaveSuccess(false)
     startSave(async () => {
-      const result = await updateTranslation(entryId, { title, excerpt, content })
+      const result = await updateTranslation(entryId, { title, excerpt, content, locale })
       if (result.error) setSaveError(result.error)
       else setSaveSuccess(true)
     })
@@ -41,7 +43,7 @@ export function TranslationEditForm({
     setTranslateError(null)
     setSaveSuccess(false)
     startTranslate(async () => {
-      const result = await translateEntry(entryId)
+      const result = await translateEntry(entryId, locale)
       if (result.error) {
         setTranslateError(result.error)
       } else {

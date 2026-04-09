@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
     title,
     description,
     alternates: {
-      ...buildAlternates(`${SITE_URL}/de`, `${SITE_URL}/en`),
+      ...buildAlternates(`${SITE_URL}/de`, `${SITE_URL}/en`, `${SITE_URL}/pt`),
       canonical: canonicalUrl,
     },
     openGraph: {

@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
-import { translateEntryToEnglish } from '@/lib/translate'
+import { translateEntry as translateEntryViaAI } from '@/lib/translate'
 import { MovementLevel, NutritionLevel, SmokingStatus } from '@prisma/client'
 
 export interface EntryFormData {
@@ -125,7 +125,7 @@ export async function deleteEntry(id: string): Promise<ActionResult> {
   }
 }
 
-export async function translateEntry(id: string): Promise<ActionResult> {
+export async function translateEntry(id: string, locale: 'en' | 'pt' = 'en'): Promise<ActionResult> {
   const session = await requireAdmin()
   if (!session) return { error: 'Nicht autorisiert' }
 
@@ -137,17 +137,17 @@ export async function translateEntry(id: string): Promise<ActionResult> {
   if (!entry) return { error: 'Eintrag nicht gefunden' }
 
   try {
-    const translated = await translateEntryToEnglish({
+    const translated = await translateEntryViaAI({
       title: entry.title,
       content: entry.content,
       excerpt: entry.excerpt,
-    })
+    }, locale)
 
     await prisma.translation.upsert({
-      where: { entryId: id },
+      where: { entryId_locale: { entryId: id, locale } },
       create: {
         entryId: id,
-        locale: 'en',
+        locale,
         title: translated.title,
         content: translated.content,
         excerpt: translated.excerpt,
@@ -161,7 +161,7 @@ export async function translateEntry(id: string): Promise<ActionResult> {
     })
 
     revalidatePath('/admin/entries')
-    revalidatePath(`/en/journal/${entry.slug}`)
+    revalidatePath(`/${locale}/journal/${entry.slug}`)
 
     return {}
   } catch (e) {

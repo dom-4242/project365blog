@@ -19,7 +19,7 @@ export default async function TranslationDetailPage({ params }: TranslationDetai
   const [entry, startDate] = await Promise.all([
     prisma.journalEntry.findUnique({
       where: { id: params.entryId },
-      include: { translation: true },
+      include: { translations: true },
     }),
     getProjectStartDate(),
   ])
@@ -27,9 +27,8 @@ export default async function TranslationDetailPage({ params }: TranslationDetai
   if (!entry) notFound()
 
   const dateStr = entry.date.toISOString().slice(0, 10)
-  const isStale = entry.translation
-    ? entry.translation.updatedAt < entry.updatedAt
-    : false
+  const enTranslation = entry.translations.find((t) => t.locale === 'en') ?? null
+  const ptTranslation = entry.translations.find((t) => t.locale === 'pt') ?? null
 
   return (
     <div>
@@ -50,37 +49,33 @@ export default async function TranslationDetailPage({ params }: TranslationDetai
           <div className="flex items-center gap-3 mt-1">
             <span className="text-xs font-mono text-sand-400">Tag {getDayNumber(dateStr, startDate)}</span>
             <span className="text-xs text-sand-400">{formatDate(entry.date)}</span>
-            {entry.translation && isStale && (
-              <span className="text-xs px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-full">
-                Veraltet
-              </span>
-            )}
-            {entry.translation && !isStale && (
-              <span className="text-xs px-2 py-0.5 bg-movement-100 dark:bg-movement-900/30 text-movement-700 dark:text-movement-400 rounded-full">
-                Übersetzt
-              </span>
-            )}
-            {!entry.translation && (
-              <span className="text-xs px-2 py-0.5 bg-sand-100 dark:bg-[#3a3531] text-sand-500 rounded-full">
-                Nicht übersetzt
-              </span>
-            )}
           </div>
         </div>
-        {entry.translation && (
-          <Link
-            href={`/en/journal/${entry.slug}`}
-            target="_blank"
-            className="shrink-0 text-xs text-sand-400 hover:text-[#1a1714] dark:hover:text-[#faf9f7] transition-colors"
-          >
-            EN-Seite ansehen ↗
-          </Link>
-        )}
+        <div className="flex items-center gap-3 shrink-0">
+          {enTranslation && (
+            <Link
+              href={`/en/journal/${entry.slug}`}
+              target="_blank"
+              className="text-xs text-sand-400 hover:text-[#1a1714] dark:hover:text-[#faf9f7] transition-colors"
+            >
+              EN ↗
+            </Link>
+          )}
+          {ptTranslation && (
+            <Link
+              href={`/pt/journal/${entry.slug}`}
+              target="_blank"
+              className="text-xs text-sand-400 hover:text-[#1a1714] dark:hover:text-[#faf9f7] transition-colors"
+            >
+              PT ↗
+            </Link>
+          )}
+        </div>
       </div>
 
-      {/* Two-column layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left: German original (read-only) */}
+      {/* Three-column layout: DE original | EN translation | PT translation */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* DE original (read-only) */}
         <div className="space-y-4">
           <h2 className="text-sm font-semibold text-sand-500 uppercase tracking-wide flex items-center gap-2">
             <span className="text-xs px-1.5 py-0.5 bg-sand-100 dark:bg-[#3a3531] text-sand-600 dark:text-sand-400 rounded font-mono">DE</span>
@@ -107,26 +102,59 @@ export default async function TranslationDetailPage({ params }: TranslationDetai
           </div>
         </div>
 
-        {/* Right: English translation (editable) */}
+        {/* EN translation (editable) */}
         <div className="space-y-4">
           <h2 className="text-sm font-semibold text-sand-500 uppercase tracking-wide flex items-center gap-2">
             <span className="text-xs px-1.5 py-0.5 bg-nutrition-100 dark:bg-nutrition-900/30 text-nutrition-700 dark:text-nutrition-400 rounded font-mono">EN</span>
-            Übersetzung
+            Englisch
           </h2>
 
           <div className="rounded-xl border border-sand-200 dark:border-[#4a4540] bg-white dark:bg-[#2d2926] p-4">
-            {entry.translation ? (
+            {enTranslation ? (
               <TranslationEditForm
                 entryId={entry.id}
-                initialTitle={entry.translation.title}
-                initialExcerpt={entry.translation.excerpt ?? ''}
-                initialContent={entry.translation.content}
+                locale="en"
+                initialTitle={enTranslation.title}
+                initialExcerpt={enTranslation.excerpt ?? ''}
+                initialContent={enTranslation.content}
               />
             ) : (
-              <div className="text-center py-8 space-y-3">
-                <p className="text-sm text-sand-400">Noch keine Übersetzung vorhanden.</p>
+              <div className="space-y-3 py-4">
+                <p className="text-sm text-sand-400 text-center">Noch keine EN-Übersetzung.</p>
                 <TranslationEditForm
                   entryId={entry.id}
+                  locale="en"
+                  initialTitle=""
+                  initialExcerpt=""
+                  initialContent=""
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* PT translation (editable) */}
+        <div className="space-y-4">
+          <h2 className="text-sm font-semibold text-sand-500 uppercase tracking-wide flex items-center gap-2">
+            <span className="text-xs px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded font-mono">PT</span>
+            Portugiesisch (BR)
+          </h2>
+
+          <div className="rounded-xl border border-sand-200 dark:border-[#4a4540] bg-white dark:bg-[#2d2926] p-4">
+            {ptTranslation ? (
+              <TranslationEditForm
+                entryId={entry.id}
+                locale="pt"
+                initialTitle={ptTranslation.title}
+                initialExcerpt={ptTranslation.excerpt ?? ''}
+                initialContent={ptTranslation.content}
+              />
+            ) : (
+              <div className="space-y-3 py-4">
+                <p className="text-sm text-sand-400 text-center">Noch keine PT-Übersetzung.</p>
+                <TranslationEditForm
+                  entryId={entry.id}
+                  locale="pt"
                   initialTitle=""
                   initialExcerpt=""
                   initialContent=""

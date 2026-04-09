@@ -16,14 +16,15 @@ export function stripHtml(html: string): string {
 
 /**
  * Build hreflang `alternates.languages` for Next.js metadata.
- * Always includes DE (default) and x-default. EN is optional.
+ * Always includes DE (default) and x-default. EN and PT are optional.
  */
-export function buildAlternates(deUrl: string, enUrl?: string) {
+export function buildAlternates(deUrl: string, enUrl?: string, ptUrl?: string) {
   const languages: Record<string, string> = {
     de: deUrl,
     'x-default': deUrl,
   }
   if (enUrl) languages.en = enUrl
+  if (ptUrl) languages['pt-BR'] = ptUrl
   return { canonical: deUrl, languages }
 }
 
@@ -31,4 +32,5 @@ export function buildAlternates(deUrl: string, enUrl?: string) {
 export const OG_LOCALE: Record<string, string> = {
   de: 'de_CH',
   en: 'en_US',
+  pt: 'pt_BR',
 }
