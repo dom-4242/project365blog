@@ -14,7 +14,7 @@ export async function Navigation() {
     <nav className="flex items-center gap-2" aria-label={t('ariaLabel')}>
       <Link
         href="/"
-        className="text-sm font-medium text-sand-500 hover:text-[#1a1714] dark:hover:text-[#faf9f7] transition-colors"
+        className="text-sm font-medium text-sand-500 hover:text-ctp-text transition-colors"
       >
         {t('journal')}
       </Link>

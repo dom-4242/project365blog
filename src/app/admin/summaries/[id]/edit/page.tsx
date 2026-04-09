@@ -19,7 +19,7 @@ export default async function SummaryEditPage({ params }: SummaryEditPageProps) 
   return (
     <div>
       <div className="mb-6">
-        <h1 className="font-display text-2xl font-bold text-[#1a1714] dark:text-[#faf9f7]">
+        <h1 className="font-display text-2xl font-bold text-ctp-text">
           {monthLabel} — Zusammenfassung bearbeiten
         </h1>
         <p className="text-xs text-sand-400 mt-1">

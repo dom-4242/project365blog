@@ -7,21 +7,21 @@ type Pillar = 'movement' | 'nutrition' | 'smoking'
 // All class names must be static strings for Tailwind to include them
 const COLOR_BY_LEVEL: Record<Pillar, readonly string[]> = {
   movement: [
-    'bg-sand-100 dark:bg-[#2d2926]',            // -1: no entry
-    'bg-sand-200 dark:bg-[#3a3531]',             //  0: minimal
+    'bg-ctp-mantle',            // -1: no entry
+    'bg-ctp-surface0',             //  0: minimal
     'bg-movement-200 dark:bg-movement-800/40',   //  1: steps_only
     'bg-movement-500 dark:bg-movement-400',      //  2: steps_trained
   ],
   nutrition: [
-    'bg-sand-100 dark:bg-[#2d2926]',
-    'bg-sand-200 dark:bg-[#3a3531]',
+    'bg-ctp-mantle',
+    'bg-ctp-surface0',
     'bg-nutrition-100 dark:bg-nutrition-800/30',
     'bg-nutrition-400 dark:bg-nutrition-500',
     'bg-nutrition-500 dark:bg-nutrition-400',
   ],
   smoking: [
-    'bg-sand-100 dark:bg-[#2d2926]',
-    'bg-sand-200 dark:bg-[#3a3531]',
+    'bg-ctp-mantle',
+    'bg-ctp-surface0',
     'bg-smoking-200 dark:bg-smoking-800/40',
     'bg-smoking-500 dark:bg-smoking-400',
   ],
@@ -132,8 +132,8 @@ export function HabitYearGrid({ movementDays, nutritionDays, smokingDays }: Habi
   }
 
   return (
-    <div className="mt-3 bg-white dark:bg-[#2d2926] rounded-2xl border border-sand-200 dark:border-[#4a4540] p-5">
-      <h3 className="font-display text-sm font-semibold text-[#1a1714] dark:text-[#faf9f7] mb-4">
+    <div className="mt-3 bg-ctp-base rounded-2xl border border-ctp-surface1 p-5">
+      <h3 className="font-display text-sm font-semibold text-ctp-text mb-4">
         {tDash('yearOverview')}
       </h3>
 
@@ -186,7 +186,7 @@ export function HabitYearGrid({ movementDays, nutritionDays, smokingDays }: Habi
                           }
 
                           const level = levelMap.get(dateStr) ?? -1
-                          const colorClass = colors[level + 1] ?? 'bg-sand-100 dark:bg-[#2d2926]'
+                          const colorClass = colors[level + 1] ?? 'bg-ctp-mantle'
 
                           return (
                             <div

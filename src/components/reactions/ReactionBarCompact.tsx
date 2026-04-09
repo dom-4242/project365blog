@@ -136,8 +136,8 @@ export function ReactionBarCompact({ slug }: ReactionBarCompactProps) {
             'flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium transition-all duration-150 select-none',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-400',
             userReactions.has(type)
-              ? 'bg-sand-200 dark:bg-[#4a4540] text-[#1a1714] dark:text-[#faf9f7] ring-1 ring-sand-300 dark:ring-[#5a5550]'
-              : 'bg-sand-100 dark:bg-[#313244] border border-sand-200 dark:border-[#45475a] text-sand-500 dark:text-sand-400 hover:bg-sand-200 dark:hover:bg-[#3a3531] hover:text-sand-700 dark:hover:text-[#faf9f7]',
+              ? 'bg-ctp-surface1 text-ctp-text ring-1 ring-sand-300 dark:ring-ctp-overlay2'
+              : 'bg-ctp-surface0 border border-ctp-surface1 text-sand-500 dark:text-sand-400 hover:bg-sand-200 dark:hover:bg-ctp-surface0 hover:text-sand-700 dark:hover:text-ctp-text',
             pending !== null && 'opacity-60 cursor-not-allowed',
           )}
         >
@@ -159,7 +159,7 @@ export function ReactionBarCompact({ slug }: ReactionBarCompactProps) {
               className={cn(
                 'flex items-center px-2 py-0.5 rounded-full text-xs font-medium transition-all duration-150 select-none',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-400',
-                'bg-sand-100 dark:bg-[#313244] border border-dashed border-sand-300 dark:border-[#45475a] text-sand-400 dark:text-sand-500 hover:bg-sand-200 dark:hover:bg-[#3a3531] hover:text-sand-700 dark:hover:text-[#faf9f7] hover:border-solid',
+                'bg-ctp-surface0 border border-dashed border-ctp-surface1 text-sand-400 dark:text-sand-500 hover:bg-sand-200 dark:hover:bg-ctp-surface0 hover:text-sand-700 dark:hover:text-ctp-text hover:border-solid',
                 pending !== null && 'opacity-60 cursor-not-allowed',
               )}
             >
@@ -169,7 +169,7 @@ export function ReactionBarCompact({ slug }: ReactionBarCompactProps) {
           <button
             onClick={(e) => { stopPropagation(e); setExpanded(false) }}
             aria-label="Schliessen"
-            className="flex items-center justify-center w-5 h-5 rounded-full text-xs bg-sand-100 dark:bg-[#313244] border border-sand-200 dark:border-[#45475a] text-sand-400 hover:bg-sand-200 dark:hover:bg-[#3a3531] transition-all duration-150 select-none"
+            className="flex items-center justify-center w-5 h-5 rounded-full text-xs bg-ctp-surface0 border border-ctp-surface1 text-sand-400 hover:bg-sand-200 dark:hover:bg-ctp-surface0 transition-all duration-150 select-none"
           >
             ×
           </button>
@@ -178,7 +178,7 @@ export function ReactionBarCompact({ slug }: ReactionBarCompactProps) {
         <button
           onClick={(e) => { stopPropagation(e); setExpanded(true) }}
           aria-label="Reagieren"
-          className="flex items-center justify-center w-5 h-5 rounded-full text-xs bg-sand-100 dark:bg-[#313244] border border-sand-200 dark:border-[#45475a] text-sand-400 hover:bg-sand-200 dark:hover:bg-[#3a3531] hover:text-sand-600 transition-all duration-150 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-400"
+          className="flex items-center justify-center w-5 h-5 rounded-full text-xs bg-ctp-surface0 border border-ctp-surface1 text-sand-400 hover:bg-sand-200 dark:hover:bg-ctp-surface0 hover:text-sand-600 transition-all duration-150 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-400"
         >
           +
         </button>

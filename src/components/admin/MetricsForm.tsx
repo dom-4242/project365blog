@@ -33,7 +33,7 @@ function MetricField({ label, unit, value, onChange, placeholder = '—', step =
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full border border-sand-200 dark:border-[#4a4540] rounded-lg px-3 py-1.5 text-sm text-[#2d2926] dark:text-[#e8e4dc] focus:outline-none focus:border-sand-400 bg-white dark:bg-[#3a3531]"
+        className="w-full border border-ctp-surface1 rounded-lg px-3 py-1.5 text-sm text-ctp-text focus:outline-none focus:border-sand-400 bg-ctp-surface0"
       />
     </div>
   )
@@ -98,7 +98,7 @@ export function MetricsForm({ date, initial }: MetricsFormProps) {
         <button
           type="button"
           onClick={prevDay}
-          className="p-1.5 rounded-lg border border-sand-200 dark:border-[#4a4540] text-sand-500 hover:text-[#1a1714] dark:hover:text-[#faf9f7] hover:border-sand-300 transition-colors"
+          className="p-1.5 rounded-lg border border-ctp-surface1 text-sand-500 hover:text-ctp-text hover:border-sand-300 transition-colors"
           aria-label="Vorheriger Tag"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -109,12 +109,12 @@ export function MetricsForm({ date, initial }: MetricsFormProps) {
           type="date"
           value={date}
           onChange={(e) => handleDateChange(e.target.value)}
-          className="border border-sand-200 dark:border-[#4a4540] rounded-lg px-3 py-1.5 text-sm text-[#2d2926] dark:text-[#e8e4dc] focus:outline-none focus:border-sand-400 bg-white dark:bg-[#3a3531]"
+          className="border border-ctp-surface1 rounded-lg px-3 py-1.5 text-sm text-ctp-text focus:outline-none focus:border-sand-400 bg-ctp-surface0"
         />
         <button
           type="button"
           onClick={nextDay}
-          className="p-1.5 rounded-lg border border-sand-200 dark:border-[#4a4540] text-sand-500 hover:text-[#1a1714] dark:hover:text-[#faf9f7] hover:border-sand-300 transition-colors"
+          className="p-1.5 rounded-lg border border-ctp-surface1 text-sand-500 hover:text-ctp-text hover:border-sand-300 transition-colors"
           aria-label="Nächster Tag"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -124,8 +124,8 @@ export function MetricsForm({ date, initial }: MetricsFormProps) {
       </div>
 
       {/* Körperwerte */}
-      <div className="bg-white dark:bg-[#2d2926] rounded-2xl border border-sand-200 dark:border-[#4a4540] p-5">
-        <h3 className="font-display text-sm font-semibold text-[#1a1714] dark:text-[#faf9f7] mb-4">Körperwerte</h3>
+      <div className="bg-ctp-base rounded-2xl border border-ctp-surface1 p-5">
+        <h3 className="font-display text-sm font-semibold text-ctp-text mb-4">Körperwerte</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <MetricField label="Gewicht" unit="kg" value={weight} onChange={setWeight} step="0.1" />
           <MetricField label="Körperfett" unit="%" value={bodyFat} onChange={setBodyFat} step="0.1" />
@@ -134,8 +134,8 @@ export function MetricsForm({ date, initial }: MetricsFormProps) {
       </div>
 
       {/* Aktivität */}
-      <div className="bg-white dark:bg-[#2d2926] rounded-2xl border border-sand-200 dark:border-[#4a4540] p-5">
-        <h3 className="font-display text-sm font-semibold text-[#1a1714] dark:text-[#faf9f7] mb-4">Aktivität</h3>
+      <div className="bg-ctp-base rounded-2xl border border-ctp-surface1 p-5">
+        <h3 className="font-display text-sm font-semibold text-ctp-text mb-4">Aktivität</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <MetricField label="Schritte" unit="Schritte" value={steps} onChange={setSteps} step="1" inputMode="numeric" />
           <MetricField label="Aktive Minuten" unit="min" value={activeMinutes} onChange={setActiveMinutes} step="1" inputMode="numeric" />
@@ -145,8 +145,8 @@ export function MetricsForm({ date, initial }: MetricsFormProps) {
       </div>
 
       {/* Vitalwerte */}
-      <div className="bg-white dark:bg-[#2d2926] rounded-2xl border border-sand-200 dark:border-[#4a4540] p-5">
-        <h3 className="font-display text-sm font-semibold text-[#1a1714] dark:text-[#faf9f7] mb-4">Vitalwerte</h3>
+      <div className="bg-ctp-base rounded-2xl border border-ctp-surface1 p-5">
+        <h3 className="font-display text-sm font-semibold text-ctp-text mb-4">Vitalwerte</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <MetricField label="Ruheherzfrequenz" unit="bpm" value={restingHR} onChange={setRestingHR} step="1" inputMode="numeric" />
           <MetricField label="Schlafdauer" unit="min" value={sleepDuration} onChange={setSleepDuration} step="1" inputMode="numeric" />

@@ -33,7 +33,7 @@ function SettingField({ label, unit, hint, value, onChange, placeholder = '—',
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full border border-sand-200 dark:border-[#4a4540] rounded-lg px-3 py-1.5 text-sm text-[#2d2926] dark:text-[#e8e4dc] focus:outline-none focus:border-sand-400 bg-white dark:bg-[#3a3531]"
+        className="w-full border border-ctp-surface1 rounded-lg px-3 py-1.5 text-sm text-ctp-text focus:outline-none focus:border-sand-400 bg-ctp-surface0"
       />
     </div>
   )
@@ -67,8 +67,8 @@ export function SettingsForm({ initial }: SettingsFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Körperprofil */}
-      <div className="bg-white dark:bg-[#2d2926] rounded-2xl border border-sand-200 dark:border-[#4a4540] p-5">
-        <h3 className="font-display text-sm font-semibold text-[#1a1714] dark:text-[#faf9f7] mb-1">Körperprofil</h3>
+      <div className="bg-ctp-base rounded-2xl border border-ctp-surface1 p-5">
+        <h3 className="font-display text-sm font-semibold text-ctp-text mb-1">Körperprofil</h3>
         <p className="text-xs text-sand-400 mb-4">Wird für die automatische BMI-Berechnung verwendet.</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <SettingField
@@ -83,8 +83,8 @@ export function SettingsForm({ initial }: SettingsFormProps) {
       </div>
 
       {/* Ziele */}
-      <div className="bg-white dark:bg-[#2d2926] rounded-2xl border border-sand-200 dark:border-[#4a4540] p-5">
-        <h3 className="font-display text-sm font-semibold text-[#1a1714] dark:text-[#faf9f7] mb-1">Ziele</h3>
+      <div className="bg-ctp-base rounded-2xl border border-ctp-surface1 p-5">
+        <h3 className="font-display text-sm font-semibold text-ctp-text mb-1">Ziele</h3>
         <p className="text-xs text-sand-400 mb-4">Persönliche Zielwerte für die Metriken-Darstellung.</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <SettingField
@@ -108,8 +108,8 @@ export function SettingsForm({ initial }: SettingsFormProps) {
       </div>
 
       {/* Projekt */}
-      <div className="bg-white dark:bg-[#2d2926] rounded-2xl border border-sand-200 dark:border-[#4a4540] p-5">
-        <h3 className="font-display text-sm font-semibold text-[#1a1714] dark:text-[#faf9f7] mb-1">Projekt</h3>
+      <div className="bg-ctp-base rounded-2xl border border-ctp-surface1 p-5">
+        <h3 className="font-display text-sm font-semibold text-ctp-text mb-1">Projekt</h3>
         <p className="text-xs text-sand-400 mb-4">Bestimmt den Projekttag für alle Anzeigen (Tag 1 = Startdatum).</p>
         <div className="max-w-xs">
           <label className="block text-xs font-medium text-sand-500 mb-1">
@@ -121,7 +121,7 @@ export function SettingsForm({ initial }: SettingsFormProps) {
             onChange={(e) => setProjectStartDate(e.target.value)}
             max={new Date().toISOString().slice(0, 10)}
             placeholder="2026-03-26"
-            className="w-full border border-sand-200 dark:border-[#4a4540] rounded-lg px-3 py-1.5 text-sm text-[#2d2926] dark:text-[#e8e4dc] focus:outline-none focus:border-sand-400 bg-white dark:bg-[#3a3531]"
+            className="w-full border border-ctp-surface1 rounded-lg px-3 py-1.5 text-sm text-ctp-text focus:outline-none focus:border-sand-400 bg-ctp-surface0"
           />
           <p className="text-xs text-sand-400 mt-1">Default: 2026-03-26 (falls nicht gesetzt)</p>
         </div>

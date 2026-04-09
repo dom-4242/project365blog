@@ -123,7 +123,7 @@ export function SearchModal() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label={t('ariaLabel')}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sand-500 hover:text-[#1a1714] dark:hover:text-[#faf9f7] hover:bg-sand-100 dark:hover:bg-[#2d2926] transition-colors"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sand-500 hover:text-ctp-text hover:bg-sand-100 dark:hover:bg-ctp-base transition-colors"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
           <circle cx="11" cy="11" r="8" />
@@ -149,10 +149,10 @@ export function SearchModal() {
           />
 
           {/* Modal card */}
-          <div className="relative w-full max-w-xl bg-white dark:bg-[#2d2926] rounded-2xl border border-sand-200 dark:border-[#4a4540] shadow-2xl overflow-hidden">
+          <div className="relative w-full max-w-xl bg-ctp-base rounded-2xl border border-ctp-surface1 shadow-2xl overflow-hidden">
 
             {/* Input row */}
-            <div className="flex items-center gap-3 px-4 border-b border-sand-100 dark:border-[#3a3531]">
+            <div className="flex items-center gap-3 px-4 border-b border-ctp-surface0">
               <svg className="w-4 h-4 text-sand-400 shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
                 <circle cx="11" cy="11" r="8" />
                 <path strokeLinecap="round" d="M21 21l-4.35-4.35" />
@@ -164,7 +164,7 @@ export function SearchModal() {
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={onKeyDown}
                 placeholder={t('placeholder')}
-                className="flex-1 py-4 text-sm text-[#1a1714] dark:text-[#faf9f7] bg-transparent focus:outline-none placeholder:text-sand-400"
+                className="flex-1 py-4 text-sm text-ctp-text bg-transparent focus:outline-none placeholder:text-sand-400"
               />
               {loading && (
                 <svg className="w-4 h-4 text-sand-400 animate-spin shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -175,7 +175,7 @@ export function SearchModal() {
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="shrink-0 text-xs text-sand-400 hover:text-sand-600 dark:hover:text-sand-300 transition-colors px-1.5 py-1 rounded border border-sand-200 dark:border-[#4a4540]"
+                className="shrink-0 text-xs text-sand-400 hover:text-sand-600 dark:hover:text-sand-300 transition-colors px-1.5 py-1 rounded border border-ctp-surface1"
               >
                 ESC
               </button>
@@ -183,7 +183,7 @@ export function SearchModal() {
 
             {/* Results */}
             {results.length > 0 && (
-              <ul className="max-h-[60vh] overflow-y-auto divide-y divide-sand-100 dark:divide-[#3a3531]">
+              <ul className="max-h-[60vh] overflow-y-auto divide-y divide-sand-100 dark:divide-ctp-surface0">
                 {results.map((result, i) => (
                   <li key={result.slug}>
                     <button
@@ -191,12 +191,12 @@ export function SearchModal() {
                       onClick={() => navigate(result.slug)}
                       className={`w-full text-left px-4 py-3.5 transition-colors ${
                         i === activeIndex
-                          ? 'bg-sand-50 dark:bg-[#3a3531]'
-                          : 'hover:bg-sand-50 dark:hover:bg-[#3a3531]'
+                          ? 'bg-ctp-surface0'
+                          : 'hover:bg-sand-50 dark:hover:bg-ctp-surface0'
                       }`}
                     >
                       <div className="flex items-baseline gap-2 mb-0.5">
-                        <span className="font-display font-semibold text-sm text-[#1a1714] dark:text-[#faf9f7]">
+                        <span className="font-display font-semibold text-sm text-ctp-text">
                           <Highlight text={result.title} query={query} />
                         </span>
                         <span className="text-xs text-sand-400 shrink-0">
@@ -204,7 +204,7 @@ export function SearchModal() {
                         </span>
                       </div>
                       {result.excerpt && (
-                        <p className="text-xs text-[#6b6560] dark:text-[#9a9088] line-clamp-2 leading-relaxed">
+                        <p className="text-xs text-ctp-overlay2 dark:text-ctp-overlay2 line-clamp-2 leading-relaxed">
                           <Highlight text={result.excerpt} query={query} />
                         </p>
                       )}
@@ -219,7 +219,7 @@ export function SearchModal() {
               <div className="px-4 py-10 text-center">
                 <p className="text-sm text-sand-500">
                   {t('noResults')}{' '}
-                  <span className="font-medium text-[#1a1714] dark:text-[#faf9f7]">&bdquo;{query}&ldquo;</span>
+                  <span className="font-medium text-ctp-text">&bdquo;{query}&ldquo;</span>
                 </p>
               </div>
             )}

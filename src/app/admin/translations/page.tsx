@@ -38,7 +38,7 @@ function StatusBadge({ status }: { status: TranslationStatus }) {
     )
   }
   return (
-    <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 bg-sand-100 dark:bg-[#3a3531] text-sand-500 rounded-full">
+    <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 bg-ctp-surface0 text-sand-500 rounded-full">
       <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
       </svg>
@@ -75,21 +75,21 @@ export default async function TranslationsPage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-bold text-[#1a1714] dark:text-[#faf9f7] mb-6">
+      <h1 className="font-display text-2xl font-bold text-ctp-text mb-6">
         Übersetzungen
       </h1>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3 mb-6">
-        <div className="bg-white dark:bg-[#2d2926] rounded-xl border border-sand-200 dark:border-[#4a4540] px-5 py-4">
+        <div className="bg-ctp-base rounded-xl border border-ctp-surface1 px-5 py-4">
           <p className="text-2xl font-bold font-display text-movement-600 dark:text-movement-400">{countCurrent}</p>
           <p className="text-xs text-sand-400 mt-0.5">Übersetzt</p>
         </div>
-        <div className="bg-white dark:bg-[#2d2926] rounded-xl border border-sand-200 dark:border-[#4a4540] px-5 py-4">
+        <div className="bg-ctp-base rounded-xl border border-ctp-surface1 px-5 py-4">
           <p className="text-2xl font-bold font-display text-amber-600 dark:text-amber-400">{countStale}</p>
           <p className="text-xs text-sand-400 mt-0.5">Veraltet</p>
         </div>
-        <div className="bg-white dark:bg-[#2d2926] rounded-xl border border-sand-200 dark:border-[#4a4540] px-5 py-4">
+        <div className="bg-ctp-base rounded-xl border border-ctp-surface1 px-5 py-4">
           <p className="text-2xl font-bold font-display text-sand-500">{countMissing}</p>
           <p className="text-xs text-sand-400 mt-0.5">Fehlen</p>
         </div>
@@ -109,14 +109,14 @@ export default async function TranslationsPage() {
             return (
               <div
                 key={entry.id}
-                className="bg-white dark:bg-[#2d2926] rounded-xl border border-sand-200 dark:border-[#4a4540] px-5 py-4 flex items-center gap-4 hover:border-sand-300 dark:hover:border-[#5a5550] transition-colors"
+                className="bg-ctp-base rounded-xl border border-ctp-surface1 px-5 py-4 flex items-center gap-4 hover:border-sand-300 dark:hover:border-ctp-overlay2 transition-colors"
               >
                 <span className="text-xs font-mono text-sand-400 shrink-0 w-8 text-right">
                   {getDayNumber(dateStr, startDate)}
                 </span>
 
                 <div className="flex-1 min-w-0">
-                  <p className="font-display font-semibold text-[#1a1714] dark:text-[#faf9f7] truncate text-sm">
+                  <p className="font-display font-semibold text-ctp-text truncate text-sm">
                     {entry.title}
                   </p>
                   <time className="text-xs text-sand-400">{formatDate(entry.date)}</time>
@@ -137,7 +137,7 @@ export default async function TranslationsPage() {
                   />
                   <Link
                     href={`/admin/translations/${entry.id}`}
-                    className="text-xs px-3 py-1.5 border border-sand-200 dark:border-[#4a4540] rounded-lg text-sand-600 dark:text-sand-400 hover:border-sand-300 dark:hover:border-[#5a5550] hover:text-[#1a1714] dark:hover:text-[#faf9f7] transition-colors"
+                    className="text-xs px-3 py-1.5 border border-ctp-surface1 rounded-lg text-sand-600 dark:text-sand-400 hover:border-sand-300 dark:hover:border-ctp-overlay2 hover:text-ctp-text transition-colors"
                   >
                     Bearbeiten
                   </Link>

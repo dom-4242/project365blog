@@ -63,7 +63,7 @@ export function TranslationEditForm({
           type="text"
           value={title}
           onChange={(e) => { setTitle(e.target.value); setSaveSuccess(false) }}
-          className="w-full px-3 py-2 text-sm bg-white dark:bg-[#2d2926] border border-sand-200 dark:border-[#4a4540] rounded-lg text-[#1a1714] dark:text-[#faf9f7] focus:outline-none focus:border-nutrition-500 dark:focus:border-nutrition-400 transition-colors"
+          className="w-full px-3 py-2 text-sm bg-ctp-base border border-ctp-surface1 rounded-lg text-ctp-text focus:outline-none focus:border-nutrition-500 dark:focus:border-nutrition-400 transition-colors"
         />
       </div>
 
@@ -75,7 +75,7 @@ export function TranslationEditForm({
           value={excerpt}
           onChange={(e) => { setExcerpt(e.target.value); setSaveSuccess(false) }}
           rows={3}
-          className="w-full px-3 py-2 text-sm bg-white dark:bg-[#2d2926] border border-sand-200 dark:border-[#4a4540] rounded-lg text-[#1a1714] dark:text-[#faf9f7] focus:outline-none focus:border-nutrition-500 dark:focus:border-nutrition-400 transition-colors resize-y"
+          className="w-full px-3 py-2 text-sm bg-ctp-base border border-ctp-surface1 rounded-lg text-ctp-text focus:outline-none focus:border-nutrition-500 dark:focus:border-nutrition-400 transition-colors resize-y"
         />
       </div>
 
@@ -87,7 +87,7 @@ export function TranslationEditForm({
           value={content}
           onChange={(e) => { setContent(e.target.value); setSaveSuccess(false) }}
           rows={14}
-          className="w-full px-3 py-2 text-xs font-mono bg-white dark:bg-[#2d2926] border border-sand-200 dark:border-[#4a4540] rounded-lg text-[#1a1714] dark:text-[#faf9f7] focus:outline-none focus:border-nutrition-500 dark:focus:border-nutrition-400 transition-colors resize-y"
+          className="w-full px-3 py-2 text-xs font-mono bg-ctp-base border border-ctp-surface1 rounded-lg text-ctp-text focus:outline-none focus:border-nutrition-500 dark:focus:border-nutrition-400 transition-colors resize-y"
         />
       </div>
 
@@ -114,7 +114,7 @@ export function TranslationEditForm({
         <button
           onClick={handleRetranslate}
           disabled={isSaving || isTranslating}
-          className="flex items-center gap-2 px-4 py-2 border border-sand-200 dark:border-[#4a4540] rounded-xl text-sm font-medium text-sand-600 dark:text-sand-400 hover:border-sand-300 hover:text-[#1a1714] dark:hover:text-[#faf9f7] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-4 py-2 border border-ctp-surface1 rounded-xl text-sm font-medium text-sand-600 dark:text-sand-400 hover:border-sand-300 hover:text-ctp-text transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isTranslating ? (
             <>

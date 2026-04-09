@@ -76,7 +76,7 @@ export default async function MonthSummaryPage({ params }: MonthSummaryPageProps
       {/* Back */}
       <Link
         href={`/${params.locale}/monthly`}
-        className="inline-block text-sm text-sand-400 hover:text-[#1a1714] dark:hover:text-[#faf9f7] mb-8 transition-colors"
+        className="inline-block text-sm text-sand-400 hover:text-ctp-text mb-8 transition-colors"
       >
         ← {t('backToOverview')}
       </Link>
@@ -86,7 +86,7 @@ export default async function MonthSummaryPage({ params }: MonthSummaryPageProps
         <p className="text-xs font-semibold text-nutrition-600 dark:text-nutrition-400 uppercase tracking-wide mb-2">
           {t('summaryLabel')}
         </p>
-        <h1 className="font-display text-4xl font-bold text-[#1a1714] dark:text-[#faf9f7]">
+        <h1 className="font-display text-4xl font-bold text-ctp-text">
           {monthName} {year}
         </h1>
         <p className="text-xs text-sand-400 mt-2">

@@ -40,9 +40,9 @@ function BodyFatTooltip({ active, payload, label }: TooltipProps) {
   const locale = useLocale()
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-white dark:bg-[#2d2926] border border-sand-200 dark:border-[#4a4540] rounded-lg px-3 py-2 text-sm shadow-sm">
+    <div className="bg-ctp-base border border-ctp-surface1 rounded-lg px-3 py-2 text-sm shadow-sm">
       <p className="text-sand-400 text-xs mb-0.5">{formatDateLong(label ?? '', locale)}</p>
-      <p className="font-semibold text-[#1a1714] dark:text-[#faf9f7]">{payload[0].value.toFixed(1)} %</p>
+      <p className="font-semibold text-ctp-text">{payload[0].value.toFixed(1)} %</p>
     </div>
   )
 }
@@ -62,11 +62,11 @@ export function BodyFatChart({ data, latestBodyFat }: BodyFatChartProps) {
   const yMax = Math.ceil(max + 0.5)
 
   return (
-    <div className="bg-white dark:bg-[#2d2926] rounded-2xl border border-sand-200 dark:border-[#4a4540] p-5">
+    <div className="bg-ctp-base rounded-2xl border border-ctp-surface1 p-5">
       <div className="flex items-baseline justify-between mb-4">
-        <h3 className="font-display font-semibold text-sm text-[#1a1714] dark:text-[#faf9f7]">{t('bodyFat')}</h3>
+        <h3 className="font-display font-semibold text-sm text-ctp-text">{t('bodyFat')}</h3>
         {latestBodyFat !== undefined && (
-          <span className="text-2xl font-bold font-display text-[#6b6560] dark:text-[#9a9088]">
+          <span className="text-2xl font-bold font-display text-ctp-overlay2 dark:text-ctp-overlay2">
             {latestBodyFat.toFixed(1)}{' '}
             <span className="text-sm font-normal text-sand-400">%</span>
           </span>
@@ -95,10 +95,10 @@ export function BodyFatChart({ data, latestBodyFat }: BodyFatChartProps) {
           <Line
             type="monotone"
             dataKey="bodyFat"
-            stroke="#9a9088"
+            stroke="var(--ctp-overlay2)"
             strokeWidth={2}
-            dot={{ fill: '#9a9088', r: 2.5, strokeWidth: 0 }}
-            activeDot={{ r: 4, fill: '#9a9088' }}
+            dot={{ fill: 'var(--ctp-overlay2)', r: 2.5, strokeWidth: 0 }}
+            activeDot={{ r: 4, fill: 'var(--ctp-overlay2)' }}
           />
         </LineChart>
       </ResponsiveContainer>

@@ -24,7 +24,7 @@ export function HomeTabs({ labels, entriesContent, habitsContent, metricsContent
   return (
     <div>
       {/* Tab Bar */}
-      <div className="flex gap-1 border-b border-sand-200 dark:border-[#313244] mb-8">
+      <div className="flex gap-1 border-b border-sand-200 dark:border-ctp-surface0 mb-8">
         {tabs.map(({ id, label }) => (
           <button
             key={id}
@@ -33,7 +33,7 @@ export function HomeTabs({ labels, entriesContent, habitsContent, metricsContent
               'px-4 py-2.5 text-sm font-medium rounded-t-lg -mb-px border-b-2 transition-colors duration-150',
               activeTab === id
                 ? 'border-ctp-peach text-ctp-peach'
-                : 'border-transparent text-sand-500 hover:text-ctp-text hover:border-sand-300 dark:hover:border-[#585b70]'
+                : 'border-transparent text-sand-500 hover:text-ctp-text hover:border-sand-300 dark:hover:border-ctp-surface2'
             )}
           >
             {label}

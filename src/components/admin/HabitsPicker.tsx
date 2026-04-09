@@ -38,7 +38,7 @@ function PreviewBadge({ label, fulfilled, colorClass }: PreviewBadgeProps) {
     <span
       className={clsx(
         'inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full',
-        fulfilled ? colorClass : 'bg-sand-100 dark:bg-[#4a4540] text-sand-500'
+        fulfilled ? colorClass : 'bg-ctp-surface1 text-sand-500'
       )}
     >
       <span
@@ -88,10 +88,10 @@ export function HabitsPicker({
   ].filter(Boolean).length
 
   return (
-    <div className="bg-white dark:bg-[#2d2926] rounded-2xl border border-sand-200 dark:border-[#4a4540] overflow-hidden">
+    <div className="bg-ctp-base rounded-2xl border border-ctp-surface1 overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-sand-100 dark:border-[#3a3531]">
-        <h3 className="font-display text-sm font-semibold text-[#1a1714] dark:text-[#faf9f7]">Die drei Säulen</h3>
+      <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-ctp-surface0">
+        <h3 className="font-display text-sm font-semibold text-ctp-text">Die drei Säulen</h3>
         <span
           className={clsx(
             'text-xs font-medium px-2 py-0.5 rounded-full',
@@ -129,7 +129,7 @@ export function HabitsPicker({
       </div>
 
       {/* Live-Vorschau */}
-      <div className="flex items-center gap-3 px-5 py-3 bg-sand-50 dark:bg-[#3a3531] border-t border-sand-100 dark:border-[#4a4540]">
+      <div className="flex items-center gap-3 px-5 py-3 bg-ctp-surface0 border-t border-ctp-surface1">
         <span className="text-xs text-sand-400 shrink-0">Vorschau:</span>
         <div className="flex flex-wrap gap-1.5">
           <PreviewBadge

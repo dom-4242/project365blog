@@ -102,7 +102,7 @@ export default async function HomePage({ params }: HomePageProps) {
         </p>
 
         {/* Day counter + streaks */}
-        <div className="p-4 rounded-xl bg-sand-100 dark:bg-[#313244] border border-sand-200 dark:border-[#45475a]">
+        <div className="p-4 rounded-xl bg-ctp-surface0 border border-ctp-surface1">
           <div className="flex items-baseline gap-3 mb-3">
             <p className="font-display text-3xl font-bold text-ctp-peach leading-none">
               {currentDay}
@@ -148,7 +148,7 @@ export default async function HomePage({ params }: HomePageProps) {
               ))}
             </div>
             {hasMore && (
-              <div className="mt-6 pt-5 border-t border-sand-200 dark:border-[#313244]">
+              <div className="mt-6 pt-5 border-t border-sand-200 dark:border-ctp-surface0">
                 <details className="group">
                   <summary className="cursor-pointer text-sm font-medium text-sand-500 hover:text-ctp-peach transition-colors list-none flex items-center gap-2">
                     <span className="group-open:hidden">{t('allEntries', { count: entries.length })}</span>
