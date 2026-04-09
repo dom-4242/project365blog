@@ -36,10 +36,10 @@ export async function JournalCardCompact({ entry }: JournalCardCompactProps) {
     <article className="group">
       <Link
         href={`/journal/${entry.slug}`}
-        className="flex items-center gap-4 px-4 pt-3 pb-2 rounded-t-xl hover:bg-sand-100 dark:hover:bg-[#313244] transition-colors duration-150"
+        className="flex items-center gap-4 px-4 pt-3 pb-2 rounded-t-xl hover:bg-sand-100 dark:hover:bg-ctp-surface0 transition-colors duration-150"
       >
         {/* Thumbnail */}
-        <div className="relative flex-none w-14 h-14 rounded-lg overflow-hidden bg-sand-100 dark:bg-[#313244]">
+        <div className="relative flex-none w-14 h-14 rounded-lg overflow-hidden bg-ctp-surface0">
           {entry.banner ? (
             <Image
               src={entry.banner}
@@ -50,7 +50,7 @@ export async function JournalCardCompact({ entry }: JournalCardCompactProps) {
             />
           ) : (
             <span
-              className="absolute inset-0 flex items-center justify-center font-display font-bold text-sand-300 dark:text-[#585b70] text-sm"
+              className="absolute inset-0 flex items-center justify-center font-display font-bold text-sand-300 dark:text-ctp-surface2 text-sm"
             >
               {String(dayNumber).padStart(2, '0')}
             </span>
@@ -63,13 +63,13 @@ export async function JournalCardCompact({ entry }: JournalCardCompactProps) {
             <span className="text-xs font-medium text-sand-400 tabular-nums">
               {t('day', { number: dayNumber })}
             </span>
-            <span className="text-sand-300 dark:text-[#585b70]" aria-hidden="true">·</span>
+            <span className="text-sand-300 dark:text-ctp-surface2" aria-hidden="true">·</span>
             <time className="text-xs text-sand-400" dateTime={entry.date}>
               {formatDate(entry.date)}
             </time>
             {/* Habit status dot */}
             <span
-              className={`ml-auto flex-none w-2 h-2 rounded-full ${allOk ? 'bg-movement-500' : 'bg-sand-300 dark:bg-[#585b70]'}`}
+              className={`ml-auto flex-none w-2 h-2 rounded-full ${allOk ? 'bg-movement-500' : 'bg-sand-300 dark:bg-ctp-surface2'}`}
               title={allOk ? 'Alle Ziele erfüllt' : 'Ziele nicht alle erfüllt'}
             />
           </div>

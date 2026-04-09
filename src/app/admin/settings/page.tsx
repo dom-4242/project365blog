@@ -14,7 +14,7 @@ export default async function SettingsPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="font-display text-2xl font-bold text-[#1a1714] dark:text-[#faf9f7]">Einstellungen</h1>
+        <h1 className="font-display text-2xl font-bold text-ctp-text">Einstellungen</h1>
         <p className="text-sand-500 text-sm mt-1">Statische Werte und persönliche Ziele.</p>
       </div>
 

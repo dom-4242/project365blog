@@ -27,7 +27,7 @@ export default function Loading() {
           <Skeleton key={i} className="h-4" style={{ width: `${w}%` }} />
         ))}
       </div>
-      <div className="mt-12 pt-8 border-t border-sand-200 dark:border-[#3a3531] space-y-3">
+      <div className="mt-12 pt-8 border-t border-ctp-surface0 space-y-3">
         <Skeleton className="h-3 w-20" />
         <div className="flex gap-2">
           {[0, 1, 2, 3, 4].map((i) => (

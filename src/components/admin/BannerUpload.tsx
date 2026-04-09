@@ -56,7 +56,7 @@ export function BannerUpload({ value, onChange, slug }: BannerUploadProps) {
 
       {value ? (
         /* Vorschau mit Aktionen */
-        <div className="relative rounded-xl overflow-hidden bg-sand-100 dark:bg-[#3a3531] border border-sand-200 dark:border-[#4a4540]">
+        <div className="relative rounded-xl overflow-hidden bg-ctp-surface0 border border-ctp-surface1">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={value}
@@ -69,14 +69,14 @@ export function BannerUpload({ value, onChange, slug }: BannerUploadProps) {
               type="button"
               onClick={() => inputRef.current?.click()}
               disabled={uploading}
-              className="px-3 py-1.5 bg-white/90 dark:bg-[#2d2926]/90 backdrop-blur-sm border border-sand-200 dark:border-[#4a4540] rounded-lg text-xs font-medium text-[#1a1714] dark:text-[#faf9f7] hover:bg-white dark:hover:bg-[#2d2926] transition-colors shadow-sm disabled:opacity-50"
+              className="px-3 py-1.5 bg-white/90 dark:bg-ctp-base/90 backdrop-blur-sm border border-ctp-surface1 rounded-lg text-xs font-medium text-ctp-text hover:bg-white dark:hover:bg-ctp-base transition-colors shadow-sm disabled:opacity-50"
             >
               {uploading ? 'Lädt...' : 'Ersetzen'}
             </button>
             <button
               type="button"
               onClick={() => onChange(undefined)}
-              className="px-3 py-1.5 bg-white/90 dark:bg-[#2d2926]/90 backdrop-blur-sm border border-red-200 dark:border-red-800/40 rounded-lg text-xs font-medium text-red-600 dark:text-red-400 hover:bg-white dark:hover:bg-[#2d2926] transition-colors shadow-sm"
+              className="px-3 py-1.5 bg-white/90 dark:bg-ctp-base/90 backdrop-blur-sm border border-red-200 dark:border-red-800/40 rounded-lg text-xs font-medium text-red-600 dark:text-red-400 hover:bg-white dark:hover:bg-ctp-base transition-colors shadow-sm"
             >
               Entfernen
             </button>
@@ -88,7 +88,7 @@ export function BannerUpload({ value, onChange, slug }: BannerUploadProps) {
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="w-full flex flex-col items-center justify-center gap-2 border-2 border-dashed border-sand-200 dark:border-[#4a4540] rounded-xl bg-sand-50 dark:bg-[#2d2926] hover:bg-sand-100 dark:hover:bg-[#3a3531] hover:border-sand-300 dark:hover:border-[#5a5550] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full flex flex-col items-center justify-center gap-2 border-2 border-dashed border-ctp-surface1 rounded-xl bg-ctp-base hover:bg-sand-100 dark:hover:bg-ctp-surface0 hover:border-sand-300 dark:hover:border-ctp-overlay2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           style={{ aspectRatio: '16/7' }}
         >
           {uploading ? (

@@ -59,7 +59,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
   const nonce = headersList.get('x-nonce') ?? undefined
   return (
     <html lang={locale} className={`${playfair.variable} ${lora.variable}`} suppressHydrationWarning>
-      <body className="bg-sand-50 dark:bg-[#1a1714] text-[#2d2926] dark:text-[#e8e4dc] font-body antialiased">
+      <body className="bg-ctp-mantle text-ctp-text font-body antialiased">
         <ThemeProvider nonce={nonce}>
           <AuthSessionProvider>
             {children}

@@ -54,18 +54,18 @@ export function DeleteEntryButton({ id, title }: DeleteEntryButtonProps) {
           />
 
           {/* Dialog */}
-          <div className="relative bg-white dark:bg-[#2d2926] rounded-2xl border border-sand-200 dark:border-[#4a4540] shadow-xl p-6 max-w-sm w-full space-y-4">
+          <div className="relative bg-ctp-base rounded-2xl border border-ctp-surface1 shadow-xl p-6 max-w-sm w-full space-y-4">
             <div className="flex items-start gap-3">
               <span className="text-2xl leading-none mt-0.5" aria-hidden="true">🗑️</span>
               <div>
                 <h2
                   id="delete-dialog-title"
-                  className="font-display font-bold text-lg text-[#1a1714] dark:text-[#faf9f7] leading-tight"
+                  className="font-display font-bold text-lg text-ctp-text leading-tight"
                 >
                   Eintrag löschen?
                 </h2>
                 <p className="text-sm text-sand-500 dark:text-sand-400 mt-1">
-                  <span className="font-medium text-[#1a1714] dark:text-[#faf9f7]">&bdquo;{title}&ldquo;</span>{' '}
+                  <span className="font-medium text-ctp-text">&bdquo;{title}&ldquo;</span>{' '}
                   wird dauerhaft gelöscht &mdash; inklusive aller Reaktionen.
                 </p>
               </div>
@@ -75,7 +75,7 @@ export function DeleteEntryButton({ id, title }: DeleteEntryButtonProps) {
               <button
                 onClick={() => setShowConfirm(false)}
                 disabled={isPending}
-                className="px-4 py-2 text-sm border border-sand-200 dark:border-[#4a4540] rounded-xl text-sand-600 dark:text-sand-400 hover:border-sand-300 dark:hover:border-[#5a5550] hover:text-[#1a1714] dark:hover:text-[#faf9f7] transition-colors disabled:opacity-50"
+                className="px-4 py-2 text-sm border border-ctp-surface1 rounded-xl text-sand-600 dark:text-sand-400 hover:border-sand-300 dark:hover:border-ctp-overlay2 hover:text-ctp-text transition-colors disabled:opacity-50"
               >
                 Abbrechen
               </button>

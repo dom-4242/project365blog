@@ -39,7 +39,7 @@ export function GenerateSummaryForm({ defaultYear, defaultMonth }: GenerateSumma
           value={month}
           onChange={(e) => setMonth(Number(e.target.value))}
           disabled={isPending}
-          className="px-3 py-2 text-sm rounded-lg border border-sand-200 dark:border-[#4a4540] bg-white dark:bg-[#1a1714] text-[#1a1714] dark:text-[#faf9f7] focus:outline-none focus:ring-2 focus:ring-nutrition-400"
+          className="px-3 py-2 text-sm rounded-lg border border-ctp-surface1 bg-ctp-mantle text-ctp-text focus:outline-none focus:ring-2 focus:ring-nutrition-400"
         >
           {MONTH_NAMES.map((name, i) => (
             <option key={i + 1} value={i + 1}>{name}</option>
@@ -52,7 +52,7 @@ export function GenerateSummaryForm({ defaultYear, defaultMonth }: GenerateSumma
           value={year}
           onChange={(e) => setYear(Number(e.target.value))}
           disabled={isPending}
-          className="px-3 py-2 text-sm rounded-lg border border-sand-200 dark:border-[#4a4540] bg-white dark:bg-[#1a1714] text-[#1a1714] dark:text-[#faf9f7] focus:outline-none focus:ring-2 focus:ring-nutrition-400"
+          className="px-3 py-2 text-sm rounded-lg border border-ctp-surface1 bg-ctp-mantle text-ctp-text focus:outline-none focus:ring-2 focus:ring-nutrition-400"
         >
           {years.map((y) => (
             <option key={y} value={y}>{y}</option>

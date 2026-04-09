@@ -32,8 +32,8 @@ function ToolbarButton({ onClick, active, title, children }: ToolbarButtonProps)
       className={clsx(
         'p-1.5 rounded text-sm transition-colors',
         active
-          ? 'bg-sand-200 dark:bg-[#4a4540] text-[#1a1714] dark:text-[#faf9f7]'
-          : 'text-sand-500 hover:bg-sand-100 dark:hover:bg-[#4a4540] hover:text-[#1a1714] dark:hover:text-[#faf9f7]'
+          ? 'bg-ctp-surface1 text-ctp-text'
+          : 'text-sand-500 hover:bg-sand-100 dark:hover:bg-ctp-surface1 hover:text-ctp-text'
       )}
     >
       {children}
@@ -42,7 +42,7 @@ function ToolbarButton({ onClick, active, title, children }: ToolbarButtonProps)
 }
 
 function Divider() {
-  return <div className="w-px h-5 bg-sand-200 dark:bg-[#4a4540] mx-1" />
+  return <div className="w-px h-5 bg-ctp-surface1 mx-1" />
 }
 
 export function TiptapEditor({ content, onChange, placeholder }: TiptapEditorProps) {
@@ -86,9 +86,9 @@ export function TiptapEditor({ content, onChange, placeholder }: TiptapEditorPro
   }
 
   return (
-    <div className="border border-sand-200 dark:border-[#4a4540] rounded-xl overflow-hidden bg-white dark:bg-[#2d2926] focus-within:border-sand-400 transition-colors">
+    <div className="border border-ctp-surface1 rounded-xl overflow-hidden bg-ctp-base focus-within:border-sand-400 transition-colors">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-0.5 px-3 py-2 border-b border-sand-100 dark:border-[#3a3531] bg-sand-50 dark:bg-[#3a3531]">
+      <div className="flex flex-wrap items-center gap-0.5 px-3 py-2 border-b border-ctp-surface0 bg-ctp-surface0">
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleBold().run()}
           active={editor.isActive('bold')}

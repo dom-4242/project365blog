@@ -41,7 +41,7 @@ export function TranslateButton({ id, isTranslated, isStale = false }: Translate
               ? 'border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20'
               : isTranslated
                 ? 'border-movement-300 dark:border-movement-700 text-movement-700 dark:text-movement-400 hover:bg-movement-50 dark:hover:bg-movement-900/20'
-                : 'border-sand-200 dark:border-[#4a4540] text-sand-600 dark:text-sand-400 hover:border-sand-300 dark:hover:border-[#5a5550] hover:text-[#1a1714] dark:hover:text-[#faf9f7]'
+                : 'border-ctp-surface1 text-sand-600 dark:text-sand-400 hover:border-sand-300 dark:hover:border-ctp-overlay2 hover:text-ctp-text'
         }`}
       >
         {isPending ? (
@@ -78,7 +78,7 @@ export function TranslateButton({ id, isTranslated, isStale = false }: Translate
       </button>
 
       {error && (
-        <div className="absolute right-0 top-full mt-1 z-10 w-72 rounded-lg border border-red-200 dark:border-red-800 bg-white dark:bg-[#2d2926] shadow-lg p-3">
+        <div className="absolute right-0 top-full mt-1 z-10 w-72 rounded-lg border border-red-200 dark:border-red-800 bg-ctp-base shadow-lg p-3">
           <p className="text-xs text-red-600 dark:text-red-400 leading-snug">{error}</p>
           <button
             onClick={() => setError(null)}

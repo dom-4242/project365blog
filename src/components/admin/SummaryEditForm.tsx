@@ -51,7 +51,7 @@ export function SummaryEditForm({ summary }: SummaryEditFormProps) {
   return (
     <form onSubmit={handleSave} className="space-y-4">
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-sand-200 dark:border-[#4a4540]">
+      <div className="flex gap-2 border-b border-ctp-surface1">
         {(['de', 'en'] as const).map((lang) => (
           <button
             key={lang}
@@ -60,7 +60,7 @@ export function SummaryEditForm({ summary }: SummaryEditFormProps) {
             className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
               activeTab === lang
                 ? 'border-nutrition-600 text-nutrition-700 dark:text-nutrition-400'
-                : 'border-transparent text-sand-500 hover:text-[#1a1714] dark:hover:text-[#faf9f7]'
+                : 'border-transparent text-sand-500 hover:text-ctp-text'
             }`}
           >
             {lang === 'de' ? 'Deutsch' : 'English'}
@@ -75,7 +75,7 @@ export function SummaryEditForm({ summary }: SummaryEditFormProps) {
             value={contentDe}
             onChange={(e) => setContentDe(e.target.value)}
             rows={24}
-            className="w-full font-mono text-xs px-4 py-3 rounded-xl border border-sand-200 dark:border-[#4a4540] bg-white dark:bg-[#1a1714] text-[#1a1714] dark:text-[#faf9f7] focus:outline-none focus:ring-2 focus:ring-nutrition-400 resize-none"
+            className="w-full font-mono text-xs px-4 py-3 rounded-xl border border-ctp-surface1 bg-ctp-mantle text-ctp-text focus:outline-none focus:ring-2 focus:ring-nutrition-400 resize-none"
             placeholder="HTML-Content auf Deutsch…"
           />
         ) : (
@@ -83,7 +83,7 @@ export function SummaryEditForm({ summary }: SummaryEditFormProps) {
             value={contentEn}
             onChange={(e) => setContentEn(e.target.value)}
             rows={24}
-            className="w-full font-mono text-xs px-4 py-3 rounded-xl border border-sand-200 dark:border-[#4a4540] bg-white dark:bg-[#1a1714] text-[#1a1714] dark:text-[#faf9f7] focus:outline-none focus:ring-2 focus:ring-nutrition-400 resize-none"
+            className="w-full font-mono text-xs px-4 py-3 rounded-xl border border-ctp-surface1 bg-ctp-mantle text-ctp-text focus:outline-none focus:ring-2 focus:ring-nutrition-400 resize-none"
             placeholder="HTML content in English…"
           />
         )}
@@ -104,7 +104,7 @@ export function SummaryEditForm({ summary }: SummaryEditFormProps) {
           <a
             href={`/de/monthly/${monthSlug}`}
             target="_blank"
-            className="text-xs px-3 py-2 border border-sand-200 dark:border-[#4a4540] rounded-lg text-sand-600 dark:text-sand-400 hover:border-sand-300 hover:text-[#1a1714] dark:hover:text-[#faf9f7] transition-colors"
+            className="text-xs px-3 py-2 border border-ctp-surface1 rounded-lg text-sand-600 dark:text-sand-400 hover:border-sand-300 hover:text-ctp-text transition-colors"
           >
             Vorschau
           </a>

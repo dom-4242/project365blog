@@ -38,12 +38,12 @@ export default async function TranslationDetailPage({ params }: TranslationDetai
           <div className="flex items-center gap-2 mb-1">
             <Link
               href="/admin/translations"
-              className="text-sm text-sand-400 hover:text-[#1a1714] dark:hover:text-[#faf9f7] transition-colors"
+              className="text-sm text-sand-400 hover:text-ctp-text transition-colors"
             >
               ← Übersetzungen
             </Link>
           </div>
-          <h1 className="font-display text-2xl font-bold text-[#1a1714] dark:text-[#faf9f7]">
+          <h1 className="font-display text-2xl font-bold text-ctp-text">
             {entry.title}
           </h1>
           <div className="flex items-center gap-3 mt-1">
@@ -56,7 +56,7 @@ export default async function TranslationDetailPage({ params }: TranslationDetai
             <Link
               href={`/en/journal/${entry.slug}`}
               target="_blank"
-              className="text-xs text-sand-400 hover:text-[#1a1714] dark:hover:text-[#faf9f7] transition-colors"
+              className="text-xs text-sand-400 hover:text-ctp-text transition-colors"
             >
               EN ↗
             </Link>
@@ -65,7 +65,7 @@ export default async function TranslationDetailPage({ params }: TranslationDetai
             <Link
               href={`/pt/journal/${entry.slug}`}
               target="_blank"
-              className="text-xs text-sand-400 hover:text-[#1a1714] dark:hover:text-[#faf9f7] transition-colors"
+              className="text-xs text-sand-400 hover:text-ctp-text transition-colors"
             >
               PT ↗
             </Link>
@@ -78,14 +78,14 @@ export default async function TranslationDetailPage({ params }: TranslationDetai
         {/* DE original (read-only) */}
         <div className="space-y-4">
           <h2 className="text-sm font-semibold text-sand-500 uppercase tracking-wide flex items-center gap-2">
-            <span className="text-xs px-1.5 py-0.5 bg-sand-100 dark:bg-[#3a3531] text-sand-600 dark:text-sand-400 rounded font-mono">DE</span>
+            <span className="text-xs px-1.5 py-0.5 bg-ctp-surface0 text-sand-600 dark:text-sand-400 rounded font-mono">DE</span>
             Original
           </h2>
 
-          <div className="rounded-xl border border-sand-200 dark:border-[#4a4540] bg-white dark:bg-[#2d2926] p-4 space-y-4">
+          <div className="rounded-xl border border-ctp-surface1 bg-ctp-base p-4 space-y-4">
             <div>
               <p className="text-xs font-medium text-sand-400 uppercase tracking-wide mb-1">Titel</p>
-              <p className="text-sm font-semibold text-[#1a1714] dark:text-[#faf9f7]">{entry.title}</p>
+              <p className="text-sm font-semibold text-ctp-text">{entry.title}</p>
             </div>
             {entry.excerpt && (
               <div>
@@ -95,7 +95,7 @@ export default async function TranslationDetailPage({ params }: TranslationDetai
             )}
             <div>
               <p className="text-xs font-medium text-sand-400 uppercase tracking-wide mb-1">Inhalt (HTML)</p>
-              <div className="text-xs font-mono text-sand-500 dark:text-sand-400 bg-sand-50 dark:bg-[#1a1714] rounded-lg p-3 max-h-64 overflow-y-auto whitespace-pre-wrap break-all">
+              <div className="text-xs font-mono text-sand-500 dark:text-sand-400 bg-ctp-mantle rounded-lg p-3 max-h-64 overflow-y-auto whitespace-pre-wrap break-all">
                 {entry.content}
               </div>
             </div>
@@ -109,7 +109,7 @@ export default async function TranslationDetailPage({ params }: TranslationDetai
             Englisch
           </h2>
 
-          <div className="rounded-xl border border-sand-200 dark:border-[#4a4540] bg-white dark:bg-[#2d2926] p-4">
+          <div className="rounded-xl border border-ctp-surface1 bg-ctp-base p-4">
             {enTranslation ? (
               <TranslationEditForm
                 entryId={entry.id}
@@ -140,7 +140,7 @@ export default async function TranslationDetailPage({ params }: TranslationDetai
             Portugiesisch (BR)
           </h2>
 
-          <div className="rounded-xl border border-sand-200 dark:border-[#4a4540] bg-white dark:bg-[#2d2926] p-4">
+          <div className="rounded-xl border border-ctp-surface1 bg-ctp-base p-4">
             {ptTranslation ? (
               <TranslationEditForm
                 entryId={entry.id}

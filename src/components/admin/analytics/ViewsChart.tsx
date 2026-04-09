@@ -37,7 +37,7 @@ interface TooltipProps {
 function ViewsTooltip({ active, payload, label }: TooltipProps) {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-white dark:bg-[#2d2926] border border-sand-200 dark:border-[#4a4540] rounded-lg px-3 py-2 text-sm shadow-sm">
+    <div className="bg-ctp-base border border-ctp-surface1 rounded-lg px-3 py-2 text-sm shadow-sm">
       <p className="text-sand-400 text-xs mb-1">{label ? formatDateShort(label) : ''}</p>
       {payload.map((p) => (
         <p key={p.name} className="font-semibold" style={{ color: p.color }}>

@@ -23,8 +23,8 @@ export function ReactionButton({ emoji, label, count, active, disabled, onClick 
         'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-150 select-none',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-400',
         active
-          ? 'bg-sand-200 dark:bg-[#4a4540] text-[#1a1714] dark:text-[#faf9f7] ring-1 ring-sand-300 dark:ring-[#5a5550] scale-105'
-          : 'bg-white dark:bg-[#2d2926] border border-sand-200 dark:border-[#4a4540] text-sand-500 dark:text-sand-400 hover:bg-sand-100 dark:hover:bg-[#3a3531] hover:text-sand-700 dark:hover:text-[#faf9f7] hover:border-sand-300',
+          ? 'bg-ctp-surface1 text-ctp-text ring-1 ring-sand-300 dark:ring-ctp-overlay2 scale-105'
+          : 'bg-ctp-base border border-ctp-surface1 text-sand-500 dark:text-sand-400 hover:bg-sand-100 dark:hover:bg-ctp-surface0 hover:text-sand-700 dark:hover:text-ctp-text hover:border-sand-300',
         disabled && 'cursor-not-allowed opacity-60',
       )}
     >

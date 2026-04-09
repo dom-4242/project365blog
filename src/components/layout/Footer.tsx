@@ -4,9 +4,9 @@ export function Footer() {
   const t = useTranslations('Footer')
 
   return (
-    <footer className="border-t border-sand-200 dark:border-[#4a4540] mt-24">
+    <footer className="border-t border-ctp-surface1 mt-24">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-2">
-        <p className="font-display font-bold text-[#1a1714] dark:text-[#faf9f7]">
+        <p className="font-display font-bold text-ctp-text">
           Project <span className="text-nutrition-600">365</span>
         </p>
         <div className="flex items-center gap-4">

@@ -52,7 +52,7 @@ export default async function MetricsPage({ searchParams }: PageProps) {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="font-display text-2xl font-bold text-[#1a1714] dark:text-[#faf9f7]">Metriken erfassen</h1>
+        <h1 className="font-display text-2xl font-bold text-ctp-text">Metriken erfassen</h1>
         <p className="text-sand-500 text-sm mt-1">Manuell erfasste Werte überschreiben automatische Importe.</p>
       </div>
 
@@ -61,12 +61,12 @@ export default async function MetricsPage({ searchParams }: PageProps) {
       {/* Recent entries table */}
       {recent.length > 0 && (
         <div className="mt-10">
-          <h2 className="font-display text-base font-semibold text-[#1a1714] dark:text-[#faf9f7] mb-3">Letzte Einträge</h2>
-          <div className="bg-white dark:bg-[#2d2926] rounded-2xl border border-sand-200 dark:border-[#4a4540] overflow-hidden">
+          <h2 className="font-display text-base font-semibold text-ctp-text mb-3">Letzte Einträge</h2>
+          <div className="bg-ctp-base rounded-2xl border border-ctp-surface1 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="border-b border-sand-100 dark:border-[#3a3531] text-sand-500 text-left">
+                  <tr className="border-b border-ctp-surface0 text-sand-500 text-left">
                     <th className="px-4 py-3 font-medium">Datum</th>
                     <th className="px-4 py-3 font-medium">Gewicht</th>
                     <th className="px-4 py-3 font-medium">Körperfett</th>
@@ -80,28 +80,28 @@ export default async function MetricsPage({ searchParams }: PageProps) {
                   {recent.map((row) => (
                     <tr
                       key={row.id}
-                      className="border-b border-sand-100 dark:border-[#3a3531] last:border-0 hover:bg-sand-50 dark:hover:bg-[#3a3531] transition-colors"
+                      className="border-b border-ctp-surface0 last:border-0 hover:bg-sand-50 dark:hover:bg-ctp-surface0 transition-colors"
                     >
                       <td className="px-4 py-3 font-mono text-sand-500">
                         {formatDate(row.date)}
                       </td>
-                      <td className="px-4 py-3 text-[#2d2926] dark:text-[#e8e4dc]">
+                      <td className="px-4 py-3 text-ctp-text">
                         {row.weight != null ? `${row.weight} kg` : '—'}
                       </td>
-                      <td className="px-4 py-3 text-[#2d2926] dark:text-[#e8e4dc]">
+                      <td className="px-4 py-3 text-ctp-text">
                         {row.bodyFat != null ? `${row.bodyFat}%` : '—'}
                       </td>
-                      <td className="px-4 py-3 text-[#2d2926] dark:text-[#e8e4dc]">
+                      <td className="px-4 py-3 text-ctp-text">
                         {row.steps != null ? row.steps.toLocaleString('de-CH') : '—'}
                       </td>
-                      <td className="px-4 py-3 text-[#2d2926] dark:text-[#e8e4dc]">
+                      <td className="px-4 py-3 text-ctp-text">
                         {formatSleep(row.sleepDuration)}
                       </td>
-                      <td className="px-4 py-3 text-[#2d2926] dark:text-[#e8e4dc]">
+                      <td className="px-4 py-3 text-ctp-text">
                         {row.restingHR != null ? `${row.restingHR} bpm` : '—'}
                       </td>
                       <td className="px-4 py-3">
-                        <span className="px-1.5 py-0.5 bg-sand-100 dark:bg-[#3a3531] text-sand-500 rounded text-xs">
+                        <span className="px-1.5 py-0.5 bg-ctp-surface0 text-sand-500 rounded text-xs">
                           {row.source}
                         </span>
                       </td>

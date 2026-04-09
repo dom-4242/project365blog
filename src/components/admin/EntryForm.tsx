@@ -98,15 +98,15 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
   return (
     <div className="space-y-4">
       {/* Editor / Vorschau Toggle */}
-      <div className="flex items-center gap-1 bg-sand-100 dark:bg-[#2d2926] rounded-lg p-1 w-fit">
+      <div className="flex items-center gap-1 bg-ctp-mantle rounded-lg p-1 w-fit">
         <button
           type="button"
           onClick={() => setIsPreview(false)}
           className={clsx(
             'px-3 py-1 rounded-md text-sm font-medium transition-colors',
             !isPreview
-              ? 'bg-white dark:bg-[#3a3531] text-[#1a1714] dark:text-[#faf9f7] shadow-sm'
-              : 'text-sand-500 hover:text-[#1a1714] dark:hover:text-[#faf9f7]'
+              ? 'bg-ctp-surface0 text-ctp-text shadow-sm'
+              : 'text-sand-500 hover:text-ctp-text'
           )}
         >
           Bearbeiten
@@ -117,8 +117,8 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
           className={clsx(
             'px-3 py-1 rounded-md text-sm font-medium transition-colors',
             isPreview
-              ? 'bg-white dark:bg-[#3a3531] text-[#1a1714] dark:text-[#faf9f7] shadow-sm'
-              : 'text-sand-500 hover:text-[#1a1714] dark:hover:text-[#faf9f7]'
+              ? 'bg-ctp-surface0 text-ctp-text shadow-sm'
+              : 'text-sand-500 hover:text-ctp-text'
           )}
         >
           Vorschau
@@ -152,7 +152,7 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Titel des Eintrags"
           required
-          className="w-full font-display text-2xl font-bold bg-transparent border-0 border-b-2 border-sand-200 dark:border-[#4a4540] focus:border-nutrition-500 focus:outline-none pb-2 text-[#1a1714] dark:text-[#faf9f7] placeholder:text-sand-300 transition-colors"
+          className="w-full font-display text-2xl font-bold bg-transparent border-0 border-b-2 border-ctp-surface1 focus:border-nutrition-500 focus:outline-none pb-2 text-ctp-text placeholder:text-sand-300 transition-colors"
         />
       </div>
 
@@ -165,7 +165,7 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
             value={date}
             onChange={(e) => handleDateChange(e.target.value)}
             required
-            className="border border-sand-200 dark:border-[#4a4540] rounded-lg px-3 py-1.5 text-sm text-[#2d2926] dark:text-[#e8e4dc] focus:outline-none focus:border-sand-400 bg-white dark:bg-[#3a3531]"
+            className="border border-ctp-surface1 rounded-lg px-3 py-1.5 text-sm text-ctp-text focus:outline-none focus:border-sand-400 bg-ctp-surface0"
           />
         </div>
 
@@ -183,10 +183,10 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
             readOnly={mode === 'edit'}
             required
             className={clsx(
-              'w-full border border-sand-200 dark:border-[#4a4540] rounded-lg px-3 py-1.5 text-sm font-mono focus:outline-none bg-white dark:bg-[#3a3531]',
+              'w-full border border-ctp-surface1 rounded-lg px-3 py-1.5 text-sm font-mono focus:outline-none bg-ctp-surface0',
               mode === 'edit'
                 ? 'text-sand-400 cursor-default'
-                : 'text-[#2d2926] dark:text-[#e8e4dc] focus:border-sand-400'
+                : 'text-ctp-text focus:border-sand-400'
             )}
           />
         </div>
@@ -221,7 +221,7 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
           value={tags}
           onChange={(e) => setTags(e.target.value)}
           placeholder="motivation, training, ernährung"
-          className="w-full border border-sand-200 dark:border-[#4a4540] rounded-lg px-3 py-1.5 text-sm text-[#2d2926] dark:text-[#e8e4dc] focus:outline-none focus:border-sand-400 bg-white dark:bg-[#3a3531]"
+          className="w-full border border-ctp-surface1 rounded-lg px-3 py-1.5 text-sm text-ctp-text focus:outline-none focus:border-sand-400 bg-ctp-surface0"
         />
       </div>
 
@@ -249,7 +249,7 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
           onChange={(e) => setExcerpt(e.target.value)}
           rows={2}
           placeholder="1–2 Sätze, die den Eintrag zusammenfassen..."
-          className="w-full border border-sand-200 dark:border-[#4a4540] rounded-lg px-3 py-2 text-sm text-[#2d2926] dark:text-[#e8e4dc] focus:outline-none focus:border-sand-400 bg-white dark:bg-[#3a3531] resize-none"
+          className="w-full border border-ctp-surface1 rounded-lg px-3 py-2 text-sm text-ctp-text focus:outline-none focus:border-sand-400 bg-ctp-surface0 resize-none"
         />
       </div>
 
@@ -268,7 +268,7 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
         <button
           type="button"
           onClick={() => router.back()}
-          className="text-sm text-sand-500 hover:text-[#1a1714] dark:hover:text-[#faf9f7] transition-colors"
+          className="text-sm text-sand-500 hover:text-ctp-text transition-colors"
         >
           ← Abbrechen
         </button>

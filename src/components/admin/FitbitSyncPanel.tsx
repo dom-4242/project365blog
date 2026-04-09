@@ -10,14 +10,14 @@ import type { FitbitSyncResult } from '@/lib/fitbit'
 
 function ResultRow({ r }: { r: FitbitSyncResult }) {
   return (
-    <tr className="border-b border-sand-100 dark:border-[#3a3531] last:border-0 text-xs">
+    <tr className="border-b border-ctp-surface0 last:border-0 text-xs">
       <td className="px-4 py-2.5 font-mono text-sand-500">{r.date}</td>
-      <td className="px-4 py-2.5 text-[#2d2926] dark:text-[#e8e4dc]">{r.weight != null ? `${r.weight} kg` : '—'}</td>
-      <td className="px-4 py-2.5 text-[#2d2926] dark:text-[#e8e4dc]">{r.bodyFat != null ? `${r.bodyFat}%` : '—'}</td>
-      <td className="px-4 py-2.5 text-[#2d2926] dark:text-[#e8e4dc]">
+      <td className="px-4 py-2.5 text-ctp-text">{r.weight != null ? `${r.weight} kg` : '—'}</td>
+      <td className="px-4 py-2.5 text-ctp-text">{r.bodyFat != null ? `${r.bodyFat}%` : '—'}</td>
+      <td className="px-4 py-2.5 text-ctp-text">
         {r.activeMinutes != null ? `${r.activeMinutes} min` : '—'}
       </td>
-      <td className="px-4 py-2.5 text-[#2d2926] dark:text-[#e8e4dc]">
+      <td className="px-4 py-2.5 text-ctp-text">
         {r.restingHR != null ? `${r.restingHR} bpm` : '—'}
       </td>
     </tr>
@@ -50,10 +50,10 @@ function SyncResultDisplay({ outcome }: { outcome: SyncActionResult }) {
         </div>
       )}
       {outcome.results && outcome.results.length > 0 && (
-        <div className="bg-white dark:bg-[#2d2926] rounded-xl border border-sand-200 dark:border-[#4a4540] overflow-x-auto">
+        <div className="bg-ctp-base rounded-xl border border-ctp-surface1 overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-sand-100 dark:border-[#3a3531] text-sand-500 text-left">
+              <tr className="border-b border-ctp-surface0 text-sand-500 text-left">
                 <th className="px-4 py-2.5 font-medium">Datum</th>
                 <th className="px-4 py-2.5 font-medium">Gewicht</th>
                 <th className="px-4 py-2.5 font-medium">Körperfett</th>
@@ -115,8 +115,8 @@ export function FitbitSyncPanel() {
   return (
     <div className="space-y-6">
       {/* Single day */}
-      <div className="bg-white dark:bg-[#2d2926] rounded-2xl border border-sand-200 dark:border-[#4a4540] p-5">
-        <h3 className="font-display text-sm font-semibold text-[#1a1714] dark:text-[#faf9f7] mb-4">
+      <div className="bg-ctp-base rounded-2xl border border-ctp-surface1 p-5">
+        <h3 className="font-display text-sm font-semibold text-ctp-text mb-4">
           Einzelnen Tag synchronisieren
         </h3>
         <div className="flex flex-wrap items-end gap-3">
@@ -127,7 +127,7 @@ export function FitbitSyncPanel() {
               value={singleDate}
               max={todayString()}
               onChange={(e) => setSingleDate(e.target.value)}
-              className="border border-sand-200 dark:border-[#4a4540] rounded-lg px-3 py-1.5 text-sm text-[#2d2926] dark:text-[#e8e4dc] focus:outline-none focus:border-sand-400 bg-white dark:bg-[#3a3531]"
+              className="border border-ctp-surface1 rounded-lg px-3 py-1.5 text-sm text-ctp-text focus:outline-none focus:border-sand-400 bg-ctp-surface0"
             />
           </div>
           <button
@@ -143,8 +143,8 @@ export function FitbitSyncPanel() {
       </div>
 
       {/* Date range backfill */}
-      <div className="bg-white dark:bg-[#2d2926] rounded-2xl border border-sand-200 dark:border-[#4a4540] p-5">
-        <h3 className="font-display text-sm font-semibold text-[#1a1714] dark:text-[#faf9f7] mb-1">
+      <div className="bg-ctp-base rounded-2xl border border-ctp-surface1 p-5">
+        <h3 className="font-display text-sm font-semibold text-ctp-text mb-1">
           Zeitraum nachfüllen (Backfill)
         </h3>
         <p className="text-xs text-sand-400 mb-4">Maximal 30 Tage auf einmal.</p>
@@ -156,7 +156,7 @@ export function FitbitSyncPanel() {
               value={startDate}
               max={todayString()}
               onChange={(e) => setStartDate(e.target.value)}
-              className="border border-sand-200 dark:border-[#4a4540] rounded-lg px-3 py-1.5 text-sm text-[#2d2926] dark:text-[#e8e4dc] focus:outline-none focus:border-sand-400 bg-white dark:bg-[#3a3531]"
+              className="border border-ctp-surface1 rounded-lg px-3 py-1.5 text-sm text-ctp-text focus:outline-none focus:border-sand-400 bg-ctp-surface0"
             />
           </div>
           <div>
@@ -166,7 +166,7 @@ export function FitbitSyncPanel() {
               value={endDate}
               max={todayString()}
               onChange={(e) => setEndDate(e.target.value)}
-              className="border border-sand-200 dark:border-[#4a4540] rounded-lg px-3 py-1.5 text-sm text-[#2d2926] dark:text-[#e8e4dc] focus:outline-none focus:border-sand-400 bg-white dark:bg-[#3a3531]"
+              className="border border-ctp-surface1 rounded-lg px-3 py-1.5 text-sm text-ctp-text focus:outline-none focus:border-sand-400 bg-ctp-surface0"
             />
           </div>
           <button

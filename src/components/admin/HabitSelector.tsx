@@ -207,7 +207,7 @@ export function HabitSelector<T extends HabitValue>({
                 'group flex items-center gap-3 w-full text-left px-3.5 py-2.5 rounded-xl border transition-all duration-150',
                 isSelected
                   ? [cfg.accentBg, cfg.accentBorder, cfg.accentText, 'shadow-sm']
-                  : 'bg-white border-sand-200 text-[#2d2926] hover:border-sand-300 hover:bg-sand-50'
+                  : 'bg-white border-sand-200 text-ctp-text hover:border-sand-300 hover:bg-sand-50'
               )}
             >
               {/* Fulfillment-Indikator */}
@@ -218,7 +218,7 @@ export function HabitSelector<T extends HabitValue>({
                 <span
                   className={clsx(
                     'block text-xs font-semibold leading-tight',
-                    isSelected ? cfg.accentText : 'text-[#1a1714]'
+                    isSelected ? cfg.accentText : 'text-ctp-text'
                   )}
                 >
                   {opt.label}
