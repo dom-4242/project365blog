@@ -173,6 +173,17 @@ model MonthSummary {
 // sessionHash = SHA-256(IP+UA+Date+Salt), tagesbezogen
 // =============================================
 
+// =============================================
+// APP SETTINGS — generischer Key-Value Store
+// Wird u.a. für Fitbit OAuth Tokens genutzt
+// =============================================
+
+model AppSetting {
+  key       String   @id
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+}
+
 model PageView {
   id          String   @id @default(cuid())
   path        String                          // Normalisierter Pfad ohne Locale (/journal/slug)

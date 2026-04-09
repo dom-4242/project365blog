@@ -6,6 +6,7 @@ import {
   FitbitRateLimitError,
   FitbitAuthError,
 } from '@/lib/fitbit'
+import { loadFitbitTokens, saveFitbitTokens } from '@/lib/fitbit-tokens'
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization')
@@ -13,11 +14,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const accessToken = process.env.FITBIT_ACCESS_TOKEN
-  const refreshToken = process.env.FITBIT_REFRESH_TOKEN
-  if (!accessToken || !refreshToken) {
+  const tokens = await loadFitbitTokens()
+  if (!tokens) {
     return NextResponse.json(
-      { error: 'FITBIT_ACCESS_TOKEN / FITBIT_REFRESH_TOKEN not configured' },
+      { error: 'Fitbit tokens not configured' },
       { status: 500 },
     )
   }
@@ -26,15 +26,11 @@ export async function GET(request: NextRequest) {
   const date = dateParam ?? getYesterdayDate()
 
   try {
-    const result = await syncFitbitDay(date, { accessToken, refreshToken }, prisma)
+    const result = await syncFitbitDay(date, tokens, prisma)
 
     if (result.newTokens) {
-      // Tokens were refreshed — log them so the operator can update .env.local
-      console.warn(
-        '[fitbit-sync] Tokens refreshed. Update FITBIT_ACCESS_TOKEN and FITBIT_REFRESH_TOKEN:\n' +
-          `  FITBIT_ACCESS_TOKEN=${result.newTokens.accessToken}\n` +
-          `  FITBIT_REFRESH_TOKEN=${result.newTokens.refreshToken}`,
-      )
+      await saveFitbitTokens(result.newTokens)
+      console.log('[fitbit-sync] Tokens refreshed and persisted to DB.')
     }
 
     return NextResponse.json({

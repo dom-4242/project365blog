@@ -9,6 +9,7 @@ import {
   FitbitAuthError,
   type FitbitSyncResult,
 } from '@/lib/fitbit'
+import { loadFitbitTokens, saveFitbitTokens } from '@/lib/fitbit-tokens'
 
 export interface SyncActionResult {
   error?: string
@@ -17,28 +18,17 @@ export interface SyncActionResult {
   tokensRefreshed?: boolean
 }
 
-function getTokens() {
-  const accessToken = process.env.FITBIT_ACCESS_TOKEN
-  const refreshToken = process.env.FITBIT_REFRESH_TOKEN
-  if (!accessToken || !refreshToken) return null
-  return { accessToken, refreshToken }
-}
-
 export async function syncDay(date: string): Promise<SyncActionResult> {
   const session = await requireAdmin()
   if (!session) return { error: 'Nicht autorisiert' }
 
-  const tokens = getTokens()
-  if (!tokens) return { error: 'FITBIT_ACCESS_TOKEN / FITBIT_REFRESH_TOKEN nicht konfiguriert' }
+  const tokens = await loadFitbitTokens()
+  if (!tokens) return { error: 'Fitbit Tokens nicht konfiguriert' }
 
   try {
     const result = await syncFitbitDay(date, tokens, prisma)
     if (result.newTokens) {
-      console.warn(
-        '[fitbit-sync] Tokens refreshed. Update env vars:\n' +
-          `  FITBIT_ACCESS_TOKEN=${result.newTokens.accessToken}\n` +
-          `  FITBIT_REFRESH_TOKEN=${result.newTokens.refreshToken}`,
-      )
+      await saveFitbitTokens(result.newTokens)
     }
     revalidatePath('/admin/fitbit')
     revalidatePath('/admin/metrics')
@@ -59,8 +49,8 @@ export async function syncRange(startDate: string, endDate: string): Promise<Syn
   const session = await requireAdmin()
   if (!session) return { error: 'Nicht autorisiert' }
 
-  const tokens = getTokens()
-  if (!tokens) return { error: 'FITBIT_ACCESS_TOKEN / FITBIT_REFRESH_TOKEN nicht konfiguriert' }
+  let tokens = await loadFitbitTokens()
+  if (!tokens) return { error: 'Fitbit Tokens nicht konfiguriert' }
 
   const start = new Date(startDate)
   const end = new Date(endDate)
@@ -74,7 +64,6 @@ export async function syncRange(startDate: string, endDate: string): Promise<Syn
 
   const results: FitbitSyncResult[] = []
   let tokensRefreshed = false
-  let currentTokens = tokens
 
   for (let i = 0; i < diffDays; i++) {
     const d = new Date(start)
@@ -82,15 +71,11 @@ export async function syncRange(startDate: string, endDate: string): Promise<Syn
     const dateStr = d.toISOString().slice(0, 10)
 
     try {
-      const result = await syncFitbitDay(dateStr, currentTokens, prisma)
+      const result = await syncFitbitDay(dateStr, tokens, prisma)
       if (result.newTokens) {
-        currentTokens = result.newTokens
+        tokens = result.newTokens
         tokensRefreshed = true
-        console.warn(
-          '[fitbit-sync] Tokens refreshed during backfill. Update env vars:\n' +
-            `  FITBIT_ACCESS_TOKEN=${result.newTokens.accessToken}\n` +
-            `  FITBIT_REFRESH_TOKEN=${result.newTokens.refreshToken}`,
-        )
+        await saveFitbitTokens(result.newTokens)
       }
       results.push(result)
     } catch (err) {
