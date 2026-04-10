@@ -45,7 +45,7 @@ services:
       # DATABASE_URL wird explizit gesetzt damit der DB-Hostname stimmt
       DATABASE_URL: "postgresql://project365:${DB_PASSWORD}@db:5432/project365blog"
     dns:
-      - 192.168.1.11
+      - 1.1.1.1
       - 8.8.8.8
     volumes:
       - uploads:/app/public/images/journal
@@ -60,7 +60,7 @@ services:
     environment:
       CRON_SECRET: ${CRON_SECRET:-}
     dns:
-      - 192.168.1.11
+      - 1.1.1.1
       - 8.8.8.8
     depends_on:
       - web
