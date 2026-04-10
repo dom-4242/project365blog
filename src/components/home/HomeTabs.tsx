@@ -24,16 +24,16 @@ export function HomeTabs({ labels, entriesContent, habitsContent, metricsContent
   return (
     <div>
       {/* Tab Bar */}
-      <div className="flex gap-1 border-b border-surface-container-high border-surface-container mb-8">
+      <div className="flex gap-0 border-b border-outline-variant/15 mb-8">
         {tabs.map(({ id, label }) => (
           <button
             key={id}
             onClick={() => setActiveTab(id)}
             className={clsx(
-              'px-4 py-2.5 text-sm font-medium rounded-t-lg -mb-px border-b-2 transition-colors duration-150',
+              'px-4 py-2.5 text-xs font-label font-bold tracking-widest uppercase -mb-px border-b-2 transition-colors duration-150',
               activeTab === id
                 ? 'border-primary text-primary'
-                : 'border-transparent text-on-surface-variant hover:text-on-surface hover:border-outline hover:border-surface-container-highest'
+                : 'border-transparent text-on-surface-variant hover:text-on-surface hover:border-outline-variant'
             )}
           >
             {label}
