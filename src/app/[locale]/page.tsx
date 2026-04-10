@@ -4,16 +4,11 @@ import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 import { getAllEntriesForLocale, getDayNumber } from '@/lib/journal'
 import { getProjectStartDate } from '@/lib/project-config'
-import {
-  calculateStreak,
-  isMovementFulfilled,
-  isNutritionFulfilled,
-  isSmokingFulfilled,
-} from '@/lib/habits'
 import { JournalCardCompact } from '@/components/journal/JournalCardCompact'
 import { HabitsDashboard } from '@/components/habits/HabitsDashboard'
 import { MetricsDashboard } from '@/components/metrics/MetricsDashboard'
 import { HomeTabs } from '@/components/home/HomeTabs'
+import { LiveStatus } from '@/components/home/LiveStatus'
 import { Icon } from '@/components/ui/Icon'
 import {
   SITE_NAME,
@@ -79,10 +74,6 @@ export default async function HomePage({ params }: HomePageProps) {
   const previewEntries = entries.slice(0, FEED_PREVIEW_COUNT)
   const hasMore = entries.length > FEED_PREVIEW_COUNT
 
-  const movementStreak = calculateStreak(entries.map((e) => isMovementFulfilled(e.habits.movement)))
-  const nutritionStreak = calculateStreak(entries.map((e) => isNutritionFulfilled(e.habits.nutrition)))
-  const smokingStreak   = calculateStreak(entries.map((e) => isSmokingFulfilled(e.habits.smoking)))
-
   return (
     <div>
 
@@ -115,8 +106,8 @@ export default async function HomePage({ params }: HomePageProps) {
             {t('description')}
           </p>
 
-          {/* CTAs */}
-          <div className="flex flex-wrap items-center gap-3 mb-12">
+          {/* CTA */}
+          <div className="flex flex-wrap items-center gap-3">
             <a
               href="#journal"
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-on-primary font-label font-bold tracking-widest uppercase text-xs rounded hover:bg-primary-container transition-colors"
@@ -124,47 +115,13 @@ export default async function HomePage({ params }: HomePageProps) {
               <Icon name="arrow_downward" size={14} />
               {t('ctaEntries')}
             </a>
-            <a
-              href="#journal"
-              className="inline-flex items-center gap-2 px-5 py-2.5 border border-outline-variant/30 text-on-surface-variant font-label font-bold tracking-widest uppercase text-xs rounded hover:bg-surface-container hover:text-on-surface transition-colors"
-            >
-              {t('tabHabits')}
-            </a>
-          </div>
-
-          {/* Streak indicators */}
-          <div className="flex flex-wrap gap-8">
-            <div className="flex items-center gap-2.5" title={t('streakMovement')}>
-              <span className="text-xl leading-none" aria-hidden="true">🏃</span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-headline font-bold text-movement-400 leading-none tabular-nums">
-                  {movementStreak.current}
-                </span>
-                <span className="text-xs text-on-surface-variant">{t('streakDays')}</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-2.5" title={t('streakNutrition')}>
-              <span className="text-xl leading-none" aria-hidden="true">🥗</span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-headline font-bold text-nutrition-400 leading-none tabular-nums">
-                  {nutritionStreak.current}
-                </span>
-                <span className="text-xs text-on-surface-variant">{t('streakDays')}</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-2.5" title={t('streakSmoking')}>
-              <span className="text-xl leading-none" aria-hidden="true">🚭</span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-headline font-bold text-smoking-400 leading-none tabular-nums">
-                  {smokingStreak.current}
-                </span>
-                <span className="text-xs text-on-surface-variant">{t('streakDays')}</span>
-              </div>
-            </div>
           </div>
 
         </div>
       </section>
+
+      {/* ── Live Status Bento-Grid ──────────────────────────────────── */}
+      <LiveStatus />
 
       {/* ── Journal / Habits / Metrics Tabs ────────────────────────── */}
       <section id="journal" className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
