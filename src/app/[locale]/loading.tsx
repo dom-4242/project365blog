@@ -13,9 +13,9 @@ export default function Loading() {
           {[0, 1, 2].map((i) => (
             <div
               key={i}
-              className="rounded-2xl border border-ctp-surface1 overflow-hidden"
+              className="rounded-2xl border border-surface-container-high overflow-hidden"
             >
-              <div className="h-1 bg-ctp-surface0" />
+              <div className="h-1 bg-surface-container" />
               <div className="p-5 space-y-5">
                 <Skeleton className="h-4 w-24" />
                 <div className="space-y-2">
@@ -40,14 +40,14 @@ export default function Loading() {
       <section>
         <Skeleton className="h-6 w-24 mb-5" />
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="sm:col-span-2 rounded-2xl border border-ctp-surface1 p-5">
+          <div className="sm:col-span-2 rounded-2xl border border-surface-container-high p-5">
             <div className="flex justify-between mb-4">
               <Skeleton className="h-4 w-16" />
               <Skeleton className="h-7 w-20" />
             </div>
             <Skeleton className="h-44 w-full rounded-xl" />
           </div>
-          <div className="rounded-2xl border border-ctp-surface1 p-5">
+          <div className="rounded-2xl border border-surface-container-high p-5">
             <div className="flex justify-between mb-4">
               <Skeleton className="h-4 w-16" />
               <Skeleton className="h-7 w-16" />
@@ -64,7 +64,7 @@ export default function Loading() {
           {[0, 1, 2].map((i) => (
             <div
               key={i}
-              className="rounded-2xl border border-ctp-surface1 overflow-hidden"
+              className="rounded-2xl border border-surface-container-high overflow-hidden"
             >
               <Skeleton className="h-36 w-full rounded-none" />
               <div className="p-6 space-y-3">

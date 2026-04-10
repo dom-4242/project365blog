@@ -2,7 +2,6 @@ import type { Config } from 'tailwindcss'
 import typography from '@tailwindcss/typography'
 
 const config: Config = {
-  darkMode: 'class',
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -12,60 +11,40 @@ const config: Config = {
     extend: {
       colors: {
         // =============================================
-        // Catppuccin semantic tokens (CSS-var-based)
-        // Switch automatically between Latte and Mocha
+        // Kinetic Lab — Dark-Only palette
         // =============================================
-        ctp: {
-          rosewater: 'var(--ctp-rosewater)',
-          flamingo:  'var(--ctp-flamingo)',
-          pink:      'var(--ctp-pink)',
-          mauve:     'var(--ctp-mauve)',
-          red:       'var(--ctp-red)',
-          maroon:    'var(--ctp-maroon)',
-          peach:     'var(--ctp-peach)',
-          yellow:    'var(--ctp-yellow)',
-          green:     'var(--ctp-green)',
-          teal:      'var(--ctp-teal)',
-          sky:       'var(--ctp-sky)',
-          sapphire:  'var(--ctp-sapphire)',
-          blue:      'var(--ctp-blue)',
-          lavender:  'var(--ctp-lavender)',
-          text:      'var(--ctp-text)',
-          subtext1:  'var(--ctp-subtext1)',
-          subtext0:  'var(--ctp-subtext0)',
-          overlay2:  'var(--ctp-overlay2)',
-          overlay1:  'var(--ctp-overlay1)',
-          overlay0:  'var(--ctp-overlay0)',
-          surface2:  'var(--ctp-surface2)',
-          surface1:  'var(--ctp-surface1)',
-          surface0:  'var(--ctp-surface0)',
-          base:      'var(--ctp-base)',
-          mantle:    'var(--ctp-mantle)',
-          crust:     'var(--ctp-crust)',
-        },
+        background:                  '#0e0e0e',
+        'surface-container-lowest':  '#000000',
+        'surface-container-low':     '#131313',
+        'surface-container':         '#1a1919',
+        'surface-container-high':    '#201f1f',
+        'surface-container-highest': '#262626',
+        'surface-variant':           '#262626',
+        'surface-bright':            '#2c2c2c',
+        primary:                     '#ff8f70',
+        'primary-container':         '#ff7852',
+        'primary-dim':               '#ff734c',
+        secondary:                   '#fc7c7c',
+        tertiary:                    '#eaa5ff',
+        error:                       '#ff716c',
+        'on-surface':                '#ffffff',
+        'on-surface-variant':        '#adaaaa',
+        'on-primary':                '#5c1300',
+        'on-primary-container':      '#480d00',
+        outline:                     '#767575',
+        'outline-variant':           '#484847',
+        'inverse-surface':           '#fcf9f8',
+        'inverse-on-surface':        '#565555',
+        'inverse-primary':           '#b22e00',
 
         // =============================================
-        // Surface scale — mapped to Catppuccin Latte
-        // Dark equivalents via hardcoded dark: classes
-        // (progressive migration to ctp-* planned)
-        // =============================================
-        sand: {
-          50:  '#eff1f5', // Latte Base
-          100: '#e6e9ef', // Latte Mantle
-          200: '#dce0e8', // Latte Crust
-          300: '#acb0be', // Latte Surface2
-          400: '#8c8fa1', // Latte Overlay1
-          500: '#7c7f93', // Latte Overlay2
-          600: '#5c5f77', // Latte Subtext1
-        },
-
-        // =============================================
-        // Säule Bewegung — Catppuccin Green
-        // Latte: #40a02b  |  Mocha: #a6e3a1
+        // Säule Bewegung — Grün
         // =============================================
         movement: {
+          50:  '#f0fdf0',
           100: '#e0f5d4',
           200: '#b8e8a0',
+          300: '#84d160',
           400: '#62bc44',
           500: '#40a02b',
           600: '#2e7520',
@@ -75,12 +54,13 @@ const config: Config = {
         },
 
         // =============================================
-        // Säule Ernährung — Catppuccin Peach
-        // Latte: #fe640b  |  Mocha: #fab387
+        // Säule Ernährung — Orange
         // =============================================
         nutrition: {
+          50:  '#fff4f0',
           100: '#fde8d4',
           200: '#fbc3a0',
+          300: '#faa37a',
           400: '#fd8b50',
           500: '#fe640b',
           600: '#d44c08',
@@ -90,12 +70,13 @@ const config: Config = {
         },
 
         // =============================================
-        // Säule Rauchstopp — Catppuccin Blue
-        // Latte: #1e66f5  |  Mocha: #89b4fa
+        // Säule Rauchstopp — Blau
         // =============================================
         smoking: {
+          50:  '#eef4ff',
           100: '#dce8fd',
           200: '#afc9fb',
+          300: '#82aaf9',
           400: '#5b91f7',
           500: '#1e66f5',
           600: '#1250c2',
@@ -105,32 +86,45 @@ const config: Config = {
         },
       },
 
+      borderRadius: {
+        DEFAULT: '0.125rem',
+        sm:      '0.125rem',
+        md:      '0.125rem',
+        lg:      '0.25rem',
+        xl:      '0.5rem',
+        '2xl':   '0.5rem',
+        '3xl':   '0.75rem',
+        full:    '0.75rem',
+      },
+
       fontFamily: {
-        display: ['var(--font-display)', 'Georgia', 'serif'],
-        body:    ['var(--font-body)',    'Georgia', 'serif'],
+        display:  ['var(--font-display)', 'Georgia', 'serif'],
+        body:     ['var(--font-body)',    'Georgia', 'serif'],
+        headline: ['var(--font-display)', 'Georgia', 'serif'],
+        label:    ['var(--font-body)',    'sans-serif'],
       },
 
       typography: {
         DEFAULT: {
           css: {
-            '--tw-prose-body':          'var(--ctp-text)',
-            '--tw-prose-headings':      'var(--ctp-text)',
-            '--tw-prose-links':         'var(--ctp-peach)',
-            '--tw-prose-bold':          'var(--ctp-text)',
-            '--tw-prose-hr':            'var(--ctp-surface0)',
-            '--tw-prose-quotes':        'var(--ctp-subtext0)',
-            '--tw-prose-quote-borders': 'var(--ctp-surface1)',
-            '--tw-prose-captions':      'var(--ctp-overlay1)',
-            '--tw-prose-code':          'var(--ctp-text)',
-            '--tw-prose-invert-body':          'var(--ctp-text)',
-            '--tw-prose-invert-headings':      'var(--ctp-text)',
-            '--tw-prose-invert-links':         'var(--ctp-peach)',
-            '--tw-prose-invert-bold':          'var(--ctp-text)',
-            '--tw-prose-invert-hr':            'var(--ctp-surface0)',
-            '--tw-prose-invert-quotes':        'var(--ctp-subtext0)',
-            '--tw-prose-invert-quote-borders': 'var(--ctp-surface1)',
-            '--tw-prose-invert-captions':      'var(--ctp-overlay1)',
-            '--tw-prose-invert-code':          'var(--ctp-text)',
+            '--tw-prose-body':          '#ffffff',
+            '--tw-prose-headings':      '#ffffff',
+            '--tw-prose-links':         '#ff8f70',
+            '--tw-prose-bold':          '#ffffff',
+            '--tw-prose-hr':            '#484847',
+            '--tw-prose-quotes':        '#adaaaa',
+            '--tw-prose-quote-borders': '#484847',
+            '--tw-prose-captions':      '#adaaaa',
+            '--tw-prose-code':          '#ffffff',
+            '--tw-prose-invert-body':          '#ffffff',
+            '--tw-prose-invert-headings':      '#ffffff',
+            '--tw-prose-invert-links':         '#ff8f70',
+            '--tw-prose-invert-bold':          '#ffffff',
+            '--tw-prose-invert-hr':            '#484847',
+            '--tw-prose-invert-quotes':        '#adaaaa',
+            '--tw-prose-invert-quote-borders': '#484847',
+            '--tw-prose-invert-captions':      '#adaaaa',
+            '--tw-prose-invert-code':          '#ffffff',
             fontFamily: 'var(--font-body), Georgia, serif',
             lineHeight: '1.75',
             maxWidth: 'none',

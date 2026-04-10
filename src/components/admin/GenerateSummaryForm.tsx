@@ -34,12 +34,12 @@ export function GenerateSummaryForm({ defaultYear, defaultMonth }: GenerateSumma
   return (
     <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-3">
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-sand-500 font-medium">Monat</label>
+        <label className="text-xs text-on-surface-variant font-medium">Monat</label>
         <select
           value={month}
           onChange={(e) => setMonth(Number(e.target.value))}
           disabled={isPending}
-          className="px-3 py-2 text-sm rounded-lg border border-ctp-surface1 bg-ctp-mantle text-ctp-text focus:outline-none focus:ring-2 focus:ring-nutrition-400"
+          className="px-3 py-2 text-sm rounded-lg border border-surface-container-high bg-surface-container-low text-on-surface focus:outline-none focus:ring-2 focus:ring-nutrition-400"
         >
           {MONTH_NAMES.map((name, i) => (
             <option key={i + 1} value={i + 1}>{name}</option>
@@ -47,12 +47,12 @@ export function GenerateSummaryForm({ defaultYear, defaultMonth }: GenerateSumma
         </select>
       </div>
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-sand-500 font-medium">Jahr</label>
+        <label className="text-xs text-on-surface-variant font-medium">Jahr</label>
         <select
           value={year}
           onChange={(e) => setYear(Number(e.target.value))}
           disabled={isPending}
-          className="px-3 py-2 text-sm rounded-lg border border-ctp-surface1 bg-ctp-mantle text-ctp-text focus:outline-none focus:ring-2 focus:ring-nutrition-400"
+          className="px-3 py-2 text-sm rounded-lg border border-surface-container-high bg-surface-container-low text-on-surface focus:outline-none focus:ring-2 focus:ring-nutrition-400"
         >
           {years.map((y) => (
             <option key={y} value={y}>{y}</option>
@@ -67,7 +67,7 @@ export function GenerateSummaryForm({ defaultYear, defaultMonth }: GenerateSumma
         {isPending ? 'Generiert…' : 'Zusammenfassung generieren'}
       </button>
       {error && (
-        <p className="w-full text-xs text-red-600 dark:text-red-400 mt-1">{error}</p>
+        <p className="w-full text-xs text-red-600 text-red-400 mt-1">{error}</p>
       )}
     </form>
   )

@@ -46,8 +46,8 @@ function NavLink({ href, label, exact }: { href: string; label: string; exact: b
       className={clsx(
         'block px-3 py-1.5 rounded-lg text-sm transition-colors',
         isActive
-          ? 'bg-ctp-surface0 text-ctp-text font-medium'
-          : 'text-ctp-subtext1 hover:text-ctp-text hover:bg-ctp-surface0'
+          ? 'bg-surface-container text-on-surface font-medium'
+          : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
       )}
     >
       {label}
@@ -62,7 +62,7 @@ export function AdminSidebar() {
       {NAV_GROUPS.map((group, i) => (
         <div key={i}>
           {group.label && (
-            <p className="px-3 mb-1 text-[10px] font-semibold tracking-widest uppercase text-ctp-overlay1">
+            <p className="px-3 mb-1 text-[10px] font-semibold tracking-widest uppercase text-on-surface-variant">
               {group.label}
             </p>
           )}
@@ -92,8 +92,8 @@ export function AdminNavMobile() {
             className={clsx(
               'flex-none px-3 py-1.5 rounded-lg text-sm whitespace-nowrap transition-colors',
               isActive
-                ? 'bg-ctp-surface0 text-ctp-text font-medium'
-                : 'text-ctp-subtext1 hover:text-ctp-text hover:bg-ctp-surface0'
+                ? 'bg-surface-container text-on-surface font-medium'
+                : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
             )}
           >
             {label}

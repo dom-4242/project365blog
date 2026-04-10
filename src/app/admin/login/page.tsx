@@ -10,16 +10,16 @@ function LoginContent() {
   const callbackUrl = searchParams.get('callbackUrl') ?? '/admin'
 
   return (
-    <div className="min-h-screen bg-sand-50 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="max-w-sm w-full">
         <div className="text-center mb-8">
-          <h1 className="font-display text-3xl font-bold text-ctp-text mb-2">
+          <h1 className="font-display text-3xl font-bold text-on-surface mb-2">
             Project <span className="text-nutrition-600">365</span>
           </h1>
-          <p className="text-sand-500 text-sm">Admin-Bereich</p>
+          <p className="text-on-surface-variant text-sm">Admin-Bereich</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-sand-200 p-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-surface-container-high p-8">
           {error === 'AccessDenied' && (
             <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
               Zugriff verweigert. Nur der Admin-Account hat Zugang.
@@ -28,7 +28,7 @@ function LoginContent() {
 
           <button
             onClick={() => signIn('google', { callbackUrl })}
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border border-sand-300 rounded-xl text-sm font-medium text-ctp-text hover:bg-sand-50 hover:border-sand-400 transition-colors shadow-sm"
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border border-outline rounded-xl text-sm font-medium text-on-surface hover:bg-background hover:border-on-surface-variant transition-colors shadow-sm"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
               <path

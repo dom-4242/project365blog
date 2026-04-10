@@ -31,8 +31,8 @@ export function FlashMessage({ message, type = 'success' }: FlashMessageProps) {
 
   const styles =
     type === 'success'
-      ? 'bg-movement-100 dark:bg-movement-600/10 border-movement-200 dark:border-movement-600/20 text-movement-800 dark:text-movement-300'
-      : 'bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-400'
+      ? 'bg-movement-100 bg-movement-600/10 border-movement-200 border-movement-600/20 text-movement-800 text-movement-300'
+      : 'bg-red-50 bg-red-950/30 border-red-200 border-red-900/50 text-red-700 text-red-400'
 
   const icon = type === 'success' ? '✓' : '✕'
 

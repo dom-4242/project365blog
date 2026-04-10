@@ -157,10 +157,10 @@ function FulfillmentDot({
   }
   if (fulfillment === 'partial') {
     return (
-      <span className="flex-none w-2 h-2 rounded-full bg-sand-300 ring-1 ring-sand-400 ring-offset-0" />
+      <span className="flex-none w-2 h-2 rounded-full bg-outline ring-1 ring-on-surface-variant ring-offset-0" />
     )
   }
-  return <span className="flex-none w-2 h-2 rounded-full bg-sand-200" />
+  return <span className="flex-none w-2 h-2 rounded-full bg-surface-container-high" />
 }
 
 // =============================================
@@ -207,7 +207,7 @@ export function HabitSelector<T extends HabitValue>({
                 'group flex items-center gap-3 w-full text-left px-3.5 py-2.5 rounded-xl border transition-all duration-150',
                 isSelected
                   ? [cfg.accentBg, cfg.accentBorder, cfg.accentText, 'shadow-sm']
-                  : 'bg-white border-sand-200 text-ctp-text hover:border-sand-300 hover:bg-sand-50'
+                  : 'bg-white border-surface-container-high text-on-surface hover:border-outline hover:bg-background'
               )}
             >
               {/* Fulfillment-Indikator */}
@@ -218,7 +218,7 @@ export function HabitSelector<T extends HabitValue>({
                 <span
                   className={clsx(
                     'block text-xs font-semibold leading-tight',
-                    isSelected ? cfg.accentText : 'text-ctp-text'
+                    isSelected ? cfg.accentText : 'text-on-surface'
                   )}
                 >
                   {opt.label}
@@ -226,7 +226,7 @@ export function HabitSelector<T extends HabitValue>({
                 <span
                   className={clsx(
                     'block text-xs leading-tight mt-0.5',
-                    isSelected ? 'opacity-75' : 'text-sand-400'
+                    isSelected ? 'opacity-75' : 'text-on-surface-variant'
                   )}
                 >
                   {opt.description}

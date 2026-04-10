@@ -31,7 +31,7 @@ export function DeleteEntryButton({ id, title }: DeleteEntryButtonProps) {
     <>
       <button
         onClick={() => { setError(null); setShowConfirm(true) }}
-        className="text-xs px-3 py-1.5 border border-red-200 dark:border-red-900/50 rounded-lg text-red-500 dark:text-red-400 hover:border-red-300 dark:hover:border-red-800 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-700 dark:hover:text-red-300 transition-colors"
+        className="text-xs px-3 py-1.5 border border-red-200 border-red-900/50 rounded-lg text-red-500 text-red-400 hover:border-red-300 hover:border-red-800 hover:bg-red-50 hover:bg-red-950/30 hover:text-red-700 hover:text-red-300 transition-colors"
       >
         Löschen
       </button>
@@ -54,18 +54,18 @@ export function DeleteEntryButton({ id, title }: DeleteEntryButtonProps) {
           />
 
           {/* Dialog */}
-          <div className="relative bg-ctp-base rounded-2xl border border-ctp-surface1 shadow-xl p-6 max-w-sm w-full space-y-4">
+          <div className="relative bg-surface-container rounded-2xl border border-surface-container-high shadow-xl p-6 max-w-sm w-full space-y-4">
             <div className="flex items-start gap-3">
               <span className="text-2xl leading-none mt-0.5" aria-hidden="true">🗑️</span>
               <div>
                 <h2
                   id="delete-dialog-title"
-                  className="font-display font-bold text-lg text-ctp-text leading-tight"
+                  className="font-display font-bold text-lg text-on-surface leading-tight"
                 >
                   Eintrag löschen?
                 </h2>
-                <p className="text-sm text-sand-500 dark:text-sand-400 mt-1">
-                  <span className="font-medium text-ctp-text">&bdquo;{title}&ldquo;</span>{' '}
+                <p className="text-sm text-on-surface-variant text-on-surface-variant mt-1">
+                  <span className="font-medium text-on-surface">&bdquo;{title}&ldquo;</span>{' '}
                   wird dauerhaft gelöscht &mdash; inklusive aller Reaktionen.
                 </p>
               </div>
@@ -75,7 +75,7 @@ export function DeleteEntryButton({ id, title }: DeleteEntryButtonProps) {
               <button
                 onClick={() => setShowConfirm(false)}
                 disabled={isPending}
-                className="px-4 py-2 text-sm border border-ctp-surface1 rounded-xl text-sand-600 dark:text-sand-400 hover:border-sand-300 dark:hover:border-ctp-overlay2 hover:text-ctp-text transition-colors disabled:opacity-50"
+                className="px-4 py-2 text-sm border border-surface-container-high rounded-xl text-on-surface-variant text-on-surface-variant hover:border-outline hover:border-on-surface-variant hover:text-on-surface transition-colors disabled:opacity-50"
               >
                 Abbrechen
               </button>

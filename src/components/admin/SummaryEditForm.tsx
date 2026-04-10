@@ -51,7 +51,7 @@ export function SummaryEditForm({ summary }: SummaryEditFormProps) {
   return (
     <form onSubmit={handleSave} className="space-y-4">
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-ctp-surface1">
+      <div className="flex gap-2 border-b border-surface-container-high">
         {(['de', 'en'] as const).map((lang) => (
           <button
             key={lang}
@@ -59,8 +59,8 @@ export function SummaryEditForm({ summary }: SummaryEditFormProps) {
             onClick={() => setActiveTab(lang)}
             className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
               activeTab === lang
-                ? 'border-nutrition-600 text-nutrition-700 dark:text-nutrition-400'
-                : 'border-transparent text-sand-500 hover:text-ctp-text'
+                ? 'border-nutrition-600 text-nutrition-700 text-nutrition-400'
+                : 'border-transparent text-on-surface-variant hover:text-on-surface'
             }`}
           >
             {lang === 'de' ? 'Deutsch' : 'English'}
@@ -75,7 +75,7 @@ export function SummaryEditForm({ summary }: SummaryEditFormProps) {
             value={contentDe}
             onChange={(e) => setContentDe(e.target.value)}
             rows={24}
-            className="w-full font-mono text-xs px-4 py-3 rounded-xl border border-ctp-surface1 bg-ctp-mantle text-ctp-text focus:outline-none focus:ring-2 focus:ring-nutrition-400 resize-none"
+            className="w-full font-mono text-xs px-4 py-3 rounded-xl border border-surface-container-high bg-surface-container-low text-on-surface focus:outline-none focus:ring-2 focus:ring-nutrition-400 resize-none"
             placeholder="HTML-Content auf Deutsch…"
           />
         ) : (
@@ -83,7 +83,7 @@ export function SummaryEditForm({ summary }: SummaryEditFormProps) {
             value={contentEn}
             onChange={(e) => setContentEn(e.target.value)}
             rows={24}
-            className="w-full font-mono text-xs px-4 py-3 rounded-xl border border-ctp-surface1 bg-ctp-mantle text-ctp-text focus:outline-none focus:ring-2 focus:ring-nutrition-400 resize-none"
+            className="w-full font-mono text-xs px-4 py-3 rounded-xl border border-surface-container-high bg-surface-container-low text-on-surface focus:outline-none focus:ring-2 focus:ring-nutrition-400 resize-none"
             placeholder="HTML content in English…"
           />
         )}
@@ -95,7 +95,7 @@ export function SummaryEditForm({ summary }: SummaryEditFormProps) {
           type="button"
           onClick={handleDelete}
           disabled={isDeleting}
-          className="text-xs text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors disabled:opacity-50"
+          className="text-xs text-red-500 hover:text-red-700 hover:text-red-400 transition-colors disabled:opacity-50"
         >
           {isDeleting ? 'Löschen…' : 'Zusammenfassung löschen'}
         </button>
@@ -104,15 +104,15 @@ export function SummaryEditForm({ summary }: SummaryEditFormProps) {
           <a
             href={`/de/monthly/${monthSlug}`}
             target="_blank"
-            className="text-xs px-3 py-2 border border-ctp-surface1 rounded-lg text-sand-600 dark:text-sand-400 hover:border-sand-300 hover:text-ctp-text transition-colors"
+            className="text-xs px-3 py-2 border border-surface-container-high rounded-lg text-on-surface-variant text-on-surface-variant hover:border-outline hover:text-on-surface transition-colors"
           >
             Vorschau
           </a>
           {saved && (
-            <span className="text-xs text-movement-600 dark:text-movement-400">Gespeichert ✓</span>
+            <span className="text-xs text-movement-600 text-movement-400">Gespeichert ✓</span>
           )}
           {error && (
-            <span className="text-xs text-red-600 dark:text-red-400">{error}</span>
+            <span className="text-xs text-red-600 text-red-400">{error}</span>
           )}
           <button
             type="submit"

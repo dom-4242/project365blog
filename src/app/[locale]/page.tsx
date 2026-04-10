@@ -88,26 +88,26 @@ export default async function HomePage({ params }: HomePageProps) {
 
       {/* ── Hero ───────────────────────────────────── */}
       <header className="mb-10">
-        <p className="text-xs font-medium tracking-widest uppercase text-sand-500 mb-3">
+        <p className="text-xs font-medium tracking-widest uppercase text-on-surface-variant mb-3">
           {t('tagline')}
         </p>
 
-        <h1 className="font-display text-4xl sm:text-5xl font-bold leading-tight text-ctp-text mb-4">
+        <h1 className="font-display text-4xl sm:text-5xl font-bold leading-tight text-on-surface mb-4">
           <span className="block">{t('headline_1')}</span>
           <span className="block">{t('headline_2')}</span>
         </h1>
 
-        <p className="text-lg text-sand-500 max-w-xl leading-relaxed mb-6">
+        <p className="text-lg text-on-surface-variant max-w-xl leading-relaxed mb-6">
           {t('description')}
         </p>
 
         {/* Day counter + streaks */}
-        <div className="p-4 rounded-xl bg-ctp-surface0 border border-ctp-surface1">
+        <div className="p-4 rounded-xl bg-surface-container border border-surface-container-high">
           <div className="flex items-baseline gap-3 mb-3">
-            <p className="font-display text-3xl font-bold text-ctp-peach leading-none">
+            <p className="font-display text-3xl font-bold text-primary leading-none">
               {currentDay}
             </p>
-            <p className="text-xs text-sand-500">
+            <p className="text-xs text-on-surface-variant">
               {t('dayCounter', { day: currentDay })}
             </p>
           </div>
@@ -116,18 +116,18 @@ export default async function HomePage({ params }: HomePageProps) {
           <div className="flex gap-4">
             <div className="flex items-center gap-1.5" title={t('streakMovement')}>
               <span className="text-base leading-none">🏃</span>
-              <span className="text-sm font-semibold text-ctp-text tabular-nums">{movementStreak.current}</span>
-              <span className="text-xs text-sand-400">{t('streakDays')}</span>
+              <span className="text-sm font-semibold text-on-surface tabular-nums">{movementStreak.current}</span>
+              <span className="text-xs text-on-surface-variant">{t('streakDays')}</span>
             </div>
             <div className="flex items-center gap-1.5" title={t('streakNutrition')}>
               <span className="text-base leading-none">🥗</span>
-              <span className="text-sm font-semibold text-ctp-text tabular-nums">{nutritionStreak.current}</span>
-              <span className="text-xs text-sand-400">{t('streakDays')}</span>
+              <span className="text-sm font-semibold text-on-surface tabular-nums">{nutritionStreak.current}</span>
+              <span className="text-xs text-on-surface-variant">{t('streakDays')}</span>
             </div>
             <div className="flex items-center gap-1.5" title={t('streakSmoking')}>
               <span className="text-base leading-none">🚭</span>
-              <span className="text-sm font-semibold text-ctp-text tabular-nums">{smokingStreak.current}</span>
-              <span className="text-xs text-sand-400">{t('streakDays')}</span>
+              <span className="text-sm font-semibold text-on-surface tabular-nums">{smokingStreak.current}</span>
+              <span className="text-xs text-on-surface-variant">{t('streakDays')}</span>
             </div>
           </div>
         </div>
@@ -148,9 +148,9 @@ export default async function HomePage({ params }: HomePageProps) {
               ))}
             </div>
             {hasMore && (
-              <div className="mt-6 pt-5 border-t border-sand-200 dark:border-ctp-surface0">
+              <div className="mt-6 pt-5 border-t border-surface-container-high border-surface-container">
                 <details className="group">
-                  <summary className="cursor-pointer text-sm font-medium text-sand-500 hover:text-ctp-peach transition-colors list-none flex items-center gap-2">
+                  <summary className="cursor-pointer text-sm font-medium text-on-surface-variant hover:text-primary transition-colors list-none flex items-center gap-2">
                     <span className="group-open:hidden">{t('allEntries', { count: entries.length })}</span>
                     <span className="hidden group-open:inline">Weniger anzeigen</span>
                   </summary>

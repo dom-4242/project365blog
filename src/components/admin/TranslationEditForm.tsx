@@ -56,51 +56,51 @@ export function TranslationEditForm({
   return (
     <div className="space-y-4">
       <div>
-        <label className="block text-xs font-medium text-sand-500 uppercase tracking-wide mb-1.5">
+        <label className="block text-xs font-medium text-on-surface-variant uppercase tracking-wide mb-1.5">
           Titel
         </label>
         <input
           type="text"
           value={title}
           onChange={(e) => { setTitle(e.target.value); setSaveSuccess(false) }}
-          className="w-full px-3 py-2 text-sm bg-ctp-base border border-ctp-surface1 rounded-lg text-ctp-text focus:outline-none focus:border-nutrition-500 dark:focus:border-nutrition-400 transition-colors"
+          className="w-full px-3 py-2 text-sm bg-surface-container border border-surface-container-high rounded-lg text-on-surface focus:outline-none focus:border-nutrition-500 focus:border-nutrition-400 transition-colors"
         />
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-sand-500 uppercase tracking-wide mb-1.5">
+        <label className="block text-xs font-medium text-on-surface-variant uppercase tracking-wide mb-1.5">
           Excerpt
         </label>
         <textarea
           value={excerpt}
           onChange={(e) => { setExcerpt(e.target.value); setSaveSuccess(false) }}
           rows={3}
-          className="w-full px-3 py-2 text-sm bg-ctp-base border border-ctp-surface1 rounded-lg text-ctp-text focus:outline-none focus:border-nutrition-500 dark:focus:border-nutrition-400 transition-colors resize-y"
+          className="w-full px-3 py-2 text-sm bg-surface-container border border-surface-container-high rounded-lg text-on-surface focus:outline-none focus:border-nutrition-500 focus:border-nutrition-400 transition-colors resize-y"
         />
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-sand-500 uppercase tracking-wide mb-1.5">
+        <label className="block text-xs font-medium text-on-surface-variant uppercase tracking-wide mb-1.5">
           Inhalt (HTML)
         </label>
         <textarea
           value={content}
           onChange={(e) => { setContent(e.target.value); setSaveSuccess(false) }}
           rows={14}
-          className="w-full px-3 py-2 text-xs font-mono bg-ctp-base border border-ctp-surface1 rounded-lg text-ctp-text focus:outline-none focus:border-nutrition-500 dark:focus:border-nutrition-400 transition-colors resize-y"
+          className="w-full px-3 py-2 text-xs font-mono bg-surface-container border border-surface-container-high rounded-lg text-on-surface focus:outline-none focus:border-nutrition-500 focus:border-nutrition-400 transition-colors resize-y"
         />
       </div>
 
       {saveError && (
-        <p className="text-sm text-red-600 dark:text-red-400">{saveError}</p>
+        <p className="text-sm text-red-600 text-red-400">{saveError}</p>
       )}
       {translateError && (
-        <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-3">
-          <p className="text-sm text-red-600 dark:text-red-400 leading-snug">{translateError}</p>
+        <div className="rounded-lg border border-red-200 border-red-800 bg-red-50 bg-red-900/20 p-3">
+          <p className="text-sm text-red-600 text-red-400 leading-snug">{translateError}</p>
         </div>
       )}
       {saveSuccess && (
-        <p className="text-sm text-movement-600 dark:text-movement-400">Gespeichert ✓</p>
+        <p className="text-sm text-movement-600 text-movement-400">Gespeichert ✓</p>
       )}
 
       <div className="flex items-center gap-3 pt-1">
@@ -114,7 +114,7 @@ export function TranslationEditForm({
         <button
           onClick={handleRetranslate}
           disabled={isSaving || isTranslating}
-          className="flex items-center gap-2 px-4 py-2 border border-ctp-surface1 rounded-xl text-sm font-medium text-sand-600 dark:text-sand-400 hover:border-sand-300 hover:text-ctp-text transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-4 py-2 border border-surface-container-high rounded-xl text-sm font-medium text-on-surface-variant text-on-surface-variant hover:border-outline hover:text-on-surface transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isTranslating ? (
             <>

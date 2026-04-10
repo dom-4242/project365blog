@@ -30,9 +30,9 @@ export function HabitStreak({
           <span className={`text-5xl font-bold font-display leading-none ${textColorClass}`}>
             {current}
           </span>
-          <span className="text-sm text-sand-500 font-medium leading-tight">{label}</span>
+          <span className="text-sm text-on-surface-variant font-medium leading-tight">{label}</span>
         </div>
-        <p className="text-xs text-sand-400 mt-1 h-4">
+        <p className="text-xs text-on-surface-variant mt-1 h-4">
           {isRecord
             ? t('record')
             : longest > current && longest > 0
@@ -43,7 +43,7 @@ export function HabitStreak({
 
       {totalEntries > 0 && (
         <div className="space-y-1">
-          <div className="flex justify-between text-xs text-sand-400">
+          <div className="flex justify-between text-xs text-on-surface-variant">
             <span>
               {t('outOf', {
                 fulfilled: totalFulfilled,
@@ -53,7 +53,7 @@ export function HabitStreak({
             </span>
             <span>{pct}%</span>
           </div>
-          <div className="h-1 bg-ctp-surface1 rounded-full overflow-hidden">
+          <div className="h-1 bg-surface-container-high rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full ${barColorClass}`}
               style={{ width: `${pct}%` }}

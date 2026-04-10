@@ -36,12 +36,12 @@ export function TranslateButton({ id, isTranslated, isStale = false }: Translate
         }
         className={`text-xs px-3 py-1.5 border rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
           error
-            ? 'border-red-300 dark:border-red-700 text-red-600 dark:text-red-400'
+            ? 'border-red-300 border-red-700 text-red-600 text-red-400'
             : isOutdated
-              ? 'border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20'
+              ? 'border-amber-300 border-amber-700 text-amber-700 text-amber-400 hover:bg-amber-50 hover:bg-amber-900/20'
               : isTranslated
-                ? 'border-movement-300 dark:border-movement-700 text-movement-700 dark:text-movement-400 hover:bg-movement-50 dark:hover:bg-movement-900/20'
-                : 'border-ctp-surface1 text-sand-600 dark:text-sand-400 hover:border-sand-300 dark:hover:border-ctp-overlay2 hover:text-ctp-text'
+                ? 'border-movement-300 border-movement-700 text-movement-700 text-movement-400 hover:bg-movement-50 hover:bg-movement-900/20'
+                : 'border-surface-container-high text-on-surface-variant text-on-surface-variant hover:border-outline hover:border-on-surface-variant hover:text-on-surface'
         }`}
       >
         {isPending ? (
@@ -78,11 +78,11 @@ export function TranslateButton({ id, isTranslated, isStale = false }: Translate
       </button>
 
       {error && (
-        <div className="absolute right-0 top-full mt-1 z-10 w-72 rounded-lg border border-red-200 dark:border-red-800 bg-ctp-base shadow-lg p-3">
-          <p className="text-xs text-red-600 dark:text-red-400 leading-snug">{error}</p>
+        <div className="absolute right-0 top-full mt-1 z-10 w-72 rounded-lg border border-red-200 border-red-800 bg-surface-container shadow-lg p-3">
+          <p className="text-xs text-red-600 text-red-400 leading-snug">{error}</p>
           <button
             onClick={() => setError(null)}
-            className="mt-1.5 text-xs text-sand-400 hover:text-sand-600 dark:hover:text-sand-300 transition-colors"
+            className="mt-1.5 text-xs text-on-surface-variant hover:text-on-surface-variant hover:text-outline transition-colors"
           >
             Schließen
           </button>

@@ -45,20 +45,20 @@ export function HabitBadges({ habits }: HabitBadgesProps) {
       <HabitBadge
         label={t(`movement.${habits.movement}` as 'movement.minimal')}
         fulfilled={isMovementFulfilled(habits.movement)}
-        colorClass="bg-movement-100 dark:bg-movement-600/20 text-movement-700 dark:text-movement-400"
-        dimClass="bg-ctp-surface0 text-sand-500"
+        colorClass="bg-movement-600/20 text-movement-400"
+        dimClass="bg-surface-container text-on-surface-variant"
       />
       <HabitBadge
         label={t(`nutrition.${habits.nutrition}` as 'nutrition.none')}
         fulfilled={isNutritionFulfilled(habits.nutrition)}
-        colorClass="bg-nutrition-100 dark:bg-nutrition-600/20 text-nutrition-700 dark:text-nutrition-400"
-        dimClass="bg-ctp-surface0 text-sand-500"
+        colorClass="bg-nutrition-600/20 text-nutrition-400"
+        dimClass="bg-surface-container text-on-surface-variant"
       />
       <HabitBadge
         label={t(`smoking.${habits.smoking}` as 'smoking.smoked')}
         fulfilled={isSmokingFulfilled(habits.smoking)}
-        colorClass="bg-smoking-100 dark:bg-smoking-600/20 text-smoking-700 dark:text-smoking-400"
-        dimClass="bg-ctp-surface0 text-sand-500"
+        colorClass="bg-smoking-600/20 text-smoking-400"
+        dimClass="bg-surface-container text-on-surface-variant"
       />
     </div>
   )

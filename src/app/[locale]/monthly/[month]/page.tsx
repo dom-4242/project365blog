@@ -76,20 +76,20 @@ export default async function MonthSummaryPage({ params }: MonthSummaryPageProps
       {/* Back */}
       <Link
         href={`/${params.locale}/monthly`}
-        className="inline-block text-sm text-sand-400 hover:text-ctp-text mb-8 transition-colors"
+        className="inline-block text-sm text-on-surface-variant hover:text-on-surface mb-8 transition-colors"
       >
         ← {t('backToOverview')}
       </Link>
 
       {/* Header */}
       <header className="mb-8">
-        <p className="text-xs font-semibold text-nutrition-600 dark:text-nutrition-400 uppercase tracking-wide mb-2">
+        <p className="text-xs font-semibold text-nutrition-600 text-nutrition-400 uppercase tracking-wide mb-2">
           {t('summaryLabel')}
         </p>
-        <h1 className="font-display text-4xl font-bold text-ctp-text">
+        <h1 className="font-display text-4xl font-bold text-on-surface">
           {monthName} {year}
         </h1>
-        <p className="text-xs text-sand-400 mt-2">
+        <p className="text-xs text-on-surface-variant mt-2">
           {t('generatedOn', { date: summary.generatedAt.toLocaleDateString(isEn ? 'en-GB' : 'de-CH', { day: 'numeric', month: 'long', year: 'numeric' }) })}
           {isEn && !summary.contentEn && (
             <span className="ml-2 italic">(Original auf Deutsch)</span>
@@ -99,7 +99,7 @@ export default async function MonthSummaryPage({ params }: MonthSummaryPageProps
 
       {/* Content */}
       <div
-        className="prose prose-sand dark:prose-invert max-w-none"
+        className="prose prose-sand prose-invert max-w-none"
         dangerouslySetInnerHTML={{ __html: content }}
       />
     </article>

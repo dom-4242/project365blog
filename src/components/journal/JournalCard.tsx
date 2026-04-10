@@ -29,11 +29,11 @@ export async function JournalCard({ entry }: JournalCardProps) {
   }
 
   return (
-    <article className="group bg-ctp-base rounded-2xl border border-ctp-surface1 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden">
+    <article className="group bg-surface-container rounded-2xl border border-surface-container-high shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden">
       <Link href={`/journal/${entry.slug}`} className="block">
 
         {entry.banner ? (
-          <div className="relative w-full aspect-[16/7] bg-ctp-surface0">
+          <div className="relative w-full aspect-[16/7] bg-surface-container">
             <Image
               src={entry.banner}
               alt={entry.title}
@@ -45,7 +45,7 @@ export async function JournalCard({ entry }: JournalCardProps) {
         ) : (
           <div className="relative px-6 pt-5 pb-0 overflow-hidden select-none" aria-hidden="true">
             <span
-              className="block font-display font-bold leading-none text-sand-100 dark:text-ctp-surface0"
+              className="block font-display font-bold leading-none text-surface-container text-surface-container"
               style={{ fontSize: 'clamp(4.5rem, 18vw, 7.5rem)' }}
             >
               {String(dayNumber).padStart(2, '0')}
@@ -55,28 +55,28 @@ export async function JournalCard({ entry }: JournalCardProps) {
 
         <div className="px-6 py-5 space-y-3">
           <div className="flex items-center gap-2.5">
-            <span className="font-display font-bold text-xs tracking-widest uppercase text-sand-400 border border-ctp-surface1 rounded px-1.5 py-0.5">
+            <span className="font-display font-bold text-xs tracking-widest uppercase text-on-surface-variant border border-surface-container-high rounded px-1.5 py-0.5">
               {t('day', { number: dayNumber })}
             </span>
-            <span className="text-sand-300 dark:text-ctp-surface1 select-none" aria-hidden="true">·</span>
-            <time className="text-xs text-sand-400" dateTime={entry.date}>
+            <span className="text-outline text-surface-container-high select-none" aria-hidden="true">·</span>
+            <time className="text-xs text-on-surface-variant" dateTime={entry.date}>
               {formatDate(entry.date)}
             </time>
           </div>
 
-          <h2 className="font-display text-xl sm:text-2xl font-bold leading-snug text-ctp-text group-hover:text-nutrition-700 dark:group-hover:text-nutrition-400 transition-colors duration-200">
+          <h2 className="font-display text-xl sm:text-2xl font-bold leading-snug text-on-surface group-hover:text-nutrition-700 group-hover:text-nutrition-400 transition-colors duration-200">
             {entry.title}
           </h2>
 
           {excerpt && (
-            <p className="text-sm text-ctp-overlay2 dark:text-ctp-overlay2 leading-relaxed line-clamp-3">
+            <p className="text-sm text-on-surface-variant text-on-surface-variant leading-relaxed line-clamp-3">
               {excerpt}
             </p>
           )}
 
-          <div className="flex items-center justify-between gap-4 pt-1 border-t border-ctp-surface0">
+          <div className="flex items-center justify-between gap-4 pt-1 border-t border-surface-container">
             <HabitBadges habits={entry.habits} />
-            <span className="text-xs font-semibold text-nutrition-600 dark:text-nutrition-400 group-hover:text-nutrition-700 shrink-0 transition-colors">
+            <span className="text-xs font-semibold text-nutrition-600 text-nutrition-400 group-hover:text-nutrition-700 shrink-0 transition-colors">
               {t('readMore')}
             </span>
           </div>

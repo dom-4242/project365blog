@@ -52,8 +52,8 @@ export default async function MetricsPage({ searchParams }: PageProps) {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="font-display text-2xl font-bold text-ctp-text">Metriken erfassen</h1>
-        <p className="text-sand-500 text-sm mt-1">Manuell erfasste Werte überschreiben automatische Importe.</p>
+        <h1 className="font-display text-2xl font-bold text-on-surface">Metriken erfassen</h1>
+        <p className="text-on-surface-variant text-sm mt-1">Manuell erfasste Werte überschreiben automatische Importe.</p>
       </div>
 
       <MetricsForm date={date} initial={initial} />
@@ -61,12 +61,12 @@ export default async function MetricsPage({ searchParams }: PageProps) {
       {/* Recent entries table */}
       {recent.length > 0 && (
         <div className="mt-10">
-          <h2 className="font-display text-base font-semibold text-ctp-text mb-3">Letzte Einträge</h2>
-          <div className="bg-ctp-base rounded-2xl border border-ctp-surface1 overflow-hidden">
+          <h2 className="font-display text-base font-semibold text-on-surface mb-3">Letzte Einträge</h2>
+          <div className="bg-surface-container rounded-2xl border border-surface-container-high overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="border-b border-ctp-surface0 text-sand-500 text-left">
+                  <tr className="border-b border-surface-container text-on-surface-variant text-left">
                     <th className="px-4 py-3 font-medium">Datum</th>
                     <th className="px-4 py-3 font-medium">Gewicht</th>
                     <th className="px-4 py-3 font-medium">Körperfett</th>
@@ -80,28 +80,28 @@ export default async function MetricsPage({ searchParams }: PageProps) {
                   {recent.map((row) => (
                     <tr
                       key={row.id}
-                      className="border-b border-ctp-surface0 last:border-0 hover:bg-sand-50 dark:hover:bg-ctp-surface0 transition-colors"
+                      className="border-b border-surface-container last:border-0 hover:bg-background hover:bg-surface-container transition-colors"
                     >
-                      <td className="px-4 py-3 font-mono text-sand-500">
+                      <td className="px-4 py-3 font-mono text-on-surface-variant">
                         {formatDate(row.date)}
                       </td>
-                      <td className="px-4 py-3 text-ctp-text">
+                      <td className="px-4 py-3 text-on-surface">
                         {row.weight != null ? `${row.weight} kg` : '—'}
                       </td>
-                      <td className="px-4 py-3 text-ctp-text">
+                      <td className="px-4 py-3 text-on-surface">
                         {row.bodyFat != null ? `${row.bodyFat}%` : '—'}
                       </td>
-                      <td className="px-4 py-3 text-ctp-text">
+                      <td className="px-4 py-3 text-on-surface">
                         {row.steps != null ? row.steps.toLocaleString('de-CH') : '—'}
                       </td>
-                      <td className="px-4 py-3 text-ctp-text">
+                      <td className="px-4 py-3 text-on-surface">
                         {formatSleep(row.sleepDuration)}
                       </td>
-                      <td className="px-4 py-3 text-ctp-text">
+                      <td className="px-4 py-3 text-on-surface">
                         {row.restingHR != null ? `${row.restingHR} bpm` : '—'}
                       </td>
                       <td className="px-4 py-3">
-                        <span className="px-1.5 py-0.5 bg-ctp-surface0 text-sand-500 rounded text-xs">
+                        <span className="px-1.5 py-0.5 bg-surface-container text-on-surface-variant rounded text-xs">
                           {row.source}
                         </span>
                       </td>

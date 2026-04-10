@@ -15,24 +15,24 @@ interface PillarConfig {
 const PILLAR_CONFIG: Record<Pillar, PillarConfig> = {
   movement: {
     emoji: '🏃',
-    bgClass: 'bg-movement-100 dark:bg-movement-600/10',
-    borderClass: 'border-movement-200 dark:border-movement-600/20',
-    textColorClass: 'text-movement-700 dark:text-movement-400',
-    barColorClass: 'bg-movement-500 dark:bg-movement-400',
+    bgClass: 'bg-movement-600/10',
+    borderClass: 'border-movement-600/20',
+    textColorClass: 'text-movement-400',
+    barColorClass: 'bg-movement-400',
   },
   nutrition: {
     emoji: '🥗',
-    bgClass: 'bg-nutrition-100 dark:bg-nutrition-600/10',
-    borderClass: 'border-nutrition-200 dark:border-nutrition-600/20',
-    textColorClass: 'text-nutrition-700 dark:text-nutrition-400',
-    barColorClass: 'bg-nutrition-500 dark:bg-nutrition-400',
+    bgClass: 'bg-nutrition-600/10',
+    borderClass: 'border-nutrition-600/20',
+    textColorClass: 'text-nutrition-400',
+    barColorClass: 'bg-nutrition-400',
   },
   smoking: {
     emoji: '🚭',
-    bgClass: 'bg-smoking-100 dark:bg-smoking-600/10',
-    borderClass: 'border-smoking-200 dark:border-smoking-600/20',
-    textColorClass: 'text-smoking-700 dark:text-smoking-400',
-    barColorClass: 'bg-smoking-500 dark:bg-smoking-400',
+    bgClass: 'bg-smoking-600/10',
+    borderClass: 'border-smoking-600/20',
+    textColorClass: 'text-smoking-400',
+    barColorClass: 'bg-smoking-400',
   },
 }
 

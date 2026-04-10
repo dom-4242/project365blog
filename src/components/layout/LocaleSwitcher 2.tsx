@@ -24,7 +24,7 @@ export function LocaleSwitcher() {
       onClick={handleSwitch}
       disabled={isPending}
       aria-label={t('ariaLabel')}
-      className="w-8 h-8 flex items-center justify-center rounded-lg text-xs font-semibold text-sand-500 hover:text-[#1a1714] dark:hover:text-[#faf9f7] hover:bg-sand-100 dark:hover:bg-[#3a3531] transition-colors disabled:opacity-50"
+      className="w-8 h-8 flex items-center justify-center rounded-lg text-xs font-semibold text-on-surface-variant hover:text-[#1a1714] hover:text-[#faf9f7] hover:bg-surface-container hover:bg-[#3a3531] transition-colors disabled:opacity-50"
     >
       {t('label')}
     </button>

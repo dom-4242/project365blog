@@ -117,7 +117,7 @@ export function ReactionBar({ slug }: ReactionBarProps) {
 
   return (
     <div className="space-y-2">
-      <p className="text-xs text-sand-400 uppercase tracking-wider font-medium">Reaktionen</p>
+      <p className="text-xs text-on-surface-variant uppercase tracking-wider font-medium">Reaktionen</p>
       <div className="flex flex-wrap gap-2">
         {REACTIONS.map(({ type, emoji, label }) => (
           <ReactionButton

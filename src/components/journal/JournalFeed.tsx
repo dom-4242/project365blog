@@ -12,8 +12,8 @@ export function JournalFeed({ entries }: JournalFeedProps) {
   if (entries.length === 0) {
     return (
       <div className="py-20 text-center">
-        <p className="font-display text-2xl text-sand-300 mb-2">{t('empty')}</p>
-        <p className="text-sm text-sand-400">{t('emptyHint')}</p>
+        <p className="font-display text-2xl text-outline mb-2">{t('empty')}</p>
+        <p className="text-sm text-on-surface-variant">{t('emptyHint')}</p>
       </div>
     )
   }

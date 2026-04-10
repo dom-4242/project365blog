@@ -21,10 +21,10 @@ interface FieldProps {
 function SettingField({ label, unit, hint, value, onChange, placeholder = '—', step = 'any', inputMode = 'decimal' }: FieldProps) {
   return (
     <div>
-      <label className="block text-xs font-medium text-sand-500 mb-1">
-        {label} <span className="font-normal text-sand-400">({unit})</span>
+      <label className="block text-xs font-medium text-on-surface-variant mb-1">
+        {label} <span className="font-normal text-on-surface-variant">({unit})</span>
       </label>
-      {hint && <p className="text-xs text-sand-400 mb-1.5">{hint}</p>}
+      {hint && <p className="text-xs text-on-surface-variant mb-1.5">{hint}</p>}
       <input
         type="number"
         inputMode={inputMode}
@@ -33,7 +33,7 @@ function SettingField({ label, unit, hint, value, onChange, placeholder = '—',
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full border border-ctp-surface1 rounded-lg px-3 py-1.5 text-sm text-ctp-text focus:outline-none focus:border-sand-400 bg-ctp-surface0"
+        className="w-full border border-surface-container-high rounded-lg px-3 py-1.5 text-sm text-on-surface focus:outline-none focus:border-on-surface-variant bg-surface-container"
       />
     </div>
   )
@@ -67,9 +67,9 @@ export function SettingsForm({ initial }: SettingsFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Körperprofil */}
-      <div className="bg-ctp-base rounded-2xl border border-ctp-surface1 p-5">
-        <h3 className="font-display text-sm font-semibold text-ctp-text mb-1">Körperprofil</h3>
-        <p className="text-xs text-sand-400 mb-4">Wird für die automatische BMI-Berechnung verwendet.</p>
+      <div className="bg-surface-container rounded-2xl border border-surface-container-high p-5">
+        <h3 className="font-display text-sm font-semibold text-on-surface mb-1">Körperprofil</h3>
+        <p className="text-xs text-on-surface-variant mb-4">Wird für die automatische BMI-Berechnung verwendet.</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <SettingField
             label="Körpergrösse"
@@ -83,9 +83,9 @@ export function SettingsForm({ initial }: SettingsFormProps) {
       </div>
 
       {/* Ziele */}
-      <div className="bg-ctp-base rounded-2xl border border-ctp-surface1 p-5">
-        <h3 className="font-display text-sm font-semibold text-ctp-text mb-1">Ziele</h3>
-        <p className="text-xs text-sand-400 mb-4">Persönliche Zielwerte für die Metriken-Darstellung.</p>
+      <div className="bg-surface-container rounded-2xl border border-surface-container-high p-5">
+        <h3 className="font-display text-sm font-semibold text-on-surface mb-1">Ziele</h3>
+        <p className="text-xs text-on-surface-variant mb-4">Persönliche Zielwerte für die Metriken-Darstellung.</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <SettingField
             label="Zielgewicht"
@@ -108,12 +108,12 @@ export function SettingsForm({ initial }: SettingsFormProps) {
       </div>
 
       {/* Projekt */}
-      <div className="bg-ctp-base rounded-2xl border border-ctp-surface1 p-5">
-        <h3 className="font-display text-sm font-semibold text-ctp-text mb-1">Projekt</h3>
-        <p className="text-xs text-sand-400 mb-4">Bestimmt den Projekttag für alle Anzeigen (Tag 1 = Startdatum).</p>
+      <div className="bg-surface-container rounded-2xl border border-surface-container-high p-5">
+        <h3 className="font-display text-sm font-semibold text-on-surface mb-1">Projekt</h3>
+        <p className="text-xs text-on-surface-variant mb-4">Bestimmt den Projekttag für alle Anzeigen (Tag 1 = Startdatum).</p>
         <div className="max-w-xs">
-          <label className="block text-xs font-medium text-sand-500 mb-1">
-            Startdatum <span className="font-normal text-sand-400">(YYYY-MM-DD)</span>
+          <label className="block text-xs font-medium text-on-surface-variant mb-1">
+            Startdatum <span className="font-normal text-on-surface-variant">(YYYY-MM-DD)</span>
           </label>
           <input
             type="date"
@@ -121,20 +121,20 @@ export function SettingsForm({ initial }: SettingsFormProps) {
             onChange={(e) => setProjectStartDate(e.target.value)}
             max={new Date().toISOString().slice(0, 10)}
             placeholder="2026-03-26"
-            className="w-full border border-ctp-surface1 rounded-lg px-3 py-1.5 text-sm text-ctp-text focus:outline-none focus:border-sand-400 bg-ctp-surface0"
+            className="w-full border border-surface-container-high rounded-lg px-3 py-1.5 text-sm text-on-surface focus:outline-none focus:border-on-surface-variant bg-surface-container"
           />
-          <p className="text-xs text-sand-400 mt-1">Default: 2026-03-26 (falls nicht gesetzt)</p>
+          <p className="text-xs text-on-surface-variant mt-1">Default: 2026-03-26 (falls nicht gesetzt)</p>
         </div>
       </div>
 
       {/* Feedback */}
       {error && (
-        <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-lg text-sm text-red-700 dark:text-red-400">
+        <div className="p-3 bg-red-50 bg-red-900/20 border border-red-200 border-red-800/40 rounded-lg text-sm text-red-700 text-red-400">
           {error}
         </div>
       )}
       {success && (
-        <div className="p-3 bg-movement-50 dark:bg-movement-600/10 border border-movement-200 dark:border-movement-600/20 rounded-lg text-sm text-movement-700 dark:text-movement-400">
+        <div className="p-3 bg-movement-50 bg-movement-600/10 border border-movement-200 border-movement-600/20 rounded-lg text-sm text-movement-700 text-movement-400">
           Einstellungen gespeichert.
         </div>
       )}
