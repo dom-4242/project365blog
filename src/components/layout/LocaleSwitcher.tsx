@@ -3,6 +3,7 @@
 import { useLocale } from 'next-intl'
 import { usePathname, useRouter } from '@/i18n/navigation'
 import { useTransition } from 'react'
+import { Icon } from '@/components/ui/Icon'
 
 const LOCALES = [
   { code: 'de', label: 'DE' },
@@ -18,26 +19,36 @@ export function LocaleSwitcher() {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
-  function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const next = e.target.value as LocaleCode
+  function switchLocale(next: LocaleCode) {
     startTransition(() => {
       router.replace(pathname, { locale: next })
     })
   }
 
   return (
-    <select
-      value={locale}
-      onChange={handleChange}
-      disabled={isPending}
+    <div
+      className="flex items-center border border-outline-variant/20 rounded overflow-hidden"
       aria-label="Sprache / Language / Idioma"
-      className="h-8 px-1.5 rounded-lg text-xs font-semibold text-on-surface-variant bg-transparent hover:text-on-surface hover:bg-surface-container hover:bg-surface-container transition-colors disabled:opacity-50 cursor-pointer border-0 focus:outline-none focus:ring-2 focus:ring-outline focus:ring-surface-container-high"
     >
-      {LOCALES.map(({ code, label }) => (
-        <option key={code} value={code} className="bg-surface-container text-on-surface">
+      <Icon name="language" size={14} className="text-on-surface-variant ml-1.5 shrink-0" />
+      {LOCALES.map(({ code, label }, i) => (
+        <button
+          key={code}
+          type="button"
+          onClick={() => switchLocale(code)}
+          disabled={isPending || locale === code}
+          aria-current={locale === code ? 'true' : undefined}
+          className={[
+            'h-7 px-2 text-xs font-label font-bold tracking-widest transition-colors',
+            i > 0 ? 'border-l border-outline-variant/20' : '',
+            locale === code
+              ? 'text-on-surface cursor-default bg-surface-container'
+              : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container cursor-pointer disabled:opacity-40',
+          ].join(' ')}
+        >
           {label}
-        </option>
+        </button>
       ))}
-    </select>
+    </div>
   )
 }
