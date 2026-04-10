@@ -7,23 +7,23 @@ type Pillar = 'movement' | 'nutrition' | 'smoking'
 // All class names must be static strings for Tailwind to include them
 const COLOR_BY_LEVEL: Record<Pillar, readonly string[]> = {
   movement: [
-    'bg-ctp-mantle',            // -1: no entry
-    'bg-ctp-surface0',             //  0: minimal
-    'bg-movement-200 dark:bg-movement-800/40',   //  1: steps_only
-    'bg-movement-500 dark:bg-movement-400',      //  2: steps_trained
+    'bg-surface-container-low',            // -1: no entry
+    'bg-surface-container',             //  0: minimal
+    'bg-movement-200 bg-movement-800/40',   //  1: steps_only
+    'bg-movement-500 bg-movement-400',      //  2: steps_trained
   ],
   nutrition: [
-    'bg-ctp-mantle',
-    'bg-ctp-surface0',
-    'bg-nutrition-100 dark:bg-nutrition-800/30',
-    'bg-nutrition-400 dark:bg-nutrition-500',
-    'bg-nutrition-500 dark:bg-nutrition-400',
+    'bg-surface-container-low',
+    'bg-surface-container',
+    'bg-nutrition-100 bg-nutrition-800/30',
+    'bg-nutrition-400 bg-nutrition-500',
+    'bg-nutrition-500 bg-nutrition-400',
   ],
   smoking: [
-    'bg-ctp-mantle',
-    'bg-ctp-surface0',
-    'bg-smoking-200 dark:bg-smoking-800/40',
-    'bg-smoking-500 dark:bg-smoking-400',
+    'bg-surface-container-low',
+    'bg-surface-container',
+    'bg-smoking-200 bg-smoking-800/40',
+    'bg-smoking-500 bg-smoking-400',
   ],
 }
 
@@ -132,8 +132,8 @@ export function HabitYearGrid({ movementDays, nutritionDays, smokingDays }: Habi
   }
 
   return (
-    <div className="mt-3 bg-ctp-base rounded-2xl border border-ctp-surface1 p-5">
-      <h3 className="font-display text-sm font-semibold text-ctp-text mb-4">
+    <div className="mt-3 bg-surface-container rounded-2xl border border-surface-container-high p-5">
+      <h3 className="font-display text-sm font-semibold text-on-surface mb-4">
         {tDash('yearOverview')}
       </h3>
 
@@ -147,7 +147,7 @@ export function HabitYearGrid({ movementDays, nutritionDays, smokingDays }: Habi
               {monthLabels.map((label, i) => (
                 <div key={i} className="relative w-[11px] h-3.5">
                   {label && (
-                    <span className="absolute left-0 bottom-0 text-[9px] leading-none text-sand-400 whitespace-nowrap">
+                    <span className="absolute left-0 bottom-0 text-[9px] leading-none text-on-surface-variant whitespace-nowrap">
                       {label}
                     </span>
                   )}
@@ -186,7 +186,7 @@ export function HabitYearGrid({ movementDays, nutritionDays, smokingDays }: Habi
                           }
 
                           const level = levelMap.get(dateStr) ?? -1
-                          const colorClass = colors[level + 1] ?? 'bg-ctp-mantle'
+                          const colorClass = colors[level + 1] ?? 'bg-surface-container-low'
 
                           return (
                             <div
@@ -205,7 +205,7 @@ export function HabitYearGrid({ movementDays, nutritionDays, smokingDays }: Habi
           </div>
 
           {/* Day count */}
-          <p className="text-xs text-sand-400 mt-3 pl-[26px]">
+          <p className="text-xs text-on-surface-variant mt-3 pl-[26px]">
             {t('dayCount', { count: movementDays.length })}
           </p>
 

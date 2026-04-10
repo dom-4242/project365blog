@@ -27,7 +27,7 @@ export default async function EditEntryPage({ params }: EditEntryPageProps) {
 
   return (
     <div className="max-w-3xl">
-      <h1 className="font-display text-2xl font-bold text-ctp-text mb-8">Eintrag bearbeiten</h1>
+      <h1 className="font-display text-2xl font-bold text-on-surface mb-8">Eintrag bearbeiten</h1>
       <EntryForm mode="edit" entryId={entry.id} initial={initial} />
     </div>
   )

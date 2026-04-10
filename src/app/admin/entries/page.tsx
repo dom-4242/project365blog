@@ -39,7 +39,7 @@ export default async function EntriesPage({ searchParams }: EntriesPageProps) {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-display text-2xl font-bold text-ctp-text">Einträge</h1>
+        <h1 className="font-display text-2xl font-bold text-on-surface">Einträge</h1>
         <Link
           href="/admin/entries/new"
           className="flex items-center gap-2 px-4 py-2 bg-nutrition-600 text-white rounded-xl text-sm font-medium hover:bg-nutrition-700 transition-colors"
@@ -56,7 +56,7 @@ export default async function EntriesPage({ searchParams }: EntriesPageProps) {
       )}
 
       {entries.length === 0 ? (
-        <div className="text-center py-16 text-sand-400">
+        <div className="text-center py-16 text-on-surface-variant">
           <p className="text-lg mb-2">Noch keine Einträge</p>
           <Link href="/admin/entries/new" className="text-sm text-nutrition-600 hover:text-nutrition-700">
             Ersten Eintrag erstellen →
@@ -72,24 +72,24 @@ export default async function EntriesPage({ searchParams }: EntriesPageProps) {
             return (
               <div
                 key={entry.id}
-                className="bg-ctp-base rounded-xl border border-ctp-surface1 px-5 py-4 flex items-center gap-4 hover:border-sand-300 dark:hover:border-ctp-overlay2 transition-colors"
+                className="bg-surface-container rounded-xl border border-surface-container-high px-5 py-4 flex items-center gap-4 hover:border-outline hover:border-on-surface-variant transition-colors"
               >
-                <span className="text-xs font-mono text-sand-400 shrink-0 w-8 text-right">
+                <span className="text-xs font-mono text-on-surface-variant shrink-0 w-8 text-right">
                   {getDayNumber(dateStr, startDate)}
                 </span>
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className="font-display font-semibold text-ctp-text truncate">
+                    <span className="font-display font-semibold text-on-surface truncate">
                       {entry.title}
                     </span>
                     {!entry.published && (
-                      <span className="text-xs px-1.5 py-0.5 bg-ctp-surface0 text-sand-500 rounded shrink-0">
+                      <span className="text-xs px-1.5 py-0.5 bg-surface-container text-on-surface-variant rounded shrink-0">
                         Entwurf
                       </span>
                     )}
                   </div>
-                  <time className="text-xs text-sand-400">{formatDate(entry.date)}</time>
+                  <time className="text-xs text-on-surface-variant">{formatDate(entry.date)}</time>
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
@@ -97,13 +97,13 @@ export default async function EntriesPage({ searchParams }: EntriesPageProps) {
                   <Link
                     href={`/journal/${entry.slug}`}
                     target="_blank"
-                    className="text-xs text-sand-400 hover:text-ctp-text transition-colors"
+                    className="text-xs text-on-surface-variant hover:text-on-surface transition-colors"
                   >
                     Ansehen ↗
                   </Link>
                   <Link
                     href={`/admin/entries/${entry.id}/edit`}
-                    className="text-xs px-3 py-1.5 border border-ctp-surface1 rounded-lg text-sand-600 dark:text-sand-400 hover:border-sand-300 dark:hover:border-ctp-overlay2 hover:text-ctp-text transition-colors"
+                    className="text-xs px-3 py-1.5 border border-surface-container-high rounded-lg text-on-surface-variant text-on-surface-variant hover:border-outline hover:border-on-surface-variant hover:text-on-surface transition-colors"
                   >
                     Bearbeiten
                   </Link>

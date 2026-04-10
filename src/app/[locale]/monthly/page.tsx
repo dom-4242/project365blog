@@ -22,30 +22,30 @@ export default async function MonthlyOverviewPage({ params }: MonthlyOverviewPag
 
   return (
     <div className="max-w-2xl mx-auto py-12 px-4">
-      <h1 className="font-display text-3xl font-bold text-ctp-text mb-2">
+      <h1 className="font-display text-3xl font-bold text-on-surface mb-2">
         {t('overviewHeading')}
       </h1>
-      <p className="text-sand-500 mb-10">{t('overviewDescription')}</p>
+      <p className="text-on-surface-variant mb-10">{t('overviewDescription')}</p>
 
       {summaries.length === 0 ? (
-        <p className="text-sand-400">{t('noSummaries')}</p>
+        <p className="text-on-surface-variant">{t('noSummaries')}</p>
       ) : (
         <div className="space-y-3">
           {summaries.map((s) => (
             <Link
               key={s.id}
               href={`/${params.locale}/monthly/${monthSlug(s.year, s.month)}`}
-              className="flex items-center justify-between bg-ctp-base rounded-xl border border-ctp-surface1 px-6 py-4 hover:border-sand-300 dark:hover:border-ctp-overlay2 hover:shadow-sm transition-all group"
+              className="flex items-center justify-between bg-surface-container rounded-xl border border-surface-container-high px-6 py-4 hover:border-outline hover:border-on-surface-variant hover:shadow-sm transition-all group"
             >
               <div>
-                <p className="font-display font-semibold text-ctp-text group-hover:text-nutrition-700 dark:group-hover:text-nutrition-400 transition-colors">
+                <p className="font-display font-semibold text-on-surface group-hover:text-nutrition-700 group-hover:text-nutrition-400 transition-colors">
                   {monthNames[s.month - 1]} {s.year}
                 </p>
-                <p className="text-xs text-sand-400 mt-0.5">
+                <p className="text-xs text-on-surface-variant mt-0.5">
                   {t('generatedOn', { date: s.generatedAt.toLocaleDateString(params.locale === 'en' ? 'en-GB' : 'de-CH', { day: 'numeric', month: 'long', year: 'numeric' }) })}
                 </p>
               </div>
-              <span className="text-sand-400 group-hover:text-nutrition-600 transition-colors">→</span>
+              <span className="text-on-surface-variant group-hover:text-nutrition-600 transition-colors">→</span>
             </Link>
           ))}
         </div>

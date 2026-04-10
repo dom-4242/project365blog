@@ -19,7 +19,7 @@
 - PostgreSQL + Prisma ORM
 - NextAuth.js (Google OAuth, Single-Admin)
 - Tiptap Rich-Text Editor
-- next-intl (i18n: DE, EN — Phase 5c erweitert um PT, FR, IT, ES)
+- next-intl (i18n: DE, EN, PT, FR, IT, ES)
 - Docker Compose (Production)
 - Recharts (Visualisierungen)
 - Claude API (AI-Übersetzungen, Monats-Zusammenfassungen)
@@ -42,7 +42,7 @@ Journal-Einträge werden in PostgreSQL gespeichert (JournalEntry Model), nicht a
 
 - `MINIMAL` — Unter 10k Schritte, kein Training ❌
 - `STEPS_ONLY` — 10k+ Schritte, kein Training ✅
-- `TRAINED_ONLY` — Training absolviert, unter 10k Schritte ✅ _(NEU in Phase 5a)_
+- `TRAINED_ONLY` — Training absolviert, unter 10k Schritte ✅
 - `STEPS_TRAINED` — 10k+ Schritte + Training ✅
 
 **Ernährung** (NutritionLevel Enum):
@@ -58,12 +58,57 @@ Journal-Einträge werden in PostgreSQL gespeichert (JournalEntry Model), nicht a
 - `NICOTINE_REPLACEMENT` — Nikotinersatz ✅ (Minimum für Zielerfüllung)
 - `SMOKE_FREE` — Rauchfrei ohne Hilfsmittel ✅
 
-### Design-System: Catppuccin (ab Phase 5b)
+### Design-System: "Kinetic Lab" (ab Phase 6)
 
-- Light Mode: Catppuccin **Latte**
-- Dark Mode: Catppuccin **Mocha**
-- Referenz: https://catppuccin.com/palette
-- npm: @catppuccin/palette
+**Nur Dark Mode** — kein Light/Dark Toggle.
+
+#### Farbpalette
+
+- Background: `#0e0e0e`
+- Surface-Container-Lowest: `#000000`
+- Surface-Container-Low: `#131313`
+- Surface-Container: `#1a1919`
+- Surface-Container-High: `#201f1f`
+- Surface-Container-Highest: `#262626`
+- Surface-Variant: `#262626`
+- Surface-Bright: `#2c2c2c`
+- Primary: `#ff8f70` (warmes Orange)
+- Primary-Container: `#ff7852`
+- Primary-Dim: `#ff734c`
+- Secondary: `#fc7c7c`
+- Tertiary: `#eaa5ff`
+- Error: `#ff716c`
+- On-Surface: `#ffffff`
+- On-Surface-Variant: `#adaaaa`
+- Outline: `#767575`
+- Outline-Variant: `#484847`
+
+#### Typografie
+
+- Headline Font: **Space Grotesk** (300–700) — `font-headline`
+- Body/Label Font: **Manrope** (300–800) — `font-body`, `font-label`
+- Headlines: `font-headline font-bold tracking-tighter`
+- Body: `font-body leading-relaxed`
+- Labels/Badges: `font-label font-bold tracking-widest uppercase`
+
+#### Icons
+
+- **Google Material Symbols** (Outlined, variable)
+- Variable Font Settings: `font-variation-settings: 'FILL' 0|1`
+
+#### Border-Radius
+
+- Default: `0.125rem` (2px)
+- lg: `0.25rem` (4px)
+- xl: `0.5rem` (8px)
+- full: `0.75rem` (12px)
+
+#### Glassmorphism
+
+- Backdrop-Blur: `backdrop-blur-xl`
+- Semi-transparente Hintergründe: `bg-surface-variant/40`
+- Subtile Borders: `border border-outline-variant/15`
+- Card-Hover: `hover:bg-surface-variant/60 transition-colors`
 
 ## Schema-Details (wichtig!)
 
@@ -105,7 +150,7 @@ project365blog/
 │   ├── journal/           → Feed & Posts
 │   └── reactions/         → Emoji-Reactions
 ├── src/lib/               → Business-Logik
-├── messages/              → i18n Message Files (de.json, en.json)
+├── messages/              → i18n Message Files (de.json, en.json, ...)
 ├── content/journal/       → Legacy MDX (nicht mehr aktiv genutzt)
 ├── public/images/journal/ → Banner-Bilder
 ├── scripts/               → Utility Scripts
@@ -142,13 +187,13 @@ project365blog/
 - iOS App (Lifetime), POSTing an `/api/health-import`
 - Bearer Token Auth funktioniert (200 OK)
 - ⚠️ `daysProcessed: 0` — Parser `parseHealthPayload()` matcht nicht mit v2 Export-Format
-- Fix blockiert durch ausstehendes HomeLab Deployment
+- Fix ausstehend
 
 ### Infrastruktur
 
 - Nginx Proxy Manager: Container `nginxproxy`, DNS fix applied (`dns: 192.168.1.11`)
 - App Container: `app-web-1`, Compose Dir: `/container/project365blog/app`
-- ⚠️ HomeLab Deployment noch ausstehend
+- HomeLab Deployment: ✅ abgeschlossen
 
 ## Abgeschlossene Phasen
 
@@ -172,40 +217,55 @@ next-intl Setup (/de, /en), UI-Übersetzungen, Sprachumschalter, AI-Übersetzung
 
 i18n-Lücken geschlossen, statische Werte (Grösse/Ziele), GitHub-style Contribution Grid, Live-Vorschau im Editor, PostgreSQL Backup-Strategie, Admin-Analytics (Privacy-first), AI-Monats-Zusammenfassungen
 
-## Aktuelle Phase: Phase 5
+### Phase 5 — Bugfixing, Aufräumen & HomeLab Deployment ✅
 
-### Phase 5a — Bugfixing & Aufräumen
+Phase 5a: Bugfixing (Banner-Bild, HTML-Tag, Drop-Cap, Säulen-Logik mit TRAINED_ONLY, Security Review, Deploy-Webhook, Admin-Link, Excerpt-Feld, Favicon)
+Phase 5b: UI/UX Redesign (Catppuccin → wird in Phase 6 durch Kinetic Lab ersetzt)
+Phase 5c: Neue Funktionen (Starttag-Einstellung, Emoji-Reactions im Feed, zusätzliche Sprachen PT/FR/IT/ES)
+HomeLab Deployment abgeschlossen
 
-1. Banner-Bild wird im Feed nicht angezeigt (Bug)
-2. HTML-Tag `<br/>` im Startseiten-Titel (Bug)
-3. Drop-Cap (übergrosse Anfangsbuchstaben) entfernen (Bug)
-4. Säulen-Logik für Zielerfüllung anpassen (neue Stufe `TRAINED_ONLY`, Schwellen ändern)
-5. Security Review + Massnahmen
-6. Deploy-Webhook in GitHub Actions
-7. Admin → Startseite Link
-8. Excerpt-Feld klären/dokumentieren
-9. Favicon mit AI generieren
+## Aktuelle Phase: Phase 6 — "Kinetic Lab" Redesign
 
-### Phase 5b — UI/UX Redesign (Catppuccin)
+Komplettes visuelles Redesign: Dark-Only, warmes Orange, Space Grotesk + Manrope, Material Symbols, Bento-Grid Dashboard, Glassmorphism-Effekte.
 
-1. Catppuccin Design-System als Tailwind-Theme (Latte/Mocha)
-2. Public-Bereich Startseite neu strukturieren (Hero + Tabs/Sections)
-3. Admin-Bereich Navigation überarbeiten (Sidebar statt überladene Top-Nav)
-4. Projektbeschreibung auf Startseite für Besucher
+### Phase 6a — Design Foundation
 
-### Phase 5c — Neue Funktionen
+| #   | Issue                                             | Status  |
+| --- | ------------------------------------------------- | ------- |
+| 125 | Dark-Only Farbsystem und Tailwind-Theme umstellen | ⬜ Open |
+| 126 | Typografie-System (Space Grotesk + Manrope)       | ⬜ Open |
+| 127 | Material Symbols als Icon-Set integrieren         | ⬜ Open |
+| 128 | Border-Radius und Glassmorphism Design-Tokens     | ⬜ Open |
 
-1. Starttag in Admin-Einstellungen definierbar
-2. Emoji-Reactions in Journal-Übersichtsseite (Feed)
-3. Zusätzliche Sprachen (PT, FR, IT, ES) — UI + AI-Übersetzung, Admin bleibt DE
+### Phase 6b — Seitenstruktur & Komponenten
 
-## Backlog (Phase 6+)
+| #   | Issue                                                 | Status  |
+| --- | ----------------------------------------------------- | ------- |
+| 129 | Navigation im Kinetic-Stil redesignen                 | ⬜ Open |
+| 130 | Hero-Section mit Hintergrundbild und CTA              | ⬜ Open |
+| 131 | Live Status Section — Habits & Metriken im Bento-Grid | ⬜ Open |
+| 132 | Daily Journals Section auf Startseite redesignen      | ⬜ Open |
+| 133 | Footer im neuen Design-Stil                           | ⬜ Open |
 
-- Vierte Säule / Spenden-Indikator (Betterplace)
-- Social Media Strategie
+### Phase 6c — Neue Seiten & Inhalte
+
+| #   | Issue                                                       | Status  |
+| --- | ----------------------------------------------------------- | ------- |
+| 134 | "Über das Projekt" Seite (21-Tage-Wanderung, Spendenaktion) | ⬜ Open |
+| 135 | Journal-Einzelansicht im neuen Stil                         | ⬜ Open |
+| 136 | Journal-Übersichtsseite im neuen Stil                       | ⬜ Open |
+
+### Empfohlene Reihenfolge
+
+1. #125 Farbsystem → 2. #126 Typografie → 3. #127 Icons + #128 Glassmorphism → 4. #129 Navigation → 5. #130 Hero → 6. #131 Live Status → 7. #132 Journals → 8. #133 Footer → 9. #135 Einzelansicht → 10. #136 Übersicht → 11. #134 Über-Seite
+
+## Backlog (Phase 7+)
+
+- AI-generierte Banner-Bilder für Journal-Einträge (konsistenter Stil, angepasst an Inhalt)
 - Live Location Map (OwnTracks)
+- Betterplace Spendensäule / Widget
 - Komoot Routen-Anzeige
-- Apple Health Parser Fix (nach HomeLab Deployment)
+- Apple Health Parser Fix (`parseHealthPayload()` v2 Format)
 
 ## Bekannte Bugs (nicht in Issues)
 

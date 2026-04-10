@@ -17,9 +17,9 @@ function toDateString(date: Date | string): string {
 function EmptyState() {
   const t = useTranslations('MetricsDashboard')
   return (
-    <div className="rounded-2xl border border-ctp-surface1 bg-ctp-base px-6 py-10 text-center">
-      <p className="font-display text-lg text-sand-400 mb-1">{t('noData')}</p>
-      <p className="text-sm text-sand-400">{t('noDataHint')}</p>
+    <div className="rounded-2xl border border-surface-container-high bg-surface-container px-6 py-10 text-center">
+      <p className="font-display text-lg text-on-surface-variant mb-1">{t('noData')}</p>
+      <p className="text-sm text-on-surface-variant">{t('noDataHint')}</p>
     </div>
   )
 }
@@ -57,7 +57,7 @@ export async function MetricsDashboard() {
 
   return (
     <section className="mb-14">
-      <h2 className="font-display text-xl font-bold text-ctp-text mb-5">{t('heading')}</h2>
+      <h2 className="font-display text-xl font-bold text-on-surface mb-5">{t('heading')}</h2>
 
       {!hasAnyData ? (
         <EmptyState />

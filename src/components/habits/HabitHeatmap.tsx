@@ -6,23 +6,23 @@ type Pillar = 'movement' | 'nutrition' | 'smoking'
 const COLOR_BY_LEVEL: Record<Pillar, string[]> = {
   // index = level + 1  (level -1 → index 0)
   movement:  [
-    'bg-ctp-mantle',
-    'bg-ctp-surface0',
-    'bg-movement-200 dark:bg-movement-800/40',
-    'bg-movement-500 dark:bg-movement-400',
+    'bg-surface-container-low',
+    'bg-surface-container',
+    'bg-movement-200 bg-movement-800/40',
+    'bg-movement-500 bg-movement-400',
   ],
   nutrition: [
-    'bg-ctp-mantle',
-    'bg-ctp-surface0',
-    'bg-nutrition-100 dark:bg-nutrition-800/30',
-    'bg-nutrition-400 dark:bg-nutrition-500',
-    'bg-nutrition-500 dark:bg-nutrition-400',
+    'bg-surface-container-low',
+    'bg-surface-container',
+    'bg-nutrition-100 bg-nutrition-800/30',
+    'bg-nutrition-400 bg-nutrition-500',
+    'bg-nutrition-500 bg-nutrition-400',
   ],
   smoking: [
-    'bg-ctp-mantle',
-    'bg-ctp-surface0',
-    'bg-smoking-200 dark:bg-smoking-800/40',
-    'bg-smoking-500 dark:bg-smoking-400',
+    'bg-surface-container-low',
+    'bg-surface-container',
+    'bg-smoking-200 bg-smoking-800/40',
+    'bg-smoking-500 bg-smoking-400',
   ],
 }
 
@@ -63,7 +63,7 @@ export function HabitHeatmap({ days, pillar }: HabitHeatmapProps) {
     <div className="space-y-1.5">
       <div className="flex flex-wrap gap-0.5">
         {visible.map(({ date, level }) => {
-          const colorClass = colors[level + 1] ?? 'bg-ctp-mantle'
+          const colorClass = colors[level + 1] ?? 'bg-surface-container-low'
           return (
             <div
               key={date}
@@ -73,7 +73,7 @@ export function HabitHeatmap({ days, pillar }: HabitHeatmapProps) {
           )
         })}
       </div>
-      <p className="text-xs text-sand-400">
+      <p className="text-xs text-on-surface-variant">
         {t('dayCount', { count: visible.length })}
       </p>
     </div>

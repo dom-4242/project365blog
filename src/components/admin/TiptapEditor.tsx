@@ -32,8 +32,8 @@ function ToolbarButton({ onClick, active, title, children }: ToolbarButtonProps)
       className={clsx(
         'p-1.5 rounded text-sm transition-colors',
         active
-          ? 'bg-ctp-surface1 text-ctp-text'
-          : 'text-sand-500 hover:bg-sand-100 dark:hover:bg-ctp-surface1 hover:text-ctp-text'
+          ? 'bg-surface-container-high text-on-surface'
+          : 'text-on-surface-variant hover:bg-surface-container hover:bg-surface-container-high hover:text-on-surface'
       )}
     >
       {children}
@@ -42,7 +42,7 @@ function ToolbarButton({ onClick, active, title, children }: ToolbarButtonProps)
 }
 
 function Divider() {
-  return <div className="w-px h-5 bg-ctp-surface1 mx-1" />
+  return <div className="w-px h-5 bg-surface-container-high mx-1" />
 }
 
 export function TiptapEditor({ content, onChange, placeholder }: TiptapEditorProps) {
@@ -86,9 +86,9 @@ export function TiptapEditor({ content, onChange, placeholder }: TiptapEditorPro
   }
 
   return (
-    <div className="border border-ctp-surface1 rounded-xl overflow-hidden bg-ctp-base focus-within:border-sand-400 transition-colors">
+    <div className="border border-surface-container-high rounded-xl overflow-hidden bg-surface-container focus-within:border-on-surface-variant transition-colors">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-0.5 px-3 py-2 border-b border-ctp-surface0 bg-ctp-surface0">
+      <div className="flex flex-wrap items-center gap-0.5 px-3 py-2 border-b border-surface-container bg-surface-container">
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleBold().run()}
           active={editor.isActive('bold')}
@@ -217,7 +217,7 @@ export function TiptapEditor({ content, onChange, placeholder }: TiptapEditorPro
       {/* Editor */}
       <EditorContent
         editor={editor}
-        className="prose prose-stone prose-lg dark:prose-invert max-w-none [&_.tiptap]:focus:outline-none [&_.tiptap_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_.tiptap_p.is-editor-empty:first-child::before]:text-sand-400 [&_.tiptap_p.is-editor-empty:first-child::before]:pointer-events-none [&_.tiptap_p.is-editor-empty:first-child::before]:float-left [&_.tiptap_p.is-editor-empty:first-child::before]:h-0"
+        className="prose prose-stone prose-lg prose-invert max-w-none [&_.tiptap]:focus:outline-none [&_.tiptap_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_.tiptap_p.is-editor-empty:first-child::before]:text-on-surface-variant [&_.tiptap_p.is-editor-empty:first-child::before]:pointer-events-none [&_.tiptap_p.is-editor-empty:first-child::before]:float-left [&_.tiptap_p.is-editor-empty:first-child::before]:h-0"
       />
     </div>
   )

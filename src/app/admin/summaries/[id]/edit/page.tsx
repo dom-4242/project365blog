@@ -19,10 +19,10 @@ export default async function SummaryEditPage({ params }: SummaryEditPageProps) 
   return (
     <div>
       <div className="mb-6">
-        <h1 className="font-display text-2xl font-bold text-ctp-text">
+        <h1 className="font-display text-2xl font-bold text-on-surface">
           {monthLabel} — Zusammenfassung bearbeiten
         </h1>
-        <p className="text-xs text-sand-400 mt-1">
+        <p className="text-xs text-on-surface-variant mt-1">
           Generiert am {summary.generatedAt.toLocaleDateString('de-CH', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
         </p>
       </div>

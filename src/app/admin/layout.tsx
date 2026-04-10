@@ -15,15 +15,15 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-ctp-mantle">
+    <div className="min-h-screen bg-surface-container-low">
 
       {/* ── Top bar ───────────────────────────────── */}
-      <header className="sticky top-0 z-10 bg-ctp-base border-b border-ctp-surface0">
+      <header className="sticky top-0 z-10 bg-surface-container border-b border-surface-container">
         <div className="flex items-center justify-between px-4 sm:px-6 h-12">
           {/* Logo */}
-          <Link href="/admin" className="font-display text-sm font-bold text-ctp-text">
-            Project <span className="text-ctp-peach">365</span>{' '}
-            <span className="text-ctp-overlay1 font-normal">Admin</span>
+          <Link href="/admin" className="font-display text-sm font-bold text-on-surface">
+            Project <span className="text-primary">365</span>{' '}
+            <span className="text-on-surface-variant font-normal">Admin</span>
           </Link>
 
           {/* Right actions */}
@@ -32,7 +32,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
               href="/de"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-ctp-subtext1 hover:text-ctp-text transition-colors"
+              className="text-xs text-on-surface-variant hover:text-on-surface transition-colors"
               title="Zur öffentlichen Seite"
             >
               ↗ Zur Seite
@@ -47,7 +47,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
             )}
             <Link
               href="/api/auth/signout"
-              className="text-xs text-ctp-subtext1 hover:text-ctp-text transition-colors"
+              className="text-xs text-on-surface-variant hover:text-on-surface transition-colors"
             >
               Abmelden
             </Link>
@@ -55,7 +55,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
         </div>
 
         {/* Mobile nav — horizontal scroll below top bar */}
-        <div className="md:hidden border-t border-ctp-surface0">
+        <div className="md:hidden border-t border-surface-container">
           <AdminNavMobile />
         </div>
       </header>
@@ -64,7 +64,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
       <div className="flex">
 
         {/* Sidebar — desktop only */}
-        <aside className="hidden md:block w-44 shrink-0 sticky top-12 h-[calc(100vh-3rem)] overflow-y-auto border-r border-ctp-surface0 bg-ctp-base">
+        <aside className="hidden md:block w-44 shrink-0 sticky top-12 h-[calc(100vh-3rem)] overflow-y-auto border-r border-surface-container bg-surface-container">
           <AdminSidebar />
         </aside>
 

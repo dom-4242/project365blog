@@ -24,17 +24,17 @@ export default async function SummariesPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-display text-2xl font-bold text-ctp-text">
+        <h1 className="font-display text-2xl font-bold text-on-surface">
           Monats-Zusammenfassungen
         </h1>
       </div>
 
       {/* Generator */}
-      <div className="bg-ctp-base rounded-xl border border-ctp-surface1 p-5 mb-6">
-        <h2 className="font-display text-sm font-semibold text-ctp-text mb-3">
+      <div className="bg-surface-container rounded-xl border border-surface-container-high p-5 mb-6">
+        <h2 className="font-display text-sm font-semibold text-on-surface mb-3">
           Neue Zusammenfassung generieren
         </h2>
-        <p className="text-xs text-sand-500 mb-4">
+        <p className="text-xs text-on-surface-variant mb-4">
           Claude analysiert alle Einträge und Metriken des gewählten Monats und erstellt einen Rückblick auf Deutsch und Englisch.
         </p>
         <GenerateSummaryForm defaultYear={currentYear} defaultMonth={currentMonth} />
@@ -42,7 +42,7 @@ export default async function SummariesPage() {
 
       {/* List */}
       {summaries.length === 0 ? (
-        <div className="text-center py-16 text-sand-400">
+        <div className="text-center py-16 text-on-surface-variant">
           <p>Noch keine Zusammenfassungen vorhanden.</p>
         </div>
       ) : (
@@ -50,13 +50,13 @@ export default async function SummariesPage() {
           {summaries.map((s) => (
             <div
               key={s.id}
-              className="bg-ctp-base rounded-xl border border-ctp-surface1 px-5 py-4 flex items-center gap-4 hover:border-sand-300 dark:hover:border-ctp-overlay2 transition-colors"
+              className="bg-surface-container rounded-xl border border-surface-container-high px-5 py-4 flex items-center gap-4 hover:border-outline hover:border-on-surface-variant transition-colors"
             >
               <div className="flex-1 min-w-0">
-                <p className="font-display font-semibold text-ctp-text text-sm">
+                <p className="font-display font-semibold text-on-surface text-sm">
                   {formatMonth(s.year, s.month)}
                 </p>
-                <p className="text-xs text-sand-400 mt-0.5">
+                <p className="text-xs text-on-surface-variant mt-0.5">
                   Generiert: {s.generatedAt.toLocaleDateString('de-CH', { day: 'numeric', month: 'short', year: 'numeric' })}
                   {' · '}
                   {s.contentEn ? 'DE + EN' : 'Nur DE'}
@@ -66,13 +66,13 @@ export default async function SummariesPage() {
                 <Link
                   href={`/de/monthly/${monthSlug(s.year, s.month)}`}
                   target="_blank"
-                  className="text-xs px-3 py-1.5 border border-ctp-surface1 rounded-lg text-sand-600 dark:text-sand-400 hover:border-sand-300 dark:hover:border-ctp-overlay2 hover:text-ctp-text transition-colors"
+                  className="text-xs px-3 py-1.5 border border-surface-container-high rounded-lg text-on-surface-variant text-on-surface-variant hover:border-outline hover:border-on-surface-variant hover:text-on-surface transition-colors"
                 >
                   Ansehen
                 </Link>
                 <Link
                   href={`/admin/summaries/${s.id}/edit`}
-                  className="text-xs px-3 py-1.5 bg-ctp-surface0 border border-ctp-surface1 rounded-lg text-ctp-text hover:border-sand-300 dark:hover:border-ctp-overlay2 transition-colors"
+                  className="text-xs px-3 py-1.5 bg-surface-container border border-surface-container-high rounded-lg text-on-surface hover:border-outline hover:border-on-surface-variant transition-colors"
                 >
                   Bearbeiten
                 </Link>

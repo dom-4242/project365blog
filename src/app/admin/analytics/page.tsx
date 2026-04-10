@@ -12,10 +12,10 @@ interface StatCardProps {
 
 function StatCard({ value, label, sub }: StatCardProps) {
   return (
-    <div className="bg-ctp-base rounded-2xl border border-ctp-surface1 p-4 text-center">
-      <p className="font-display text-2xl font-bold text-ctp-text">{value}</p>
-      <p className="text-xs font-medium text-sand-500 mt-1">{label}</p>
-      {sub && <p className="text-xs text-sand-400 mt-0.5">{sub}</p>}
+    <div className="bg-surface-container rounded-2xl border border-surface-container-high p-4 text-center">
+      <p className="font-display text-2xl font-bold text-on-surface">{value}</p>
+      <p className="text-xs font-medium text-on-surface-variant mt-1">{label}</p>
+      {sub && <p className="text-xs text-on-surface-variant mt-0.5">{sub}</p>}
     </div>
   )
 }
@@ -45,13 +45,13 @@ export default async function AnalyticsPage({
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="font-display text-2xl font-bold text-ctp-text mb-1">Analytics</h1>
-        <p className="text-sand-500 text-sm">Privacy-first · Kein Cookie · Keine IP-Speicherung</p>
+        <h1 className="font-display text-2xl font-bold text-on-surface mb-1">Analytics</h1>
+        <p className="text-on-surface-variant text-sm">Privacy-first · Kein Cookie · Keine IP-Speicherung</p>
       </div>
 
       {/* Summary Cards */}
       <section>
-        <h2 className="text-xs font-semibold text-sand-400 uppercase tracking-wide mb-3">Übersicht</h2>
+        <h2 className="text-xs font-semibold text-on-surface-variant uppercase tracking-wide mb-3">Übersicht</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <StatCard value={summary.viewsToday.toLocaleString('de-CH')} label="Aufrufe heute" sub={`${summary.sessionsToday} Besucher`} />
           <StatCard value={summary.viewsLast7d.toLocaleString('de-CH')} label="Aufrufe 7 Tage" sub={`${summary.sessionsLast7d} Besucher`} />
@@ -63,7 +63,7 @@ export default async function AnalyticsPage({
       {/* Chart */}
       <section>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-xs font-semibold text-sand-400 uppercase tracking-wide">Verlauf</h2>
+          <h2 className="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">Verlauf</h2>
           <div className="flex gap-1">
             {PERIODS.map(({ label, value }) => (
               <Link
@@ -71,8 +71,8 @@ export default async function AnalyticsPage({
                 href={`/admin/analytics?period=${value}`}
                 className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
                   String(period) === value
-                    ? 'bg-ctp-surface0 text-ctp-text'
-                    : 'text-sand-500 hover:text-ctp-text hover:bg-sand-50 dark:hover:bg-ctp-base'
+                    ? 'bg-surface-container text-on-surface'
+                    : 'text-on-surface-variant hover:text-on-surface hover:bg-background hover:bg-surface-container'
                 }`}
               >
                 {label}
@@ -80,7 +80,7 @@ export default async function AnalyticsPage({
             ))}
           </div>
         </div>
-        <div className="bg-ctp-base rounded-2xl border border-ctp-surface1 p-5">
+        <div className="bg-surface-container rounded-2xl border border-surface-container-high p-5">
           <ViewsChart data={viewsPerDay} />
         </div>
       </section>
@@ -88,24 +88,24 @@ export default async function AnalyticsPage({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top Pages */}
         <section>
-          <h2 className="text-xs font-semibold text-sand-400 uppercase tracking-wide mb-3">
+          <h2 className="text-xs font-semibold text-on-surface-variant uppercase tracking-wide mb-3">
             Top Seiten <span className="normal-case font-normal">({period} Tage)</span>
           </h2>
-          <div className="bg-ctp-base rounded-2xl border border-ctp-surface1 divide-y divide-sand-100 dark:divide-ctp-surface0">
+          <div className="bg-surface-container rounded-2xl border border-surface-container-high divide-y divide-surface-container divide-surface-container">
             {topPages.length === 0 ? (
-              <p className="px-5 py-4 text-sm text-sand-400">Noch keine Daten</p>
+              <p className="px-5 py-4 text-sm text-on-surface-variant">Noch keine Daten</p>
             ) : (
               topPages.map(({ path, views, sessions }) => (
                 <div key={path} className="px-4 py-3">
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs font-mono text-ctp-text truncate max-w-[60%]">
+                    <span className="text-xs font-mono text-on-surface truncate max-w-[60%]">
                       {path}
                     </span>
-                    <span className="text-xs text-sand-500 shrink-0 ml-2">
+                    <span className="text-xs text-on-surface-variant shrink-0 ml-2">
                       {views} · {sessions} Bes.
                     </span>
                   </div>
-                  <div className="h-1 bg-ctp-surface0 rounded-full overflow-hidden">
+                  <div className="h-1 bg-surface-container rounded-full overflow-hidden">
                     <div
                       className="h-full bg-blue-500 rounded-full"
                       style={{ width: `${(views / maxPageViews) * 100}%` }}
@@ -119,19 +119,19 @@ export default async function AnalyticsPage({
 
         {/* Referrers */}
         <section>
-          <h2 className="text-xs font-semibold text-sand-400 uppercase tracking-wide mb-3">
+          <h2 className="text-xs font-semibold text-on-surface-variant uppercase tracking-wide mb-3">
             Referrer <span className="normal-case font-normal">({period} Tage)</span>
           </h2>
-          <div className="bg-ctp-base rounded-2xl border border-ctp-surface1 divide-y divide-sand-100 dark:divide-ctp-surface0">
+          <div className="bg-surface-container rounded-2xl border border-surface-container-high divide-y divide-surface-container divide-surface-container">
             {topReferrers.length === 0 ? (
-              <p className="px-5 py-4 text-sm text-sand-400">Noch keine Referrer-Daten</p>
+              <p className="px-5 py-4 text-sm text-on-surface-variant">Noch keine Referrer-Daten</p>
             ) : (
               topReferrers.map(({ referrer, count }) => (
                 <div key={referrer} className="px-4 py-3 flex items-center justify-between">
-                  <span className="text-xs font-mono text-ctp-text truncate">
+                  <span className="text-xs font-mono text-on-surface truncate">
                     {referrer}
                   </span>
-                  <span className="text-xs text-sand-500 shrink-0 ml-2">{count}</span>
+                  <span className="text-xs text-on-surface-variant shrink-0 ml-2">{count}</span>
                 </div>
               ))
             )}

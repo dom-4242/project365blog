@@ -40,9 +40,9 @@ function WeightTooltip({ active, payload, label }: TooltipProps) {
   const locale = useLocale()
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-ctp-base border border-ctp-surface1 rounded-lg px-3 py-2 text-sm shadow-sm">
-      <p className="text-sand-400 text-xs mb-0.5">{formatDateLong(label ?? '', locale)}</p>
-      <p className="font-semibold text-ctp-text">{payload[0].value.toFixed(1)} kg</p>
+    <div className="bg-surface-container border border-surface-container-high rounded-lg px-3 py-2 text-sm shadow-sm">
+      <p className="text-on-surface-variant text-xs mb-0.5">{formatDateLong(label ?? '', locale)}</p>
+      <p className="font-semibold text-on-surface">{payload[0].value.toFixed(1)} kg</p>
     </div>
   )
 }
@@ -62,13 +62,13 @@ export function WeightChart({ data, latestWeight }: WeightChartProps) {
   const yMax = Math.ceil(max + 0.5)
 
   return (
-    <div className="bg-ctp-base rounded-2xl border border-ctp-surface1 p-5 h-full">
+    <div className="bg-surface-container rounded-2xl border border-surface-container-high p-5 h-full">
       <div className="flex items-baseline justify-between mb-4">
-        <h3 className="font-display font-semibold text-sm text-ctp-text">{t('weight')}</h3>
+        <h3 className="font-display font-semibold text-sm text-on-surface">{t('weight')}</h3>
         {latestWeight !== undefined && (
-          <span className="text-2xl font-bold font-display text-nutrition-700 dark:text-nutrition-400">
+          <span className="text-2xl font-bold font-display text-nutrition-700 text-nutrition-400">
             {latestWeight.toFixed(1)}{' '}
-            <span className="text-sm font-normal text-sand-400">kg</span>
+            <span className="text-sm font-normal text-on-surface-variant">kg</span>
           </span>
         )}
       </div>

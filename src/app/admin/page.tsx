@@ -38,27 +38,27 @@ function StatusCard({ label, ok, okLabel, missingLabel, href }: StatusCardProps)
     <div
       className={`rounded-2xl border p-4 flex items-start gap-3 ${
         ok
-          ? 'bg-movement-100 dark:bg-movement-600/10 border-movement-200 dark:border-movement-600/20'
-          : 'bg-ctp-base border-ctp-surface1'
+          ? 'bg-movement-100 bg-movement-600/10 border-movement-200 border-movement-600/20'
+          : 'bg-surface-container border-surface-container-high'
       }`}
     >
       <span
         className={`mt-0.5 flex-none w-5 h-5 rounded-full flex items-center justify-center text-xs ${
-          ok ? 'bg-movement-500 text-white' : 'bg-ctp-surface1 text-white'
+          ok ? 'bg-movement-500 text-white' : 'bg-surface-container-high text-white'
         }`}
       >
         {ok ? '✓' : '·'}
       </span>
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-medium text-sand-500">{label}</p>
-        <p className={`text-sm font-semibold mt-0.5 ${ok ? 'text-movement-700 dark:text-movement-400' : 'text-sand-400'}`}>
+        <p className="text-xs font-medium text-on-surface-variant">{label}</p>
+        <p className={`text-sm font-semibold mt-0.5 ${ok ? 'text-movement-700 text-movement-400' : 'text-on-surface-variant'}`}>
           {ok ? okLabel : missingLabel}
         </p>
       </div>
       {!ok && (
         <Link
           href={href}
-          className="shrink-0 text-xs px-2.5 py-1 bg-ctp-surface0 border border-ctp-surface1 rounded-lg text-sand-600 dark:text-sand-400 hover:border-sand-300 hover:text-ctp-text transition-colors"
+          className="shrink-0 text-xs px-2.5 py-1 bg-surface-container border border-surface-container-high rounded-lg text-on-surface-variant text-on-surface-variant hover:border-outline hover:text-on-surface transition-colors"
         >
           Erfassen
         </Link>
@@ -79,10 +79,10 @@ interface StatCardProps {
 
 function StatCard({ value, label, sub }: StatCardProps) {
   return (
-    <div className="bg-ctp-base rounded-2xl border border-ctp-surface1 p-4 text-center">
-      <p className="font-display text-3xl font-bold text-ctp-text">{value}</p>
-      <p className="text-xs font-medium text-sand-500 mt-1">{label}</p>
-      {sub && <p className="text-xs text-sand-400 mt-0.5">{sub}</p>}
+    <div className="bg-surface-container rounded-2xl border border-surface-container-high p-4 text-center">
+      <p className="font-display text-3xl font-bold text-on-surface">{value}</p>
+      <p className="text-xs font-medium text-on-surface-variant mt-1">{label}</p>
+      {sub && <p className="text-xs text-on-surface-variant mt-0.5">{sub}</p>}
     </div>
   )
 }
@@ -121,14 +121,14 @@ export default async function AdminPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="font-display text-2xl font-bold text-ctp-text mb-1">
+        <h1 className="font-display text-2xl font-bold text-on-surface mb-1">
           Hallo, {session?.user?.name?.split(' ')[0]}
         </h1>
-        <p className="text-sand-500 text-sm">{formatDate(new Date(today))}</p>
+        <p className="text-on-surface-variant text-sm">{formatDate(new Date(today))}</p>
       </div>
 
       <section>
-        <h2 className="text-xs font-semibold text-sand-400 uppercase tracking-wide mb-3">Heute</h2>
+        <h2 className="text-xs font-semibold text-on-surface-variant uppercase tracking-wide mb-3">Heute</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <StatusCard
             label="Journal-Eintrag"
@@ -148,7 +148,7 @@ export default async function AdminPage() {
       </section>
 
       <section>
-        <h2 className="text-xs font-semibold text-sand-400 uppercase tracking-wide mb-3">Übersicht</h2>
+        <h2 className="text-xs font-semibold text-on-surface-variant uppercase tracking-wide mb-3">Übersicht</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <StatCard value={publishedCount} label="Einträge" sub="veröffentlicht" />
           <StatCard value={draftCount} label="Entwürfe" />
@@ -161,34 +161,34 @@ export default async function AdminPage() {
       </section>
 
       <section>
-        <h2 className="text-xs font-semibold text-sand-400 uppercase tracking-wide mb-3">Aktionen</h2>
+        <h2 className="text-xs font-semibold text-on-surface-variant uppercase tracking-wide mb-3">Aktionen</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Link
             href="/admin/entries/new"
-            className="group bg-ctp-base rounded-2xl border border-ctp-surface1 p-5 flex items-center gap-4 hover:border-nutrition-300 hover:shadow-sm transition-all"
+            className="group bg-surface-container rounded-2xl border border-surface-container-high p-5 flex items-center gap-4 hover:border-nutrition-300 hover:shadow-sm transition-all"
           >
-            <div className="flex-none w-10 h-10 bg-nutrition-100 dark:bg-nutrition-600/10 rounded-xl flex items-center justify-center group-hover:bg-nutrition-200 dark:group-hover:bg-nutrition-600/20 transition-colors">
-              <svg className="w-5 h-5 text-nutrition-700 dark:text-nutrition-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <div className="flex-none w-10 h-10 bg-nutrition-100 bg-nutrition-600/10 rounded-xl flex items-center justify-center group-hover:bg-nutrition-200 group-hover:bg-nutrition-600/20 transition-colors">
+              <svg className="w-5 h-5 text-nutrition-700 text-nutrition-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
               </svg>
             </div>
             <div>
-              <p className="font-display text-sm font-semibold text-ctp-text">Neuer Eintrag</p>
-              <p className="text-xs text-sand-500 mt-0.5">Journal-Eintrag mit Habits erfassen</p>
+              <p className="font-display text-sm font-semibold text-on-surface">Neuer Eintrag</p>
+              <p className="text-xs text-on-surface-variant mt-0.5">Journal-Eintrag mit Habits erfassen</p>
             </div>
           </Link>
           <Link
             href={`/admin/metrics?date=${today}`}
-            className="group bg-ctp-base rounded-2xl border border-ctp-surface1 p-5 flex items-center gap-4 hover:border-movement-300 hover:shadow-sm transition-all"
+            className="group bg-surface-container rounded-2xl border border-surface-container-high p-5 flex items-center gap-4 hover:border-movement-300 hover:shadow-sm transition-all"
           >
-            <div className="flex-none w-10 h-10 bg-movement-100 dark:bg-movement-600/10 rounded-xl flex items-center justify-center group-hover:bg-movement-200 dark:group-hover:bg-movement-600/20 transition-colors">
-              <svg className="w-5 h-5 text-movement-700 dark:text-movement-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <div className="flex-none w-10 h-10 bg-movement-100 bg-movement-600/10 rounded-xl flex items-center justify-center group-hover:bg-movement-200 group-hover:bg-movement-600/20 transition-colors">
+              <svg className="w-5 h-5 text-movement-700 text-movement-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
             <div>
-              <p className="font-display text-sm font-semibold text-ctp-text">Metriken erfassen</p>
-              <p className="text-xs text-sand-500 mt-0.5">Gewicht, Schritte und weitere Werte</p>
+              <p className="font-display text-sm font-semibold text-on-surface">Metriken erfassen</p>
+              <p className="text-xs text-on-surface-variant mt-0.5">Gewicht, Schritte und weitere Werte</p>
             </div>
           </Link>
         </div>
@@ -197,32 +197,32 @@ export default async function AdminPage() {
       {recentEntries.length > 0 && (
         <section>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-xs font-semibold text-sand-400 uppercase tracking-wide">Letzte Einträge</h2>
-            <Link href="/admin/entries" className="text-xs text-sand-500 hover:text-ctp-text transition-colors">
+            <h2 className="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">Letzte Einträge</h2>
+            <Link href="/admin/entries" className="text-xs text-on-surface-variant hover:text-on-surface transition-colors">
               Alle anzeigen →
             </Link>
           </div>
-          <div className="bg-ctp-base rounded-2xl border border-ctp-surface1 divide-y divide-sand-100 dark:divide-ctp-surface0">
+          <div className="bg-surface-container rounded-2xl border border-surface-container-high divide-y divide-surface-container divide-surface-container">
             {recentEntries.map((entry) => {
               const dateStr = entry.date.toISOString().slice(0, 10)
               return (
                 <div key={entry.id} className="px-5 py-3 flex items-center gap-4">
-                  <span className="text-xs font-mono text-sand-400 shrink-0 w-8 text-right">
+                  <span className="text-xs font-mono text-on-surface-variant shrink-0 w-8 text-right">
                     {getDayNumber(dateStr, startDate)}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-ctp-text truncate">{entry.title}</p>
-                    <p className="text-xs text-sand-400">{formatDateShort(entry.date)}</p>
+                    <p className="text-sm font-medium text-on-surface truncate">{entry.title}</p>
+                    <p className="text-xs text-on-surface-variant">{formatDateShort(entry.date)}</p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     {!entry.published && (
-                      <span className="text-xs px-1.5 py-0.5 bg-ctp-surface0 text-sand-500 rounded">
+                      <span className="text-xs px-1.5 py-0.5 bg-surface-container text-on-surface-variant rounded">
                         Entwurf
                       </span>
                     )}
                     <Link
                       href={`/admin/entries/${entry.id}/edit`}
-                      className="text-xs text-sand-400 hover:text-ctp-text transition-colors"
+                      className="text-xs text-on-surface-variant hover:text-on-surface transition-colors"
                     >
                       Bearbeiten
                     </Link>
@@ -237,38 +237,38 @@ export default async function AdminPage() {
       {latestMetrics && (
         <section>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-xs font-semibold text-sand-400 uppercase tracking-wide">Letzte Metriken</h2>
-            <Link href="/admin/metrics" className="text-xs text-sand-500 hover:text-ctp-text transition-colors">
+            <h2 className="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">Letzte Metriken</h2>
+            <Link href="/admin/metrics" className="text-xs text-on-surface-variant hover:text-on-surface transition-colors">
               Alle anzeigen →
             </Link>
           </div>
-          <div className="bg-ctp-base rounded-2xl border border-ctp-surface1 p-5">
-            <p className="text-xs text-sand-400 mb-3">{formatDate(latestMetrics.date)}</p>
+          <div className="bg-surface-container rounded-2xl border border-surface-container-high p-5">
+            <p className="text-xs text-on-surface-variant mb-3">{formatDate(latestMetrics.date)}</p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {latestMetrics.weight != null && (
                 <div>
-                  <p className="text-xs text-sand-500">Gewicht</p>
-                  <p className="text-base font-semibold text-ctp-text mt-0.5">{latestMetrics.weight} kg</p>
+                  <p className="text-xs text-on-surface-variant">Gewicht</p>
+                  <p className="text-base font-semibold text-on-surface mt-0.5">{latestMetrics.weight} kg</p>
                 </div>
               )}
               {latestMetrics.bodyFat != null && (
                 <div>
-                  <p className="text-xs text-sand-500">Körperfett</p>
-                  <p className="text-base font-semibold text-ctp-text mt-0.5">{latestMetrics.bodyFat}%</p>
+                  <p className="text-xs text-on-surface-variant">Körperfett</p>
+                  <p className="text-base font-semibold text-on-surface mt-0.5">{latestMetrics.bodyFat}%</p>
                 </div>
               )}
               {latestMetrics.steps != null && (
                 <div>
-                  <p className="text-xs text-sand-500">Schritte</p>
-                  <p className="text-base font-semibold text-ctp-text mt-0.5">
+                  <p className="text-xs text-on-surface-variant">Schritte</p>
+                  <p className="text-base font-semibold text-on-surface mt-0.5">
                     {latestMetrics.steps.toLocaleString('de-CH')}
                   </p>
                 </div>
               )}
               {latestMetrics.restingHR != null && (
                 <div>
-                  <p className="text-xs text-sand-500">Ruheherzfrequenz</p>
-                  <p className="text-base font-semibold text-ctp-text mt-0.5">{latestMetrics.restingHR} bpm</p>
+                  <p className="text-xs text-on-surface-variant">Ruheherzfrequenz</p>
+                  <p className="text-base font-semibold text-on-surface mt-0.5">{latestMetrics.restingHR} bpm</p>
                 </div>
               )}
             </div>

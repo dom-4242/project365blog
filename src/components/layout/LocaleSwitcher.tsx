@@ -31,10 +31,10 @@ export function LocaleSwitcher() {
       onChange={handleChange}
       disabled={isPending}
       aria-label="Sprache / Language / Idioma"
-      className="h-8 px-1.5 rounded-lg text-xs font-semibold text-sand-500 bg-transparent hover:text-ctp-text hover:bg-sand-100 dark:hover:bg-ctp-surface0 transition-colors disabled:opacity-50 cursor-pointer border-0 focus:outline-none focus:ring-2 focus:ring-sand-300 dark:focus:ring-ctp-surface1"
+      className="h-8 px-1.5 rounded-lg text-xs font-semibold text-on-surface-variant bg-transparent hover:text-on-surface hover:bg-surface-container hover:bg-surface-container transition-colors disabled:opacity-50 cursor-pointer border-0 focus:outline-none focus:ring-2 focus:ring-outline focus:ring-surface-container-high"
     >
       {LOCALES.map(({ code, label }) => (
-        <option key={code} value={code} className="bg-ctp-base text-ctp-text">
+        <option key={code} value={code} className="bg-surface-container text-on-surface">
           {label}
         </option>
       ))}

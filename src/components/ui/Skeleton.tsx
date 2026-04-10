@@ -9,7 +9,7 @@ interface SkeletonProps {
 export function Skeleton({ className, style }: SkeletonProps) {
   return (
     <div
-      className={cn('rounded-lg bg-ctp-surface0 animate-pulse', className)}
+      className={cn('rounded-lg bg-surface-container animate-pulse', className)}
       style={style}
       aria-hidden="true"
     />

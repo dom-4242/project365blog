@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
-import { ThemeToggle } from './ThemeToggle'
 import { LocaleSwitcher } from './LocaleSwitcher'
 import { SearchModal } from '@/components/search/SearchModal'
 import { getAuthSession } from '@/lib/auth'
@@ -14,7 +13,7 @@ export async function Navigation() {
     <nav className="flex items-center gap-2" aria-label={t('ariaLabel')}>
       <Link
         href="/"
-        className="text-sm font-medium text-sand-500 hover:text-ctp-text transition-colors"
+        className="text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors"
       >
         {t('journal')}
       </Link>
@@ -23,13 +22,12 @@ export async function Navigation() {
       {isAdmin && (
         <Link
           href="/admin"
-          className="text-sm font-medium text-nutrition-600 dark:text-nutrition-500 hover:text-nutrition-700 dark:hover:text-nutrition-400 transition-colors"
+          className="text-sm font-medium text-primary hover:text-primary-container transition-colors"
           title={t('adminTitle')}
         >
           {t('admin')}
         </Link>
       )}
-      <ThemeToggle />
     </nav>
   )
 }

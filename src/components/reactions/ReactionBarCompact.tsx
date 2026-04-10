@@ -134,10 +134,10 @@ export function ReactionBarCompact({ slug }: ReactionBarCompactProps) {
           aria-pressed={userReactions.has(type)}
           className={cn(
             'flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium transition-all duration-150 select-none',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-400',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-on-surface-variant',
             userReactions.has(type)
-              ? 'bg-ctp-surface1 text-ctp-text ring-1 ring-sand-300 dark:ring-ctp-overlay2'
-              : 'bg-ctp-surface0 border border-ctp-surface1 text-sand-500 dark:text-sand-400 hover:bg-sand-200 dark:hover:bg-ctp-surface0 hover:text-sand-700 dark:hover:text-ctp-text',
+              ? 'bg-surface-container-high text-on-surface ring-1 ring-outline ring-on-surface-variant'
+              : 'bg-surface-container border border-surface-container-high text-on-surface-variant text-on-surface-variant hover:bg-surface-container-high hover:bg-surface-container hover:text-sand-700 hover:text-on-surface',
             pending !== null && 'opacity-60 cursor-not-allowed',
           )}
         >
@@ -158,8 +158,8 @@ export function ReactionBarCompact({ slug }: ReactionBarCompactProps) {
               aria-label={label}
               className={cn(
                 'flex items-center px-2 py-0.5 rounded-full text-xs font-medium transition-all duration-150 select-none',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-400',
-                'bg-ctp-surface0 border border-dashed border-ctp-surface1 text-sand-400 dark:text-sand-500 hover:bg-sand-200 dark:hover:bg-ctp-surface0 hover:text-sand-700 dark:hover:text-ctp-text hover:border-solid',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-on-surface-variant',
+                'bg-surface-container border border-dashed border-surface-container-high text-on-surface-variant text-on-surface-variant hover:bg-surface-container-high hover:bg-surface-container hover:text-sand-700 hover:text-on-surface hover:border-solid',
                 pending !== null && 'opacity-60 cursor-not-allowed',
               )}
             >
@@ -169,7 +169,7 @@ export function ReactionBarCompact({ slug }: ReactionBarCompactProps) {
           <button
             onClick={(e) => { stopPropagation(e); setExpanded(false) }}
             aria-label="Schliessen"
-            className="flex items-center justify-center w-5 h-5 rounded-full text-xs bg-ctp-surface0 border border-ctp-surface1 text-sand-400 hover:bg-sand-200 dark:hover:bg-ctp-surface0 transition-all duration-150 select-none"
+            className="flex items-center justify-center w-5 h-5 rounded-full text-xs bg-surface-container border border-surface-container-high text-on-surface-variant hover:bg-surface-container-high hover:bg-surface-container transition-all duration-150 select-none"
           >
             ×
           </button>
@@ -178,7 +178,7 @@ export function ReactionBarCompact({ slug }: ReactionBarCompactProps) {
         <button
           onClick={(e) => { stopPropagation(e); setExpanded(true) }}
           aria-label="Reagieren"
-          className="flex items-center justify-center w-5 h-5 rounded-full text-xs bg-ctp-surface0 border border-ctp-surface1 text-sand-400 hover:bg-sand-200 dark:hover:bg-ctp-surface0 hover:text-sand-600 transition-all duration-150 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-400"
+          className="flex items-center justify-center w-5 h-5 rounded-full text-xs bg-surface-container border border-surface-container-high text-on-surface-variant hover:bg-surface-container-high hover:bg-surface-container hover:text-on-surface-variant transition-all duration-150 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-on-surface-variant"
         >
           +
         </button>

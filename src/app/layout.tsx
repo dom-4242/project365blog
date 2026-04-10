@@ -58,8 +58,8 @@ export default async function RootLayout({ children }: RootLayoutProps) {
   const [locale, headersList] = await Promise.all([getLocale(), headers()])
   const nonce = headersList.get('x-nonce') ?? undefined
   return (
-    <html lang={locale} className={`${playfair.variable} ${lora.variable}`} suppressHydrationWarning>
-      <body className="bg-ctp-mantle text-ctp-text font-body antialiased">
+    <html lang={locale} className={`${playfair.variable} ${lora.variable}`}>
+      <body className="bg-background text-on-surface font-body antialiased">
         <ThemeProvider nonce={nonce}>
           <AuthSessionProvider>
             {children}
