@@ -68,7 +68,7 @@ export function SettingsForm({ initial }: SettingsFormProps) {
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Körperprofil */}
       <div className="bg-surface-container rounded-2xl border border-surface-container-high p-5">
-        <h3 className="font-display text-sm font-semibold text-on-surface mb-1">Körperprofil</h3>
+        <h3 className="font-headline text-sm font-semibold text-on-surface mb-1">Körperprofil</h3>
         <p className="text-xs text-on-surface-variant mb-4">Wird für die automatische BMI-Berechnung verwendet.</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <SettingField
@@ -84,7 +84,7 @@ export function SettingsForm({ initial }: SettingsFormProps) {
 
       {/* Ziele */}
       <div className="bg-surface-container rounded-2xl border border-surface-container-high p-5">
-        <h3 className="font-display text-sm font-semibold text-on-surface mb-1">Ziele</h3>
+        <h3 className="font-headline text-sm font-semibold text-on-surface mb-1">Ziele</h3>
         <p className="text-xs text-on-surface-variant mb-4">Persönliche Zielwerte für die Metriken-Darstellung.</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <SettingField
@@ -109,7 +109,7 @@ export function SettingsForm({ initial }: SettingsFormProps) {
 
       {/* Projekt */}
       <div className="bg-surface-container rounded-2xl border border-surface-container-high p-5">
-        <h3 className="font-display text-sm font-semibold text-on-surface mb-1">Projekt</h3>
+        <h3 className="font-headline text-sm font-semibold text-on-surface mb-1">Projekt</h3>
         <p className="text-xs text-on-surface-variant mb-4">Bestimmt den Projekttag für alle Anzeigen (Tag 1 = Startdatum).</p>
         <div className="max-w-xs">
           <label className="block text-xs font-medium text-on-surface-variant mb-1">

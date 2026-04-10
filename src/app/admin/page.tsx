@@ -80,7 +80,7 @@ interface StatCardProps {
 function StatCard({ value, label, sub }: StatCardProps) {
   return (
     <div className="bg-surface-container rounded-2xl border border-surface-container-high p-4 text-center">
-      <p className="font-display text-3xl font-bold text-on-surface">{value}</p>
+      <p className="font-headline text-3xl font-bold text-on-surface">{value}</p>
       <p className="text-xs font-medium text-on-surface-variant mt-1">{label}</p>
       {sub && <p className="text-xs text-on-surface-variant mt-0.5">{sub}</p>}
     </div>
@@ -121,7 +121,7 @@ export default async function AdminPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="font-display text-2xl font-bold text-on-surface mb-1">
+        <h1 className="font-headline text-2xl font-bold text-on-surface mb-1">
           Hallo, {session?.user?.name?.split(' ')[0]}
         </h1>
         <p className="text-on-surface-variant text-sm">{formatDate(new Date(today))}</p>
@@ -173,7 +173,7 @@ export default async function AdminPage() {
               </svg>
             </div>
             <div>
-              <p className="font-display text-sm font-semibold text-on-surface">Neuer Eintrag</p>
+              <p className="font-headline text-sm font-semibold text-on-surface">Neuer Eintrag</p>
               <p className="text-xs text-on-surface-variant mt-0.5">Journal-Eintrag mit Habits erfassen</p>
             </div>
           </Link>
@@ -187,7 +187,7 @@ export default async function AdminPage() {
               </svg>
             </div>
             <div>
-              <p className="font-display text-sm font-semibold text-on-surface">Metriken erfassen</p>
+              <p className="font-headline text-sm font-semibold text-on-surface">Metriken erfassen</p>
               <p className="text-xs text-on-surface-variant mt-0.5">Gewicht, Schritte und weitere Werte</p>
             </div>
           </Link>

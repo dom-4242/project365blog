@@ -98,10 +98,10 @@ const config: Config = {
       },
 
       fontFamily: {
-        display:  ['var(--font-display)', 'Georgia', 'serif'],
-        body:     ['var(--font-body)',    'Georgia', 'serif'],
-        headline: ['var(--font-display)', 'Georgia', 'serif'],
-        label:    ['var(--font-body)',    'sans-serif'],
+        headline: ['var(--font-headline)', 'sans-serif'],
+        display:  ['var(--font-headline)', 'sans-serif'],  // alias for backward compat
+        body:     ['var(--font-body)',     'sans-serif'],
+        label:    ['var(--font-body)',     'sans-serif'],
       },
 
       typography: {
@@ -125,11 +125,11 @@ const config: Config = {
             '--tw-prose-invert-quote-borders': '#484847',
             '--tw-prose-invert-captions':      '#adaaaa',
             '--tw-prose-invert-code':          '#ffffff',
-            fontFamily: 'var(--font-body), Georgia, serif',
+            fontFamily: 'var(--font-body), sans-serif',
             lineHeight: '1.75',
             maxWidth: 'none',
-            h2: { fontFamily: 'var(--font-display), Georgia, serif' },
-            h3: { fontFamily: 'var(--font-display), Georgia, serif' },
+            h2: { fontFamily: 'var(--font-headline), sans-serif' },
+            h3: { fontFamily: 'var(--font-headline), sans-serif' },
           },
         },
       },

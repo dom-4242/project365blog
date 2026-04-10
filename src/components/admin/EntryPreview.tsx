@@ -133,7 +133,7 @@ export function EntryPreview({
         {/* Header */}
         <header className="mb-10">
           <div className="flex items-center gap-3 mb-4">
-            <span className="font-display font-bold text-xs tracking-widest uppercase text-on-surface-variant border border-surface-container-high rounded px-2 py-0.5">
+            <span className="font-headline font-bold text-xs tracking-widest uppercase text-on-surface-variant border border-surface-container-high rounded px-2 py-0.5">
               Tag {dayNumber}
             </span>
             {formattedDate && (
@@ -144,7 +144,7 @@ export function EntryPreview({
             )}
           </div>
 
-          <h1 className="font-display text-3xl sm:text-4xl font-bold leading-tight text-on-surface mb-5">
+          <h1 className="font-headline text-3xl sm:text-4xl font-bold leading-tight text-on-surface mb-5">
             {title || <span className="text-outline font-normal italic">Titel…</span>}
           </h1>
 

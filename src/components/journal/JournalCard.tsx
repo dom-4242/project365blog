@@ -45,7 +45,7 @@ export async function JournalCard({ entry }: JournalCardProps) {
         ) : (
           <div className="relative px-6 pt-5 pb-0 overflow-hidden select-none" aria-hidden="true">
             <span
-              className="block font-display font-bold leading-none text-surface-container text-surface-container"
+              className="block font-headline font-bold leading-none text-surface-container text-surface-container"
               style={{ fontSize: 'clamp(4.5rem, 18vw, 7.5rem)' }}
             >
               {String(dayNumber).padStart(2, '0')}
@@ -55,7 +55,7 @@ export async function JournalCard({ entry }: JournalCardProps) {
 
         <div className="px-6 py-5 space-y-3">
           <div className="flex items-center gap-2.5">
-            <span className="font-display font-bold text-xs tracking-widest uppercase text-on-surface-variant border border-surface-container-high rounded px-1.5 py-0.5">
+            <span className="font-headline font-bold text-xs tracking-widest uppercase text-on-surface-variant border border-surface-container-high rounded px-1.5 py-0.5">
               {t('day', { number: dayNumber })}
             </span>
             <span className="text-outline text-surface-container-high select-none" aria-hidden="true">·</span>
@@ -64,7 +64,7 @@ export async function JournalCard({ entry }: JournalCardProps) {
             </time>
           </div>
 
-          <h2 className="font-display text-xl sm:text-2xl font-bold leading-snug text-on-surface group-hover:text-nutrition-700 group-hover:text-nutrition-400 transition-colors duration-200">
+          <h2 className="font-headline text-xl sm:text-2xl font-bold leading-snug text-on-surface group-hover:text-nutrition-700 group-hover:text-nutrition-400 transition-colors duration-200">
             {entry.title}
           </h2>
 

@@ -75,22 +75,22 @@ export default async function TranslationsPage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-bold text-on-surface mb-6">
+      <h1 className="font-headline text-2xl font-bold text-on-surface mb-6">
         Übersetzungen
       </h1>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3 mb-6">
         <div className="bg-surface-container rounded-xl border border-surface-container-high px-5 py-4">
-          <p className="text-2xl font-bold font-display text-movement-600 text-movement-400">{countCurrent}</p>
+          <p className="text-2xl font-bold font-headline text-movement-600 text-movement-400">{countCurrent}</p>
           <p className="text-xs text-on-surface-variant mt-0.5">Übersetzt</p>
         </div>
         <div className="bg-surface-container rounded-xl border border-surface-container-high px-5 py-4">
-          <p className="text-2xl font-bold font-display text-amber-600 text-amber-400">{countStale}</p>
+          <p className="text-2xl font-bold font-headline text-amber-600 text-amber-400">{countStale}</p>
           <p className="text-xs text-on-surface-variant mt-0.5">Veraltet</p>
         </div>
         <div className="bg-surface-container rounded-xl border border-surface-container-high px-5 py-4">
-          <p className="text-2xl font-bold font-display text-on-surface-variant">{countMissing}</p>
+          <p className="text-2xl font-bold font-headline text-on-surface-variant">{countMissing}</p>
           <p className="text-xs text-on-surface-variant mt-0.5">Fehlen</p>
         </div>
       </div>
@@ -116,7 +116,7 @@ export default async function TranslationsPage() {
                 </span>
 
                 <div className="flex-1 min-w-0">
-                  <p className="font-display font-semibold text-on-surface truncate text-sm">
+                  <p className="font-headline font-semibold text-on-surface truncate text-sm">
                     {entry.title}
                   </p>
                   <time className="text-xs text-on-surface-variant">{formatDate(entry.date)}</time>

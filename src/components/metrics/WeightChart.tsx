@@ -64,9 +64,9 @@ export function WeightChart({ data, latestWeight }: WeightChartProps) {
   return (
     <div className="bg-surface-container rounded-2xl border border-surface-container-high p-5 h-full">
       <div className="flex items-baseline justify-between mb-4">
-        <h3 className="font-display font-semibold text-sm text-on-surface">{t('weight')}</h3>
+        <h3 className="font-headline font-semibold text-sm text-on-surface">{t('weight')}</h3>
         {latestWeight !== undefined && (
-          <span className="text-2xl font-bold font-display text-nutrition-700 text-nutrition-400">
+          <span className="text-2xl font-bold font-headline text-nutrition-700 text-nutrition-400">
             {latestWeight.toFixed(1)}{' '}
             <span className="text-sm font-normal text-on-surface-variant">kg</span>
           </span>

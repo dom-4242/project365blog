@@ -61,7 +61,7 @@ export default async function FitbitPage({
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="font-display text-2xl font-bold text-on-surface mb-1">Fitbit Sync</h1>
+        <h1 className="font-headline text-2xl font-bold text-on-surface mb-1">Fitbit Sync</h1>
         <p className="text-on-surface-variant text-sm">
           Metriken manuell synchronisieren oder historische Daten nachfüllen.
         </p>

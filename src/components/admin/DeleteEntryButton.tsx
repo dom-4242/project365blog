@@ -60,7 +60,7 @@ export function DeleteEntryButton({ id, title }: DeleteEntryButtonProps) {
               <div>
                 <h2
                   id="delete-dialog-title"
-                  className="font-display font-bold text-lg text-on-surface leading-tight"
+                  className="font-headline font-bold text-lg text-on-surface leading-tight"
                 >
                   Eintrag löschen?
                 </h2>

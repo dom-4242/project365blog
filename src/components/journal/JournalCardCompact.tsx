@@ -50,7 +50,7 @@ export async function JournalCardCompact({ entry }: JournalCardCompactProps) {
             />
           ) : (
             <span
-              className="absolute inset-0 flex items-center justify-center font-display font-bold text-outline text-surface-container-highest text-sm"
+              className="absolute inset-0 flex items-center justify-center font-headline font-bold text-outline text-surface-container-highest text-sm"
             >
               {String(dayNumber).padStart(2, '0')}
             </span>

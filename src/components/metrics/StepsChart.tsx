@@ -66,9 +66,9 @@ export function StepsChart({ data, avgSteps, stepsGoal = 10000 }: StepsChartProp
   return (
     <div className="bg-surface-container rounded-2xl border border-surface-container-high p-5 h-full">
       <div className="flex items-baseline justify-between mb-4">
-        <h3 className="font-display font-semibold text-sm text-on-surface">{t('steps')}</h3>
+        <h3 className="font-headline font-semibold text-sm text-on-surface">{t('steps')}</h3>
         {avgSteps !== undefined && (
-          <span className="text-2xl font-bold font-display text-movement-700 text-movement-400">
+          <span className="text-2xl font-bold font-headline text-movement-700 text-movement-400">
             {formatSteps(avgSteps)}{' '}
             <span className="text-sm font-normal text-on-surface-variant">{t('avgPerDay')}</span>
           </span>

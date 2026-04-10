@@ -86,7 +86,7 @@ export default async function MonthSummaryPage({ params }: MonthSummaryPageProps
         <p className="text-xs font-semibold text-nutrition-600 text-nutrition-400 uppercase tracking-wide mb-2">
           {t('summaryLabel')}
         </p>
-        <h1 className="font-display text-4xl font-bold text-on-surface">
+        <h1 className="font-headline text-4xl font-bold text-on-surface">
           {monthName} {year}
         </h1>
         <p className="text-xs text-on-surface-variant mt-2">

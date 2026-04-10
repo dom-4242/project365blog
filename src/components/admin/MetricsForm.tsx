@@ -125,7 +125,7 @@ export function MetricsForm({ date, initial }: MetricsFormProps) {
 
       {/* Körperwerte */}
       <div className="bg-surface-container rounded-2xl border border-surface-container-high p-5">
-        <h3 className="font-display text-sm font-semibold text-on-surface mb-4">Körperwerte</h3>
+        <h3 className="font-headline text-sm font-semibold text-on-surface mb-4">Körperwerte</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <MetricField label="Gewicht" unit="kg" value={weight} onChange={setWeight} step="0.1" />
           <MetricField label="Körperfett" unit="%" value={bodyFat} onChange={setBodyFat} step="0.1" />
@@ -135,7 +135,7 @@ export function MetricsForm({ date, initial }: MetricsFormProps) {
 
       {/* Aktivität */}
       <div className="bg-surface-container rounded-2xl border border-surface-container-high p-5">
-        <h3 className="font-display text-sm font-semibold text-on-surface mb-4">Aktivität</h3>
+        <h3 className="font-headline text-sm font-semibold text-on-surface mb-4">Aktivität</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <MetricField label="Schritte" unit="Schritte" value={steps} onChange={setSteps} step="1" inputMode="numeric" />
           <MetricField label="Aktive Minuten" unit="min" value={activeMinutes} onChange={setActiveMinutes} step="1" inputMode="numeric" />
@@ -146,7 +146,7 @@ export function MetricsForm({ date, initial }: MetricsFormProps) {
 
       {/* Vitalwerte */}
       <div className="bg-surface-container rounded-2xl border border-surface-container-high p-5">
-        <h3 className="font-display text-sm font-semibold text-on-surface mb-4">Vitalwerte</h3>
+        <h3 className="font-headline text-sm font-semibold text-on-surface mb-4">Vitalwerte</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <MetricField label="Ruheherzfrequenz" unit="bpm" value={restingHR} onChange={setRestingHR} step="1" inputMode="numeric" />
           <MetricField label="Schlafdauer" unit="min" value={sleepDuration} onChange={setSleepDuration} step="1" inputMode="numeric" />
