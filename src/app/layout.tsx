@@ -61,6 +61,16 @@ export default async function RootLayout({ children }: RootLayoutProps) {
   const nonce = headersList.get('x-nonce') ?? undefined
   return (
     <html lang={locale} className={`${spaceGrotesk.variable} ${manrope.variable}`}>
+      {/* Material Symbols Outlined — loaded from Google Fonts CDN (not in next/font)
+          CSP updated to allow fonts.googleapis.com + fonts.gstatic.com */}
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"
+          rel="stylesheet"
+        />
+      </head>
       <body className="bg-background text-on-surface font-body antialiased">
         <ThemeProvider nonce={nonce}>
           <AuthSessionProvider>

@@ -10,10 +10,12 @@ function buildCsp(nonce: string): string {
   const directives = [
     `default-src 'self'`,
     `script-src 'nonce-${nonce}' 'strict-dynamic'`,
-    `style-src 'self' 'unsafe-inline'`,
+    // Material Symbols is loaded from Google Fonts CDN (not available via next/font)
+    `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
     // Google avatar images in admin layout use lh3.googleusercontent.com
     `img-src 'self' data: blob: https://*.googleusercontent.com`,
-    `font-src 'self'`,
+    // Material Symbols font files served from fonts.gstatic.com
+    `font-src 'self' https://fonts.gstatic.com`,
     `connect-src 'self'`,
     `media-src 'self'`,
     `object-src 'none'`,
