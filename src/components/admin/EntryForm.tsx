@@ -226,7 +226,7 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
       </div>
 
       {/* Banner-Bild */}
-      <BannerUpload value={bannerUrl} onChange={setBannerUrl} slug={slug} />
+      <BannerUpload value={bannerUrl} onChange={setBannerUrl} slug={slug} title={title} excerpt={excerpt} />
 
       {/* Tiptap Editor */}
       <div>
