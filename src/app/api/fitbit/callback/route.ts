@@ -3,17 +3,19 @@ import { getToken } from 'next-auth/jwt'
 import { saveFitbitTokens } from '@/lib/fitbit-tokens'
 
 export async function GET(request: NextRequest) {
+  const baseUrl = process.env.NEXTAUTH_URL ?? 'https://project365.dom42.ch'
+
   // Must be authenticated admin
   const token = await getToken({ req: request })
   if (!token) {
-    return NextResponse.redirect(new URL('/admin/login', request.url))
+    return NextResponse.redirect(new URL('/admin/login', baseUrl))
   }
 
   const code = request.nextUrl.searchParams.get('code')
   const error = request.nextUrl.searchParams.get('error')
 
   if (error || !code) {
-    const adminUrl = new URL('/admin/fitbit', request.url)
+    const adminUrl = new URL('/admin/fitbit', baseUrl)
     adminUrl.searchParams.set('error', error ?? 'missing_code')
     return NextResponse.redirect(adminUrl)
   }
@@ -24,7 +26,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Fitbit credentials not configured' }, { status: 500 })
   }
 
-  const redirectUri = new URL('/api/fitbit/callback', request.url).toString()
+  const redirectUri = new URL('/api/fitbit/callback', baseUrl).toString()
   const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString('base64')
 
   const response = await fetch('https://api.fitbit.com/oauth2/token', {
@@ -43,7 +45,7 @@ export async function GET(request: NextRequest) {
   if (!response.ok) {
     const body = await response.text()
     console.error('[fitbit-callback] Token exchange failed:', response.status, body)
-    const adminUrl = new URL('/admin/fitbit', request.url)
+    const adminUrl = new URL('/admin/fitbit', baseUrl)
     adminUrl.searchParams.set('error', 'token_exchange_failed')
     return NextResponse.redirect(adminUrl)
   }
@@ -53,7 +55,7 @@ export async function GET(request: NextRequest) {
 
   console.log('[fitbit-callback] New tokens saved to DB.')
 
-  const adminUrl = new URL('/admin/fitbit', request.url)
+  const adminUrl = new URL('/admin/fitbit', baseUrl)
   adminUrl.searchParams.set('authorized', '1')
   return NextResponse.redirect(adminUrl)
 }
