@@ -48,7 +48,6 @@ export async function HabitsDashboard() {
     level: entryMap.has(date) ? getSmokingLevel(entryMap.get(date)!.habits.smoking) : -1,
   }))
 
-  // Streaks berechnen (newest first → wie calculateStreak erwartet)
   const movementStreak = calculateStreak(entries.map((e) => isMovementFulfilled(e.habits.movement)))
   const nutritionStreak = calculateStreak(entries.map((e) => isNutritionFulfilled(e.habits.nutrition)))
   const smokingStreak = calculateStreak(entries.map((e) => isSmokingFulfilled(e.habits.smoking)))
@@ -58,14 +57,19 @@ export async function HabitsDashboard() {
   const smokingFulfilled = entries.filter((e) => isSmokingFulfilled(e.habits.smoking)).length
 
   return (
-    <section className="mb-14">
-      <div className="flex items-baseline gap-3 mb-5">
-        <h2 className="font-headline text-xl font-bold text-on-surface">{t('heading')}</h2>
-        <span className="text-xs text-on-surface-variant font-medium tracking-wide uppercase">
+    <section className="mb-14 space-y-6">
+
+      {/* Section header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">
+          {t('heading')}
+        </h2>
+        <span className="text-xs text-on-surface-variant">
           {t('dayCount', { count: entries.length })}
         </span>
       </div>
 
+      {/* Bento grid — three pillar cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <HabitPillar
           pillar="movement"
@@ -90,11 +94,15 @@ export async function HabitsDashboard() {
         />
       </div>
 
-      <HabitYearGrid
-        movementDays={movementDays}
-        nutritionDays={nutritionDays}
-        smokingDays={smokingDays}
-      />
+      {/* Year grid — full width bento cell */}
+      <div className="bg-surface-container border border-outline-variant/15 rounded-xl overflow-hidden">
+        <HabitYearGrid
+          movementDays={movementDays}
+          nutritionDays={nutritionDays}
+          smokingDays={smokingDays}
+        />
+      </div>
+
     </section>
   )
 }

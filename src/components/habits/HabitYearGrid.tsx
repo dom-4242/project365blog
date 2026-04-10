@@ -132,8 +132,8 @@ export function HabitYearGrid({ movementDays, nutritionDays, smokingDays }: Habi
   }
 
   return (
-    <div className="mt-3 bg-surface-container rounded-2xl border border-surface-container-high p-5">
-      <h3 className="font-headline text-sm font-semibold text-on-surface mb-4">
+    <div className="p-5">
+      <h3 className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant mb-4">
         {tDash('yearOverview')}
       </h3>
 
