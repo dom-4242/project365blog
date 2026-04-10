@@ -40,7 +40,7 @@ function WeightTooltip({ active, payload, label }: TooltipProps) {
   const locale = useLocale()
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-surface-container border border-surface-container-high rounded-lg px-3 py-2 text-sm shadow-sm">
+    <div className="bg-surface-container border border-surface-container-high rounded px-3 py-2 text-sm border border-outline-variant/15">
       <p className="text-on-surface-variant text-xs mb-0.5">{formatDateLong(label ?? '', locale)}</p>
       <p className="font-semibold text-on-surface">{payload[0].value.toFixed(1)} kg</p>
     </div>
@@ -62,7 +62,7 @@ export function WeightChart({ data, latestWeight }: WeightChartProps) {
   const yMax = Math.ceil(max + 0.5)
 
   return (
-    <div className="bg-surface-container rounded-2xl border border-surface-container-high p-5 h-full">
+    <div className="bg-surface-container rounded-xl border border-outline-variant/15 p-5 h-full">
       <div className="flex items-baseline justify-between mb-4">
         <h3 className="font-headline font-semibold text-sm text-on-surface">{t('weight')}</h3>
         {latestWeight !== undefined && (

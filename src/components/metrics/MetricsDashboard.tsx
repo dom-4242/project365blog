@@ -17,7 +17,7 @@ function toDateString(date: Date | string): string {
 function EmptyState() {
   const t = useTranslations('MetricsDashboard')
   return (
-    <div className="rounded-2xl border border-surface-container-high bg-surface-container px-6 py-10 text-center">
+    <div className="rounded-xl border border-outline-variant/15 bg-surface-container px-6 py-10 text-center">
       <p className="font-headline text-lg text-on-surface-variant mb-1">{t('noData')}</p>
       <p className="text-sm text-on-surface-variant">{t('noDataHint')}</p>
     </div>
@@ -56,13 +56,20 @@ export async function MetricsDashboard() {
   const hasAnyData = hasWeight || hasSteps || hasBodyFat
 
   return (
-    <section className="mb-14">
-      <h2 className="font-headline text-xl font-bold text-on-surface mb-5">{t('heading')}</h2>
+    <section className="mb-14 space-y-6">
+
+      {/* Section header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">
+          {t('heading')}
+        </h2>
+      </div>
 
       {!hasAnyData ? (
         <EmptyState />
       ) : (
         <div className="space-y-3">
+          {/* Bento row — weight (wide) + steps */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {hasWeight && (
               <div className="sm:col-span-2">
@@ -74,9 +81,9 @@ export async function MetricsDashboard() {
                 <StepsChart data={stepsData} avgSteps={summary.avgSteps30d} stepsGoal={profile.targetSteps ?? 10000} />
               </div>
             )}
-            {!hasWeight && !hasSteps && null}
           </div>
 
+          {/* Body fat — full width */}
           {hasBodyFat && (
             <BodyFatChart data={bodyFatData} latestBodyFat={summary.latestBodyFat} />
           )}
