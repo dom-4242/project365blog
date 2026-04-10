@@ -27,7 +27,7 @@ export function HabitStreak({
     <div className="space-y-3">
       <div>
         <div className="flex items-baseline gap-2">
-          <span className={`text-5xl font-bold font-display leading-none ${textColorClass}`}>
+          <span className={`text-5xl font-bold font-headline leading-none ${textColorClass}`}>
             {current}
           </span>
           <span className="text-sm text-on-surface-variant font-medium leading-tight">{label}</span>

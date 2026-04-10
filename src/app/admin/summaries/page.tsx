@@ -24,14 +24,14 @@ export default async function SummariesPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-display text-2xl font-bold text-on-surface">
+        <h1 className="font-headline text-2xl font-bold text-on-surface">
           Monats-Zusammenfassungen
         </h1>
       </div>
 
       {/* Generator */}
       <div className="bg-surface-container rounded-xl border border-surface-container-high p-5 mb-6">
-        <h2 className="font-display text-sm font-semibold text-on-surface mb-3">
+        <h2 className="font-headline text-sm font-semibold text-on-surface mb-3">
           Neue Zusammenfassung generieren
         </h2>
         <p className="text-xs text-on-surface-variant mb-4">
@@ -53,7 +53,7 @@ export default async function SummariesPage() {
               className="bg-surface-container rounded-xl border border-surface-container-high px-5 py-4 flex items-center gap-4 hover:border-outline hover:border-on-surface-variant transition-colors"
             >
               <div className="flex-1 min-w-0">
-                <p className="font-display font-semibold text-on-surface text-sm">
+                <p className="font-headline font-semibold text-on-surface text-sm">
                   {formatMonth(s.year, s.month)}
                 </p>
                 <p className="text-xs text-on-surface-variant mt-0.5">

@@ -152,7 +152,7 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Titel des Eintrags"
           required
-          className="w-full font-display text-2xl font-bold bg-transparent border-0 border-b-2 border-surface-container-high focus:border-nutrition-500 focus:outline-none pb-2 text-on-surface placeholder:text-outline transition-colors"
+          className="w-full font-headline text-2xl font-bold bg-transparent border-0 border-b-2 border-surface-container-high focus:border-nutrition-500 focus:outline-none pb-2 text-on-surface placeholder:text-outline transition-colors"
         />
       </div>
 

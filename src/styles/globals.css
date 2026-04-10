@@ -40,7 +40,7 @@
   }
 
   body {
-    font-family: var(--font-body), Georgia, serif;
+    font-family: var(--font-body), sans-serif;
     background-color: var(--background);
     color: var(--on-surface);
     -webkit-font-smoothing: antialiased;
@@ -49,7 +49,7 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-display), Georgia, serif;
+    font-family: var(--font-headline), sans-serif;
   }
 
   ::selection {

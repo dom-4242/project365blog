@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Playfair_Display, Lora } from 'next/font/google'
+import { Space_Grotesk, Manrope } from 'next/font/google'
 import { getLocale } from 'next-intl/server'
 import { headers } from 'next/headers'
 import '@/styles/globals.css'
@@ -7,14 +7,16 @@ import { AuthSessionProvider } from '@/components/providers/SessionProvider'
 import { ThemeProvider } from '@/components/providers/ThemeProvider'
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from '@/lib/site'
 
-const playfair = Playfair_Display({
+const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
-  variable: '--font-display',
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-headline',
   display: 'swap',
 })
 
-const lora = Lora({
+const manrope = Manrope({
   subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700', '800'],
   variable: '--font-body',
   display: 'swap',
 })
@@ -58,7 +60,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
   const [locale, headersList] = await Promise.all([getLocale(), headers()])
   const nonce = headersList.get('x-nonce') ?? undefined
   return (
-    <html lang={locale} className={`${playfair.variable} ${lora.variable}`}>
+    <html lang={locale} className={`${spaceGrotesk.variable} ${manrope.variable}`}>
       <body className="bg-background text-on-surface font-body antialiased">
         <ThemeProvider nonce={nonce}>
           <AuthSessionProvider>

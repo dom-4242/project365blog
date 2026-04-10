@@ -13,7 +13,7 @@ function LoginContent() {
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="max-w-sm w-full">
         <div className="text-center mb-8">
-          <h1 className="font-display text-3xl font-bold text-on-surface mb-2">
+          <h1 className="font-headline text-3xl font-bold text-on-surface mb-2">
             Project <span className="text-nutrition-600">365</span>
           </h1>
           <p className="text-on-surface-variant text-sm">Admin-Bereich</p>

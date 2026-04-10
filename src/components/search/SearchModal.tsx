@@ -196,7 +196,7 @@ export function SearchModal() {
                       }`}
                     >
                       <div className="flex items-baseline gap-2 mb-0.5">
-                        <span className="font-display font-semibold text-sm text-on-surface">
+                        <span className="font-headline font-semibold text-sm text-on-surface">
                           <Highlight text={result.title} query={query} />
                         </span>
                         <span className="text-xs text-on-surface-variant shrink-0">

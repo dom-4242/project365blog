@@ -91,7 +91,7 @@ export function HabitsPicker({
     <div className="bg-surface-container rounded-2xl border border-surface-container-high overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-surface-container">
-        <h3 className="font-display text-sm font-semibold text-on-surface">Die drei Säulen</h3>
+        <h3 className="font-headline text-sm font-semibold text-on-surface">Die drei Säulen</h3>
         <span
           className={clsx(
             'text-xs font-medium px-2 py-0.5 rounded-full',

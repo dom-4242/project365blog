@@ -92,7 +92,7 @@ export default async function HomePage({ params }: HomePageProps) {
           {t('tagline')}
         </p>
 
-        <h1 className="font-display text-4xl sm:text-5xl font-bold leading-tight text-on-surface mb-4">
+        <h1 className="font-headline text-4xl sm:text-5xl font-bold leading-tight text-on-surface mb-4">
           <span className="block">{t('headline_1')}</span>
           <span className="block">{t('headline_2')}</span>
         </h1>
@@ -104,7 +104,7 @@ export default async function HomePage({ params }: HomePageProps) {
         {/* Day counter + streaks */}
         <div className="p-4 rounded-xl bg-surface-container border border-surface-container-high">
           <div className="flex items-baseline gap-3 mb-3">
-            <p className="font-display text-3xl font-bold text-primary leading-none">
+            <p className="font-headline text-3xl font-bold text-primary leading-none">
               {currentDay}
             </p>
             <p className="text-xs text-on-surface-variant">

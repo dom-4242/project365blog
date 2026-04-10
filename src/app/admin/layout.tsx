@@ -21,7 +21,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
       <header className="sticky top-0 z-10 bg-surface-container border-b border-surface-container">
         <div className="flex items-center justify-between px-4 sm:px-6 h-12">
           {/* Logo */}
-          <Link href="/admin" className="font-display text-sm font-bold text-on-surface">
+          <Link href="/admin" className="font-headline text-sm font-bold text-on-surface">
             Project <span className="text-primary">365</span>{' '}
             <span className="text-on-surface-variant font-normal">Admin</span>
           </Link>

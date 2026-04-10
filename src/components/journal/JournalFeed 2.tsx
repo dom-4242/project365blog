@@ -9,7 +9,7 @@ export function JournalFeed({ entries }: JournalFeedProps) {
   if (entries.length === 0) {
     return (
       <div className="py-20 text-center text-on-surface-variant">
-        <p className="font-display text-2xl mb-2">Noch keine Einträge</p>
+        <p className="font-headline text-2xl mb-2">Noch keine Einträge</p>
         <p className="text-sm">Die ersten Einträge folgen bald.</p>
       </div>
     )

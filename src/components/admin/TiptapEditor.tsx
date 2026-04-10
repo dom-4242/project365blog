@@ -119,7 +119,7 @@ export function TiptapEditor({ content, onChange, placeholder }: TiptapEditorPro
           active={editor.isActive('heading', { level: 2 })}
           title="Überschrift 2"
         >
-          <span className="text-xs font-bold font-display">H2</span>
+          <span className="text-xs font-bold font-headline">H2</span>
         </ToolbarButton>
 
         <ToolbarButton
@@ -127,7 +127,7 @@ export function TiptapEditor({ content, onChange, placeholder }: TiptapEditorPro
           active={editor.isActive('heading', { level: 3 })}
           title="Überschrift 3"
         >
-          <span className="text-xs font-bold font-display">H3</span>
+          <span className="text-xs font-bold font-headline">H3</span>
         </ToolbarButton>
 
         <Divider />

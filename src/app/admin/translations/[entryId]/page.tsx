@@ -43,7 +43,7 @@ export default async function TranslationDetailPage({ params }: TranslationDetai
               ← Übersetzungen
             </Link>
           </div>
-          <h1 className="font-display text-2xl font-bold text-on-surface">
+          <h1 className="font-headline text-2xl font-bold text-on-surface">
             {entry.title}
           </h1>
           <div className="flex items-center gap-3 mt-1">

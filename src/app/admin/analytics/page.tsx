@@ -13,7 +13,7 @@ interface StatCardProps {
 function StatCard({ value, label, sub }: StatCardProps) {
   return (
     <div className="bg-surface-container rounded-2xl border border-surface-container-high p-4 text-center">
-      <p className="font-display text-2xl font-bold text-on-surface">{value}</p>
+      <p className="font-headline text-2xl font-bold text-on-surface">{value}</p>
       <p className="text-xs font-medium text-on-surface-variant mt-1">{label}</p>
       {sub && <p className="text-xs text-on-surface-variant mt-0.5">{sub}</p>}
     </div>
@@ -45,7 +45,7 @@ export default async function AnalyticsPage({
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="font-display text-2xl font-bold text-on-surface mb-1">Analytics</h1>
+        <h1 className="font-headline text-2xl font-bold text-on-surface mb-1">Analytics</h1>
         <p className="text-on-surface-variant text-sm">Privacy-first · Kein Cookie · Keine IP-Speicherung</p>
       </div>
 

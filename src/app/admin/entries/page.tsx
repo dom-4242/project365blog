@@ -39,7 +39,7 @@ export default async function EntriesPage({ searchParams }: EntriesPageProps) {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-display text-2xl font-bold text-on-surface">Einträge</h1>
+        <h1 className="font-headline text-2xl font-bold text-on-surface">Einträge</h1>
         <Link
           href="/admin/entries/new"
           className="flex items-center gap-2 px-4 py-2 bg-nutrition-600 text-white rounded-xl text-sm font-medium hover:bg-nutrition-700 transition-colors"
@@ -80,7 +80,7 @@ export default async function EntriesPage({ searchParams }: EntriesPageProps) {
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className="font-display font-semibold text-on-surface truncate">
+                    <span className="font-headline font-semibold text-on-surface truncate">
                       {entry.title}
                     </span>
                     {!entry.published && (

@@ -116,7 +116,7 @@ export function FitbitSyncPanel() {
     <div className="space-y-6">
       {/* Single day */}
       <div className="bg-surface-container rounded-2xl border border-surface-container-high p-5">
-        <h3 className="font-display text-sm font-semibold text-on-surface mb-4">
+        <h3 className="font-headline text-sm font-semibold text-on-surface mb-4">
           Einzelnen Tag synchronisieren
         </h3>
         <div className="flex flex-wrap items-end gap-3">
@@ -144,7 +144,7 @@ export function FitbitSyncPanel() {
 
       {/* Date range backfill */}
       <div className="bg-surface-container rounded-2xl border border-surface-container-high p-5">
-        <h3 className="font-display text-sm font-semibold text-on-surface mb-1">
+        <h3 className="font-headline text-sm font-semibold text-on-surface mb-1">
           Zeitraum nachfüllen (Backfill)
         </h3>
         <p className="text-xs text-on-surface-variant mb-4">Maximal 30 Tage auf einmal.</p>

@@ -49,7 +49,7 @@ export async function JournalPost({ entry, isTranslated = false }: JournalPostPr
 
       <header className="mb-10">
         <div className="flex items-center gap-3 mb-4">
-          <span className="font-display font-bold text-xs tracking-widest uppercase text-on-surface-variant border border-surface-container-high rounded px-2 py-0.5">
+          <span className="font-headline font-bold text-xs tracking-widest uppercase text-on-surface-variant border border-surface-container-high rounded px-2 py-0.5">
             {t('day', { number: dayNumber })}
           </span>
           <span className="text-outline text-surface-container-high select-none" aria-hidden="true">·</span>
@@ -69,7 +69,7 @@ export async function JournalPost({ entry, isTranslated = false }: JournalPostPr
           )}
         </div>
 
-        <h1 className="font-display text-3xl sm:text-4xl font-bold leading-tight text-on-surface mb-5">
+        <h1 className="font-headline text-3xl sm:text-4xl font-bold leading-tight text-on-surface mb-5">
           {entry.title}
         </h1>
 

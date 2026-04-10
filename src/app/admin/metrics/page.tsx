@@ -52,7 +52,7 @@ export default async function MetricsPage({ searchParams }: PageProps) {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="font-display text-2xl font-bold text-on-surface">Metriken erfassen</h1>
+        <h1 className="font-headline text-2xl font-bold text-on-surface">Metriken erfassen</h1>
         <p className="text-on-surface-variant text-sm mt-1">Manuell erfasste Werte überschreiben automatische Importe.</p>
       </div>
 
@@ -61,7 +61,7 @@ export default async function MetricsPage({ searchParams }: PageProps) {
       {/* Recent entries table */}
       {recent.length > 0 && (
         <div className="mt-10">
-          <h2 className="font-display text-base font-semibold text-on-surface mb-3">Letzte Einträge</h2>
+          <h2 className="font-headline text-base font-semibold text-on-surface mb-3">Letzte Einträge</h2>
           <div className="bg-surface-container rounded-2xl border border-surface-container-high overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-xs">

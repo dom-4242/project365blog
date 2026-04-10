@@ -64,9 +64,9 @@ export function BodyFatChart({ data, latestBodyFat }: BodyFatChartProps) {
   return (
     <div className="bg-surface-container rounded-2xl border border-surface-container-high p-5">
       <div className="flex items-baseline justify-between mb-4">
-        <h3 className="font-display font-semibold text-sm text-on-surface">{t('bodyFat')}</h3>
+        <h3 className="font-headline font-semibold text-sm text-on-surface">{t('bodyFat')}</h3>
         {latestBodyFat !== undefined && (
-          <span className="text-2xl font-bold font-display text-on-surface-variant text-on-surface-variant">
+          <span className="text-2xl font-bold font-headline text-on-surface-variant text-on-surface-variant">
             {latestBodyFat.toFixed(1)}{' '}
             <span className="text-sm font-normal text-on-surface-variant">%</span>
           </span>

@@ -56,7 +56,7 @@ export function HabitPillar({ pillar, streak, totalFulfilled, totalEntries, days
       <div className="p-5 space-y-5">
         <div className="flex items-center gap-2">
           <span className="text-xl" aria-hidden="true">{cfg.emoji}</span>
-          <h3 className={`font-display font-semibold text-base ${cfg.textColorClass}`}>
+          <h3 className={`font-headline font-semibold text-base ${cfg.textColorClass}`}>
             {title}
           </h3>
         </div>

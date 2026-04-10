@@ -22,7 +22,7 @@ export default async function MonthlyOverviewPage({ params }: MonthlyOverviewPag
 
   return (
     <div className="max-w-2xl mx-auto py-12 px-4">
-      <h1 className="font-display text-3xl font-bold text-on-surface mb-2">
+      <h1 className="font-headline text-3xl font-bold text-on-surface mb-2">
         {t('overviewHeading')}
       </h1>
       <p className="text-on-surface-variant mb-10">{t('overviewDescription')}</p>
@@ -38,7 +38,7 @@ export default async function MonthlyOverviewPage({ params }: MonthlyOverviewPag
               className="flex items-center justify-between bg-surface-container rounded-xl border border-surface-container-high px-6 py-4 hover:border-outline hover:border-on-surface-variant hover:shadow-sm transition-all group"
             >
               <div>
-                <p className="font-display font-semibold text-on-surface group-hover:text-nutrition-700 group-hover:text-nutrition-400 transition-colors">
+                <p className="font-headline font-semibold text-on-surface group-hover:text-nutrition-700 group-hover:text-nutrition-400 transition-colors">
                   {monthNames[s.month - 1]} {s.year}
                 </p>
                 <p className="text-xs text-on-surface-variant mt-0.5">

@@ -6,7 +6,7 @@ export function Footer() {
   return (
     <footer className="border-t border-surface-container-high mt-24">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-2">
-        <p className="font-display font-bold text-on-surface">
+        <p className="font-headline font-bold text-on-surface">
           Project <span className="text-nutrition-600">365</span>
         </p>
         <div className="flex items-center gap-4">
