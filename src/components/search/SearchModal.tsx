@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useLocale, useTranslations } from 'next-intl'
 import type { SearchResult } from '@/app/api/search/route'
+import { Icon } from '@/components/ui/Icon'
 
 // =============================================
 // Highlight — wraps matched substring
@@ -123,12 +124,9 @@ export function SearchModal() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label={t('ariaLabel')}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container hover:bg-surface-container transition-colors"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
       >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="11" cy="11" r="8" />
-          <path strokeLinecap="round" d="M21 21l-4.35-4.35" />
-        </svg>
+        <Icon name="search" size={18} />
         <span className="hidden sm:inline text-xs">
           <kbd className="font-sans text-on-surface-variant">⌘K</kbd>
         </span>
@@ -144,19 +142,16 @@ export function SearchModal() {
         >
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-black/40 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setOpen(false)}
           />
 
-          {/* Modal card */}
-          <div className="relative w-full max-w-xl bg-surface-container rounded-2xl border border-surface-container-high shadow-2xl overflow-hidden">
+          {/* Modal card — glassmorphism */}
+          <div className="relative w-full max-w-xl bg-surface-container-low/90 backdrop-blur-xl rounded-xl border border-outline-variant/20 shadow-2xl overflow-hidden">
 
             {/* Input row */}
-            <div className="flex items-center gap-3 px-4 border-b border-surface-container">
-              <svg className="w-4 h-4 text-on-surface-variant shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
-                <circle cx="11" cy="11" r="8" />
-                <path strokeLinecap="round" d="M21 21l-4.35-4.35" />
-              </svg>
+            <div className="flex items-center gap-3 px-4 border-b border-outline-variant/15">
+              <Icon name="search" size={18} className="text-on-surface-variant shrink-0" />
               <input
                 ref={inputRef}
                 type="text"
@@ -175,7 +170,7 @@ export function SearchModal() {
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="shrink-0 text-xs text-on-surface-variant hover:text-on-surface-variant hover:text-outline transition-colors px-1.5 py-1 rounded border border-surface-container-high"
+                className="shrink-0 text-xs text-on-surface-variant hover:text-outline transition-colors px-1.5 py-1 rounded border border-outline-variant/30"
               >
                 ESC
               </button>
