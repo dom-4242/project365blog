@@ -6,6 +6,7 @@ import { getDayNumber } from '@/lib/journal'
 import { getProjectStartDate } from '@/lib/project-config'
 import { HabitBadges } from './HabitBadges'
 import { ReactionBar } from '@/components/reactions/ReactionBar'
+import { Icon } from '@/components/ui/Icon'
 import { getAuthSession } from '@/lib/auth'
 
 interface JournalPostProps {
@@ -32,10 +33,33 @@ export async function JournalPost({ entry, isTranslated = false }: JournalPostPr
     })
   }
 
+  const metaRow = (
+    <div className="flex items-center flex-wrap gap-2.5">
+      <span className="font-label font-bold text-xs tracking-widest uppercase text-primary bg-primary/10 border border-primary/20 rounded px-2.5 py-1">
+        {t('day', { number: dayNumber })}
+      </span>
+      <span className="text-outline-variant/60 select-none" aria-hidden="true">·</span>
+      <time className="text-sm font-label text-on-surface-variant" dateTime={entry.date}>
+        {formatDate(entry.date)}
+      </time>
+      {isAdmin && (
+        <>
+          <span className="text-outline-variant/60 select-none" aria-hidden="true">·</span>
+          <Link
+            href={`/admin/entries/${entry.id}/edit`}
+            className="text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+          >
+            {t('edit')}
+          </Link>
+        </>
+      )}
+    </div>
+  )
+
   return (
-    <article className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
-      {entry.banner && (
-        <div className="relative w-full aspect-[16/7] rounded-2xl overflow-hidden mb-10 bg-surface-container">
+    <article className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      {entry.banner ? (
+        <div className="relative w-full aspect-[16/7] rounded-xl overflow-hidden mb-8 bg-surface-container">
           <Image
             src={entry.banner}
             alt={entry.title}
@@ -44,74 +68,61 @@ export async function JournalPost({ entry, isTranslated = false }: JournalPostPr
             priority
             sizes="(max-width: 768px) 100vw, 672px"
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/55 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
+            {metaRow}
+            <h1 className="font-headline text-3xl sm:text-4xl font-bold leading-tight text-on-surface mt-3">
+              {entry.title}
+            </h1>
+          </div>
         </div>
+      ) : (
+        <header className="mb-8">
+          {metaRow}
+          <h1 className="font-headline text-3xl sm:text-4xl font-bold leading-tight text-on-surface mt-4">
+            {entry.title}
+          </h1>
+        </header>
       )}
 
-      <header className="mb-10">
-        <div className="flex items-center gap-3 mb-4">
-          <span className="font-headline font-bold text-xs tracking-widest uppercase text-on-surface-variant border border-surface-container-high rounded px-2 py-0.5">
-            {t('day', { number: dayNumber })}
-          </span>
-          <span className="text-outline text-surface-container-high select-none" aria-hidden="true">·</span>
-          <time className="text-sm text-on-surface-variant" dateTime={entry.date}>
-            {formatDate(entry.date)}
-          </time>
-          {isAdmin && (
-            <>
-              <span className="text-outline text-surface-container-high select-none" aria-hidden="true">·</span>
-              <Link
-                href={`/admin/entries/${entry.id}/edit`}
-                className="text-xs font-medium text-nutrition-600 text-nutrition-500 hover:text-nutrition-700 hover:text-nutrition-400 transition-colors"
-              >
-                {t('edit')}
-              </Link>
-            </>
-          )}
-        </div>
-
-        <h1 className="font-headline text-3xl sm:text-4xl font-bold leading-tight text-on-surface mb-5">
-          {entry.title}
-        </h1>
-
+      <div className="flex flex-col gap-3 mb-8">
         <HabitBadges habits={entry.habits} />
-
         {entry.tags && entry.tags.length > 0 && (
-          <ul className="flex flex-wrap gap-2 mt-3">
+          <ul className="flex flex-wrap gap-2">
             {entry.tags.map((tag) => (
               <li
                 key={tag}
-                className="text-xs px-2.5 py-1 bg-surface-container text-on-surface-variant rounded-full"
+                className="text-xs px-2.5 py-1 bg-surface-variant/40 border border-outline-variant/15 text-on-surface-variant rounded-full backdrop-blur-sm"
               >
                 #{tag}
               </li>
             ))}
           </ul>
         )}
-      </header>
+      </div>
 
-      <hr className="border-surface-container-high mb-10" />
+      <hr className="border-outline-variant/20 mb-8" />
 
       <div
         className="prose prose-stone prose-lg max-w-none prose-invert"
         dangerouslySetInnerHTML={{ __html: entry.content }}
       />
 
-      <div className="mt-14 pt-8 border-t border-surface-container-high">
+      <div className="mt-14 pt-8 border-t border-outline-variant/20">
         <ReactionBar slug={entry.slug} />
       </div>
 
-      <footer className="mt-8 pt-6 border-t border-surface-container flex items-center justify-between gap-4">
+      <footer className="mt-8 pt-6 border-t border-outline-variant/15 flex items-center justify-between gap-4">
         <Link
           href="/"
-          className="text-sm font-medium text-nutrition-700 text-nutrition-400 hover:text-nutrition-600 transition-colors"
+          className="inline-flex items-center gap-1 text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors group"
         >
+          <Icon name="arrow_back" size={16} className="group-hover:-translate-x-0.5 transition-transform" />
           {t('back')}
         </Link>
         {isTranslated && (
-          <span className="text-xs text-on-surface-variant flex items-center gap-1">
-            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
-            </svg>
+          <span className="text-xs text-on-surface-variant flex items-center gap-1.5">
+            <Icon name="translate" size={14} />
             {t('aiTranslated')}
           </span>
         )}
