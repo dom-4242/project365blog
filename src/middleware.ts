@@ -9,7 +9,7 @@ function buildCsp(nonce: string): string {
   const isDev = process.env.NODE_ENV === 'development'
   const directives = [
     `default-src 'self'`,
-    `script-src 'nonce-${nonce}' 'strict-dynamic'`,
+    `script-src 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ''}`,
     // Material Symbols is loaded from Google Fonts CDN (not available via next/font)
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
     // Google avatar images in admin layout use lh3.googleusercontent.com
