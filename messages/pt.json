@@ -24,9 +24,20 @@
     "allEntries": "Ver todas as {count} entradas",
     "streakDays": "dias",
     "ctaEntries": "Ler entradas",
-    "streakMovement": "Sequência atual de movimento",
-    "streakNutrition": "Sequência atual de alimentação",
-    "streakSmoking": "Sequência atual sem fumar"
+    "streakMovement": "Movimento",
+    "streakNutrition": "Nutrição",
+    "streakSmoking": "Sequência Sem Fumar",
+    "streakLongest": "Recorde",
+    "rate30d": "Taxa 30 dias",
+    "trend7d": "Tendência 7d",
+    "metricWeight": "Peso",
+    "metricBmi": "IMC",
+    "metricTarget": "Meta",
+    "metricSync": "Sincronização",
+    "metricNoData": "Sem dados ainda",
+    "metricSteps": "Média Passos (30d)",
+    "metricBodyFat": "Gordura Corporal",
+    "metricAvg30d": "Média 30 dias"
   },
   "AboutPage": {
     "metaTitle": "Sobre o Projeto — Project 365",

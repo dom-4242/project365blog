@@ -27,9 +27,20 @@
     "ctaAbout": "About the Project",
     "streakDays": "days",
     "ctaEntries": "Read entries",
-    "streakMovement": "Current movement streak",
-    "streakNutrition": "Current nutrition streak",
-    "streakSmoking": "Current smoke-free streak"
+    "streakMovement": "Movement",
+    "streakNutrition": "Nutrition",
+    "streakSmoking": "Smoke-Free Streak",
+    "streakLongest": "Best",
+    "rate30d": "30-day rate",
+    "trend7d": "7d trend",
+    "metricWeight": "Weight",
+    "metricBmi": "BMI",
+    "metricTarget": "Target",
+    "metricSync": "Sync",
+    "metricNoData": "No data yet",
+    "metricSteps": "Avg Steps (30d)",
+    "metricBodyFat": "Body Fat",
+    "metricAvg30d": "30-day average"
   },
   "AboutPage": {
     "metaTitle": "About the Project — Project 365",
