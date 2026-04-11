@@ -105,6 +105,12 @@
     "noData": "Ainda sem métricas",
     "noDataHint": "Os dados são importados automaticamente todos os dias via Fitbit."
   },
+  "JournalPage": {
+    "title": "Diário",
+    "entryCount": "{count} entradas",
+    "backHome": "Início",
+    "description": "Todas as entradas diárias — movimento, alimentação e o caminho para parar de fumar."
+  },
   "JournalFeed": {
     "empty": "Ainda sem entradas",
     "emptyHint": "As primeiras entradas vêm em breve."

@@ -108,6 +108,12 @@
     "noData": "No metrics yet",
     "noDataHint": "Data is automatically imported daily via Fitbit."
   },
+  "JournalPage": {
+    "title": "Journal",
+    "entryCount": "{count} entries",
+    "backHome": "Home",
+    "description": "All daily journal entries — movement, nutrition and the path to quitting smoking."
+  },
   "JournalFeed": {
     "empty": "No entries yet",
     "emptyHint": "The first entries are coming soon."
