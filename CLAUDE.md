@@ -150,7 +150,7 @@ project365blog/
 │   ├── journal/           → Feed & Posts
 │   └── reactions/         → Emoji-Reactions
 ├── src/lib/               → Business-Logik
-├── messages/              → i18n Message Files (de.json, en.json, ...)
+├── messages/              → i18n Message Files (de.json, en.json, pt.json)
 ├── content/journal/       → Legacy MDX (nicht mehr aktiv genutzt)
 ├── public/images/journal/ → Banner-Bilder
 ├── scripts/               → Utility Scripts
@@ -211,7 +211,7 @@ Fitbit API live, Apple Health Integration, Dark Mode, SEO, RSS-Feed, Suche, Anim
 
 ### Phase 3 — Mehrsprachigkeit ✅
 
-next-intl Setup (/de, /en), UI-Übersetzungen, Sprachumschalter, AI-Übersetzung via Claude API, Übersetzungs-Cache, SEO hreflang
+next-intl Setup (/de, /en, /pt), UI-Übersetzungen, Sprachumschalter, AI-Übersetzung via Claude API, Übersetzungs-Cache, SEO hreflang
 
 ### Phase 4 — Visualisierung, Analytics & Datenqualität ✅
 
@@ -224,40 +224,28 @@ Phase 5b: UI/UX Redesign (Catppuccin → wird in Phase 6 durch Kinetic Lab erset
 Phase 5c: Neue Funktionen (Starttag-Einstellung, Emoji-Reactions im Feed, zusätzliche Sprachen PT/FR/IT/ES)
 HomeLab Deployment abgeschlossen
 
-## Aktuelle Phase: Phase 6 — "Kinetic Lab" Redesign
+### Phase 6 — "Kinetic Lab" Redesign ✅
 
 Komplettes visuelles Redesign: Dark-Only, warmes Orange, Space Grotesk + Manrope, Material Symbols, Bento-Grid Dashboard, Glassmorphism-Effekte.
 
-### Phase 6a — Design Foundation
+| #   | Issue                                                       | Status |
+| --- | ----------------------------------------------------------- | ------ |
+| 125 | Dark-Only Farbsystem und Tailwind-Theme umstellen           | ✅ Done |
+| 126 | Typografie-System (Space Grotesk + Manrope)                 | ✅ Done |
+| 127 | Material Symbols als Icon-Set integrieren                   | ✅ Done |
+| 128 | Border-Radius und Glassmorphism Design-Tokens               | ✅ Done |
+| 129 | Navigation im Kinetic-Stil redesignen                       | ✅ Done |
+| 130 | Hero-Section mit Hintergrundbild und CTA                    | ✅ Done |
+| 131 | Live Status Section — Habits & Metriken im Bento-Grid       | ✅ Done |
+| 132 | Daily Journals Section auf Startseite redesignen            | ✅ Done |
+| 133 | Footer im neuen Design-Stil                                 | ✅ Done |
+| 134 | "Über das Projekt" Seite (21-Tage-Wanderung, Spendenaktion) | ✅ Done |
+| 135 | Journal-Einzelansicht im neuen Stil                         | ✅ Done |
+| 136 | Journal-Übersichtsseite im neuen Stil                       | ✅ Done |
 
-| #   | Issue                                             | Status  |
-| --- | ------------------------------------------------- | ------- |
-| 125 | Dark-Only Farbsystem und Tailwind-Theme umstellen | ⬜ Open |
-| 126 | Typografie-System (Space Grotesk + Manrope)       | ⬜ Open |
-| 127 | Material Symbols als Icon-Set integrieren         | ⬜ Open |
-| 128 | Border-Radius und Glassmorphism Design-Tokens     | ⬜ Open |
+## Aktuelle Phase: Phase 7 — Neue Features & Integrationen
 
-### Phase 6b — Seitenstruktur & Komponenten
-
-| #   | Issue                                                 | Status  |
-| --- | ----------------------------------------------------- | ------- |
-| 129 | Navigation im Kinetic-Stil redesignen                 | ⬜ Open |
-| 130 | Hero-Section mit Hintergrundbild und CTA              | ⬜ Open |
-| 131 | Live Status Section — Habits & Metriken im Bento-Grid | ⬜ Open |
-| 132 | Daily Journals Section auf Startseite redesignen      | ⬜ Open |
-| 133 | Footer im neuen Design-Stil                           | ⬜ Open |
-
-### Phase 6c — Neue Seiten & Inhalte
-
-| #   | Issue                                                       | Status  |
-| --- | ----------------------------------------------------------- | ------- |
-| 134 | "Über das Projekt" Seite (21-Tage-Wanderung, Spendenaktion) | ⬜ Open |
-| 135 | Journal-Einzelansicht im neuen Stil                         | ⬜ Open |
-| 136 | Journal-Übersichtsseite im neuen Stil                       | ⬜ Open |
-
-### Empfohlene Reihenfolge
-
-1. #125 Farbsystem → 2. #126 Typografie → 3. #127 Icons + #128 Glassmorphism → 4. #129 Navigation → 5. #130 Hero → 6. #131 Live Status → 7. #132 Journals → 8. #133 Footer → 9. #135 Einzelansicht → 10. #136 Übersicht → 11. #134 Über-Seite
+Keine aktiven Issues. Nächste Schritte aus dem Backlog priorisieren.
 
 ## Backlog (Phase 7+)
 
@@ -273,3 +261,9 @@ Komplettes visuelles Redesign: Dark-Only, warmes Orange, Space Grotesk + Manrope
 - Banner Bild auswählen öffnet Fotos App auf Apple Geräten
 - Eintrag Vorschau Box nicht übersetzt bei maschineller Übersetzung
 - Health Auto Export automatische Ausführung geht nicht
+
+## Architektur-Hinweise Phase 6
+
+### BannerImage-Wrapper
+
+`src/components/ui/BannerImage.tsx` — next/image-Wrapper für alle Banner. Setzt automatisch `unoptimized={true}` für `.svg`-Dateien, da der Next.js Image-Optimizer SVGs mit 400 ablehnt. Alle neuen Komponenten die Bannerbilder rendern müssen `BannerImage` statt `next/image` direkt verwenden.
