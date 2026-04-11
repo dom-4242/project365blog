@@ -23,6 +23,8 @@ const nextConfig = {
   },
   images: {
     domains: [],
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'inline',
   },
   async headers() {
     return [
