@@ -115,6 +115,13 @@ export default async function HomePage({ params }: HomePageProps) {
               <Icon name="arrow_downward" size={14} />
               {t('ctaEntries')}
             </a>
+            <Link
+              href={`/${params.locale}/about`}
+              className="inline-flex items-center gap-2 px-5 py-2.5 border border-outline-variant/30 text-on-surface-variant font-label font-bold tracking-widest uppercase text-xs rounded hover:border-primary/40 hover:text-primary transition-colors"
+            >
+              <Icon name="info" size={14} />
+              {t('ctaAbout')}
+            </Link>
           </div>
 
         </div>
