@@ -21,6 +21,8 @@
     "tabMetrics": "Metrics",
     "entriesHeading": "Entries",
     "allEntries": "Show all {count} entries",
+    "journalSectionHeading": "Daily Journals",
+    "journalViewAll": "View All Logs",
     "streakDays": "days",
     "ctaEntries": "Read entries",
     "streakMovement": "Current movement streak",

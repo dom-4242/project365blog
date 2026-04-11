@@ -4,12 +4,13 @@ import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 import { getAllEntriesForLocale, getDayNumber } from '@/lib/journal'
 import { getProjectStartDate } from '@/lib/project-config'
-import { JournalCardCompact } from '@/components/journal/JournalCardCompact'
+import { JournalCardHome } from '@/components/journal/JournalCardHome'
 import { HabitsDashboard } from '@/components/habits/HabitsDashboard'
 import { MetricsDashboard } from '@/components/metrics/MetricsDashboard'
 import { HomeTabs } from '@/components/home/HomeTabs'
 import { LiveStatus } from '@/components/home/LiveStatus'
 import { Icon } from '@/components/ui/Icon'
+import Link from 'next/link'
 import {
   SITE_NAME,
   SITE_DESCRIPTION,
@@ -60,7 +61,7 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
   }
 }
 
-const FEED_PREVIEW_COUNT = 12
+const JOURNAL_HOME_COUNT = 3
 
 export default async function HomePage({ params }: HomePageProps) {
   const [entries, t, startDate] = await Promise.all([
@@ -71,8 +72,7 @@ export default async function HomePage({ params }: HomePageProps) {
 
   const today = new Date().toISOString().slice(0, 10)
   const currentDay = getDayNumber(today, startDate)
-  const previewEntries = entries.slice(0, FEED_PREVIEW_COUNT)
-  const hasMore = entries.length > FEED_PREVIEW_COUNT
+  const latestEntries = entries.slice(0, JOURNAL_HOME_COUNT)
 
   return (
     <div>
@@ -132,27 +132,27 @@ export default async function HomePage({ params }: HomePageProps) {
             metrics: t('tabMetrics'),
           }}
           entriesContent={
-            <div>
-              <div className="space-y-1">
-                {previewEntries.map((entry) => (
-                  <JournalCardCompact key={entry.slug} entry={entry} />
+            <div className="space-y-6">
+              {/* Section header */}
+              <div className="flex items-center justify-between">
+                <h2 className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">
+                  {t('journalSectionHeading')}
+                </h2>
+                <Link
+                  href={`/${params.locale}/journal`}
+                  className="group inline-flex items-center gap-2 text-xs font-label font-bold tracking-widest uppercase text-primary hover:gap-3 transition-all duration-150"
+                >
+                  {t('journalViewAll')}
+                  <Icon name="arrow_forward" size={14} />
+                </Link>
+              </div>
+
+              {/* 3-card grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {latestEntries.map((entry) => (
+                  <JournalCardHome key={entry.slug} entry={entry} />
                 ))}
               </div>
-              {hasMore && (
-                <div className="mt-6 pt-5 border-t border-outline-variant/15">
-                  <details className="group">
-                    <summary className="cursor-pointer text-sm font-medium text-on-surface-variant hover:text-primary transition-colors list-none flex items-center gap-2">
-                      <span className="group-open:hidden">{t('allEntries', { count: entries.length })}</span>
-                      <span className="hidden group-open:inline">Weniger anzeigen</span>
-                    </summary>
-                    <div className="mt-4 space-y-1">
-                      {entries.slice(FEED_PREVIEW_COUNT).map((entry) => (
-                        <JournalCardCompact key={entry.slug} entry={entry} />
-                      ))}
-                    </div>
-                  </details>
-                </div>
-              )}
             </div>
           }
           habitsContent={<HabitsDashboard />}
