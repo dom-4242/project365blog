@@ -1,10 +1,10 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { getLocale, getTranslations } from 'next-intl/server'
 import type { JournalEntryMeta } from '@/lib/journal'
 import { getDayNumber } from '@/lib/journal'
 import { getProjectStartDate } from '@/lib/project-config'
 import { isMovementFulfilled, isNutritionFulfilled, isSmokingFulfilled } from '@/lib/habits'
+import { BannerImage } from '@/components/ui/BannerImage'
 import { ReactionBarCompact } from '@/components/reactions/ReactionBarCompact'
 
 interface JournalCardCompactProps {
@@ -41,10 +41,9 @@ export async function JournalCardCompact({ entry }: JournalCardCompactProps) {
         {/* Thumbnail */}
         <div className="relative flex-none w-14 h-14 rounded-lg overflow-hidden bg-surface-container">
           {entry.banner ? (
-            <Image
+            <BannerImage
               src={entry.banner}
               alt={entry.title}
-              fill
               className="object-cover"
               sizes="56px"
             />

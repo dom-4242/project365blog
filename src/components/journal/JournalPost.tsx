@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import { getTranslations, getLocale } from 'next-intl/server'
 import type { JournalEntry } from '@/lib/journal'
@@ -6,6 +5,7 @@ import { getDayNumber } from '@/lib/journal'
 import { getProjectStartDate } from '@/lib/project-config'
 import { HabitBadges } from './HabitBadges'
 import { ReactionBar } from '@/components/reactions/ReactionBar'
+import { BannerImage } from '@/components/ui/BannerImage'
 import { Icon } from '@/components/ui/Icon'
 import { getAuthSession } from '@/lib/auth'
 
@@ -60,10 +60,9 @@ export async function JournalPost({ entry, isTranslated = false }: JournalPostPr
     <article className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
       {entry.banner ? (
         <div className="relative w-full aspect-[16/7] rounded-xl overflow-hidden mb-8 bg-surface-container">
-          <Image
+          <BannerImage
             src={entry.banner}
             alt={entry.title}
-            fill
             className="object-cover"
             priority
             sizes="(max-width: 768px) 100vw, 672px"

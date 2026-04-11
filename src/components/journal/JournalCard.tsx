@@ -1,10 +1,10 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { getLocale, getTranslations } from 'next-intl/server'
 import type { JournalEntryMeta } from '@/lib/journal'
 import { getDayNumber } from '@/lib/journal'
 import { getProjectStartDate } from '@/lib/project-config'
 import { HabitBadges } from './HabitBadges'
+import { BannerImage } from '@/components/ui/BannerImage'
 import { Icon } from '@/components/ui/Icon'
 
 interface JournalCardProps {
@@ -35,10 +35,9 @@ export async function JournalCard({ entry }: JournalCardProps) {
 
         {entry.banner ? (
           <div className="relative w-full aspect-[16/7] bg-surface-container overflow-hidden">
-            <Image
+            <BannerImage
               src={entry.banner}
               alt={entry.title}
-              fill
               className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
               sizes="(max-width: 768px) 100vw, 800px"
             />
