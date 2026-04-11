@@ -1,6 +1,7 @@
 {
   "Navigation": {
     "journal": "Journal",
+    "about": "Project",
     "admin": "Admin",
     "ariaLabel": "Main navigation",
     "adminTitle": "Admin area"
@@ -23,11 +24,38 @@
     "allEntries": "Show all {count} entries",
     "journalSectionHeading": "Daily Journals",
     "journalViewAll": "View All Logs",
+    "ctaAbout": "About the Project",
     "streakDays": "days",
     "ctaEntries": "Read entries",
     "streakMovement": "Current movement streak",
     "streakNutrition": "Current nutrition streak",
     "streakSmoking": "Current smoke-free streak"
+  },
+  "AboutPage": {
+    "metaTitle": "About the Project — Project 365",
+    "metaDescription": "What is Project 365? 365 days of public accountability journaling with three pillars and one big finale.",
+    "badge": "The Project",
+    "headline": "365 Days. Public. Honest.",
+    "intro": "Placeholder — Dom replaces this text. Short introduction about the project, the motivation and what the reader can expect on this page.",
+    "whatTitle": "What is Project 365?",
+    "whatText": "Placeholder — Dom replaces this text. Description of the project: 365 days of public accountability journaling, documented daily, no gloss.",
+    "pillarsTitle": "The Three Pillars",
+    "pillar1Title": "Movement & Training",
+    "pillar1Text": "Placeholder — 10,000 steps or a workout every day. What does that mean in practice, why these goals?",
+    "pillar2Title": "Nutrition",
+    "pillar2Text": "Placeholder — at least two healthy meals per day. Background and personal motivation.",
+    "pillar3Title": "No Smoking",
+    "pillar3Text": "Placeholder — the journey to becoming smoke-free. How long, why now, what has changed?",
+    "finaleTitle": "The Grand Finale",
+    "finaleSubtitle": "21-Day Hike",
+    "finaleText": "Placeholder — Dom replaces this text. Description of the planned 21-day hike as the crowning conclusion of the project.",
+    "finaleItem1": "Start walking — plan each day fresh",
+    "finaleItem2": "Set aside CHF 2 per kilometre",
+    "finaleItem3": "Betterplace donation campaign",
+    "finaleItem4": "Proceeds go to an animal welfare organisation",
+    "whyTitle": "Why Public?",
+    "whyText": "Placeholder — Dom replaces this text. Thoughts on accountability through transparency, why making it public helps and what it means to document honestly.",
+    "ctaJournal": "Go to Journal"
   },
   "HabitsDashboard": {
     "heading": "The Three Pillars",

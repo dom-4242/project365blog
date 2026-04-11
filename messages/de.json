@@ -1,6 +1,7 @@
 {
   "Navigation": {
     "journal": "Journal",
+    "about": "Projekt",
     "admin": "Admin",
     "ariaLabel": "Hauptnavigation",
     "adminTitle": "Admin-Bereich"
@@ -23,11 +24,38 @@
     "allEntries": "Alle {count} Einträge anzeigen",
     "journalSectionHeading": "Daily Journals",
     "journalViewAll": "Alle Einträge",
+    "ctaAbout": "Über das Projekt",
     "streakDays": "Tage",
     "ctaEntries": "Einträge lesen",
     "streakMovement": "Aktuelle Bewegungs-Serie",
     "streakNutrition": "Aktuelle Ernährungs-Serie",
     "streakSmoking": "Aktuelle Rauchstopp-Serie"
+  },
+  "AboutPage": {
+    "metaTitle": "Über das Projekt — Project 365",
+    "metaDescription": "Was steckt hinter Project 365? 365 Tage öffentliches Accountability-Journal mit drei Säulen und einem grossen Finale.",
+    "badge": "Das Projekt",
+    "headline": "365 Tage. Öffentlich. Ehrlich.",
+    "intro": "Platzhalter — Dom ersetzt diesen Text. Kurze Einleitung über das Projekt, die Motivation und was den Leser auf dieser Seite erwartet.",
+    "whatTitle": "Was ist Project 365?",
+    "whatText": "Platzhalter — Dom ersetzt diesen Text. Beschreibung des Projekts: 365 Tage öffentliches Accountability-Journal, täglich dokumentiert, ohne Hochglanz.",
+    "pillarsTitle": "Die drei Säulen",
+    "pillar1Title": "Bewegung & Training",
+    "pillar1Text": "Platzhalter — täglich 10.000 Schritte oder Training. Was bedeutet das konkret, warum diese Ziele?",
+    "pillar2Title": "Ernährung",
+    "pillar2Text": "Platzhalter — mindestens zwei gesunde Mahlzeiten pro Tag. Hintergrund und persönliche Motivation.",
+    "pillar3Title": "Rauchstopp",
+    "pillar3Text": "Platzhalter — der Weg in die Rauchfreiheit. Wie lange, warum jetzt, was hat sich verändert?",
+    "finaleTitle": "Das grosse Finale",
+    "finaleSubtitle": "21-Tage-Wanderung",
+    "finaleText": "Platzhalter — Dom ersetzt diesen Text. Beschreibung der geplanten 21-Tage-Wanderung als krönender Abschluss des Projekts.",
+    "finaleItem1": "Loslaufen — jeden Tag neu planen",
+    "finaleItem2": "2 CHF pro Kilometer zurücklegen",
+    "finaleItem3": "Betterplace-Spendenkampagne",
+    "finaleItem4": "Erlös geht an eine Tierschutzorganisation",
+    "whyTitle": "Warum öffentlich?",
+    "whyText": "Platzhalter — Dom ersetzt diesen Text. Gedanken zu Accountability durch Transparenz, warum das Öffentlichmachen hilft und was es bedeutet, ehrlich zu dokumentieren.",
+    "ctaJournal": "Zum Journal"
   },
   "HabitsDashboard": {
     "heading": "Die drei Säulen",

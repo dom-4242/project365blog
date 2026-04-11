@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { getTranslations } from 'next-intl/server'
+import { getTranslations, getLocale } from 'next-intl/server'
 import { LocaleSwitcher } from './LocaleSwitcher'
 import { SearchModal } from '@/components/search/SearchModal'
 import { getAuthSession } from '@/lib/auth'
@@ -8,7 +8,7 @@ import { Icon } from '@/components/ui/Icon'
 export async function Navigation() {
   const session = await getAuthSession()
   const isAdmin = !!session?.user?.isAdmin
-  const t = await getTranslations('Navigation')
+  const [t, locale] = await Promise.all([getTranslations('Navigation'), getLocale()])
 
   return (
     <nav className="flex items-center gap-1" aria-label={t('ariaLabel')}>
@@ -18,6 +18,13 @@ export async function Navigation() {
       >
         <Icon name="article" size={16} />
         {t('journal')}
+      </Link>
+      <Link
+        href={`/${locale}/about`}
+        className="flex items-center gap-1 px-2.5 py-1.5 rounded text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
+      >
+        <Icon name="info" size={16} />
+        {t('about')}
       </Link>
 
       <SearchModal />
