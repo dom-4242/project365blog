@@ -5,18 +5,25 @@ export interface MetricsSummary {
   latestBodyFat?: number
   latestBmi?: number
   avgSteps30d?: number
+  lastSyncDate?: Date
 }
 
 export async function getLatestMetrics(): Promise<MetricsSummary> {
-  const latest = await prisma.dailyMetrics.findFirst({
-    orderBy: { date: 'desc' },
-    where: {
-      OR: [
-        { weight: { not: null } },
-        { bodyFat: { not: null } },
-      ],
-    },
-  })
+  const [latest, lastSyncRow] = await Promise.all([
+    prisma.dailyMetrics.findFirst({
+      orderBy: { date: 'desc' },
+      where: {
+        OR: [
+          { weight: { not: null } },
+          { bodyFat: { not: null } },
+        ],
+      },
+    }),
+    prisma.dailyMetrics.findFirst({
+      orderBy: { date: 'desc' },
+      select: { date: true },
+    }),
+  ])
 
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
@@ -39,6 +46,7 @@ export async function getLatestMetrics(): Promise<MetricsSummary> {
     latestBodyFat: latest?.bodyFat ?? undefined,
     latestBmi: latest?.bmi ?? undefined,
     avgSteps30d: avgSteps,
+    lastSyncDate: lastSyncRow?.date ?? undefined,
   }
 }
 
