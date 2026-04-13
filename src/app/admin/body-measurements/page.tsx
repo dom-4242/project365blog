@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db'
 import { BodyMeasurementForm } from '@/components/admin/BodyMeasurementForm'
+import { DatePicker } from '@/components/admin/DatePicker'
 
 function todayString() {
   return new Date().toISOString().slice(0, 10)
@@ -56,15 +57,7 @@ export default async function BodyMeasurementsPage({ searchParams }: PageProps) 
       {/* Datum-Picker */}
       <div className="flex items-center gap-3">
         <label className="text-xs font-medium text-on-surface-variant">Datum</label>
-        <form method="get">
-          <input
-            type="date"
-            name="date"
-            defaultValue={date}
-            onChange={(e) => (e.currentTarget.form as HTMLFormElement).requestSubmit()}
-            className="border border-surface-container-high rounded-lg px-3 py-1.5 text-sm text-on-surface focus:outline-none focus:border-on-surface-variant bg-surface-container"
-          />
-        </form>
+        <DatePicker defaultValue={date} />
       </div>
 
       <BodyMeasurementForm date={date} initial={initial} />
