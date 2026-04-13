@@ -21,7 +21,8 @@ const NAV_GROUPS = [
     label: 'Daten',
     items: [
       { href: '/admin/quick-log', label: 'Quick Log', exact: false },
-      { href: '/admin/metrics',   label: 'Metriken',  exact: false },
+      { href: '/admin/metrics',            label: 'Metriken',    exact: false },
+      { href: '/admin/body-measurements', label: 'Körpermasse', exact: false },
       { href: '/admin/fitbit',    label: 'Fitbit',    exact: false },
     ],
   },

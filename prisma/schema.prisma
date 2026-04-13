@@ -177,6 +177,30 @@ model MonthSummary {
 // =============================================
 
 // =============================================
+// KÖRPERMASSE — Umfangmessungen mit Massband
+// =============================================
+
+model BodyMeasurement {
+  id            String   @id @default(cuid())
+  date          DateTime @unique @db.Date
+  chest         Float?   // Brustumfang cm
+  waist         Float?   // Taillenumfang cm
+  hip           Float?   // Hüftumfang cm
+  upperArmLeft  Float?   // Oberarm links cm
+  upperArmRight Float?   // Oberarm rechts cm
+  thighLeft     Float?   // Oberschenkel links cm
+  thighRight    Float?   // Oberschenkel rechts cm
+  calfLeft      Float?   // Wade links cm
+  calfRight     Float?   // Wade rechts cm
+  neck          Float?   // Halsumfang cm (optional)
+  notes         String?  @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([date])
+}
+
+// =============================================
 // GETRÄNKE-LOG — Schnellerfassung Wasser & Cola Zero
 // =============================================
 

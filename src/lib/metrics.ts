@@ -91,3 +91,22 @@ export async function getBodyFatHistory(days = 90) {
     select: { date: true, bodyFat: true },
   })
 }
+
+export async function getBodyMeasurements() {
+  return prisma.bodyMeasurement.findMany({
+    orderBy: { date: 'asc' },
+    select: {
+      date: true,
+      chest: true,
+      waist: true,
+      hip: true,
+      upperArmLeft: true,
+      upperArmRight: true,
+      thighLeft: true,
+      thighRight: true,
+      calfLeft: true,
+      calfRight: true,
+      neck: true,
+    },
+  })
+}
