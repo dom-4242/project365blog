@@ -85,7 +85,8 @@ export async function middleware(req: NextRequest) {
       req.headers.get('x-real-ip') ??
       '0.0.0.0'
     const referrer = req.headers.get('referer') ?? ''
-    await fetch(new URL('/api/internal/track', req.url).toString(), {
+    const internalBase = process.env.NEXT_INTERNAL_URL ?? new URL('/', req.url).origin
+    await fetch(`${internalBase}/api/internal/track`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-internal-secret': internalSecret },
       body: JSON.stringify({ path: pathname, referrer, ua, ip }),
