@@ -3,7 +3,7 @@ import path from 'path'
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { PRIVATE_PHOTO_DIR } from '../route'
+import { PRIVATE_PHOTO_DIR } from '@/lib/body-photos'
 
 const MIME: Record<string, string> = {
   '.jpg': 'image/jpeg',

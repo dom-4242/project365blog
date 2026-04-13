@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { PhotoCategory } from '@prisma/client'
+import { PRIVATE_PHOTO_DIR } from '@/lib/body-photos'
 
 const ALLOWED_TYPES: Record<string, string> = {
   'image/jpeg': '.jpg',
@@ -14,9 +15,6 @@ const ALLOWED_TYPES: Record<string, string> = {
 }
 
 const MAX_SIZE_BYTES = 15 * 1024 * 1024 // 15 MB
-
-// Bilder ausserhalb des public-Verzeichnisses — kein direkter Browser-Zugriff
-export const PRIVATE_PHOTO_DIR = path.join(process.cwd(), 'private', 'body-photos')
 
 export async function POST(request: NextRequest) {
   const session = await requireAdmin()
