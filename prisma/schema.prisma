@@ -177,6 +177,24 @@ model MonthSummary {
 // =============================================
 
 // =============================================
+// GETRÄNKE-LOG — Schnellerfassung Wasser & Cola Zero
+// =============================================
+
+model DrinkLog {
+  id        String    @id @default(cuid())
+  type      DrinkType
+  volume    Int       // ml
+  timestamp DateTime  @default(now())
+
+  @@index([timestamp])
+}
+
+enum DrinkType {
+  WATER
+  COLA_ZERO
+}
+
+// =============================================
 // APP SETTINGS — generischer Key-Value Store
 // Wird u.a. für Fitbit OAuth Tokens genutzt
 // =============================================

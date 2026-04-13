@@ -1,0 +1,56 @@
+import { prisma } from '@/lib/db'
+import { QuickLogButtons } from '@/components/admin/QuickLogButtons'
+import { DRINK_VOLUME } from './actions'
+
+export const dynamic = 'force-dynamic'
+
+function formatTime(date: Date): string {
+  return date.toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit' })
+}
+
+export default async function QuickLogPage() {
+  const start = new Date()
+  start.setHours(0, 0, 0, 0)
+
+  const todayEntries = await prisma.drinkLog.findMany({
+    where: { timestamp: { gte: start } },
+    orderBy: { timestamp: 'desc' },
+  })
+
+  const water = todayEntries.filter((e) => e.type === 'WATER').length
+  const colaZero = todayEntries.filter((e) => e.type === 'COLA_ZERO').length
+  const totalMl = water * DRINK_VOLUME.WATER + colaZero * DRINK_VOLUME.COLA_ZERO
+
+  const recentEntries = todayEntries.map((e) => ({
+    id: e.id,
+    type: e.type,
+    time: formatTime(e.timestamp),
+  }))
+
+  return (
+    <div className="max-w-sm mx-auto space-y-8 py-4">
+      <div>
+        <h1 className="font-headline text-2xl font-bold text-on-surface mb-1">Quick Log</h1>
+        <p className="text-on-surface-variant text-sm">Getränke schnell erfassen</p>
+      </div>
+
+      {/* Today's summary */}
+      <div className="grid grid-cols-3 gap-3 text-center">
+        <div className="bg-surface-container rounded-xl p-3">
+          <p className="text-2xl font-bold text-on-surface">{water}</p>
+          <p className="text-xs text-on-surface-variant mt-0.5">💧 Flaschen</p>
+        </div>
+        <div className="bg-surface-container rounded-xl p-3">
+          <p className="text-2xl font-bold text-on-surface">{colaZero}</p>
+          <p className="text-xs text-on-surface-variant mt-0.5">🥤 Dosen</p>
+        </div>
+        <div className="bg-surface-container rounded-xl p-3">
+          <p className="text-2xl font-bold text-on-surface">{(totalMl / 1000).toFixed(1)}</p>
+          <p className="text-xs text-on-surface-variant mt-0.5">Liter total</p>
+        </div>
+      </div>
+
+      <QuickLogButtons recentEntries={recentEntries} />
+    </div>
+  )
+}
