@@ -171,10 +171,108 @@ model MonthSummary {
 }
 
 // =============================================
+// PRIVATE FOTO-GALERIE — Körper-Zeitraffer (nur Admin)
+// Dateien liegen unter /app/private/body-photos/ (ausserhalb public/)
+// =============================================
+
+model BodyPhoto {
+  id        String        @id @default(cuid())
+  filename  String        // gespeicherter Dateiname auf Disk
+  date      DateTime      @db.Date
+  category  PhotoCategory @default(FRONT)
+  notes     String?
+  createdAt DateTime      @default(now())
+
+  @@index([date])
+  @@index([category])
+}
+
+enum PhotoCategory {
+  FRONT
+  SIDE
+  BACK
+}
+
+// =============================================
+// LESEN — Bücher und tägliche Seiten
+// =============================================
+
+model Book {
+  id          String      @id @default(cuid())
+  title       String
+  author      String?
+  totalPages  Int?
+  startDate   DateTime?   @db.Date
+  endDate     DateTime?   @db.Date
+  completed   Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  readingLogs ReadingLog[]
+
+  @@index([completed])
+}
+
+model ReadingLog {
+  id         String   @id @default(cuid())
+  date       DateTime @db.Date
+  pagesRead  Int
+  bookId     String
+  book       Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([date, bookId])
+  @@index([date])
+  @@index([bookId])
+}
+
+// =============================================
 // SEITENAUFRUFE — Privacy-first Analytics
 // Kein Cookie, keine IP-Speicherung
 // sessionHash = SHA-256(IP+UA+Date+Salt), tagesbezogen
 // =============================================
+
+// =============================================
+// KÖRPERMASSE — Umfangmessungen mit Massband
+// =============================================
+
+model BodyMeasurement {
+  id            String   @id @default(cuid())
+  date          DateTime @unique @db.Date
+  chest         Float?   // Brustumfang cm
+  waist         Float?   // Taillenumfang cm
+  hip           Float?   // Hüftumfang cm
+  upperArmLeft  Float?   // Oberarm links cm
+  upperArmRight Float?   // Oberarm rechts cm
+  thighLeft     Float?   // Oberschenkel links cm
+  thighRight    Float?   // Oberschenkel rechts cm
+  calfLeft      Float?   // Wade links cm
+  calfRight     Float?   // Wade rechts cm
+  neck          Float?   // Halsumfang cm (optional)
+  notes         String?  @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([date])
+}
+
+// =============================================
+// GETRÄNKE-LOG — Schnellerfassung Wasser & Cola Zero
+// =============================================
+
+model DrinkLog {
+  id        String    @id @default(cuid())
+  type      DrinkType
+  volume    Int       // ml
+  timestamp DateTime  @default(now())
+
+  @@index([timestamp])
+}
+
+enum DrinkType {
+  WATER
+  COLA_ZERO
+}
 
 // =============================================
 // APP SETTINGS — generischer Key-Value Store

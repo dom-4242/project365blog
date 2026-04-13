@@ -2,7 +2,7 @@ import { writeFile, mkdir } from 'fs/promises'
 import path from 'path'
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/auth'
-import { generateBannerSvg } from '@/lib/banner-generate'
+import { generateBannerImage } from '@/lib/banner-generate'
 
 export async function POST(request: NextRequest) {
   const session = await requireAdmin()
@@ -24,14 +24,14 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const svg = await generateBannerSvg(title.trim(), excerpt?.trim() ?? '')
+    const imageBuffer = await generateBannerImage(title.trim(), excerpt?.trim() ?? '')
 
     const rawSlug = (slug ?? '').replace(/[^a-z0-9_-]/gi, '-').slice(0, 100)
-    const filename = `${rawSlug || Date.now()}-ai.svg`
+    const filename = `${rawSlug || Date.now()}-ai.png`
 
     const uploadDir = path.join(process.cwd(), 'public', 'images', 'journal')
     await mkdir(uploadDir, { recursive: true })
-    await writeFile(path.join(uploadDir, filename), svg, 'utf-8')
+    await writeFile(path.join(uploadDir, filename), imageBuffer)
 
     return NextResponse.json({ url: `/images/journal/${filename}` })
   } catch (e) {
