@@ -1,6 +1,11 @@
 import OpenAI from 'openai'
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+function getClient(): OpenAI {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error('OPENAI_API_KEY nicht konfiguriert')
+  }
+  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+}
 
 function buildPrompt(title: string, excerpt: string): string {
   return `Create a wide cinematic banner image for a personal journal entry.
@@ -22,11 +27,7 @@ The image should feel personal, introspective, and visually match the emotional 
 }
 
 export async function generateBannerImage(title: string, excerpt: string): Promise<Buffer> {
-  if (!process.env.OPENAI_API_KEY) {
-    throw new Error('OPENAI_API_KEY nicht konfiguriert')
-  }
-
-  const response = await client.images.generate({
+  const response = await getClient().images.generate({
     model: 'dall-e-3',
     prompt: buildPrompt(title, excerpt),
     n: 1,
