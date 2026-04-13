@@ -18,6 +18,7 @@ export interface EntryFormData {
   smoking: SmokingStatus
   tags: string[]
   published: boolean
+  privateNotes?: string
 }
 
 export interface ActionResult {
@@ -59,6 +60,7 @@ export async function createEntry(data: EntryFormData): Promise<ActionResult> {
         smoking: data.smoking,
         tags: data.tags,
         published: data.published,
+        privateNotes: data.privateNotes?.trim() || null,
       },
     })
 
@@ -94,6 +96,7 @@ export async function updateEntry(id: string, data: EntryFormData): Promise<Acti
         smoking: data.smoking,
         tags: data.tags,
         published: data.published,
+        privateNotes: data.privateNotes?.trim() || null,
       },
     })
 

@@ -23,6 +23,7 @@ export default async function EditEntryPage({ params }: EditEntryPageProps) {
     smoking: entry.smoking,
     tags: entry.tags,
     published: entry.published,
+    privateNotes: entry.privateNotes ?? '',
   }
 
   return (

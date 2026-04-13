@@ -53,6 +53,7 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
   const [bannerUrl, setBannerUrl] = useState<string | undefined>(initial?.bannerUrl)
   const [tags, setTags] = useState<string>(initial?.tags?.join(', ') ?? '')
   const [published, setPublished] = useState(initial?.published ?? true)
+  const [privateNotes, setPrivateNotes] = useState(initial?.privateNotes ?? '')
   const [error, setError] = useState<string | null>(null)
   const [isPreview, setIsPreview] = useState(false)
 
@@ -80,6 +81,7 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
       smoking,
       tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
       published,
+      privateNotes,
     }
 
     startTransition(async () => {
@@ -250,6 +252,22 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
           rows={2}
           placeholder="1–2 Sätze, die den Eintrag zusammenfassen..."
           className="w-full border border-surface-container-high rounded-lg px-3 py-2 text-sm text-on-surface focus:outline-none focus:border-on-surface-variant bg-surface-container resize-none"
+        />
+      </div>
+
+      {/* Private Notizen */}
+      <div className="rounded-xl border border-dashed border-outline-variant bg-surface-container-low p-4 space-y-2">
+        <label className="flex items-center gap-1.5 text-xs font-medium text-on-surface-variant">
+          <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 0" }}>lock</span>
+          Private Notizen
+          <span className="font-normal ml-1">— nur im Admin sichtbar, niemals öffentlich</span>
+        </label>
+        <textarea
+          value={privateNotes}
+          onChange={(e) => setPrivateNotes(e.target.value)}
+          rows={3}
+          placeholder="Persönliche Gedanken, Kontext oder Erinnerungen die nicht veröffentlicht werden..."
+          className="w-full border border-outline-variant/40 rounded-lg px-3 py-2 text-sm text-on-surface focus:outline-none focus:border-outline-variant bg-surface-container-lowest resize-none"
         />
       </div>
 
