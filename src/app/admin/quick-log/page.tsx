@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/db'
 import { QuickLogButtons } from '@/components/admin/QuickLogButtons'
-import { DRINK_VOLUME } from './actions'
+import { DRINK_VOLUME } from '@/lib/drinks'
 
 export const dynamic = 'force-dynamic'
 

@@ -4,18 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
 import { DrinkType } from '@prisma/client'
-
-export const DRINK_VOLUME: Record<DrinkType, number> = {
-  WATER: 500,     // ml per bottle
-  COLA_ZERO: 330, // ml per can
-}
-
-export interface TodayDrinks {
-  water: number
-  colaZero: number
-  waterMl: number
-  colaZeroMl: number
-}
+import { DRINK_VOLUME, type TodayDrinks } from '@/lib/drinks'
 
 export async function logDrink(type: DrinkType): Promise<{ error?: string }> {
   const session = await requireAdmin()
