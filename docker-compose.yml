@@ -49,6 +49,7 @@ services:
       - 8.8.8.8
     volumes:
       - uploads:/app/public/images/journal
+      - private_photos:/app/private/body-photos
     depends_on:
       db:
         condition: service_healthy
@@ -75,3 +76,4 @@ services:
 volumes:
   postgres_data:
   uploads:
+  private_photos:

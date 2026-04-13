@@ -171,6 +171,29 @@ model MonthSummary {
 }
 
 // =============================================
+// PRIVATE FOTO-GALERIE — Körper-Zeitraffer (nur Admin)
+// Dateien liegen unter /app/private/body-photos/ (ausserhalb public/)
+// =============================================
+
+model BodyPhoto {
+  id        String        @id @default(cuid())
+  filename  String        // gespeicherter Dateiname auf Disk
+  date      DateTime      @db.Date
+  category  PhotoCategory @default(FRONT)
+  notes     String?
+  createdAt DateTime      @default(now())
+
+  @@index([date])
+  @@index([category])
+}
+
+enum PhotoCategory {
+  FRONT
+  SIDE
+  BACK
+}
+
+// =============================================
 // LESEN — Bücher und tägliche Seiten
 // =============================================
 
