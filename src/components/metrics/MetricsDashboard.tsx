@@ -1,15 +1,17 @@
 import { useTranslations } from 'next-intl'
 import { getTranslations } from 'next-intl/server'
-import { getWeightHistory, getStepsHistory, getBodyFatHistory, getLatestMetrics, getBodyMeasurements } from '@/lib/metrics'
+import { getWeightHistory, getStepsHistory, getBodyFatHistory, getLatestMetrics, getBodyMeasurements, getReadingStats } from '@/lib/metrics'
 import { getProfile } from '@/lib/profile'
 import { WeightChart } from './WeightChart'
 import { StepsChart } from './StepsChart'
 import { BodyFatChart } from './BodyFatChart'
 import { BodyMeasurementChart } from './BodyMeasurementChart'
+import { ReadingSection } from './ReadingSection'
 import type { WeightDataPoint } from './WeightChart'
 import type { StepsDataPoint } from './StepsChart'
 import type { BodyFatDataPoint } from './BodyFatChart'
 import type { BodyMeasurementDataPoint } from './BodyMeasurementChart'
+import type { ReadingStats } from './ReadingSection'
 
 function toDateString(date: Date | string): string {
   if (typeof date === 'string') return date
@@ -29,11 +31,12 @@ function EmptyState() {
 export async function MetricsDashboard() {
   const t = await getTranslations('MetricsDashboard')
 
-  const [weightRaw, stepsRaw, bodyFatRaw, measurementsRaw, summary, profile] = await Promise.all([
+  const [weightRaw, stepsRaw, bodyFatRaw, measurementsRaw, readingStats, summary, profile] = await Promise.all([
     getWeightHistory(90),
     getStepsHistory(30),
     getBodyFatHistory(90),
     getBodyMeasurements(),
+    getReadingStats(30),
     getLatestMetrics(),
     getProfile(),
   ])
@@ -64,7 +67,8 @@ export async function MetricsDashboard() {
   const hasSteps = stepsData.length > 0
   const hasBodyFat = bodyFatData.length > 0
   const hasMeasurements = measurementData.length > 0
-  const hasAnyData = hasWeight || hasSteps || hasBodyFat || hasMeasurements
+  const hasReading = readingStats.pagesPerDay.length > 0 || readingStats.currentBook !== null
+  const hasAnyData = hasWeight || hasSteps || hasBodyFat || hasMeasurements || hasReading
 
   return (
     <section className="mb-14 space-y-6">
@@ -102,6 +106,11 @@ export async function MetricsDashboard() {
           {/* Body measurements — full width */}
           {hasMeasurements && (
             <BodyMeasurementChart data={measurementData} />
+          )}
+
+          {/* Reading — full width */}
+          {hasReading && (
+            <ReadingSection stats={readingStats} />
           )}
         </div>
       )}

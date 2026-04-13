@@ -23,6 +23,7 @@ const NAV_GROUPS = [
       { href: '/admin/quick-log', label: 'Quick Log', exact: false },
       { href: '/admin/metrics',            label: 'Metriken',    exact: false },
       { href: '/admin/body-measurements', label: 'Körpermasse', exact: false },
+      { href: '/admin/reading',           label: 'Lesen',       exact: false },
       { href: '/admin/fitbit',    label: 'Fitbit',    exact: false },
     ],
   },

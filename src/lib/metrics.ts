@@ -92,6 +92,49 @@ export async function getBodyFatHistory(days = 90) {
   })
 }
 
+export async function getReadingStats(days = 30) {
+  const since = new Date()
+  since.setDate(since.getDate() - days)
+  since.setHours(0, 0, 0, 0)
+
+  const [logs, activeBook, completedThisYear] = await Promise.all([
+    prisma.readingLog.findMany({
+      where: { date: { gte: since } },
+      orderBy: { date: 'asc' },
+      select: { date: true, pagesRead: true },
+    }),
+    prisma.book.findFirst({
+      where: { completed: false },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        readingLogs: { select: { pagesRead: true } },
+      },
+    }),
+    prisma.book.count({
+      where: {
+        completed: true,
+        endDate: { gte: new Date(new Date().getFullYear(), 0, 1) },
+      },
+    }),
+  ])
+
+  const pagesPerDay = logs.map((l) => ({
+    date: l.date.toISOString().slice(0, 10),
+    pages: l.pagesRead,
+  }))
+
+  const currentBook = activeBook
+    ? {
+        title: activeBook.title,
+        author: activeBook.author,
+        totalPages: activeBook.totalPages,
+        pagesRead: activeBook.readingLogs.reduce((s, l) => s + l.pagesRead, 0),
+      }
+    : null
+
+  return { pagesPerDay, currentBook, booksThisYear: completedThisYear }
+}
+
 export async function getBodyMeasurements() {
   return prisma.bodyMeasurement.findMany({
     orderBy: { date: 'asc' },

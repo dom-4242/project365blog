@@ -171,6 +171,39 @@ model MonthSummary {
 }
 
 // =============================================
+// LESEN — Bücher und tägliche Seiten
+// =============================================
+
+model Book {
+  id          String      @id @default(cuid())
+  title       String
+  author      String?
+  totalPages  Int?
+  startDate   DateTime?   @db.Date
+  endDate     DateTime?   @db.Date
+  completed   Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  readingLogs ReadingLog[]
+
+  @@index([completed])
+}
+
+model ReadingLog {
+  id         String   @id @default(cuid())
+  date       DateTime @db.Date
+  pagesRead  Int
+  bookId     String
+  book       Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([date, bookId])
+  @@index([date])
+  @@index([bookId])
+}
+
+// =============================================
 // SEITENAUFRUFE — Privacy-first Analytics
 // Kein Cookie, keine IP-Speicherung
 // sessionHash = SHA-256(IP+UA+Date+Salt), tagesbezogen
