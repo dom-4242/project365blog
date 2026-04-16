@@ -8,6 +8,11 @@ import {
   isNutritionFulfilled,
   isSmokingFulfilled,
 } from '@/lib/habits'
+import {
+  getDrinkAvg7d,
+  WATER_DAILY_TARGET_ML,
+  COLA_ZERO_DAILY_LIMIT_ML,
+} from '@/lib/drinks'
 
 // ─── SVG Ring Chart ────────────────────────────────────────────────────────
 
@@ -362,6 +367,63 @@ function StackedMetricTile({ steps, stepsGoal, bodyFat, labelSteps, labelBodyFat
   )
 }
 
+// ─── Drink Metric Tile ────────────────────────────────────────────────────
+
+interface DrinkMetricTileProps {
+  label: string
+  avgMl: number
+  targetMl: number
+  /** true = higher is better (water); false = lower is better (cola zero) */
+  moreIsBetter: boolean
+  labelGoal: string
+  unit?: string
+}
+
+function DrinkMetricTile({ label, avgMl, targetMl, moreIsBetter, labelGoal, unit = 'ml' }: DrinkMetricTileProps) {
+  const ratio = targetMl > 0 ? avgMl / targetMl : 0
+  const barPct = Math.min(100, Math.round(ratio * 100))
+  const goalMet = moreIsBetter ? avgMl >= targetMl : avgMl <= targetMl
+  const barColor = goalMet ? 'bg-movement-400' : moreIsBetter ? 'bg-primary' : 'bg-error'
+  const valueColor = goalMet ? 'text-movement-300' : 'text-on-surface'
+
+  const display = unit === 'L'
+    ? `${(avgMl / 1000).toFixed(1)} L`
+    : `${avgMl} ml`
+  const goalDisplay = unit === 'L'
+    ? `${(targetMl / 1000).toFixed(1)} L`
+    : `${targetMl} ml`
+
+  return (
+    <div className="col-span-1 sm:col-span-1 lg:col-span-6 bg-surface-container-high border border-outline-variant/10 rounded-xl p-4 flex flex-col gap-3">
+      <p className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">
+        {label}
+      </p>
+
+      <div className="flex items-end justify-between gap-2">
+        <div className="flex items-baseline gap-1.5">
+          <span className={`text-3xl font-headline font-bold tracking-tighter leading-none ${valueColor}`}>
+            {(avgMl / 1000).toFixed(1)}
+          </span>
+          <span className="text-xs text-on-surface-variant">L</span>
+        </div>
+        <span className="text-xs text-on-surface-variant shrink-0">
+          {labelGoal}: {goalDisplay}
+        </span>
+      </div>
+
+      <div className="space-y-1">
+        <div className="h-1 bg-surface-container rounded-full overflow-hidden">
+          <div
+            className={`h-full rounded-full ${barColor} transition-all duration-700`}
+            style={{ width: `${barPct}%` }}
+          />
+        </div>
+        <p className="text-xs text-on-surface-variant text-right">{barPct}%</p>
+      </div>
+    </div>
+  )
+}
+
 // ─── Helper: compute 7-day vs 30-day success rate ─────────────────────────
 
 function computeRates(booleans: boolean[]): { pct30d: number; pct7d: number } {
@@ -375,10 +437,11 @@ function computeRates(booleans: boolean[]): { pct30d: number; pct7d: number } {
 // ─── Live Status section ───────────────────────────────────────────────────
 
 export async function LiveStatus() {
-  const [entries, metrics, profile, t] = await Promise.all([
+  const [entries, metrics, profile, drinkAvg, t] = await Promise.all([
     getAllEntries(),
     getLatestMetrics(),
     getProfile(),
+    getDrinkAvg7d(),
     getTranslations('HomePage'),
   ])
 
@@ -458,6 +521,23 @@ export async function LiveStatus() {
           labelSteps={t('metricSteps')}
           labelBodyFat={t('metricBodyFat')}
           labelAvg30d={t('metricAvg30d')}
+        />
+
+        {/* Row 3 — Drink metrics */}
+        <DrinkMetricTile
+          label={t('metricWater')}
+          avgMl={drinkAvg.waterMl}
+          targetMl={WATER_DAILY_TARGET_ML}
+          moreIsBetter={true}
+          labelGoal={t('metricDailyGoal')}
+        />
+
+        <DrinkMetricTile
+          label={t('metricColaZero')}
+          avgMl={drinkAvg.colaZeroMl}
+          targetMl={COLA_ZERO_DAILY_LIMIT_ML}
+          moreIsBetter={false}
+          labelGoal={t('metricDailyLimit')}
         />
 
       </div>
