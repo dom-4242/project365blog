@@ -55,7 +55,7 @@ export function QuickLogButtons({ recentEntries }: QuickLogButtonsProps) {
           )}
           <span className="text-5xl">💧</span>
           <span className="font-label text-xs font-bold tracking-widest uppercase text-on-surface-variant">Wasser</span>
-          <span className="text-xs text-on-surface-variant">500 ml</span>
+          <span className="text-xs text-on-surface-variant">600 ml</span>
         </button>
 
         <button
