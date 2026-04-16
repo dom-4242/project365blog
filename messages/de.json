@@ -40,7 +40,11 @@
     "metricNoData": "Noch keine Daten",
     "metricSteps": "Ø Schritte (30d)",
     "metricBodyFat": "Körperfett",
-    "metricAvg30d": "30-Tage-Durchschnitt"
+    "metricAvg30d": "30-Tage-Durchschnitt",
+    "metricWater": "Ø Wasser (7T)",
+    "metricColaZero": "Ø Cola Zero (7T)",
+    "metricDailyGoal": "Tagesziel",
+    "metricDailyLimit": "Tageslimit"
   },
   "AboutPage": {
     "metaTitle": "Über das Projekt — Project 365",

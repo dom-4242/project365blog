@@ -37,7 +37,11 @@
     "metricNoData": "Sem dados ainda",
     "metricSteps": "Média Passos (30d)",
     "metricBodyFat": "Gordura Corporal",
-    "metricAvg30d": "Média 30 dias"
+    "metricAvg30d": "Média 30 dias",
+    "metricWater": "Média Água (7d)",
+    "metricColaZero": "Média Cola Zero (7d)",
+    "metricDailyGoal": "Meta diária",
+    "metricDailyLimit": "Limite diário"
   },
   "AboutPage": {
     "metaTitle": "Sobre o Projeto — Project 365",

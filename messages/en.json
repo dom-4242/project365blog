@@ -40,7 +40,11 @@
     "metricNoData": "No data yet",
     "metricSteps": "Avg Steps (30d)",
     "metricBodyFat": "Body Fat",
-    "metricAvg30d": "30-day average"
+    "metricAvg30d": "30-day average",
+    "metricWater": "Avg Water (7d)",
+    "metricColaZero": "Avg Cola Zero (7d)",
+    "metricDailyGoal": "Daily goal",
+    "metricDailyLimit": "Daily limit"
   },
   "AboutPage": {
     "metaTitle": "About the Project — Project 365",
