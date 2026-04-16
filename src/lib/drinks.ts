@@ -22,6 +22,103 @@ export interface DrinkAvg7d {
   colaZeroMl: number
 }
 
+// ─── Analytics ────────────────────────────────────────────────────────────
+
+export interface DrinkDayData {
+  date: string   // YYYY-MM-DD
+  waterMl: number
+  colaZeroMl: number
+}
+
+export interface DrinkDayStat {
+  date: string
+  ml: number
+}
+
+export interface DrinkStats {
+  total: number
+  avg: number
+  maxDay: DrinkDayStat | null
+  minDay: DrinkDayStat | null
+  streak: number
+}
+
+export interface DrinkAnalytics {
+  days: DrinkDayData[]
+  waterStats: DrinkStats
+  colaStats: DrinkStats
+}
+
+function buildStats(
+  days: DrinkDayData[],
+  key: 'waterMl' | 'colaZeroMl',
+  threshold: number,
+  moreIsBetter: boolean,
+): DrinkStats {
+  if (days.length === 0) return { total: 0, avg: 0, maxDay: null, minDay: null, streak: 0 }
+
+  const pairs = days.map((d) => ({ date: d.date, ml: d[key] }))
+  const total = pairs.reduce((s, d) => s + d.ml, 0)
+  const avg = Math.round(total / days.length)
+
+  const sorted = [...pairs].sort((a, b) => a.ml - b.ml)
+  const minDay = sorted[0]
+  const maxDay = sorted[sorted.length - 1]
+
+  let maxStreak = 0, cur = 0
+  for (const d of pairs) {
+    const met = moreIsBetter ? d.ml >= threshold : d.ml <= threshold
+    cur = met ? cur + 1 : 0
+    if (cur > maxStreak) maxStreak = cur
+  }
+
+  return { total, avg, maxDay, minDay, streak: maxStreak }
+}
+
+export async function getDrinkAnalytics(days: number | 'all'): Promise<DrinkAnalytics> {
+  const tz = 'Europe/Zurich'
+  const todayStart = zurichDayStart()
+  const since = days === 'all'
+    ? undefined
+    : new Date(todayStart.getTime() - days * 24 * 60 * 60 * 1000)
+
+  const rows = await prisma.drinkLog.findMany({
+    where: { timestamp: { ...(since ? { gte: since } : {}), lt: todayStart } },
+    select: { type: true, volume: true, timestamp: true },
+    orderBy: { timestamp: 'asc' },
+  })
+
+  // Aggregate by Zurich calendar day
+  const dayMap = new Map<string, { water: number; cola: number }>()
+  for (const row of rows) {
+    const date = new Intl.DateTimeFormat('en-CA', { timeZone: tz }).format(row.timestamp)
+    const entry = dayMap.get(date) ?? { water: 0, cola: 0 }
+    if (row.type === 'WATER') entry.water += row.volume
+    else entry.cola += row.volume
+    dayMap.set(date, entry)
+  }
+
+  // Build ordered day list, filling zeros for missing days
+  const daysList: DrinkDayData[] = []
+  const rangeStart = since ?? (rows[0]
+    ? new Date(new Intl.DateTimeFormat('en-CA', { timeZone: tz }).format(rows[0].timestamp) + 'T00:00:00Z')
+    : todayStart)
+
+  let cur = new Date(rangeStart)
+  while (cur < todayStart) {
+    const date = new Intl.DateTimeFormat('en-CA', { timeZone: tz }).format(cur)
+    const entry = dayMap.get(date) ?? { water: 0, cola: 0 }
+    daysList.push({ date, waterMl: entry.water, colaZeroMl: entry.cola })
+    cur = new Date(cur.getTime() + 24 * 60 * 60 * 1000)
+  }
+
+  return {
+    days: daysList,
+    waterStats: buildStats(daysList, 'waterMl', WATER_DAILY_TARGET_ML, true),
+    colaStats: buildStats(daysList, 'colaZeroMl', COLA_ZERO_DAILY_LIMIT_ML, false),
+  }
+}
+
 export async function getDrinkAvg7d(): Promise<DrinkAvg7d> {
   const todayStart = zurichDayStart()
   const sevenDaysAgo = new Date(todayStart.getTime() - 7 * 24 * 60 * 60 * 1000)
