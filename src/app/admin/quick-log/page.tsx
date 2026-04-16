@@ -1,16 +1,12 @@
 import { prisma } from '@/lib/db'
 import { QuickLogButtons } from '@/components/admin/QuickLogButtons'
 import { DRINK_VOLUME } from '@/lib/drinks'
+import { zurichDayStart, formatZurichTime } from '@/lib/timezone'
 
 export const dynamic = 'force-dynamic'
 
-function formatTime(date: Date): string {
-  return date.toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit' })
-}
-
 export default async function QuickLogPage() {
-  const start = new Date()
-  start.setHours(0, 0, 0, 0)
+  const start = zurichDayStart()
 
   const todayEntries = await prisma.drinkLog.findMany({
     where: { timestamp: { gte: start } },
@@ -24,7 +20,7 @@ export default async function QuickLogPage() {
   const recentEntries = todayEntries.map((e) => ({
     id: e.id,
     type: e.type,
-    time: formatTime(e.timestamp),
+    time: formatZurichTime(e.timestamp),
   }))
 
   return (
