@@ -12,13 +12,49 @@ function formatLastReceived(date: Date): string {
   return date.toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
-function formatValue(value: number | null, unit: string): string {
+// Maps Apple Health raw units to readable display units
+const UNIT_DISPLAY: Record<string, string> = {
+  'count':          'Schritte',
+  'count/min':      'S/min',
+  'kcal':           'kcal',
+  'Cal':            'kcal',
+  'km':             'km',
+  'mi':             'mi',
+  'kg':             'kg',
+  '%':              '%',
+  'bpm':            'bpm',
+  'ms':             'ms',
+  'hr':             'h',
+  'min':            'min',
+  'mmHg':           'mmHg',
+  'dBASPL':         'dB',
+  'mL/kg/min':      'ml/kg/min',
+  'degC':           '°C',
+  'lux':            'lux',
+  'W':              'W',
+  'm/s':            'm/s',
+  'm':              'm',
+  'cm':             'cm',
+  'L':              'L',
+  'mg/dL':          'mg/dL',
+  'IU':             'IE',
+}
+
+function displayUnit(rawUnit: string): string {
+  return UNIT_DISPLAY[rawUnit] ?? rawUnit
+}
+
+function formatValue(value: number | null, rawUnit: string): string {
   if (value === null) return '—'
-  if (unit === 'kg') return value.toFixed(1)
-  if (unit === '%') return value.toFixed(1)
-  if (unit === 'km' || unit === 'mi') return value.toFixed(2)
+  // Units that are naturally integer (steps, floors, etc.)
+  const integerUnits = ['count', 'count/min']
+  if (integerUnits.includes(rawUnit)) return Math.round(value).toLocaleString('de-CH')
+  if (rawUnit === 'kg' || rawUnit === '%') return value.toFixed(1)
+  if (rawUnit === 'km' || rawUnit === 'mi' || rawUnit === 'm') return value.toFixed(2)
+  if (rawUnit === 'hr') return value.toFixed(1)
+  if (rawUnit === 'ms') return Math.round(value).toLocaleString('de-CH')
   if (Number.isInteger(value)) return value.toLocaleString('de-CH')
-  return value.toFixed(2)
+  return value.toFixed(1)
 }
 
 function StatusBadge({ row }: { row: InventoryRow }) {
@@ -69,7 +105,7 @@ function CategorySection({ category, rows }: { category: string; rows: Inventory
             <tr className="border-b border-outline-variant/10 bg-surface-container-high">
               <th className="text-left px-4 py-2.5 text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">Attribut</th>
               <th className="text-right px-4 py-2.5 text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant whitespace-nowrap">Datenpunkte</th>
-              <th className="text-right px-4 py-2.5 text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant whitespace-nowrap">Letzter Wert</th>
+              <th className="text-right px-4 py-2.5 text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant whitespace-nowrap" title="Letzter Einzelmesswert aus dem Import (kein Tageswert)">Letzter Messwert</th>
               <th className="text-right px-4 py-2.5 text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant whitespace-nowrap">Datum</th>
               <th className="text-right px-4 py-2.5 text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant whitespace-nowrap">Letzter Import</th>
               <th className="text-right px-4 py-2.5 text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">Status</th>
@@ -95,7 +131,7 @@ function CategorySection({ category, rows }: { category: string; rows: Inventory
                 <td className="px-4 py-3 text-right text-on-surface-variant whitespace-nowrap">
                   {formatValue(row.lastValue, row.unit)}
                   {row.lastValue !== null && (
-                    <span className="ml-1 text-xs opacity-60">{row.unit}</span>
+                    <span className="ml-1 text-xs opacity-60">{displayUnit(row.unit)}</span>
                   )}
                 </td>
                 <td className="px-4 py-3 text-right text-on-surface-variant whitespace-nowrap text-xs">
