@@ -14,7 +14,7 @@ interface MetricMeta {
 
 // Normalize: lowercase + collapse whitespace
 function normalizeMetricName(name: string): string {
-  return name.toLowerCase().replace(/\s+/g, ' ').trim()
+  return name.toLowerCase().replace(/_/g, ' ').replace(/\s+/g, ' ').trim()
 }
 
 const METRIC_MAP: Record<string, MetricMeta> = {
@@ -41,6 +41,9 @@ const METRIC_MAP: Record<string, MetricMeta> = {
   'apple stand time':               { displayName: 'Apple Stehzeit',                category: 'Aktivität' },
   'apple stand hour':               { displayName: 'Apple Stehstunden',             category: 'Aktivität' },
   'move minutes':                   { displayName: 'Bewegungsminuten',              category: 'Aktivität' },
+  'stair speed up':                 { displayName: 'Treppengeschwindigkeit aufwärts', category: 'Aktivität' },
+  'stair speed down':               { displayName: 'Treppengeschwindigkeit abwärts',  category: 'Aktivität' },
+  'six minute walking test distance': { displayName: '6-Minuten-Gehtest Distanz',    category: 'Aktivität' },
   'cycling distance':               { displayName: 'Raddistanz',                    category: 'Aktivität' },
   'swimming distance':              { displayName: 'Schwimmdistanz',                category: 'Aktivität' },
   'swimming stroke count':          { displayName: 'Schwimmzüge',                   category: 'Aktivität' },
@@ -59,6 +62,7 @@ const METRIC_MAP: Record<string, MetricMeta> = {
   'height':                         { displayName: 'Körpergrösse',                  category: 'Körper' },
   'waist circumference':            { displayName: 'Taillenumfang',                 category: 'Körper' },
   'wrist circumference':            { displayName: 'Handgelenkumfang',              category: 'Körper' },
+  'apple sleeping wrist temperature': { displayName: 'Handgelenk-Schlaftemperatur', category: 'Herz & Vitalwerte' },
 
   // Heart & Vitals
   'resting heart rate':             { displayName: 'Ruheherzfrequenz',              category: 'Herz & Vitalwerte',  mappedToDb: 'restingHR',      usedInDashboard: false },
