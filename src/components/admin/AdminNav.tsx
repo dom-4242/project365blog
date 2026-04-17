@@ -26,7 +26,8 @@ const NAV_GROUPS = [
       { href: '/admin/body-measurements', label: 'Körpermasse', exact: false },
       { href: '/admin/reading',            label: 'Lesen',         exact: false },
       { href: '/admin/body-photos',       label: 'Foto-Galerie',  exact: false },
-      { href: '/admin/fitbit',    label: 'Fitbit',    exact: false },
+      { href: '/admin/fitbit',             label: 'Fitbit',          exact: false },
+      { href: '/admin/health-inventory', label: 'Health Inventar', exact: false },
     ],
   },
   {
