@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server'
 import { getAllEntries } from '@/lib/journal'
 import { getLatestMetrics } from '@/lib/metrics'
 import { getProfile } from '@/lib/profile'
+import { getPriorityPillar } from '@/lib/settings'
 import {
   calculateStreak,
   isMovementFulfilled,
@@ -69,6 +70,13 @@ function RingChart({ pct, color, size = 88, strokeWidth = 7 }: RingChartProps) {
 
 // ─── Smoking Streak Hero Tile ──────────────────────────────────────────────
 
+// Glow styles per pillar (smoking=blue, movement=green, nutrition=orange)
+const PILLAR_GLOW: Record<string, { border: string; shadow: string }> = {
+  smoking:   { border: 'border-smoking-400/50',   shadow: '0 0 20px rgba(91,145,247,0.28), 0 0 6px rgba(91,145,247,0.14)' },
+  movement:  { border: 'border-movement-400/50',  shadow: '0 0 20px rgba(98,188,68,0.28),  0 0 6px rgba(98,188,68,0.14)'  },
+  nutrition: { border: 'border-nutrition-400/50', shadow: '0 0 20px rgba(253,139,80,0.28), 0 0 6px rgba(253,139,80,0.14)' },
+}
+
 interface SmokingHeroProps {
   streak: number
   longestStreak: number
@@ -77,11 +85,19 @@ interface SmokingHeroProps {
   labelDays: string
   labelLongest: string
   labelRate: string
+  isPriority?: boolean
 }
 
-function SmokingHeroTile({ streak, longestStreak, pct, labelStreak, labelDays, labelLongest, labelRate }: SmokingHeroProps) {
+function SmokingHeroTile({ streak, longestStreak, pct, labelStreak, labelDays, labelLongest, labelRate, isPriority }: SmokingHeroProps) {
+  const glow = isPriority ? PILLAR_GLOW.smoking : null
   return (
-    <div className="relative col-span-1 sm:col-span-2 lg:col-span-5 bg-surface-variant/40 backdrop-blur-xl border border-outline-variant/15 rounded-xl p-5 overflow-hidden flex flex-col gap-4">
+    <div
+      className={`relative col-span-1 sm:col-span-2 lg:col-span-5 bg-surface-variant/40 backdrop-blur-xl rounded-xl p-5 overflow-hidden flex flex-col gap-4 transition-shadow ${glow ? `border ${glow.border}` : 'border border-outline-variant/15'}`}
+      style={glow ? { boxShadow: glow.shadow } : undefined}
+      role={isPriority ? 'region' : undefined}
+      aria-label={isPriority ? 'Priorität: Rauchstopp' : undefined}
+    >
+      {isPriority && <span className="sr-only">Aktueller Fokus</span>}
       {/* Decorative background number */}
       <span
         className="pointer-events-none select-none absolute -right-4 -bottom-4 font-headline font-bold leading-none text-smoking-400/5"
@@ -135,15 +151,24 @@ interface HabitRingProps {
   color: string        // hex
   labelDays: string
   label7d: string
+  isPriority?: boolean
+  pillarKey?: string
 }
 
-function HabitRingTile({ label, streak, pct7d, pct30d, color, labelDays, label7d }: HabitRingProps) {
+function HabitRingTile({ label, streak, pct7d, pct30d, color, labelDays, label7d, isPriority, pillarKey }: HabitRingProps) {
   const trend = pct7d - pct30d
   const trendSign = trend > 0 ? '+' : ''
   const trendColor = trend >= 0 ? 'text-on-surface-variant' : 'text-error'
+  const glow = isPriority && pillarKey ? PILLAR_GLOW[pillarKey] : null
 
   return (
-    <div className="col-span-1 sm:col-span-1 lg:col-span-4 bg-surface-container-high border border-outline-variant/10 rounded-xl p-4 flex flex-col gap-3">
+    <div
+      className={`col-span-1 sm:col-span-1 lg:col-span-4 bg-surface-container-high rounded-xl p-4 flex flex-col gap-3 transition-shadow ${glow ? `border ${glow.border}` : 'border border-outline-variant/10'}`}
+      style={glow ? { boxShadow: glow.shadow } : undefined}
+      role={isPriority ? 'region' : undefined}
+      aria-label={isPriority && pillarKey ? `Priorität: ${label}` : undefined}
+    >
+      {isPriority && <span className="sr-only">Aktueller Fokus</span>}
       <p className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">
         {label}
       </p>
@@ -178,15 +203,23 @@ interface NutritionRingProps {
   color: string
   labelDays: string
   label7d: string
+  isPriority?: boolean
 }
 
-function NutritionRingTile({ label, streak, pct7d, pct30d, color, labelDays, label7d }: NutritionRingProps) {
+function NutritionRingTile({ label, streak, pct7d, pct30d, color, labelDays, label7d, isPriority }: NutritionRingProps) {
   const trend = pct7d - pct30d
   const trendSign = trend > 0 ? '+' : ''
   const trendColor = trend >= 0 ? 'text-on-surface-variant' : 'text-error'
+  const glow = isPriority ? PILLAR_GLOW.nutrition : null
 
   return (
-    <div className="col-span-1 sm:col-span-1 lg:col-span-3 bg-surface-container-high border border-outline-variant/10 rounded-xl p-4 flex flex-col gap-3">
+    <div
+      className={`col-span-1 sm:col-span-1 lg:col-span-3 bg-surface-container-high rounded-xl p-4 flex flex-col gap-3 transition-shadow ${glow ? `border ${glow.border}` : 'border border-outline-variant/10'}`}
+      style={glow ? { boxShadow: glow.shadow } : undefined}
+      role={isPriority ? 'region' : undefined}
+      aria-label={isPriority ? `Priorität: ${label}` : undefined}
+    >
+      {isPriority && <span className="sr-only">Aktueller Fokus</span>}
       <p className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">
         {label}
       </p>
@@ -437,11 +470,12 @@ function computeRates(booleans: boolean[]): { pct30d: number; pct7d: number } {
 // ─── Live Status section ───────────────────────────────────────────────────
 
 export async function LiveStatus() {
-  const [entries, metrics, profile, drinkAvg, t] = await Promise.all([
+  const [entries, metrics, profile, drinkAvg, priorityPillar, t] = await Promise.all([
     getAllEntries(),
     getLatestMetrics(),
     getProfile(),
     getDrinkAvg7d(),
+    getPriorityPillar(),
     getTranslations('HomePage'),
   ])
 
@@ -479,6 +513,7 @@ export async function LiveStatus() {
           labelDays={t('streakDays')}
           labelLongest={t('streakLongest')}
           labelRate={t('rate30d')}
+          isPriority={priorityPillar === 'smoking'}
         />
 
         <HabitRingTile
@@ -489,6 +524,8 @@ export async function LiveStatus() {
           color="#62bc44"
           labelDays={t('streakDays')}
           label7d={t('trend7d')}
+          isPriority={priorityPillar === 'movement'}
+          pillarKey="movement"
         />
 
         <NutritionRingTile
@@ -499,6 +536,7 @@ export async function LiveStatus() {
           color="#fd8b50"
           labelDays={t('streakDays')}
           label7d={t('trend7d')}
+          isPriority={priorityPillar === 'nutrition'}
         />
 
         {/* Row 2 */}
