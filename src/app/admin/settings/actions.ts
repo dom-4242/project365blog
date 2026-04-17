@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
+import type { PriorityPillar } from '@/lib/settings'
 
 export interface ProfileFormData {
   heightCm: string
@@ -68,6 +69,32 @@ export async function upsertProfile(data: ProfileFormData): Promise<ProfileActio
     return { success: true }
   } catch (e) {
     console.error('upsertProfile:', e)
+    return { error: 'Fehler beim Speichern' }
+  }
+}
+
+export async function setPriorityPillar(pillar: PriorityPillar): Promise<{ error?: string; success?: boolean }> {
+  const session = await requireAdmin()
+  if (!session) return { error: 'Nicht autorisiert' }
+
+  const allowed: PriorityPillar[] = ['smoking', 'movement', 'nutrition']
+  if (!allowed.includes(pillar)) return { error: 'Ungültige Auswahl' }
+
+  try {
+    await prisma.appSetting.upsert({
+      where: { key: 'priority_pillar' },
+      create: { key: 'priority_pillar', value: pillar },
+      update: { value: pillar },
+    })
+
+    revalidatePath('/admin/settings')
+    revalidatePath('/de')
+    revalidatePath('/en')
+    revalidatePath('/pt')
+
+    return { success: true }
+  } catch (e) {
+    console.error('setPriorityPillar:', e)
     return { error: 'Fehler beim Speichern' }
   }
 }
