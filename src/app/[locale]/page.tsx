@@ -10,6 +10,7 @@ import { MetricsDashboard } from '@/components/metrics/MetricsDashboard'
 import { HomeTabs } from '@/components/home/HomeTabs'
 import { LiveStatus } from '@/components/home/LiveStatus'
 import { Icon } from '@/components/ui/Icon'
+import Image from 'next/image'
 import Link from 'next/link'
 import {
   SITE_NAME,
@@ -78,12 +79,34 @@ export default async function HomePage({ params }: HomePageProps) {
     <div>
 
       {/* ── Hero Section ───────────────────────────────────────────── */}
-      <section className="relative overflow-hidden border-b border-outline-variant/10">
+      <section className="relative overflow-hidden border-b border-outline-variant/10 min-h-[480px] sm:min-h-[560px]">
 
-        {/* Subtle warm glow backdrop */}
-        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-          <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[500px] rounded-full bg-primary/[0.04] blur-3xl" />
+        {/* Cinematic hero background image */}
+        <div className="absolute inset-0" aria-hidden="true">
+          <Image
+            src="/hero-bg.svg"
+            alt="Kinematische Berglandschaft bei Sonnenuntergang"
+            fill
+            priority
+            unoptimized
+            sizes="100vw"
+            className="object-cover object-center"
+          />
         </div>
+
+        {/* Horizontal gradient: dark left → transparent right (text readability) */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: 'linear-gradient(to right, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.65) 40%, rgba(0,0,0,0.25) 70%, rgba(0,0,0,0.05) 100%)' }}
+          aria-hidden="true"
+        />
+
+        {/* Vertical fade bottom: image → background (#0e0e0e) */}
+        <div
+          className="absolute inset-x-0 bottom-0 h-48 pointer-events-none"
+          style={{ background: 'linear-gradient(to bottom, rgba(14,14,14,0) 0%, rgba(14,14,14,0.7) 60%, rgba(14,14,14,1) 100%)' }}
+          aria-hidden="true"
+        />
 
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 pt-16 pb-14 sm:pt-24 sm:pb-20">
 
