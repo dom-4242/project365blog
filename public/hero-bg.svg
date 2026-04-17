@@ -1,0 +1,271 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <!-- Sky gradient: golden hour orange → indigo night -->
+    <linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#0a0820"/>
+      <stop offset="18%"  stop-color="#1a0f3a"/>
+      <stop offset="38%"  stop-color="#3d1a5c"/>
+      <stop offset="55%"  stop-color="#8b3a3a"/>
+      <stop offset="70%"  stop-color="#c45e2a"/>
+      <stop offset="82%"  stop-color="#e8762a"/>
+      <stop offset="92%"  stop-color="#ff9550"/>
+      <stop offset="100%" stop-color="#ff8f70"/>
+    </linearGradient>
+
+    <!-- Sun glow radial -->
+    <radialGradient id="sun-glow" cx="72%" cy="62%" r="32%">
+      <stop offset="0%"  stop-color="#ffcc80" stop-opacity="0.95"/>
+      <stop offset="18%" stop-color="#ff9d4d" stop-opacity="0.75"/>
+      <stop offset="40%" stop-color="#ff7a30" stop-opacity="0.45"/>
+      <stop offset="65%" stop-color="#e85c1e" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#0a0820" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Atmosphere haze near horizon -->
+    <radialGradient id="horizon-haze" cx="65%" cy="85%" r="55%">
+      <stop offset="0%"  stop-color="#ff8f70" stop-opacity="0.38"/>
+      <stop offset="50%" stop-color="#c45e2a" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#0a0820" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Mountain fog gradient -->
+    <linearGradient id="mist" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#ff8f70" stop-opacity="0.0"/>
+      <stop offset="60%"  stop-color="#e87040" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#c45020" stop-opacity="0.22"/>
+    </linearGradient>
+
+    <!-- Foreground ground gradient -->
+    <linearGradient id="ground" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#1a1010"/>
+      <stop offset="100%" stop-color="#0a0808"/>
+    </linearGradient>
+
+    <!-- Star fade mask -->
+    <radialGradient id="star-mask" cx="50%" cy="20%" r="55%">
+      <stop offset="0%"  stop-color="white" stop-opacity="1"/>
+      <stop offset="70%" stop-color="white" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="white" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="stars-m">
+      <rect width="1920" height="1080" fill="url(#star-mask)"/>
+    </mask>
+
+    <!-- Distant mountains fade -->
+    <linearGradient id="mt-far" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#3d2060" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#2a1540" stop-opacity="0.9"/>
+    </linearGradient>
+    <linearGradient id="mt-mid" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#261430"/>
+      <stop offset="100%" stop-color="#180c20"/>
+    </linearGradient>
+    <linearGradient id="mt-near" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#150a1a"/>
+      <stop offset="100%" stop-color="#0a0608"/>
+    </linearGradient>
+    <linearGradient id="mt-front" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#0e0810"/>
+      <stop offset="100%" stop-color="#060408"/>
+    </linearGradient>
+  </defs>
+
+  <!-- ── Sky ── -->
+  <rect width="1920" height="1080" fill="url(#sky)"/>
+
+  <!-- Sun / glow disc -->
+  <ellipse cx="1382" cy="668" rx="54" ry="52" fill="#ffe0b0" opacity="0.92"/>
+  <ellipse cx="1382" cy="668" rx="30" ry="28" fill="#fff5e0" opacity="0.98"/>
+  <rect width="1920" height="1080" fill="url(#sun-glow)"/>
+  <rect width="1920" height="1080" fill="url(#horizon-haze)"/>
+
+  <!-- ── Stars (upper sky) ── -->
+  <g mask="url(#stars-m)" opacity="0.85">
+    <circle cx="42"   cy="28"  r="1.1" fill="white" opacity="0.9"/>
+    <circle cx="128"  cy="55"  r="0.8" fill="white" opacity="0.7"/>
+    <circle cx="215"  cy="18"  r="1.3" fill="white" opacity="0.85"/>
+    <circle cx="340"  cy="42"  r="0.9" fill="white" opacity="0.6"/>
+    <circle cx="460"  cy="14"  r="1.0" fill="white" opacity="0.75"/>
+    <circle cx="520"  cy="70"  r="0.7" fill="white" opacity="0.65"/>
+    <circle cx="630"  cy="30"  r="1.2" fill="white" opacity="0.8"/>
+    <circle cx="720"  cy="10"  r="0.8" fill="white" opacity="0.7"/>
+    <circle cx="810"  cy="55"  r="1.0" fill="white" opacity="0.6"/>
+    <circle cx="890"  cy="22"  r="0.9" fill="white" opacity="0.75"/>
+    <circle cx="950"  cy="85"  r="0.7" fill="white" opacity="0.55"/>
+    <circle cx="1040" cy="38"  r="1.1" fill="white" opacity="0.8"/>
+    <circle cx="1100" cy="12"  r="0.9" fill="white" opacity="0.7"/>
+    <circle cx="1160" cy="62"  r="0.8" fill="white" opacity="0.6"/>
+    <circle cx="88"   cy="112" r="0.9" fill="white" opacity="0.7"/>
+    <circle cx="185"  cy="95"  r="1.0" fill="white" opacity="0.65"/>
+    <circle cx="295"  cy="130" r="0.8" fill="white" opacity="0.55"/>
+    <circle cx="405"  cy="88"  r="1.1" fill="white" opacity="0.75"/>
+    <circle cx="555"  cy="120" r="0.7" fill="white" opacity="0.6"/>
+    <circle cx="680"  cy="95"  r="0.9" fill="white" opacity="0.7"/>
+    <circle cx="760"  cy="138" r="0.8" fill="white" opacity="0.5"/>
+    <circle cx="855"  cy="105" r="1.0" fill="white" opacity="0.65"/>
+    <circle cx="975"  cy="142" r="0.7" fill="white" opacity="0.55"/>
+    <circle cx="35"   cy="185" r="0.8" fill="white" opacity="0.5"/>
+    <circle cx="148"  cy="165" r="1.0" fill="white" opacity="0.6"/>
+    <circle cx="270"  cy="195" r="0.7" fill="white" opacity="0.45"/>
+    <circle cx="378"  cy="172" r="0.9" fill="white" opacity="0.55"/>
+    <circle cx="478"  cy="210" r="0.8" fill="white" opacity="0.5"/>
+    <circle cx="592"  cy="178" r="0.7" fill="white" opacity="0.45"/>
+    <circle cx="700"  cy="215" r="0.9" fill="white" opacity="0.4"/>
+    <circle cx="162"  cy="240" r="0.7" fill="white" opacity="0.35"/>
+    <circle cx="310"  cy="255" r="0.8" fill="white" opacity="0.3"/>
+    <circle cx="440"  cy="268" r="0.6" fill="white" opacity="0.25"/>
+    <!-- Brighter accent stars -->
+    <circle cx="178"  cy="44"  r="1.6" fill="white" opacity="0.95"/>
+    <circle cx="390"  cy="22"  r="1.4" fill="white" opacity="0.9"/>
+    <circle cx="575"  cy="48"  r="1.5" fill="white" opacity="0.88"/>
+    <circle cx="940"  cy="58"  r="1.4" fill="white" opacity="0.85"/>
+    <circle cx="72"   cy="148" r="1.3" fill="white" opacity="0.8"/>
+    <circle cx="498"  cy="150" r="1.2" fill="white" opacity="0.75"/>
+    <!-- Twinkle elongated -->
+    <ellipse cx="305"  cy="68" rx="1.8" ry="0.5" fill="white" opacity="0.82" transform="rotate(15,305,68)"/>
+    <ellipse cx="818"  cy="32" rx="1.6" ry="0.4" fill="white" opacity="0.78" transform="rotate(-20,818,32)"/>
+    <ellipse cx="620"  cy="115" rx="1.4" ry="0.4" fill="white" opacity="0.65" transform="rotate(8,620,115)"/>
+  </g>
+
+  <!-- ── Far mountains (distant range, purple-indigo haze) ── -->
+  <path d="M0,720
+    C60,680 100,640 160,620
+    C210,605 240,595 290,590
+    C340,582 370,570 420,565
+    C460,558 490,550 530,548
+    C570,542 595,532 630,528
+    C665,522 690,515 720,510
+    C755,504 775,495 810,490
+    C845,484 870,478 905,475
+    C935,468 960,462 995,460
+    C1025,454 1050,450 1080,448
+    C1112,442 1135,438 1165,436
+    C1195,430 1220,425 1255,422
+    C1285,416 1315,412 1348,410
+    C1380,404 1410,400 1445,398
+    C1480,392 1508,388 1540,386
+    C1575,382 1600,378 1635,376
+    C1670,372 1700,368 1740,366
+    C1775,362 1820,360 1860,360
+    C1890,358 1920,358 1920,360
+    L1920,1080 L0,1080 Z"
+    fill="url(#mt-far)" opacity="0.7"/>
+
+  <!-- ── Mid mountains (jagged, darker) ── -->
+  <path d="M0,820
+    C20,790 50,760 80,730
+    C105,710 130,700 160,685
+    C185,672 210,662 240,652
+    C268,640 292,630 322,618
+    C350,606 375,594 405,582
+    C432,572 458,562 488,552
+    C516,542 542,532 568,520
+    C595,508 620,498 648,488
+    C676,476 702,466 732,458
+    C758,448 784,440 812,432
+    C840,422 868,414 898,408
+    C926,400 954,394 982,388
+    C1010,380 1040,374 1070,370
+    C1098,364 1128,358 1158,354
+    C1188,348 1218,344 1248,340
+    C1278,334 1308,330 1340,328
+    C1370,322 1402,318 1432,316
+    C1462,312 1494,308 1524,306
+    C1556,302 1588,298 1620,296
+    C1652,292 1685,290 1718,290
+    C1750,288 1784,288 1818,290
+    C1852,290 1886,292 1920,296
+    L1920,1080 L0,1080 Z"
+    fill="url(#mt-mid)"/>
+
+  <!-- ── Near ridge — main dramatic peaks ── -->
+  <path d="M0,900
+    L0,1080 L1920,1080 L1920,910
+    C1900,905 1880,900 1858,895
+    C1838,888 1818,882 1795,878
+    C1775,872 1755,866 1732,858
+    C1710,850 1688,842 1665,834
+    C1645,826 1620,818 1598,812
+    C1575,804 1552,798 1528,794
+    C1504,788 1480,782 1456,778
+    C1432,772 1408,768 1384,768
+    C1360,766 1336,768 1312,770
+    C1292,772 1272,778 1248,782
+    C1225,786 1200,790 1175,792
+    C1150,794 1125,796 1098,796
+    C1070,796 1042,796 1014,794
+    C988,790 962,786 936,782
+    C908,778 882,774 856,770
+    C828,766 800,762 772,758
+    C744,754 716,750 688,748
+    C662,746 636,744 608,742
+    C582,740 558,740 532,742
+    C505,744 480,748 454,752
+    C428,756 402,762 375,766
+    C350,770 322,774 295,776
+    C268,778 240,778 212,776
+    C186,774 158,770 130,766
+    C104,760 78,754 50,748
+    C34,744 18,740 0,738 Z"
+    fill="url(#mt-near)"/>
+
+  <!-- ── Peak details on near ridge ── -->
+  <path d="M580,742 L560,710 L545,698 L528,680 L510,692 L495,678 L478,660 L462,675 L448,660 L432,645 L418,658 L404,644 L390,630 L376,644 L362,630 L348,616 L334,628 L320,614 L308,628 L295,640 L282,626 L268,640 L254,650 L240,664 L226,678 L212,692 L198,706 L184,720 L170,736 L156,750 L142,762 L128,772 L0,800 L0,900 L620,890 Z"
+    fill="url(#mt-near)" opacity="0.88"/>
+
+  <path d="M1300,780 L1280,748 L1265,730 L1248,712 L1232,724 L1218,708 L1202,694 L1186,680 L1170,694 L1154,680 L1138,666 L1122,680 L1108,668 L1094,654 L1080,668 L1066,682 L1052,696 L1040,708 L1026,722 L1012,736 L1000,750 L988,764 L974,778 L962,790 L948,800 L1920,800 L1920,910 L1300,900 Z"
+    fill="url(#mt-near)" opacity="0.82"/>
+
+  <!-- ── Mist/atmosphere layer over mid mountains ── -->
+  <rect width="1920" height="1080" fill="url(#mist)" opacity="0.6"/>
+
+  <!-- ── Foreground silhouette (darkest, closest) ── -->
+  <path d="M0,980
+    C30,972 60,965 92,960
+    C122,954 152,950 184,948
+    C215,944 248,942 280,942
+    C312,940 345,940 378,942
+    C410,944 442,948 475,952
+    C508,956 540,962 572,966
+    C604,970 636,974 668,976
+    C700,978 732,980 764,980
+    C796,980 828,978 860,976
+    C892,974 924,970 956,966
+    C988,962 1020,958 1052,956
+    C1084,952 1116,950 1148,950
+    C1180,948 1212,950 1244,952
+    C1276,954 1308,958 1340,962
+    C1372,966 1404,972 1436,978
+    C1465,982 1496,986 1528,988
+    C1558,990 1590,990 1622,988
+    C1652,986 1684,982 1716,978
+    C1746,974 1778,970 1810,968
+    C1840,966 1872,966 1920,968
+    L1920,1080 L0,1080 Z"
+    fill="url(#mt-front)"/>
+
+  <!-- ── Ground texture hints — subtle rock lines ── -->
+  <line x1="240" y1="1060" x2="420" y2="1045" stroke="#1a1010" stroke-width="1.5" opacity="0.3"/>
+  <line x1="580" y1="1050" x2="780" y2="1038" stroke="#1a1010" stroke-width="1.5" opacity="0.25"/>
+  <line x1="950" y1="1042" x2="1150" y2="1055" stroke="#1a1010" stroke-width="1.2" opacity="0.2"/>
+  <line x1="1340" y1="1048" x2="1520" y2="1035" stroke="#1a1010" stroke-width="1.5" opacity="0.25"/>
+  <line x1="1650" y1="1040" x2="1820" y2="1052" stroke="#1a1010" stroke-width="1.2" opacity="0.2"/>
+
+  <!-- ── Atmospheric rays from sun ── -->
+  <g opacity="0.06">
+    <line x1="1382" y1="668" x2="800"  y2="1080" stroke="#ff9550" stroke-width="60"/>
+    <line x1="1382" y1="668" x2="1100" y2="1080" stroke="#ff9550" stroke-width="45"/>
+    <line x1="1382" y1="668" x2="1350" y2="1080" stroke="#ffa060" stroke-width="40"/>
+    <line x1="1382" y1="668" x2="1600" y2="1080" stroke="#ff8f70" stroke-width="50"/>
+    <line x1="1382" y1="668" x2="1800" y2="1080" stroke="#ff8050" stroke-width="35"/>
+    <line x1="1382" y1="668" x2="600"  y2="1080" stroke="#ff8040" stroke-width="30"/>
+  </g>
+
+  <!-- ── Subtle vignette corners ── -->
+  <radialGradient id="vignette" cx="50%" cy="50%" r="75%">
+    <stop offset="0%"   stop-color="#0a0820" stop-opacity="0"/>
+    <stop offset="75%"  stop-color="#0a0820" stop-opacity="0.1"/>
+    <stop offset="100%" stop-color="#0a0820" stop-opacity="0.55"/>
+  </radialGradient>
+  <rect width="1920" height="1080" fill="url(#vignette)"/>
+</svg>
