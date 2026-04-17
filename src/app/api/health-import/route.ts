@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { MetricSource } from '@prisma/client'
-import { parseHealthPayload, mergeWithExisting, type HealthPayload } from '@/lib/apple-health'
+import { parseHealthPayload, mergeWithExisting, type HealthPayload, type HealthMetric } from '@/lib/apple-health'
 import { rateLimit, getClientIp } from '@/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
@@ -92,6 +92,9 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  // Update inventory for every received metric (fire-and-forget, don't block response)
+  void upsertMetricInventory(metrics)
+
   return NextResponse.json({
     ok: true,
     daysProcessed: dayDataMap.size,
@@ -99,4 +102,38 @@ export async function POST(request: NextRequest) {
     merged,
     skipped,
   })
+}
+
+async function upsertMetricInventory(metrics: HealthMetric[]): Promise<void> {
+  const now = new Date()
+  await Promise.all(
+    metrics.map(async (metric) => {
+      if (!metric.data || metric.data.length === 0) return
+
+      // Find the most recent entry by date string (format: "yyyy-MM-dd HH:mm:ss Z")
+      const sorted = [...metric.data].sort((a, b) => b.date.localeCompare(a.date))
+      const last = sorted[0]
+      const lastValue = last.qty ?? last.avg ?? last.asleep ?? null
+      const lastValueDate = last.date.slice(0, 10)
+
+      await prisma.healthMetricInventory.upsert({
+        where: { metricName: metric.name },
+        create: {
+          metricName: metric.name,
+          unit: metric.units ?? '',
+          sampleCount: metric.data.length,
+          lastValue: lastValue !== null ? lastValue : null,
+          lastValueDate,
+          lastReceivedAt: now,
+        },
+        update: {
+          unit: metric.units ?? '',
+          sampleCount: metric.data.length,
+          lastValue: lastValue !== null ? lastValue : null,
+          lastValueDate,
+          lastReceivedAt: now,
+        },
+      })
+    }),
+  )
 }
