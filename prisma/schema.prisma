@@ -285,6 +285,22 @@ model AppSetting {
   updatedAt DateTime @updatedAt
 }
 
+// =============================================
+// APPLE HEALTH INVENTAR — empfangene Metriken
+// Wird bei jedem /api/health-import befüllt.
+// Pro Metrik-Name eine Zeile (kein Rohdaten-Storage).
+// =============================================
+
+model HealthMetricInventory {
+  metricName     String   @id                // z.B. "Stand Time", "Step Count"
+  unit           String   @default("")       // z.B. "count", "hr", "kcal"
+  sampleCount    Int      @default(0)        // Anzahl Datenpunkte im letzten Import
+  lastValue      Float?                      // letzter qty/avg/asleep Wert
+  lastValueDate  String?                     // YYYY-MM-DD des letzten Datenpunkts
+  lastReceivedAt DateTime @default(now())    // Zeitpunkt des letzten Imports
+  createdAt      DateTime @default(now())
+}
+
 model PageView {
   id          String   @id @default(cuid())
   path        String                          // Normalisierter Pfad ohne Locale (/journal/slug)

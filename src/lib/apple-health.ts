@@ -4,7 +4,7 @@ import { MetricSource, type DailyMetrics } from '@prisma/client'
 // Types — Health Auto Export payload
 // =============================================
 
-interface HealthMetricEntry {
+export interface HealthMetricEntry {
   qty?: number
   min?: number
   avg?: number
@@ -18,7 +18,7 @@ interface HealthMetricEntry {
   core?: number
 }
 
-interface HealthMetric {
+export interface HealthMetric {
   name: string
   units: string
   data: HealthMetricEntry[]
