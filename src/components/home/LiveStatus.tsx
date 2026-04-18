@@ -5,12 +5,15 @@ import { getProfile } from '@/lib/profile'
 import { getPriorityPillar } from '@/lib/settings'
 import {
   calculateStreak,
+  calculateSweetsStreak,
+  computeSweetsRate30d,
   isMovementFulfilled,
   isNutritionFulfilled,
   isSmokingFulfilled,
 } from '@/lib/habits'
 import {
   getDrinkAvg7d,
+  getSweetsHistory,
   WATER_DAILY_TARGET_ML,
   COLA_ZERO_DAILY_LIMIT_ML,
 } from '@/lib/drinks'
@@ -442,6 +445,43 @@ function StepsTile({ avgSteps, stepsGoal, stepsHistory, importedAt, labelSteps, 
   )
 }
 
+// ─── Sweets Tile ──────────────────────────────────────────────────────────
+
+interface SweetsTileProps {
+  streak: number
+  longestStreak: number
+  rate30d: number
+  labelSweets: string
+  labelDays: string
+  labelLongest: string
+  labelRate: string
+}
+
+function SweetsTile({ streak, longestStreak, rate30d, labelSweets, labelDays, labelLongest, labelRate }: SweetsTileProps) {
+  return (
+    <div className="col-span-1 sm:col-span-1 lg:col-span-4 bg-surface-container-high border border-outline-variant/10 rounded-xl p-4 flex flex-col gap-3">
+      <p className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">{labelSweets}</p>
+      <div className="flex items-baseline gap-2">
+        <span className="text-4xl font-headline font-bold tracking-tighter leading-none text-on-surface">{streak}</span>
+        <span className="text-sm text-on-surface-variant">{labelDays}</span>
+      </div>
+      <div className="space-y-1">
+        <div className="h-1 bg-surface-container rounded-full overflow-hidden">
+          <div className="h-full rounded-full bg-tertiary transition-all duration-700" style={{ width: `${rate30d}%` }} />
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-on-surface-variant">
+            {labelRate}: <span className="text-tertiary font-semibold">{rate30d}%</span>
+          </span>
+          <span className="text-xs text-on-surface-variant">
+            {labelLongest}: <span className="text-on-surface font-semibold">{longestStreak}</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Drink Metric Tile ────────────────────────────────────────────────────
 
 interface DrinkMetricTileProps {
@@ -465,7 +505,7 @@ function DrinkMetricTile({ label, avgMl, targetMl, moreIsBetter, labelGoal, unit
     : `${targetMl} ml`
 
   return (
-    <div className="col-span-1 sm:col-span-1 lg:col-span-6 bg-surface-container-high border border-outline-variant/10 rounded-xl p-4 flex flex-col gap-3">
+    <div className="col-span-1 sm:col-span-1 lg:col-span-4 bg-surface-container-high border border-outline-variant/10 rounded-xl p-4 flex flex-col gap-3">
       <p className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">{label}</p>
       <div className="flex items-end justify-between gap-2">
         <div className="flex items-baseline gap-1.5">
@@ -504,12 +544,13 @@ export async function LiveStatus() {
     getTranslations('HomePage'),
   ])
 
-  const [entries, metrics, drinkAvg, priorityPillar, stepsHistoryRaw] = await Promise.all([
+  const [entries, metrics, drinkAvg, priorityPillar, stepsHistoryRaw, sweetsHistory] = await Promise.all([
     getAllEntries(),
     getLatestMetrics(profile.projectStartDate ?? undefined),
     getDrinkAvg7d(),
     getPriorityPillar(),
     getStepsHistory(30),
+    getSweetsHistory(90),
   ])
 
   const movementBools = entries.map((e) => isMovementFulfilled(e.habits.movement))
@@ -523,6 +564,9 @@ export async function LiveStatus() {
   const movementRates  = computeRates(movementBools)
   const nutritionRates = computeRates(nutritionBools)
   const smokingRates   = computeRates(smokingBools)
+
+  const sweetsStreak  = calculateSweetsStreak(sweetsHistory)
+  const sweetsRate30d = computeSweetsRate30d(sweetsHistory)
 
   const stepsGoal = profile.targetSteps ?? 10000
 
@@ -613,7 +657,16 @@ export async function LiveStatus() {
           labelNoData={t('metricNoData')}
         />
 
-        {/* Row D — Drink metrics */}
+        {/* Row D — Sweets + Drink metrics */}
+        <SweetsTile
+          streak={sweetsStreak.current}
+          longestStreak={sweetsStreak.longest}
+          rate30d={sweetsRate30d}
+          labelSweets={t('metricSweets')}
+          labelDays={t('streakDays')}
+          labelLongest={t('streakLongest')}
+          labelRate={t('rate30d')}
+        />
         <DrinkMetricTile
           label={t('metricWater')}
           avgMl={drinkAvg.waterMl}

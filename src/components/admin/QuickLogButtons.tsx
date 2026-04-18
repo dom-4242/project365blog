@@ -2,7 +2,7 @@
 
 import { useTransition, useState } from 'react'
 import { DrinkType } from '@prisma/client'
-import { logDrink, deleteDrink } from '@/app/admin/quick-log/actions'
+import { logDrink, deleteDrink, setSweetsConsumed } from '@/app/admin/quick-log/actions'
 
 interface LogEntry {
   id: string
@@ -12,6 +12,7 @@ interface LogEntry {
 
 interface QuickLogButtonsProps {
   recentEntries: LogEntry[]
+  sweetsConsumed: boolean | null
 }
 
 interface Feedback {
@@ -19,10 +20,25 @@ interface Feedback {
   key: number
 }
 
-export function QuickLogButtons({ recentEntries }: QuickLogButtonsProps) {
+export function QuickLogButtons({ recentEntries, sweetsConsumed }: QuickLogButtonsProps) {
   const [isPending, startTransition] = useTransition()
   const [feedback, setFeedback] = useState<Feedback | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [sweetsLocal, setSweetsLocal] = useState<boolean | null>(sweetsConsumed)
+  const [sweetsError, setSweetsError] = useState<string | null>(null)
+
+  function handleSweets(value: boolean | null) {
+    setSweetsError(null)
+    const prev = sweetsLocal
+    setSweetsLocal(value)
+    startTransition(async () => {
+      const result = await setSweetsConsumed(value)
+      if (result.error) {
+        setSweetsLocal(prev)
+        setSweetsError(result.error)
+      }
+    })
+  }
 
   function handleLog(type: DrinkType) {
     const key = Date.now()
@@ -70,6 +86,48 @@ export function QuickLogButtons({ recentEntries }: QuickLogButtonsProps) {
           <span className="font-label text-xs font-bold tracking-widest uppercase text-on-surface-variant">Cola Zero</span>
           <span className="text-xs text-on-surface-variant">330 ml</span>
         </button>
+      </div>
+
+      {/* Sweets tracking */}
+      <div>
+        <p className="text-xs font-semibold text-on-surface-variant uppercase tracking-wide mb-3">Süssigkeiten heute</p>
+        <div className="grid grid-cols-3 gap-2">
+          <button
+            onClick={() => handleSweets(false)}
+            disabled={isPending}
+            className={`flex flex-col items-center justify-center gap-1.5 rounded-xl p-4 border transition-all disabled:opacity-60 active:scale-95 ${
+              sweetsLocal === false
+                ? 'bg-movement-400/20 border-movement-400/50 text-movement-300'
+                : 'bg-surface-container border-surface-container-high text-on-surface-variant'
+            }`}
+          >
+            <span className="text-2xl">✅</span>
+            <span className="font-label text-xs font-bold tracking-widest uppercase">Keine</span>
+          </button>
+          <button
+            onClick={() => handleSweets(true)}
+            disabled={isPending}
+            className={`flex flex-col items-center justify-center gap-1.5 rounded-xl p-4 border transition-all disabled:opacity-60 active:scale-95 ${
+              sweetsLocal === true
+                ? 'bg-error/20 border-error/50 text-error'
+                : 'bg-surface-container border-surface-container-high text-on-surface-variant'
+            }`}
+          >
+            <span className="text-2xl">🍫</span>
+            <span className="font-label text-xs font-bold tracking-widest uppercase">Konsumiert</span>
+          </button>
+          <button
+            onClick={() => handleSweets(null)}
+            disabled={isPending || sweetsLocal === null}
+            className="flex flex-col items-center justify-center gap-1.5 rounded-xl p-4 border bg-surface-container border-surface-container-high text-on-surface-variant transition-all disabled:opacity-40 active:scale-95"
+          >
+            <span className="text-2xl">↩</span>
+            <span className="font-label text-xs font-bold tracking-widest uppercase">Reset</span>
+          </button>
+        </div>
+        {sweetsError && (
+          <p className="text-xs text-error mt-2">{sweetsError}</p>
+        )}
       </div>
 
       {/* Recent entries (today) */}

@@ -48,7 +48,8 @@
     "metricsSectionTitle": "Metriken & Fortschritt",
     "metricStart": "Start",
     "metricProgress": "vom Weg geschafft",
-    "metricImport": "Import"
+    "metricImport": "Import",
+    "metricSweets": "Süssigkeiten-Freie-Serie"
   },
   "AboutPage": {
     "metaTitle": "Über das Projekt — Project 365",

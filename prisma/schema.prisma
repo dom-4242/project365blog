@@ -31,6 +31,9 @@ model JournalEntry {
   nutrition NutritionLevel
   smoking   SmokingStatus
 
+  // Süssigkeiten: null = nicht erfasst, false = keine, true = konsumiert
+  sweetsConsumed Boolean?
+
   // Privates Notizfeld — niemals in öffentlichen Queries zurückgeben
   privateNotes String? @db.Text
 
@@ -272,6 +275,21 @@ model DrinkLog {
 enum DrinkType {
   WATER
   COLA_ZERO
+}
+
+// =============================================
+// SÜSSIGKEITEN-LOG — tägliche Erfassung (unabhängig vom Journal-Eintrag)
+// consumed = false → keine Süssigkeiten, true → konsumiert
+// =============================================
+
+model SweetsLog {
+  id        String   @id @default(cuid())
+  date      DateTime @unique @db.Date
+  consumed  Boolean
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([date])
 }
 
 // =============================================

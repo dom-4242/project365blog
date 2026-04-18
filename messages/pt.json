@@ -45,7 +45,8 @@
     "metricsSectionTitle": "Métricas & Progresso",
     "metricStart": "Início",
     "metricProgress": "do caminho percorrido",
-    "metricImport": "Importado"
+    "metricImport": "Importado",
+    "metricSweets": "Dias Sem Doces"
   },
   "AboutPage": {
     "metaTitle": "Sobre o Projeto — Project 365",

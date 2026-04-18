@@ -119,3 +119,37 @@ export async function getSmokingStreak(): Promise<StreakResult> {
   const entries = await getAllEntries()
   return calculateStreak(entries.map((e) => isSmokingFulfilled(e.habits.smoking)))
 }
+
+/**
+ * Streak für Süssigkeiten: zählt aufeinanderfolgende Tage mit sweetsConsumed === false.
+ * null-Werte werden übersprungen (Streak weder unterbrochen noch gezählt).
+ * true unterbricht den Streak.
+ */
+export function calculateSweetsStreak(values: (boolean | null)[]): StreakResult {
+  let current = 0
+  for (const v of values) {
+    if (v === false) current++
+    else if (v === true) break
+    // null → skip, Streak läuft weiter
+  }
+
+  let longest = 0
+  let run = 0
+  for (const v of values) {
+    if (v === false) {
+      run++
+      if (run > longest) longest = run
+    } else if (v === true) {
+      run = 0
+    }
+    // null → run bleibt
+  }
+
+  return { current, longest }
+}
+
+export function computeSweetsRate30d(values: (boolean | null)[]): number {
+  const tracked = values.slice(0, 30).filter((v) => v !== null) as boolean[]
+  if (tracked.length === 0) return 0
+  return Math.round(tracked.filter((v) => v === false).length / tracked.length * 100)
+}

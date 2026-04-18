@@ -119,6 +119,28 @@ export async function getDrinkAnalytics(days: number | 'all'): Promise<DrinkAnal
   }
 }
 
+export async function getSweetsHistory(days = 90): Promise<(boolean | null)[]> {
+  const todayStart = zurichDayStart()
+  const since = new Date(todayStart.getTime() - days * 24 * 60 * 60 * 1000)
+
+  const rows = await prisma.sweetsLog.findMany({
+    where: { date: { gte: since } },
+    select: { date: true, consumed: true },
+    orderBy: { date: 'desc' },
+  })
+
+  const byDate = new Map(rows.map((r) => [r.date.toISOString().slice(0, 10), r.consumed]))
+
+  const result: (boolean | null)[] = []
+  for (let i = 0; i < days; i++) {
+    const d = new Date(todayStart.getTime() - i * 24 * 60 * 60 * 1000)
+    const key = d.toISOString().slice(0, 10)
+    result.push(byDate.get(key) ?? null)
+  }
+
+  return result
+}
+
 export async function getDrinkAvg7d(): Promise<DrinkAvg7d> {
   const todayStart = zurichDayStart()
   const sevenDaysAgo = new Date(todayStart.getTime() - 7 * 24 * 60 * 60 * 1000)

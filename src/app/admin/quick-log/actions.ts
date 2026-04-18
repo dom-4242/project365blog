@@ -28,6 +28,27 @@ export async function deleteDrink(id: string): Promise<{ error?: string }> {
   return {}
 }
 
+export async function setSweetsConsumed(value: boolean | null): Promise<{ error?: string }> {
+  const session = await requireAdmin()
+  if (!session) return { error: 'Nicht autorisiert' }
+
+  const today = zurichDayStart()
+
+  if (value === null) {
+    await prisma.sweetsLog.deleteMany({ where: { date: today } })
+  } else {
+    await prisma.sweetsLog.upsert({
+      where: { date: today },
+      update: { consumed: value },
+      create: { date: today, consumed: value },
+    })
+  }
+
+  revalidatePath('/admin/quick-log')
+  revalidatePath('/')
+  return {}
+}
+
 export async function getTodayDrinks(): Promise<TodayDrinks> {
   const start = zurichDayStart()
 
