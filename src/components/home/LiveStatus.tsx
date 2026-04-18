@@ -1,6 +1,6 @@
 import { getTranslations } from 'next-intl/server'
 import { getAllEntries } from '@/lib/journal'
-import { getLatestMetrics } from '@/lib/metrics'
+import { getLatestMetrics, getStepsHistory } from '@/lib/metrics'
 import { getProfile } from '@/lib/profile'
 import { getPriorityPillar } from '@/lib/settings'
 import {
@@ -14,14 +14,29 @@ import {
   WATER_DAILY_TARGET_ML,
   COLA_ZERO_DAILY_LIMIT_ML,
 } from '@/lib/drinks'
+import { StepsSparkline } from './StepsSparkline'
+
+// ─── Constants ────────────────────────────────────────────────────────────
+const TARGET_BODY_FAT_PCT = 15
+
+// ─── Helpers ──────────────────────────────────────────────────────────────
+
+function formatSyncTimestamp(date: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${pad(date.getDate())}.${pad(date.getMonth() + 1)}.${date.getFullYear()}, ${pad(date.getHours())}:${pad(date.getMinutes())}`
+}
+
+function clampPct(val: number): number {
+  return Math.max(0, Math.min(100, Math.round(val)))
+}
 
 // ─── SVG Ring Chart ────────────────────────────────────────────────────────
 
 interface RingChartProps {
-  pct: number          // 0–100
-  color: string        // stroke color (hex)
-  size?: number        // viewBox size (default 88)
-  strokeWidth?: number // (default 7)
+  pct: number
+  color: string
+  size?: number
+  strokeWidth?: number
 }
 
 function RingChart({ pct, color, size = 88, strokeWidth = 7 }: RingChartProps) {
@@ -34,14 +49,7 @@ function RingChart({ pct, color, size = 88, strokeWidth = 7 }: RingChartProps) {
 
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
-      {/* Track */}
-      <circle
-        cx={cx} cy={cy} r={r}
-        fill="none"
-        stroke="#201f1f"
-        strokeWidth={strokeWidth}
-      />
-      {/* Progress */}
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#201f1f" strokeWidth={strokeWidth} />
       <circle
         cx={cx} cy={cy} r={r}
         fill="none"
@@ -52,7 +60,6 @@ function RingChart({ pct, color, size = 88, strokeWidth = 7 }: RingChartProps) {
         strokeDashoffset={offset}
         transform={`rotate(-90 ${cx} ${cy})`}
       />
-      {/* Center label */}
       <text
         x={cx} y={cy}
         textAnchor="middle"
@@ -68,14 +75,15 @@ function RingChart({ pct, color, size = 88, strokeWidth = 7 }: RingChartProps) {
   )
 }
 
-// ─── Smoking Streak Hero Tile ──────────────────────────────────────────────
+// ─── Glow styles per pillar ────────────────────────────────────────────────
 
-// Glow styles per pillar (smoking=blue, movement=green, nutrition=orange)
 const PILLAR_GLOW: Record<string, { border: string; shadow: string }> = {
   smoking:   { border: 'border-smoking-400/50',   shadow: '0 0 20px rgba(91,145,247,0.28), 0 0 6px rgba(91,145,247,0.14)' },
   movement:  { border: 'border-movement-400/50',  shadow: '0 0 20px rgba(98,188,68,0.28),  0 0 6px rgba(98,188,68,0.14)'  },
   nutrition: { border: 'border-nutrition-400/50', shadow: '0 0 20px rgba(253,139,80,0.28), 0 0 6px rgba(253,139,80,0.14)' },
 }
+
+// ─── Smoking Streak Hero Tile ──────────────────────────────────────────────
 
 interface SmokingHeroProps {
   streak: number
@@ -98,7 +106,6 @@ function SmokingHeroTile({ streak, longestStreak, pct, labelStreak, labelDays, l
       aria-label={isPriority ? 'Priorität: Rauchstopp' : undefined}
     >
       {isPriority && <span className="sr-only">Aktueller Fokus</span>}
-      {/* Decorative background number */}
       <span
         className="pointer-events-none select-none absolute -right-4 -bottom-4 font-headline font-bold leading-none text-smoking-400/5"
         style={{ fontSize: '10rem' }}
@@ -106,27 +113,18 @@ function SmokingHeroTile({ streak, longestStreak, pct, labelStreak, labelDays, l
       >
         {streak}
       </span>
-
-      {/* Header */}
       <p className="text-xs font-label font-bold tracking-widest uppercase text-smoking-400">
         {labelStreak}
       </p>
-
-      {/* Main number */}
       <div className="flex items-baseline gap-2">
         <span className="text-7xl font-headline font-bold tracking-tighter leading-none text-smoking-300">
           {streak}
         </span>
         <span className="text-sm text-on-surface-variant">{labelDays}</span>
       </div>
-
-      {/* Progress bar */}
       <div className="space-y-1.5">
         <div className="h-1 bg-surface-container-high rounded-full overflow-hidden">
-          <div
-            className="h-full rounded-full bg-smoking-400 transition-all duration-700"
-            style={{ width: `${pct}%` }}
-          />
+          <div className="h-full rounded-full bg-smoking-400 transition-all duration-700" style={{ width: `${pct}%` }} />
         </div>
         <div className="flex items-center justify-between">
           <span className="text-xs text-on-surface-variant">
@@ -148,7 +146,7 @@ interface HabitRingProps {
   streak: number
   pct7d: number
   pct30d: number
-  color: string        // hex
+  color: string
   labelDays: string
   label7d: string
   isPriority?: boolean
@@ -169,31 +167,22 @@ function HabitRingTile({ label, streak, pct7d, pct30d, color, labelDays, label7d
       aria-label={isPriority && pillarKey ? `Priorität: ${label}` : undefined}
     >
       {isPriority && <span className="sr-only">Aktueller Fokus</span>}
-      <p className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">
-        {label}
-      </p>
-
-      {/* Ring + streak */}
+      <p className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">{label}</p>
       <div className="flex items-center gap-4">
         <RingChart pct={pct30d} color={color} size={80} strokeWidth={6} />
-
         <div className="flex flex-col gap-1">
           <div className="flex items-baseline gap-1">
-            <span className="text-3xl font-headline font-bold tracking-tighter leading-none text-on-surface">
-              {streak}
-            </span>
+            <span className="text-3xl font-headline font-bold tracking-tighter leading-none text-on-surface">{streak}</span>
             <span className="text-xs text-on-surface-variant">{labelDays}</span>
           </div>
-          <span className={`text-xs font-semibold ${trendColor}`}>
-            {label7d}: {trendSign}{trend}%
-          </span>
+          <span className={`text-xs font-semibold ${trendColor}`}>{label7d}: {trendSign}{trend}%</span>
         </div>
       </div>
     </div>
   )
 }
 
-// ─── Nutrition Ring Tile (smaller) ─────────────────────────────────────────
+// ─── Nutrition Ring Tile ───────────────────────────────────────────────────
 
 interface NutritionRingProps {
   label: string
@@ -220,71 +209,58 @@ function NutritionRingTile({ label, streak, pct7d, pct30d, color, labelDays, lab
       aria-label={isPriority ? `Priorität: ${label}` : undefined}
     >
       {isPriority && <span className="sr-only">Aktueller Fokus</span>}
-      <p className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">
-        {label}
-      </p>
-
+      <p className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">{label}</p>
       <div className="flex flex-col items-center gap-2">
         <RingChart pct={pct30d} color={color} size={72} strokeWidth={6} />
-
         <div className="text-center">
           <div className="flex items-baseline justify-center gap-1">
-            <span className="text-2xl font-headline font-bold tracking-tighter leading-none text-on-surface">
-              {streak}
-            </span>
+            <span className="text-2xl font-headline font-bold tracking-tighter leading-none text-on-surface">{streak}</span>
             <span className="text-xs text-on-surface-variant">{labelDays}</span>
           </div>
-          <p className={`text-xs font-semibold mt-0.5 ${trendColor}`}>
-            {label7d}: {trendSign}{trend}%
-          </p>
+          <p className={`text-xs font-semibold mt-0.5 ${trendColor}`}>{label7d}: {trendSign}{trend}%</p>
         </div>
       </div>
     </div>
   )
 }
 
-// ─── Weight Progress Tile ─────────────────────────────────────────────────
+// ─── Weight Progress Tile ──────────────────────────────────────────────────
 
 interface WeightTileProps {
   weight?: number
   bmi?: number
   targetWeight?: number | null
-  lastSync?: Date
+  baselineWeight?: number
+  importedAt?: Date
   labelWeight: string
   labelBmi: string
   labelTarget: string
-  labelSync: string
+  labelImport: string
+  labelStart: string
+  labelProgress: string
   labelNoData: string
 }
 
-function WeightTile({ weight, bmi, targetWeight, lastSync, labelWeight, labelBmi, labelTarget, labelSync, labelNoData }: WeightTileProps) {
+function WeightTile({ weight, bmi, targetWeight, baselineWeight, importedAt, labelWeight, labelBmi, labelTarget, labelImport, labelStart, labelProgress, labelNoData }: WeightTileProps) {
   const hasWeight = weight !== undefined
   const hasTarget = targetWeight !== null && targetWeight !== undefined
+  const hasBaseline = baselineWeight !== undefined
 
-  // Progress: assume start weight was ~110kg (or derive from target gap)
-  // We'll just show how close to target (pct = 0 = far, 100 = at/below target)
   let pct = 0
-  const startReference = 110 // approximate start weight in kg
-  if (hasWeight && hasTarget && weight! < startReference) {
-    const totalNeeded = startReference - targetWeight!
-    const achieved = startReference - weight!
-    pct = totalNeeded > 0 ? Math.min(100, Math.round((achieved / totalNeeded) * 100)) : 100
+  if (hasWeight && hasTarget && hasBaseline) {
+    const totalNeeded = baselineWeight! - targetWeight!
+    const achieved = baselineWeight! - weight!
+    if (totalNeeded > 0) pct = clampPct((achieved / totalNeeded) * 100)
   }
 
-  const syncStr = lastSync
-    ? lastSync.toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric' })
-    : null
+  const syncStr = importedAt ? formatSyncTimestamp(importedAt) : null
 
   return (
-    <div className="col-span-1 sm:col-span-2 lg:col-span-8 bg-surface-container border border-outline-variant/10 rounded-xl p-5 flex flex-col gap-4">
+    <div className="col-span-1 sm:col-span-1 lg:col-span-6 bg-surface-container border border-outline-variant/10 rounded-xl p-5 flex flex-col gap-4">
       <div className="flex items-start justify-between gap-4">
-        <p className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">
-          {labelWeight}
-        </p>
+        <p className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">{labelWeight}</p>
         {syncStr && (
-          <span className="text-xs text-on-surface-variant shrink-0">
-            {labelSync}: {syncStr}
-          </span>
+          <span className="text-xs text-on-surface-variant shrink-0">{labelImport}: {syncStr}</span>
         )}
       </div>
 
@@ -307,23 +283,23 @@ function WeightTile({ weight, bmi, targetWeight, lastSync, labelWeight, labelBmi
             {hasTarget && (
               <div className="text-right">
                 <span className="text-xs text-on-surface-variant">{labelTarget}</span>
-                <p className="text-2xl font-headline font-bold tracking-tighter text-primary">
-                  {targetWeight} kg
-                </p>
+                <p className="text-2xl font-headline font-bold tracking-tighter text-primary">{targetWeight} kg</p>
               </div>
             )}
           </div>
 
-          {hasTarget && (
-            <div className="space-y-1.5">
+          {hasTarget && hasBaseline && (
+            <div className="space-y-2">
+              <p className="text-xs text-on-surface-variant">
+                {labelStart}: <span className="text-on-surface font-semibold">{baselineWeight!.toFixed(1)} kg</span>
+                {' → '}
+                {labelTarget}: <span className="text-primary font-semibold">{targetWeight} kg</span>
+              </p>
               <div className="h-1.5 bg-surface-container-high rounded-full overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-primary transition-all duration-700"
-                  style={{ width: `${pct}%` }}
-                />
+                <div className="h-full rounded-full bg-primary transition-all duration-700" style={{ width: `${pct}%` }} />
               </div>
               <p className="text-xs text-on-surface-variant text-right">
-                {pct}% {labelTarget.toLowerCase()}
+                <span className="text-on-surface font-semibold">{pct}%</span> {labelProgress}
               </p>
             </div>
           )}
@@ -335,67 +311,133 @@ function WeightTile({ weight, bmi, targetWeight, lastSync, labelWeight, labelBmi
   )
 }
 
-// ─── Steps + Body Fat Stacked Tile ────────────────────────────────────────
+// ─── Body Fat Tile ─────────────────────────────────────────────────────────
 
-interface StackedMetricProps {
-  steps?: number
-  stepsGoal: number
+interface BodyFatTileProps {
   bodyFat?: number
-  labelSteps: string
+  baselineBodyFat?: number
+  importedAt?: Date
   labelBodyFat: string
-  labelAvg30d: string
+  labelTarget: string
+  labelImport: string
+  labelStart: string
+  labelProgress: string
+  labelNoData: string
 }
 
-function StackedMetricTile({ steps, stepsGoal, bodyFat, labelSteps, labelBodyFat, labelAvg30d }: StackedMetricProps) {
-  const stepsPct = steps ? Math.min(100, Math.round((steps / stepsGoal) * 100)) : 0
+function BodyFatTile({ bodyFat, baselineBodyFat, importedAt, labelBodyFat, labelTarget, labelImport, labelStart, labelProgress, labelNoData }: BodyFatTileProps) {
+  const hasBodyFat = bodyFat !== undefined
+  const hasBaseline = baselineBodyFat !== undefined
+
+  let pct = 0
+  if (hasBodyFat && hasBaseline) {
+    const totalNeeded = baselineBodyFat! - TARGET_BODY_FAT_PCT
+    const achieved = baselineBodyFat! - bodyFat!
+    if (totalNeeded > 0) pct = clampPct((achieved / totalNeeded) * 100)
+  }
+
+  const syncStr = importedAt ? formatSyncTimestamp(importedAt) : null
 
   return (
-    <div className="col-span-1 sm:col-span-2 lg:col-span-4 bg-surface-container-high border border-outline-variant/10 rounded-xl overflow-hidden flex flex-col">
-      {/* Steps half */}
-      <div className="p-4 flex flex-col gap-2 flex-1">
-        <p className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">
-          {labelSteps}
-        </p>
-        {steps !== undefined ? (
-          <>
+    <div className="col-span-1 sm:col-span-1 lg:col-span-6 bg-surface-container border border-outline-variant/10 rounded-xl p-5 flex flex-col gap-4">
+      <div className="flex items-start justify-between gap-4">
+        <p className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">{labelBodyFat}</p>
+        {syncStr && (
+          <span className="text-xs text-on-surface-variant shrink-0">{labelImport}: {syncStr}</span>
+        )}
+      </div>
+
+      {hasBodyFat ? (
+        <>
+          <div className="flex items-end gap-6">
             <div className="flex items-baseline gap-1.5">
-              <span className="text-3xl font-headline font-bold tracking-tighter leading-none text-on-surface">
-                {steps.toLocaleString('de-CH')}
+              <span className="text-5xl font-headline font-bold tracking-tighter leading-none text-on-surface">
+                {bodyFat!.toFixed(1)}
               </span>
-              <span className="text-xs text-on-surface-variant">/ {stepsGoal.toLocaleString('de-CH')}</span>
+              <span className="text-sm text-on-surface-variant">%</span>
             </div>
-            <div className="h-1 bg-surface-container rounded-full overflow-hidden">
-              <div
-                className="h-full rounded-full bg-movement-400 transition-all duration-700"
-                style={{ width: `${stepsPct}%` }}
-              />
+            <div className="text-right">
+              <span className="text-xs text-on-surface-variant">{labelTarget}</span>
+              <p className="text-2xl font-headline font-bold tracking-tighter text-primary">{TARGET_BODY_FAT_PCT} %</p>
             </div>
-            <p className="text-xs text-on-surface-variant">{labelAvg30d}</p>
-          </>
-        ) : (
-          <p className="text-sm text-on-surface-variant">—</p>
-        )}
-      </div>
-
-      {/* Divider */}
-      <div className="h-px bg-outline-variant/10" />
-
-      {/* Body Fat half */}
-      <div className="p-4 flex flex-col gap-2 flex-1">
-        <p className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">
-          {labelBodyFat}
-        </p>
-        {bodyFat !== undefined ? (
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-3xl font-headline font-bold tracking-tighter leading-none text-on-surface">
-              {bodyFat.toFixed(1)}
-            </span>
-            <span className="text-xs text-on-surface-variant">%</span>
           </div>
-        ) : (
-          <p className="text-sm text-on-surface-variant">—</p>
+
+          {hasBaseline && (
+            <div className="space-y-2">
+              <p className="text-xs text-on-surface-variant">
+                {labelStart}: <span className="text-on-surface font-semibold">{baselineBodyFat!.toFixed(1)} %</span>
+                {' → '}
+                {labelTarget}: <span className="text-primary font-semibold">{TARGET_BODY_FAT_PCT} %</span>
+              </p>
+              <div className="h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+                <div className="h-full rounded-full bg-primary transition-all duration-700" style={{ width: `${pct}%` }} />
+              </div>
+              <p className="text-xs text-on-surface-variant text-right">
+                <span className="text-on-surface font-semibold">{pct}%</span> {labelProgress}
+              </p>
+            </div>
+          )}
+        </>
+      ) : (
+        <p className="text-sm text-on-surface-variant">{labelNoData}</p>
+      )}
+    </div>
+  )
+}
+
+// ─── Steps Tile (full width with sparkline) ───────────────────────────────
+
+interface StepsTileProps {
+  avgSteps?: number
+  stepsGoal: number
+  stepsHistory: Array<{ date: string; steps: number }>
+  importedAt?: Date
+  labelSteps: string
+  labelAvg30d: string
+  labelImport: string
+  labelNoData: string
+}
+
+function StepsTile({ avgSteps, stepsGoal, stepsHistory, importedAt, labelSteps, labelAvg30d, labelImport, labelNoData }: StepsTileProps) {
+  const stepsPct = avgSteps ? Math.min(100, Math.round((avgSteps / stepsGoal) * 100)) : 0
+  const syncStr = importedAt ? formatSyncTimestamp(importedAt) : null
+
+  return (
+    <div className="col-span-1 sm:col-span-2 lg:col-span-12 bg-surface-container border border-outline-variant/10 rounded-xl p-5 flex flex-col gap-4">
+      <div className="flex items-start justify-between gap-4">
+        <p className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">{labelSteps}</p>
+        {syncStr && (
+          <span className="text-xs text-on-surface-variant shrink-0">{labelImport}: {syncStr}</span>
         )}
       </div>
+
+      {avgSteps !== undefined ? (
+        <>
+          <div className="flex items-center gap-4">
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-4xl font-headline font-bold tracking-tighter leading-none text-on-surface">
+                {avgSteps.toLocaleString('de-CH')}
+              </span>
+              <span className="text-sm text-on-surface-variant">/ {stepsGoal.toLocaleString('de-CH')}</span>
+            </div>
+            <div className="flex-1">
+              <div className="h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-movement-400 transition-all duration-700"
+                  style={{ width: `${stepsPct}%` }}
+                />
+              </div>
+              <p className="text-xs text-on-surface-variant mt-1">{labelAvg30d} · {stepsPct}%</p>
+            </div>
+          </div>
+
+          {stepsHistory.length > 1 && (
+            <StepsSparkline data={stepsHistory} goal={stepsGoal} />
+          )}
+        </>
+      ) : (
+        <p className="text-sm text-on-surface-variant">{labelNoData}</p>
+      )}
     </div>
   )
 }
@@ -406,7 +448,6 @@ interface DrinkMetricTileProps {
   label: string
   avgMl: number
   targetMl: number
-  /** true = higher is better (water); false = lower is better (cola zero) */
   moreIsBetter: boolean
   labelGoal: string
   unit?: string
@@ -419,19 +460,13 @@ function DrinkMetricTile({ label, avgMl, targetMl, moreIsBetter, labelGoal, unit
   const barColor = goalMet ? 'bg-movement-400' : moreIsBetter ? 'bg-primary' : 'bg-error'
   const valueColor = goalMet ? 'text-movement-300' : 'text-on-surface'
 
-  const display = unit === 'L'
-    ? `${(avgMl / 1000).toFixed(1)} L`
-    : `${avgMl} ml`
   const goalDisplay = unit === 'L'
     ? `${(targetMl / 1000).toFixed(1)} L`
     : `${targetMl} ml`
 
   return (
     <div className="col-span-1 sm:col-span-1 lg:col-span-6 bg-surface-container-high border border-outline-variant/10 rounded-xl p-4 flex flex-col gap-3">
-      <p className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">
-        {label}
-      </p>
-
+      <p className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">{label}</p>
       <div className="flex items-end justify-between gap-2">
         <div className="flex items-baseline gap-1.5">
           <span className={`text-3xl font-headline font-bold tracking-tighter leading-none ${valueColor}`}>
@@ -439,17 +474,11 @@ function DrinkMetricTile({ label, avgMl, targetMl, moreIsBetter, labelGoal, unit
           </span>
           <span className="text-xs text-on-surface-variant">L</span>
         </div>
-        <span className="text-xs text-on-surface-variant shrink-0">
-          {labelGoal}: {goalDisplay}
-        </span>
+        <span className="text-xs text-on-surface-variant shrink-0">{labelGoal}: {goalDisplay}</span>
       </div>
-
       <div className="space-y-1">
         <div className="h-1 bg-surface-container rounded-full overflow-hidden">
-          <div
-            className={`h-full rounded-full ${barColor} transition-all duration-700`}
-            style={{ width: `${barPct}%` }}
-          />
+          <div className={`h-full rounded-full ${barColor} transition-all duration-700`} style={{ width: `${barPct}%` }} />
         </div>
         <p className="text-xs text-on-surface-variant text-right">{barPct}%</p>
       </div>
@@ -457,7 +486,7 @@ function DrinkMetricTile({ label, avgMl, targetMl, moreIsBetter, labelGoal, unit
   )
 }
 
-// ─── Helper: compute 7-day vs 30-day success rate ─────────────────────────
+// ─── Helper: 7-day vs 30-day success rate ─────────────────────────────────
 
 function computeRates(booleans: boolean[]): { pct30d: number; pct7d: number } {
   const last30 = booleans.slice(0, 30)
@@ -467,16 +496,20 @@ function computeRates(booleans: boolean[]): { pct30d: number; pct7d: number } {
   return { pct30d, pct7d }
 }
 
-// ─── Live Status section ───────────────────────────────────────────────────
+// ─── Live Status Section ───────────────────────────────────────────────────
 
 export async function LiveStatus() {
-  const [entries, metrics, profile, drinkAvg, priorityPillar, t] = await Promise.all([
-    getAllEntries(),
-    getLatestMetrics(),
+  const [profile, t] = await Promise.all([
     getProfile(),
+    getTranslations('HomePage'),
+  ])
+
+  const [entries, metrics, drinkAvg, priorityPillar, stepsHistoryRaw] = await Promise.all([
+    getAllEntries(),
+    getLatestMetrics(profile.projectStartDate ?? undefined),
     getDrinkAvg7d(),
     getPriorityPillar(),
-    getTranslations('HomePage'),
+    getStepsHistory(30),
   ])
 
   const movementBools = entries.map((e) => isMovementFulfilled(e.habits.movement))
@@ -493,18 +526,22 @@ export async function LiveStatus() {
 
   const stepsGoal = profile.targetSteps ?? 10000
 
+  const stepsHistory = stepsHistoryRaw
+    .filter((d) => d.steps !== null)
+    .map((d) => ({ date: d.date.toISOString().slice(0, 10), steps: d.steps as number }))
+
   return (
     <section className="max-w-4xl mx-auto px-4 sm:px-6 py-8 border-b border-outline-variant/10">
 
       {/* Section label */}
       <p className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant mb-4">
-        {t('tagline')}
+        {t('metricsSectionTitle')}
       </p>
 
       {/* Bento grid — 12-col on lg, 2-col on sm, 1-col on mobile */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3">
 
-        {/* Row 1 */}
+        {/* Row A — Habit streaks */}
         <SmokingHeroTile
           streak={smokingStreak.current}
           longestStreak={smokingStreak.longest}
@@ -515,7 +552,6 @@ export async function LiveStatus() {
           labelRate={t('rate30d')}
           isPriority={priorityPillar === 'smoking'}
         />
-
         <HabitRingTile
           label={t('streakMovement')}
           streak={movementStreak.current}
@@ -527,7 +563,6 @@ export async function LiveStatus() {
           isPriority={priorityPillar === 'movement'}
           pillarKey="movement"
         />
-
         <NutritionRingTile
           label={t('streakNutrition')}
           streak={nutritionStreak.current}
@@ -539,29 +574,46 @@ export async function LiveStatus() {
           isPriority={priorityPillar === 'nutrition'}
         />
 
-        {/* Row 2 */}
+        {/* Row B — Weight & Body Fat */}
         <WeightTile
           weight={metrics.latestWeight}
           bmi={metrics.latestBmi}
           targetWeight={profile.targetWeight}
-          lastSync={metrics.lastSyncDate}
+          baselineWeight={metrics.baselineWeight}
+          importedAt={metrics.weightImportedAt}
           labelWeight={t('metricWeight')}
           labelBmi={t('metricBmi')}
           labelTarget={t('metricTarget')}
-          labelSync={t('metricSync')}
+          labelImport={t('metricImport')}
+          labelStart={t('metricStart')}
+          labelProgress={t('metricProgress')}
+          labelNoData={t('metricNoData')}
+        />
+        <BodyFatTile
+          bodyFat={metrics.latestBodyFat}
+          baselineBodyFat={metrics.baselineBodyFat}
+          importedAt={metrics.bodyFatImportedAt}
+          labelBodyFat={t('metricBodyFat')}
+          labelTarget={t('metricTarget')}
+          labelImport={t('metricImport')}
+          labelStart={t('metricStart')}
+          labelProgress={t('metricProgress')}
           labelNoData={t('metricNoData')}
         />
 
-        <StackedMetricTile
-          steps={metrics.avgSteps30d}
+        {/* Row C — Steps with sparkline */}
+        <StepsTile
+          avgSteps={metrics.avgSteps30d}
           stepsGoal={stepsGoal}
-          bodyFat={metrics.latestBodyFat}
+          stepsHistory={stepsHistory}
+          importedAt={metrics.stepsImportedAt}
           labelSteps={t('metricSteps')}
-          labelBodyFat={t('metricBodyFat')}
           labelAvg30d={t('metricAvg30d')}
+          labelImport={t('metricImport')}
+          labelNoData={t('metricNoData')}
         />
 
-        {/* Row 3 — Drink metrics */}
+        {/* Row D — Drink metrics */}
         <DrinkMetricTile
           label={t('metricWater')}
           avgMl={drinkAvg.waterMl}
@@ -569,7 +621,6 @@ export async function LiveStatus() {
           moreIsBetter={true}
           labelGoal={t('metricDailyGoal')}
         />
-
         <DrinkMetricTile
           label={t('metricColaZero')}
           avgMl={drinkAvg.colaZeroMl}

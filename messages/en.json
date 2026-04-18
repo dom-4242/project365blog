@@ -44,7 +44,11 @@
     "metricWater": "Avg Water (7d)",
     "metricColaZero": "Avg Cola Zero (7d)",
     "metricDailyGoal": "Daily goal",
-    "metricDailyLimit": "Daily limit"
+    "metricDailyLimit": "Daily limit",
+    "metricsSectionTitle": "Metrics & Progress",
+    "metricStart": "Start",
+    "metricProgress": "of the way there",
+    "metricImport": "Import"
   },
   "AboutPage": {
     "metaTitle": "About the Project — Project 365",

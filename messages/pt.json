@@ -41,7 +41,11 @@
     "metricWater": "Média Água (7d)",
     "metricColaZero": "Média Cola Zero (7d)",
     "metricDailyGoal": "Meta diária",
-    "metricDailyLimit": "Limite diário"
+    "metricDailyLimit": "Limite diário",
+    "metricsSectionTitle": "Métricas & Progresso",
+    "metricStart": "Início",
+    "metricProgress": "do caminho percorrido",
+    "metricImport": "Importado"
   },
   "AboutPage": {
     "metaTitle": "Sobre o Projeto — Project 365",

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" width="1200" height="420">
+  <defs>
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1919;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#0e0e0e;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient id="circ-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff8f70;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#fc7c7c;stop-opacity:1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="420" fill="url(#bg-grad)"/>
+
+  <!-- Surface grounding layers -->
+  <rect x="-40" y="180" width="500" height="220" rx="40" fill="#201f1f" opacity="0.5" transform="rotate(-8, 200, 290)"/>
+  <rect x="780" y="30" width="480" height="200" rx="48" fill="#262626" opacity="0.45" transform="rotate(12, 1020, 130)"/>
+
+  <!-- Large background circles -->
+  <circle cx="980" cy="320" r="180" fill="#ff8f70" opacity="0.22"/>
+  <circle cx="120" cy="80" r="140" fill="#fc7c7c" opacity="0.2"/>
+  <circle cx="600" cy="380" r="120" fill="#eaa5ff" opacity="0.2"/>
+
+  <!-- Mid-layer ellipses -->
+  <ellipse cx="700" cy="100" rx="220" ry="90" fill="#ff734c" opacity="0.28" transform="rotate(15, 700, 100)"/>
+  <ellipse cx="250" cy="320" rx="160" ry="70" fill="#fc7c7c" opacity="0.25" transform="rotate(-10, 250, 320)"/>
+
+  <!-- Rotated rectangles for dynamism -->
+  <rect x="400" y="60" width="260" height="90" rx="28" fill="#ff8f70" opacity="0.32" transform="rotate(14, 530, 105)"/>
+  <rect x="820" y="240" width="300" height="80" rx="36" fill="#eaa5ff" opacity="0.28" transform="rotate(-10, 970, 280)"/>
+  <rect x="50" y="250" width="200" height="70" rx="24" fill="#ff734c" opacity="0.3" transform="rotate(9, 150, 285)"/>
+
+  <!-- Polygons / triangles for movement energy -->
+  <polygon points="560,30 630,160 490,160" fill="#ff8f70" opacity="0.35" transform="rotate(5, 560, 95)"/>
+  <polygon points="1080,180 1160,330 1000,330" fill="#fc7c7c" opacity="0.3" transform="rotate(-6, 1080, 255)"/>
+  <polygon points="180,140 240,260 120,260" fill="#eaa5ff" opacity="0.28" transform="rotate(10, 180, 200)"/>
+
+  <!-- Small accent shapes — focal points -->
+  <circle cx="610" cy="210" r="32" fill="#ff8f70" opacity="0.52"/>
+  <circle cx="980" cy="130" r="22" fill="#eaa5ff" opacity="0.5"/>
+  <rect x="290" y="170" width="50" height="50" rx="14" fill="#fc7c7c" opacity="0.48" transform="rotate(20, 315, 195)"/>
+</svg>

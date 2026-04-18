@@ -6,47 +6,74 @@ export interface MetricsSummary {
   latestBmi?: number
   avgSteps30d?: number
   lastSyncDate?: Date
+  weightImportedAt?: Date
+  bodyFatImportedAt?: Date
+  stepsImportedAt?: Date
+  baselineWeight?: number
+  baselineBodyFat?: number
 }
 
-export async function getLatestMetrics(): Promise<MetricsSummary> {
-  const [latest, lastSyncRow] = await Promise.all([
-    prisma.dailyMetrics.findFirst({
-      orderBy: { date: 'desc' },
-      where: {
-        OR: [
-          { weight: { not: null } },
-          { bodyFat: { not: null } },
-        ],
-      },
-    }),
-    prisma.dailyMetrics.findFirst({
-      orderBy: { date: 'desc' },
-      select: { date: true },
-    }),
-  ])
+export async function getLatestMetrics(projectStartDate?: string): Promise<MetricsSummary> {
+  const startDate = projectStartDate ? new Date(projectStartDate) : new Date('2020-01-01')
 
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-  const stepsData = await prisma.dailyMetrics.findMany({
-    where: {
-      date: { gte: thirtyDaysAgo },
-      steps: { not: null },
-    },
-    select: { steps: true },
-  })
+  const [
+    latestWeightRow,
+    latestBodyFatRow,
+    latestStepsRow,
+    baselineWeightRow,
+    baselineBodyFatRow,
+    stepsData,
+  ] = await Promise.all([
+    prisma.dailyMetrics.findFirst({
+      orderBy: { date: 'desc' },
+      where: { weight: { not: null } },
+      select: { weight: true, bmi: true, updatedAt: true },
+    }),
+    prisma.dailyMetrics.findFirst({
+      orderBy: { date: 'desc' },
+      where: { bodyFat: { not: null } },
+      select: { bodyFat: true, updatedAt: true },
+    }),
+    prisma.dailyMetrics.findFirst({
+      orderBy: { date: 'desc' },
+      where: { steps: { not: null } },
+      select: { date: true, updatedAt: true },
+    }),
+    prisma.dailyMetrics.findFirst({
+      orderBy: { date: 'asc' },
+      where: { date: { gte: startDate }, weight: { not: null } },
+      select: { weight: true },
+    }),
+    prisma.dailyMetrics.findFirst({
+      orderBy: { date: 'asc' },
+      where: { date: { gte: startDate }, bodyFat: { not: null } },
+      select: { bodyFat: true },
+    }),
+    prisma.dailyMetrics.findMany({
+      where: { date: { gte: thirtyDaysAgo }, steps: { not: null } },
+      select: { steps: true },
+    }),
+  ])
 
   const avgSteps =
     stepsData.length > 0
-      ? Math.round(stepsData.reduce((sum, d) => sum + (d.steps ?? 0), 0) / stepsData.length)
+      ? Math.round(stepsData.reduce((s, d) => s + (d.steps ?? 0), 0) / stepsData.length)
       : undefined
 
   return {
-    latestWeight: latest?.weight ?? undefined,
-    latestBodyFat: latest?.bodyFat ?? undefined,
-    latestBmi: latest?.bmi ?? undefined,
+    latestWeight: latestWeightRow?.weight ?? undefined,
+    latestBodyFat: latestBodyFatRow?.bodyFat ?? undefined,
+    latestBmi: latestWeightRow?.bmi ?? undefined,
     avgSteps30d: avgSteps,
-    lastSyncDate: lastSyncRow?.date ?? undefined,
+    lastSyncDate: latestStepsRow?.date ?? undefined,
+    weightImportedAt: latestWeightRow?.updatedAt ?? undefined,
+    bodyFatImportedAt: latestBodyFatRow?.updatedAt ?? undefined,
+    stepsImportedAt: latestStepsRow?.updatedAt ?? undefined,
+    baselineWeight: baselineWeightRow?.weight ?? undefined,
+    baselineBodyFat: baselineBodyFatRow?.bodyFat ?? undefined,
   }
 }
 
