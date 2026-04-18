@@ -30,6 +30,7 @@ export interface JournalEntry {
   habits: HabitsFrontmatter
   content: string
   excerpt?: string
+  sweetsConsumed?: boolean | null
 }
 
 export type JournalEntryMeta = Omit<JournalEntry, 'content'>
@@ -76,6 +77,7 @@ function toMeta(entry: PrismaJournalEntry): JournalEntryMeta {
       nutrition: NUTRITION_TO_VALUE[entry.nutrition],
       smoking: SMOKING_TO_VALUE[entry.smoking],
     },
+    sweetsConsumed: entry.sweetsConsumed,
   }
 }
 

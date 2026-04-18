@@ -8,10 +8,15 @@ export const dynamic = 'force-dynamic'
 export default async function QuickLogPage() {
   const start = zurichDayStart()
 
-  const todayEntries = await prisma.drinkLog.findMany({
-    where: { timestamp: { gte: start } },
-    orderBy: { timestamp: 'desc' },
-  })
+  const [todayEntries, todaySweetsLog] = await Promise.all([
+    prisma.drinkLog.findMany({
+      where: { timestamp: { gte: start } },
+      orderBy: { timestamp: 'desc' },
+    }),
+    prisma.sweetsLog.findUnique({
+      where: { date: start },
+    }),
+  ])
 
   const water = todayEntries.filter((e) => e.type === 'WATER').length
   const colaZero = todayEntries.filter((e) => e.type === 'COLA_ZERO').length
@@ -27,7 +32,7 @@ export default async function QuickLogPage() {
     <div className="max-w-sm mx-auto space-y-8 py-4">
       <div>
         <h1 className="font-headline text-2xl font-bold text-on-surface mb-1">Quick Log</h1>
-        <p className="text-on-surface-variant text-sm">Getränke schnell erfassen</p>
+        <p className="text-on-surface-variant text-sm">Getränke und Süssigkeiten erfassen</p>
       </div>
 
       {/* Today's summary */}
@@ -46,7 +51,10 @@ export default async function QuickLogPage() {
         </div>
       </div>
 
-      <QuickLogButtons recentEntries={recentEntries} />
+      <QuickLogButtons
+        recentEntries={recentEntries}
+        sweetsConsumed={todaySweetsLog?.consumed ?? null}
+      />
     </div>
   )
 }
