@@ -58,6 +58,25 @@ export async function getLatestMetrics(projectStartDate?: string): Promise<Metri
     }),
   ])
 
+  // Fall back to absolute first record when projectStartDate is set to a future
+  // date or is otherwise later than all available data.
+  const [weightFallback, bodyFatFallback] = await Promise.all([
+    baselineWeightRow
+      ? Promise.resolve(null)
+      : prisma.dailyMetrics.findFirst({
+          orderBy: { date: 'asc' },
+          where: { weight: { not: null } },
+          select: { weight: true },
+        }),
+    baselineBodyFatRow
+      ? Promise.resolve(null)
+      : prisma.dailyMetrics.findFirst({
+          orderBy: { date: 'asc' },
+          where: { bodyFat: { not: null } },
+          select: { bodyFat: true },
+        }),
+  ])
+
   const avgSteps =
     stepsData.length > 0
       ? Math.round(stepsData.reduce((s, d) => s + (d.steps ?? 0), 0) / stepsData.length)
@@ -72,8 +91,8 @@ export async function getLatestMetrics(projectStartDate?: string): Promise<Metri
     weightImportedAt: latestWeightRow?.updatedAt ?? undefined,
     bodyFatImportedAt: latestBodyFatRow?.updatedAt ?? undefined,
     stepsImportedAt: latestStepsRow?.updatedAt ?? undefined,
-    baselineWeight: baselineWeightRow?.weight ?? undefined,
-    baselineBodyFat: baselineBodyFatRow?.bodyFat ?? undefined,
+    baselineWeight: (baselineWeightRow ?? weightFallback)?.weight ?? undefined,
+    baselineBodyFat: (baselineBodyFatRow ?? bodyFatFallback)?.bodyFat ?? undefined,
   }
 }
 
