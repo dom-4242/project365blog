@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import React from 'react'
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { Icon } from '@/components/ui/Icon'
@@ -38,6 +39,10 @@ const PILLARS = [
 
 const FINALE_ITEMS = ['finaleItem1', 'finaleItem2', 'finaleItem3', 'finaleItem4'] as const
 
+const strong = (chunks: React.ReactNode) => (
+  <strong className="text-on-surface font-bold">{chunks}</strong>
+)
+
 export default async function AboutPage({ params }: AboutPageProps) {
   const t = await getTranslations('AboutPage')
 
@@ -59,6 +64,22 @@ export default async function AboutPage({ params }: AboutPageProps) {
         </p>
       </section>
 
+      {/* ── Warum ich das mache ───────────────────────────────────────── */}
+      <section className="bg-surface-variant/40 backdrop-blur-xl border border-outline-variant/15 rounded-xl p-6 sm:p-8 space-y-4">
+        <div className="flex items-center gap-3">
+          <Icon name="favorite" size={20} className="text-primary" />
+          <h2 className="text-xs font-label font-bold tracking-widest uppercase text-primary">
+            {t('whyITitle')}
+          </h2>
+        </div>
+        <div className="space-y-4 text-on-surface-variant leading-relaxed">
+          <p>{t('whyI_p1')}</p>
+          <p>{t('whyI_p2')}</p>
+          <p>{t('whyI_p3')}</p>
+          <p>{t.rich('whyI_p4', { strong })}</p>
+        </div>
+      </section>
+
       {/* ── Was ist Project 365? ──────────────────────────────────────── */}
       <section className="bg-surface-variant/40 backdrop-blur-xl border border-outline-variant/15 rounded-xl p-6 sm:p-8 space-y-4">
         <div className="flex items-center gap-3">
@@ -67,9 +88,10 @@ export default async function AboutPage({ params }: AboutPageProps) {
             {t('whatTitle')}
           </h2>
         </div>
-        <p className="text-on-surface-variant leading-relaxed">
-          {t('whatText')}
-        </p>
+        <div className="space-y-4 text-on-surface-variant leading-relaxed">
+          <p>{t.rich('whatText_p1', { strong })}</p>
+          <p>{t('whatText_p2')}</p>
+        </div>
       </section>
 
       {/* ── Die drei Säulen ──────────────────────────────────────────── */}
@@ -105,9 +127,10 @@ export default async function AboutPage({ params }: AboutPageProps) {
             {t('finaleSubtitle')}
           </h2>
         </div>
-        <p className="text-on-surface-variant leading-relaxed">
-          {t('finaleText')}
-        </p>
+        <div className="space-y-4 text-on-surface-variant leading-relaxed">
+          <p>{t('finaleText_p1')}</p>
+          <p>{t.rich('finaleText_p2', { strong })}</p>
+        </div>
         <ul className="space-y-2">
           {FINALE_ITEMS.map((item) => (
             <li key={item} className="flex items-start gap-3">
@@ -118,6 +141,15 @@ export default async function AboutPage({ params }: AboutPageProps) {
         </ul>
       </section>
 
+      {/* ── Kampagne in Vorbereitung ──────────────────────────────────── */}
+      <aside className="flex items-start gap-3 px-5 py-4 bg-surface-container-high border border-outline-variant/10 rounded-xl">
+        <Icon name="schedule" size={18} className="text-on-surface-variant mt-0.5 flex-none" />
+        <div className="text-sm text-on-surface-variant leading-relaxed">
+          <span className="font-bold text-on-surface">{t('campaignHintTitle')}</span>{' '}
+          {t('campaignHintText')}
+        </div>
+      </aside>
+
       {/* ── Warum öffentlich? ─────────────────────────────────────────── */}
       <section className="bg-surface-variant/40 backdrop-blur-xl border border-outline-variant/15 rounded-xl p-6 sm:p-8 space-y-4">
         <div className="flex items-center gap-3">
@@ -126,9 +158,10 @@ export default async function AboutPage({ params }: AboutPageProps) {
             {t('whyTitle')}
           </h2>
         </div>
-        <p className="text-on-surface-variant leading-relaxed">
-          {t('whyText')}
-        </p>
+        <div className="space-y-4 text-on-surface-variant leading-relaxed">
+          <p>{t('whyText_p1')}</p>
+          <p>{t('whyText_p2')}</p>
+        </div>
       </section>
 
       {/* ── CTA zum Journal ───────────────────────────────────────────── */}
