@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" width="1200" height="420">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="70%" fx="50%" fy="50%">
+      <stop offset="0%" stop-color="#2a2a3e"/>
+      <stop offset="100%" stop-color="#1e1e2e"/>
+    </radialGradient>
+    <radialGradient id="glowMauve" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#cba6f7" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#cba6f7" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowBlue" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#89b4fa" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#89b4fa" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowTeal" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#94e2d5" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#94e2d5" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="overlayGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#cba6f7" stop-opacity="0.08"/>
+      <stop offset="50%" stop-color="#89b4fa" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#94e2d5" stop-opacity="0.07"/>
+    </linearGradient>
+    <filter id="blur1" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="45"/>
+    </filter>
+    <filter id="blur2" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="30"/>
+    </filter>
+    <filter id="blur3" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="20"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="420" fill="url(#bgGrad)"/>
+
+  <!-- Deep background blobs -->
+  <ellipse cx="300" cy="210" rx="380" ry="280" fill="#cba6f7" opacity="0.12" filter="url(#blur1)"/>
+  <ellipse cx="950" cy="180" rx="320" ry="260" fill="#89b4fa" opacity="0.13" filter="url(#blur1)"/>
+  <ellipse cx="620" cy="350" rx="280" ry="180" fill="#94e2d5" opacity="0.10" filter="url(#blur1)"/>
+
+  <!-- Mid-layer circles -->
+  <circle cx="220" cy="190" r="180" fill="url(#glowMauve)" filter="url(#blur2)" opacity="0.55"/>
+  <circle cx="980" cy="230" r="160" fill="url(#glowBlue)" filter="url(#blur2)" opacity="0.5"/>
+  <circle cx="600" cy="120" r="140" fill="url(#glowTeal)" filter="url(#blur2)" opacity="0.4"/>
+
+  <!-- Soft surface shapes -->
+  <ellipse cx="150" cy="320" rx="200" ry="120" fill="#313244" opacity="0.35" filter="url(#blur3)"/>
+  <ellipse cx="1050" cy="100" rx="180" ry="110" fill="#45475a" opacity="0.3" filter="url(#blur3)"/>
+  <ellipse cx="600" cy="260" rx="260" ry="140" fill="#313244" opacity="0.25" filter="url(#blur3)"/>
+
+  <!-- Crisp accent circles (lower opacity, no blur) -->
+  <circle cx="580" cy="200" r="110" fill="none" stroke="#cba6f7" stroke-width="1.5" opacity="0.2"/>
+  <circle cx="580" cy="200" r="160" fill="none" stroke="#89b4fa" stroke-width="1" opacity="0.12"/>
+  <circle cx="230" cy="180" r="90" fill="none" stroke="#94e2d5" stroke-width="1" opacity="0.18"/>
+  <circle cx="970" cy="220" r="100" fill="none" stroke="#cba6f7" stroke-width="1.2" opacity="0.15"/>
+
+  <!-- Flowing curve arcs -->
+  <path d="M 0 280 Q 300 150 600 250 T 1200 200" fill="none" stroke="#cba6f7" stroke-width="1.5" opacity="0.18"/>
+  <path d="M 0 320 Q 400 200 700 300 T 1200 260" fill="none" stroke="#89b4fa" stroke-width="1" opacity="0.14"/>
+  <path d="M 100 420 Q 500 280 900 360 T 1200 320" fill="none" stroke="#94e2d5" stroke-width="1" opacity="0.12"/>
+
+  <!-- Subtle filled arcs for depth -->
+  <path d="M 0 350 Q 200 200 450 300 Q 650 380 800 260 Q 1000 140 1200 300 L 1200 420 L 0 420 Z" fill="#313244" opacity="0.2"/>
+  <path d="M 0 390 Q 300 300 600 370 Q 900 430 1200 360 L 1200 420 L 0 420 Z" fill="#45475a" opacity="0.15"/>
+
+  <!-- Final gradient overlay -->
+  <rect width="1200" height="420" fill="url(#overlayGrad)"/>
+</svg>

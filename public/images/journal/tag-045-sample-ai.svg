@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" width="1200" height="420">
+  <defs>
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a1919"/>
+      <stop offset="100%" stop-color="#0e0e0e"/>
+    </linearGradient>
+    <linearGradient id="accent-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff8f70"/>
+      <stop offset="100%" stop-color="#ff734c"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="420" fill="url(#bg-grad)"/>
+
+  <!-- Grounding mid-layer surface shapes -->
+  <rect x="-60" y="180" width="520" height="200" rx="40" fill="#201f1f" opacity="0.5" transform="rotate(-12 200 280)"/>
+  <rect x="820" y="60" width="460" height="220" rx="48" fill="#262626" opacity="0.45" transform="rotate(10 1050 170)"/>
+
+  <!-- Large background circles for movement energy -->
+  <circle cx="960" cy="320" r="220" fill="#ff8f70" opacity="0.2"/>
+  <circle cx="180" cy="100" r="160" fill="#ff734c" opacity="0.22"/>
+
+  <!-- Upward triangle - kinetic energy, movement -->
+  <polygon points="600,30 720,260 480,260" fill="#ff8f70" opacity="0.28"/>
+
+  <!-- Diagonal energy rect -->
+  <rect x="300" y="120" width="420" height="80" rx="32" fill="#ff734c" opacity="0.3" transform="rotate(14 510 160)"/>
+
+  <!-- Large sweeping ellipse -->
+  <ellipse cx="850" cy="200" rx="280" ry="100" fill="#ff8f70" opacity="0.25" transform="rotate(-18 850 200)"/>
+
+  <!-- Secondary polygon - angular dynamism -->
+  <polygon points="100,380 280,180 360,380" fill="#eaa5ff" opacity="0.22"/>
+
+  <!-- Tilted rect, purple accent -->
+  <rect x="780" y="280" width="300" height="70" rx="28" fill="#eaa5ff" opacity="0.28" transform="rotate(16 930 315)"/>
+
+  <!-- Coral accent ellipse -->
+  <ellipse cx="420" cy="360" rx="200" ry="55" fill="#fc7c7c" opacity="0.25" transform="rotate(-8 420 360)"/>
+
+  <!-- Upward pointing triangle - forward motion -->
+  <polygon points="1080,60 1160,240 1000,240" fill="#ff734c" opacity="0.3"/>
+
+  <!-- Small accent shapes - focal points -->
+  <circle cx="600" cy="210" r="28" fill="#ff8f70" opacity="0.52"/>
+  <circle cx="220" cy="320" r="20" fill="#eaa5ff" opacity="0.48"/>
+  <rect x="1030" y="130" width="60" height="60" rx="18" fill="#fc7c7c" opacity="0.5" transform="rotate(22 1060 160)"/>
+
+  <!-- Scattered detail rect -->
+  <rect x="500" y="310" width="180" height="44" rx="24" fill="#ff8f70" opacity="0.35" transform="rotate(-10 590 332)"/>
+
+  <!-- Top right energy burst polygon -->
+  <polygon points="1150,0 1200,120 1080,60" fill="#ff8f70" opacity="0.32"/>
+
+  <!-- Lower left grounding ellipse -->
+  <ellipse cx="80" cy="400" rx="120" ry="50" fill="#ff734c" opacity="0.3" transform="rotate(-20 80 400)"/>
+</svg>

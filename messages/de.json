@@ -44,7 +44,11 @@
     "metricWater": "Ø Wasser (7T)",
     "metricColaZero": "Ø Cola Zero (7T)",
     "metricDailyGoal": "Tagesziel",
-    "metricDailyLimit": "Tageslimit"
+    "metricDailyLimit": "Tageslimit",
+    "metricsSectionTitle": "Metriken & Fortschritt",
+    "metricStart": "Start",
+    "metricProgress": "vom Weg geschafft",
+    "metricImport": "Import"
   },
   "AboutPage": {
     "metaTitle": "Über das Projekt — Project 365",
