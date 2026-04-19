@@ -3,83 +3,25 @@ name: Deploy
 on:
   push:
     branches: [main]
-    # Nur bei relevanten Änderungen deployen (nicht bei Docs-Only)
     paths-ignore:
       - "**.md"
       - ".github/ISSUE_TEMPLATE/**"
       - "LICENSE"
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-
 jobs:
-  build-and-push:
-    name: Build & Push Docker Image
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
+  deploy:
+    name: Build & Deploy on pilab01
+    runs-on: [self-hosted, linux, arm64]
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Log in to Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build Docker image
+        run: |
+          docker build -t project365blog:latest .
 
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=sha,prefix=
-            type=raw,value=latest
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          platforms: linux/amd64,linux/arm64
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-  # Optional: Deployment auf HomeLab triggern
-  # Aktivieren wenn Webhook oder SSH-Deployment eingerichtet ist
-  #
-  # deploy-homelab:
-  #   name: Deploy to HomeLab
-  #   runs-on: ubuntu-latest
-  #   needs: build-and-push
-  #   steps:
-  #     - name: Trigger deployment via webhook
-  #       run: |
-  #         curl -X POST \
-  #           -H "Authorization: Bearer ${{ secrets.DEPLOY_WEBHOOK_SECRET }}" \
-  #           "${{ secrets.DEPLOY_WEBHOOK_URL }}"
-  #
-  #   # Alternative: SSH-basiertes Deployment
-  #     - name: Deploy via SSH
-  #       uses: appleboy/ssh-action@v1
-  #       with:
-  #         host: ${{ secrets.HOMELAB_HOST }}
-  #         username: ${{ secrets.HOMELAB_USER }}
-  #         key: ${{ secrets.HOMELAB_SSH_KEY }}
-  #         script: |
-  #           cd /opt/project365blog
-  #           docker compose pull
-  #           docker compose up -d
-  #           docker image prune -f
+      - name: Deploy
+        run: |
+          cd /container/project365blog/app
+          IMAGE=project365blog:latest docker compose up -d --no-deps web
+          docker image prune -f --filter "label!=project365blog"
