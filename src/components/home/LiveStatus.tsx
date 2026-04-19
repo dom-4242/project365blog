@@ -142,21 +142,29 @@ function SmokingHeroTile({ streak, longestStreak, pct, labelStreak, labelDays, l
   )
 }
 
-// ─── Habit Ring Tile ───────────────────────────────────────────────────────
+// ─── Habit Streak Tile (Bewegung & Ernährung) ─────────────────────────────
 
-interface HabitRingProps {
+interface HabitStreakTileProps {
   label: string
   streak: number
+  longestStreak: number
   pct7d: number
   pct30d: number
-  color: string
+  colorClass: string
+  colorText: string
   labelDays: string
-  label7d: string
+  labelRate: string
+  labelLongest: string
+  labelTrend: string
   isPriority?: boolean
   pillarKey?: string
 }
 
-function HabitRingTile({ label, streak, pct7d, pct30d, color, labelDays, label7d, isPriority, pillarKey }: HabitRingProps) {
+function HabitStreakTile({
+  label, streak, longestStreak, pct7d, pct30d,
+  colorClass, colorText, labelDays, labelRate, labelLongest, labelTrend,
+  isPriority, pillarKey,
+}: HabitStreakTileProps) {
   const trend = pct7d - pct30d
   const trendSign = trend > 0 ? '+' : ''
   const trendColor = trend >= 0 ? 'text-on-surface-variant' : 'text-error'
@@ -164,63 +172,38 @@ function HabitRingTile({ label, streak, pct7d, pct30d, color, labelDays, label7d
 
   return (
     <div
-      className={`col-span-1 sm:col-span-1 lg:col-span-4 bg-surface-container-high rounded-xl p-4 flex flex-col gap-3 transition-shadow ${glow ? `border ${glow.border}` : 'border border-outline-variant/10'}`}
+      className={`relative col-span-1 sm:col-span-1 lg:col-span-4 bg-surface-container-high rounded-xl p-4 overflow-hidden flex flex-col gap-3 transition-shadow ${glow ? `border ${glow.border}` : 'border border-outline-variant/10'}`}
       style={glow ? { boxShadow: glow.shadow } : undefined}
       role={isPriority ? 'region' : undefined}
       aria-label={isPriority && pillarKey ? `Priorität: ${label}` : undefined}
     >
       {isPriority && <span className="sr-only">Aktueller Fokus</span>}
-      <p className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">{label}</p>
-      <div className="flex items-center gap-4">
-        <RingChart pct={pct30d} color={color} size={80} strokeWidth={6} />
-        <div className="flex flex-col gap-1">
-          <div className="flex items-baseline gap-1">
-            <span className="text-3xl font-headline font-bold tracking-tighter leading-none text-on-surface">{streak}</span>
-            <span className="text-xs text-on-surface-variant">{labelDays}</span>
-          </div>
-          <span className={`text-xs font-semibold ${trendColor}`}>{label7d}: {trendSign}{trend}%</span>
-        </div>
+      <span
+        className={`pointer-events-none select-none absolute -right-3 -bottom-3 font-headline font-bold leading-none opacity-[0.04]`}
+        style={{ fontSize: '8rem', color: 'currentColor' }}
+        aria-hidden="true"
+      >
+        {streak}
+      </span>
+      <p className={`text-xs font-label font-bold tracking-widest uppercase ${colorText}`}>{label}</p>
+      <div className="flex items-baseline gap-2">
+        <span className={`text-5xl font-headline font-bold tracking-tighter leading-none ${colorText} opacity-90`}>
+          {streak}
+        </span>
+        <span className="text-sm text-on-surface-variant">{labelDays}</span>
       </div>
-    </div>
-  )
-}
-
-// ─── Nutrition Ring Tile ───────────────────────────────────────────────────
-
-interface NutritionRingProps {
-  label: string
-  streak: number
-  pct7d: number
-  pct30d: number
-  color: string
-  labelDays: string
-  label7d: string
-  isPriority?: boolean
-}
-
-function NutritionRingTile({ label, streak, pct7d, pct30d, color, labelDays, label7d, isPriority }: NutritionRingProps) {
-  const trend = pct7d - pct30d
-  const trendSign = trend > 0 ? '+' : ''
-  const trendColor = trend >= 0 ? 'text-on-surface-variant' : 'text-error'
-  const glow = isPriority ? PILLAR_GLOW.nutrition : null
-
-  return (
-    <div
-      className={`col-span-1 sm:col-span-1 lg:col-span-3 bg-surface-container-high rounded-xl p-4 flex flex-col gap-3 transition-shadow ${glow ? `border ${glow.border}` : 'border border-outline-variant/10'}`}
-      style={glow ? { boxShadow: glow.shadow } : undefined}
-      role={isPriority ? 'region' : undefined}
-      aria-label={isPriority ? `Priorität: ${label}` : undefined}
-    >
-      {isPriority && <span className="sr-only">Aktueller Fokus</span>}
-      <p className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">{label}</p>
-      <div className="flex flex-col items-center gap-2">
-        <RingChart pct={pct30d} color={color} size={72} strokeWidth={6} />
-        <div className="text-center">
-          <div className="flex items-baseline justify-center gap-1">
-            <span className="text-2xl font-headline font-bold tracking-tighter leading-none text-on-surface">{streak}</span>
-            <span className="text-xs text-on-surface-variant">{labelDays}</span>
-          </div>
-          <p className={`text-xs font-semibold mt-0.5 ${trendColor}`}>{label7d}: {trendSign}{trend}%</p>
+      <div className="space-y-1.5">
+        <div className="h-1 bg-surface-container rounded-full overflow-hidden">
+          <div className={`h-full rounded-full ${colorClass} transition-all duration-700`} style={{ width: `${Math.min(100, pct30d)}%` }} />
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-on-surface-variant">
+            {labelRate}: <span className={`${colorText} font-semibold`}>{pct30d}%</span>
+            <span className={`ml-2 font-semibold ${trendColor}`}>({labelTrend}: {trendSign}{trend}%)</span>
+          </span>
+          <span className="text-xs text-on-surface-variant">
+            {labelLongest}: <span className="text-on-surface font-semibold">{longestStreak}</span>
+          </span>
         </div>
       </div>
     </div>
@@ -597,26 +580,35 @@ export async function LiveStatus() {
           labelRate={t('rate30d')}
           isPriority={priorityPillar === 'smoking'}
         />
-        <HabitRingTile
+        <HabitStreakTile
           label={t('streakMovement')}
           streak={movementStreak.current}
+          longestStreak={movementStreak.longest}
           pct7d={movementRates.pct7d}
           pct30d={movementRates.pct30d}
-          color="#62bc44"
+          colorClass="bg-movement-400"
+          colorText="text-movement-300"
           labelDays={t('streakDays')}
-          label7d={t('trend7d')}
+          labelRate={t('rate30d')}
+          labelLongest={t('streakLongest')}
+          labelTrend={t('trend7d')}
           isPriority={priorityPillar === 'movement'}
           pillarKey="movement"
         />
-        <NutritionRingTile
+        <HabitStreakTile
           label={t('streakNutrition')}
           streak={nutritionStreak.current}
+          longestStreak={nutritionStreak.longest}
           pct7d={nutritionRates.pct7d}
           pct30d={nutritionRates.pct30d}
-          color="#fd8b50"
+          colorClass="bg-nutrition-400"
+          colorText="text-nutrition-300"
           labelDays={t('streakDays')}
-          label7d={t('trend7d')}
+          labelRate={t('rate30d')}
+          labelLongest={t('streakLongest')}
+          labelTrend={t('trend7d')}
           isPriority={priorityPillar === 'nutrition'}
+          pillarKey="nutrition"
         />
 
         {/* Row B — Weight & Body Fat */}
