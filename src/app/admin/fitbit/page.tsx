@@ -148,6 +148,7 @@ export default async function FitbitPage({
                         {entry.syncedAt.toLocaleString('de-CH', {
                           day: '2-digit', month: '2-digit', year: 'numeric',
                           hour: '2-digit', minute: '2-digit',
+                          timeZone: 'Europe/Zurich',
                         })}
                       </td>
                       <td className="px-4 py-3">
