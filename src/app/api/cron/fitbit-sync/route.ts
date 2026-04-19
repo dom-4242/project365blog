@@ -33,6 +33,22 @@ export async function GET(request: NextRequest) {
       console.log('[fitbit-sync] Tokens refreshed and persisted to DB.')
     }
 
+    await prisma.fitbitSyncLog.create({
+      data: {
+        triggeredBy: 'CRON',
+        syncDate: result.date,
+        status: 'SUCCESS',
+        weight: result.weight ?? null,
+        bodyFat: result.bodyFat ?? null,
+        bmi: result.bmi ?? null,
+        activeMinutes: result.activeMinutes ?? null,
+        caloriesBurned: result.caloriesBurned ?? null,
+        distance: result.distance ?? null,
+        restingHR: result.restingHR ?? null,
+        tokensRefreshed: !!result.newTokens,
+      },
+    })
+
     return NextResponse.json({
       ok: true,
       date: result.date,
@@ -48,6 +64,21 @@ export async function GET(request: NextRequest) {
       tokensRefreshed: !!result.newTokens,
     })
   } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err)
+
+    await prisma.fitbitSyncLog.create({
+      data: {
+        triggeredBy: 'CRON',
+        syncDate: date,
+        status: 'ERROR',
+        errorMessage: err instanceof FitbitRateLimitError
+          ? `Rate limit exceeded (retry after ${err.retryAfterSeconds}s)`
+          : err instanceof FitbitAuthError
+            ? `Auth failed: ${errorMessage}`
+            : errorMessage,
+      },
+    }).catch(() => {}) // Log-Fehler nicht nach oben propagieren
+
     if (err instanceof FitbitRateLimitError) {
       return NextResponse.json(
         { error: 'Rate limit exceeded', retryAfterSeconds: err.retryAfterSeconds },

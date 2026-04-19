@@ -329,3 +329,27 @@ model PageView {
   @@index([timestamp])
   @@index([path])
 }
+
+// =============================================
+// FITBIT SYNC LOG — Protokoll jeder Sync-Ausführung
+// Wird von Cron und manuellem Sync befüllt.
+// =============================================
+
+model FitbitSyncLog {
+  id              String   @id @default(cuid())
+  syncedAt        DateTime @default(now())
+  triggeredBy     String   @default("CRON")   // CRON | MANUAL
+  syncDate        String                       // YYYY-MM-DD — der synchronisierte Tag
+  status          String                       // SUCCESS | ERROR
+  weight          Float?
+  bodyFat         Float?
+  bmi             Float?
+  activeMinutes   Int?
+  caloriesBurned  Int?
+  distance        Float?
+  restingHR       Int?
+  tokensRefreshed Boolean  @default(false)
+  errorMessage    String?
+
+  @@index([syncedAt(sort: Desc)])
+}

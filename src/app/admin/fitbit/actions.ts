@@ -30,6 +30,21 @@ export async function syncDay(date: string): Promise<SyncActionResult> {
     if (result.newTokens) {
       await saveFitbitTokens(result.newTokens)
     }
+    await prisma.fitbitSyncLog.create({
+      data: {
+        triggeredBy: 'MANUAL',
+        syncDate: result.date,
+        status: 'SUCCESS',
+        weight: result.weight ?? null,
+        bodyFat: result.bodyFat ?? null,
+        bmi: result.bmi ?? null,
+        activeMinutes: result.activeMinutes ?? null,
+        caloriesBurned: result.caloriesBurned ?? null,
+        distance: result.distance ?? null,
+        restingHR: result.restingHR ?? null,
+        tokensRefreshed: !!result.newTokens,
+      },
+    })
     revalidatePath('/admin/fitbit')
     revalidatePath('/admin/metrics')
     return { results: [result], tokensRefreshed: !!result.newTokens }
@@ -77,6 +92,21 @@ export async function syncRange(startDate: string, endDate: string): Promise<Syn
         tokensRefreshed = true
         await saveFitbitTokens(result.newTokens)
       }
+      await prisma.fitbitSyncLog.create({
+        data: {
+          triggeredBy: 'MANUAL',
+          syncDate: result.date,
+          status: 'SUCCESS',
+          weight: result.weight ?? null,
+          bodyFat: result.bodyFat ?? null,
+          bmi: result.bmi ?? null,
+          activeMinutes: result.activeMinutes ?? null,
+          caloriesBurned: result.caloriesBurned ?? null,
+          distance: result.distance ?? null,
+          restingHR: result.restingHR ?? null,
+          tokensRefreshed: !!result.newTokens,
+        },
+      })
       results.push(result)
     } catch (err) {
       if (err instanceof FitbitRateLimitError) {

@@ -52,11 +52,17 @@ export default async function FitbitPage({
   const baseUrl = process.env.NEXTAUTH_URL ?? 'https://project365.dom42.ch'
   const fitbitAuthUrl = buildFitbitAuthUrl(baseUrl)
 
-  const recentFitbitMetrics = await prisma.dailyMetrics.findMany({
-    where: { source: 'FITBIT' },
-    orderBy: { date: 'desc' },
-    take: 10,
-  })
+  const [recentFitbitMetrics, syncLog] = await Promise.all([
+    prisma.dailyMetrics.findMany({
+      where: { source: 'FITBIT' },
+      orderBy: { date: 'desc' },
+      take: 10,
+    }),
+    prisma.fitbitSyncLog.findMany({
+      orderBy: { syncedAt: 'desc' },
+      take: 30,
+    }),
+  ])
 
   return (
     <div className="space-y-8">
@@ -109,6 +115,70 @@ export default async function FitbitPage({
       <section>
         <h2 className="text-xs font-semibold text-on-surface-variant uppercase tracking-wide mb-3">Manueller Sync</h2>
         <FitbitSyncPanel />
+      </section>
+
+      <section>
+        <h2 className="text-xs font-semibold text-on-surface-variant uppercase tracking-wide mb-3">Sync Log</h2>
+        {syncLog.length === 0 ? (
+          <p className="text-sm text-on-surface-variant">Noch keine Sync-Ausführungen protokolliert.</p>
+        ) : (
+          <div className="bg-surface-container rounded-2xl border border-surface-container-high overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-surface-container text-on-surface-variant text-left">
+                    <th className="px-4 py-3 font-medium">Zeitpunkt</th>
+                    <th className="px-4 py-3 font-medium">Trigger</th>
+                    <th className="px-4 py-3 font-medium">Tag</th>
+                    <th className="px-4 py-3 font-medium">Status</th>
+                    <th className="px-4 py-3 font-medium">Gewicht</th>
+                    <th className="px-4 py-3 font-medium">Körperfett</th>
+                    <th className="px-4 py-3 font-medium">Aktiv</th>
+                    <th className="px-4 py-3 font-medium">Kalorien</th>
+                    <th className="px-4 py-3 font-medium">Tokens</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {syncLog.map((entry) => (
+                    <tr
+                      key={entry.id}
+                      className="border-b border-surface-container last:border-0 hover:bg-surface-container transition-colors"
+                    >
+                      <td className="px-4 py-3 font-mono text-on-surface-variant whitespace-nowrap">
+                        {entry.syncedAt.toLocaleString('de-CH', {
+                          day: '2-digit', month: '2-digit', year: 'numeric',
+                          hour: '2-digit', minute: '2-digit',
+                        })}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`font-label font-bold tracking-widest uppercase text-xs px-1.5 py-0.5 rounded ${
+                          entry.triggeredBy === 'CRON'
+                            ? 'bg-surface-container-high text-on-surface-variant'
+                            : 'bg-primary/10 text-primary'
+                        }`}>
+                          {entry.triggeredBy}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 font-mono text-on-surface">{entry.syncDate}</td>
+                      <td className="px-4 py-3">
+                        {entry.status === 'SUCCESS' ? (
+                          <span className="text-movement-400">✓ OK</span>
+                        ) : (
+                          <span className="text-error" title={entry.errorMessage ?? undefined}>✗ Fehler</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-on-surface">{entry.weight != null ? `${entry.weight} kg` : '—'}</td>
+                      <td className="px-4 py-3 text-on-surface">{entry.bodyFat != null ? `${entry.bodyFat}%` : '—'}</td>
+                      <td className="px-4 py-3 text-on-surface">{entry.activeMinutes != null ? `${entry.activeMinutes} min` : '—'}</td>
+                      <td className="px-4 py-3 text-on-surface">{entry.caloriesBurned != null ? entry.caloriesBurned : '—'}</td>
+                      <td className="px-4 py-3 text-on-surface-variant">{entry.tokensRefreshed ? '↺' : '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </section>
 
       {recentFitbitMetrics.length > 0 && (
