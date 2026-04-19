@@ -103,7 +103,7 @@ function SmokingHeroTile({ streak, longestStreak, pct, labelStreak, labelDays, l
   const glow = isPriority ? PILLAR_GLOW.smoking : null
   return (
     <div
-      className={`relative col-span-1 sm:col-span-2 lg:col-span-5 bg-surface-variant/40 backdrop-blur-xl rounded-xl p-5 overflow-hidden flex flex-col gap-4 transition-shadow ${glow ? `border ${glow.border}` : 'border border-outline-variant/15'}`}
+      className={`relative col-span-1 sm:col-span-1 lg:col-span-4 bg-surface-variant/40 backdrop-blur-xl rounded-xl p-5 overflow-hidden flex flex-col gap-4 transition-shadow ${glow ? `border ${glow.border}` : 'border border-outline-variant/15'}`}
       style={glow ? { boxShadow: glow.shadow } : undefined}
       role={isPriority ? 'region' : undefined}
       aria-label={isPriority ? 'Priorität: Rauchstopp' : undefined}
