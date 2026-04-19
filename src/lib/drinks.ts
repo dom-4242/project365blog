@@ -82,8 +82,9 @@ export async function getDrinkAnalytics(days: number | 'all'): Promise<DrinkAnal
     ? undefined
     : new Date(todayStart.getTime() - days * 24 * 60 * 60 * 1000)
 
+  const now = new Date()
   const rows = await prisma.drinkLog.findMany({
-    where: { timestamp: { ...(since ? { gte: since } : {}), lt: todayStart } },
+    where: { timestamp: { ...(since ? { gte: since } : {}), lte: now } },
     select: { type: true, volume: true, timestamp: true },
     orderBy: { timestamp: 'asc' },
   })
@@ -98,14 +99,15 @@ export async function getDrinkAnalytics(days: number | 'all'): Promise<DrinkAnal
     dayMap.set(date, entry)
   }
 
-  // Build ordered day list, filling zeros for missing days
+  // Build ordered day list, filling zeros for missing days (including today)
+  const tomorrowStart = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000)
   const daysList: DrinkDayData[] = []
   const rangeStart = since ?? (rows[0]
     ? new Date(new Intl.DateTimeFormat('en-CA', { timeZone: tz }).format(rows[0].timestamp) + 'T00:00:00Z')
     : todayStart)
 
   let cur = new Date(rangeStart)
-  while (cur < todayStart) {
+  while (cur < tomorrowStart) {
     const date = new Intl.DateTimeFormat('en-CA', { timeZone: tz }).format(cur)
     const entry = dayMap.get(date) ?? { water: 0, cola: 0 }
     daysList.push({ date, waterMl: entry.water, colaZeroMl: entry.cola })
