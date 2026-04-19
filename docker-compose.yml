@@ -78,7 +78,7 @@ services:
       - -c
       - |
         apk update -q; apk add --no-cache -q curl tzdata
-        printf 'CRON_SECRET=%s\nTZ=Europe/Zurich\n0 4 * * * curl -s --fail-with-body --retry 2 --retry-delay 60 --connect-timeout 30 --max-time 60 -H "Authorization: Bearer $$CRON_SECRET" http://web:3000/api/cron/fitbit-sync\n' "$$CRON_SECRET" | crontab -
+        printf 'CRON_SECRET=%s\nTZ=Europe/Zurich\n0 17 * * * curl -s --fail-with-body --retry 2 --retry-delay 60 --connect-timeout 30 --max-time 60 -H "Authorization: Bearer $$CRON_SECRET" http://web:3000/api/cron/fitbit-sync\n' "$$CRON_SECRET" | crontab -
         crond -f -d 6
 
 volumes:
