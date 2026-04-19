@@ -495,7 +495,8 @@ interface DrinkMetricTileProps {
 
 function DrinkMetricTile({ label, avgMl, targetMl, moreIsBetter, labelGoal, unit = 'ml' }: DrinkMetricTileProps) {
   const ratio = targetMl > 0 ? avgMl / targetMl : 0
-  const barPct = Math.min(100, Math.round(ratio * 100))
+  const displayPct = Math.round(ratio * 100)
+  const barPct = Math.min(100, displayPct)
   const goalMet = moreIsBetter ? avgMl >= targetMl : avgMl <= targetMl
   const barColor = goalMet ? 'bg-movement-400' : moreIsBetter ? 'bg-primary' : 'bg-error'
   const valueColor = goalMet ? 'text-movement-300' : 'text-on-surface'
@@ -520,7 +521,7 @@ function DrinkMetricTile({ label, avgMl, targetMl, moreIsBetter, labelGoal, unit
         <div className="h-1 bg-surface-container rounded-full overflow-hidden">
           <div className={`h-full rounded-full ${barColor} transition-all duration-700`} style={{ width: `${barPct}%` }} />
         </div>
-        <p className="text-xs text-on-surface-variant text-right">{barPct}%</p>
+        <p className="text-xs text-on-surface-variant text-right">{displayPct}%</p>
       </div>
     </div>
   )
