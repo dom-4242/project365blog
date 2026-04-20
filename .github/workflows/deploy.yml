@@ -23,5 +23,5 @@ jobs:
       - name: Deploy
         run: |
           cd /container/project365blog/app
-          IMAGE=project365blog:latest docker compose up -d --no-deps web
-          docker image prune -f --filter "label!=project365blog"
+          docker compose up -d --no-deps web
+          docker image prune -f

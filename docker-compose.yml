@@ -34,7 +34,7 @@ services:
 
   # --- Next.js App ---
   web:
-    image: ${IMAGE:-ghcr.io/dom-4242/project365blog:latest}
+    image: project365blog:latest
     restart: unless-stopped
     ports:
       - "${APP_PORT:-3000}:3000"
