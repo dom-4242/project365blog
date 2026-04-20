@@ -22,6 +22,7 @@ jobs:
 
       - name: Deploy
         run: |
+          cp docker-compose.yml /container/project365blog/app/docker-compose.yml
           cd /container/project365blog/app
           docker compose up -d --no-deps web
           docker image prune -f
