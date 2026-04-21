@@ -132,8 +132,9 @@ export default async function TranslationsPage() {
                 <div className="flex items-center gap-2 shrink-0">
                   <TranslateButton
                     id={entry.id}
-                    isTranslated={enStatus !== 'missing'}
-                    isStale={enStatus === 'stale'}
+                    entryUpdatedAt={entry.updatedAt}
+                    enTranslation={entry.translations.find((t) => t.locale === 'en') ?? null}
+                    ptTranslation={entry.translations.find((t) => t.locale === 'pt') ?? null}
                   />
                   <Link
                     href={`/admin/translations/${entry.id}`}

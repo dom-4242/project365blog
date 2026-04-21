@@ -67,8 +67,7 @@ export default async function EntriesPage({ searchParams }: EntriesPageProps) {
           {entries.map((entry) => {
             const dateStr = entry.date.toISOString().slice(0, 10)
             const enTranslation = entry.translations.find((t) => t.locale === 'en') ?? null
-            const isTranslated = !!enTranslation
-            const isStale = isTranslated && enTranslation!.updatedAt < entry.updatedAt
+            const ptTranslation = entry.translations.find((t) => t.locale === 'pt') ?? null
             return (
               <div
                 key={entry.id}
@@ -93,7 +92,12 @@ export default async function EntriesPage({ searchParams }: EntriesPageProps) {
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
-                  <TranslateButton id={entry.id} isTranslated={isTranslated} isStale={isStale} />
+                  <TranslateButton
+                    id={entry.id}
+                    entryUpdatedAt={entry.updatedAt}
+                    enTranslation={enTranslation}
+                    ptTranslation={ptTranslation}
+                  />
                   <Link
                     href={`/journal/${entry.slug}`}
                     target="_blank"

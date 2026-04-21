@@ -4,7 +4,7 @@ import { getAllEntries, type MovementValue, type NutritionValue, type SmokingVal
 // =============================================
 // Streak-Definitionen (Issue #87):
 //   Bewegung  ≥ STEPS_ONLY oder TRAINED_ONLY → steps_only | trained_only | steps_trained
-//   Ernährung ≥ TWO_MEALS                    → two_meals | three_meals
+//   Ernährung = THREE_MEALS                  → three_meals
 //   Rauchstopp ≠ SMOKED                      → nicotine_replacement | smoke_free
 // =============================================
 
@@ -13,7 +13,7 @@ export function isMovementFulfilled(movement: MovementValue): boolean {
 }
 
 export function isNutritionFulfilled(nutrition: NutritionValue): boolean {
-  return nutrition === 'two_meals' || nutrition === 'three_meals'
+  return nutrition === 'three_meals'
 }
 
 export function isSmokingFulfilled(smoking: SmokingValue): boolean {

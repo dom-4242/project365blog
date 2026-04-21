@@ -36,8 +36,8 @@ describe('isNutritionFulfilled', () => {
   it('returns false for one_meal', () => {
     expect(isNutritionFulfilled('one_meal')).toBe(false)
   })
-  it('returns true for two_meals', () => {
-    expect(isNutritionFulfilled('two_meals')).toBe(true)
+  it('returns false for two_meals', () => {
+    expect(isNutritionFulfilled('two_meals')).toBe(false)
   })
   it('returns true for three_meals', () => {
     expect(isNutritionFulfilled('three_meals')).toBe(true)
