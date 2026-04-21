@@ -216,6 +216,23 @@ function HabitStreakTile({
   )
 }
 
+// ─── Trend Badge ──────────────────────────────────────────────────────────
+
+function TrendBadge({ current, baseline, unit }: { current: number; baseline: number; unit: string }) {
+  const delta = current - baseline
+  if (Math.abs(delta) < 0.05) return null
+  const isGood = delta < 0
+  const sign = delta < 0 ? '−' : '+'
+  const arrow = delta < 0 ? '↓' : '↑'
+  return (
+    <span className={`inline-flex items-center gap-0.5 text-xs font-semibold px-1.5 py-0.5 rounded ${
+      isGood ? 'text-movement-400 bg-movement-900/20' : 'text-secondary bg-secondary/10'
+    }`}>
+      {arrow} {sign}{Math.abs(delta).toFixed(1)}{unit}
+    </span>
+  )
+}
+
 // ─── Weight Progress Tile ──────────────────────────────────────────────────
 
 interface WeightTileProps {
@@ -265,6 +282,7 @@ function WeightTile({ weight, bmi, targetWeight, baselineWeight, importedAt, lab
                   {weight!.toFixed(1)}
                 </span>
                 <span className="text-sm text-on-surface-variant">kg</span>
+                {hasBaseline && <TrendBadge current={weight!} baseline={baselineWeight!} unit=" kg" />}
               </div>
               {bmi && (
                 <p className="text-xs text-on-surface-variant mt-1">
@@ -347,6 +365,7 @@ function BodyFatTile({ bodyFat, baselineBodyFat, importedAt, labelBodyFat, label
                 {bodyFat!.toFixed(1)}
               </span>
               <span className="text-sm text-on-surface-variant">%</span>
+              {hasBaseline && <TrendBadge current={bodyFat!} baseline={baselineBodyFat!} unit="%" />}
             </div>
             <div className="text-right">
               <span className="text-xs text-on-surface-variant">{labelTarget}</span>
