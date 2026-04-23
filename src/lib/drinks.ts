@@ -3,7 +3,7 @@ import { prisma } from './db'
 import { zurichDayStart } from './timezone'
 
 export const DRINK_VOLUME: Record<DrinkType, number> = {
-  WATER: 600,     // ml per bottle
+  WATER: 900,     // ml per bottle (neue Flasche ab 22.04.2026)
   COLA_ZERO: 330, // ml per can
 }
 
