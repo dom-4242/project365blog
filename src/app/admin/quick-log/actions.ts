@@ -49,6 +49,30 @@ export async function setSweetsConsumed(value: boolean | null): Promise<{ error?
   return {}
 }
 
+export async function setSweetsConsumedForDate(
+  dateStr: string,
+  value: boolean | null
+): Promise<{ error?: string }> {
+  const session = await requireAdmin()
+  if (!session) return { error: 'Nicht autorisiert' }
+
+  const date = new Date(`${dateStr}T00:00:00.000Z`)
+
+  if (value === null) {
+    await prisma.sweetsLog.deleteMany({ where: { date } })
+  } else {
+    await prisma.sweetsLog.upsert({
+      where: { date },
+      update: { consumed: value },
+      create: { date, consumed: value },
+    })
+  }
+
+  revalidatePath('/admin/quick-log')
+  revalidatePath('/')
+  return {}
+}
+
 export async function getTodayDrinks(): Promise<TodayDrinks> {
   const start = zurichDayStart()
 

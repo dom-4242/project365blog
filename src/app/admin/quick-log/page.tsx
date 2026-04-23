@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db'
 import { QuickLogButtons } from '@/components/admin/QuickLogButtons'
+import { SweetsHistory } from '@/components/admin/SweetsHistory'
 import { DRINK_VOLUME } from '@/lib/drinks'
 import { zurichDayStart, formatZurichTime } from '@/lib/timezone'
 
@@ -8,13 +9,20 @@ export const dynamic = 'force-dynamic'
 export default async function QuickLogPage() {
   const start = zurichDayStart()
 
-  const [todayEntries, todaySweetsLog] = await Promise.all([
+  // Last 14 days for sweets history (UTC midnight = Zurich date)
+  const historyFrom = new Date(start.getTime() - 13 * 24 * 60 * 60 * 1000)
+
+  const [todayEntries, todaySweetsLog, sweetsHistory] = await Promise.all([
     prisma.drinkLog.findMany({
       where: { timestamp: { gte: start } },
       orderBy: { timestamp: 'desc' },
     }),
     prisma.sweetsLog.findUnique({
       where: { date: start },
+    }),
+    prisma.sweetsLog.findMany({
+      where: { date: { gte: historyFrom, lt: start } },
+      orderBy: { date: 'desc' },
     }),
   ])
 
@@ -54,6 +62,14 @@ export default async function QuickLogPage() {
       <QuickLogButtons
         recentEntries={recentEntries}
         sweetsConsumed={todaySweetsLog?.consumed ?? null}
+      />
+
+      <SweetsHistory
+        entries={sweetsHistory.map((e) => ({
+          date: e.date.toISOString().slice(0, 10),
+          consumed: e.consumed,
+        }))}
+        todayStr={start.toISOString().slice(0, 10)}
       />
     </div>
   )
