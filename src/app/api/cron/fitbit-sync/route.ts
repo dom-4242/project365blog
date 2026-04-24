@@ -7,28 +7,17 @@ import {
   FitbitAuthError,
 } from '@/lib/fitbit'
 import { loadFitbitTokens, saveFitbitTokens } from '@/lib/fitbit-tokens'
+import { zurichDateStr } from '@/lib/timezone'
 
-export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get('authorization')
-  if (!process.env.CRON_SECRET || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  const tokens = await loadFitbitTokens()
-  if (!tokens) {
-    return NextResponse.json(
-      { error: 'Fitbit tokens not configured' },
-      { status: 500 },
-    )
-  }
-
-  const dateParam = request.nextUrl.searchParams.get('date')
-  const date = dateParam ?? getYesterdayDate()
-
+async function syncDate(
+  date: string,
+  tokens: Awaited<ReturnType<typeof loadFitbitTokens>>,
+  isFirstSync: boolean,
+): Promise<{ result?: Awaited<ReturnType<typeof syncFitbitDay>>; error?: string; rateLimited?: boolean }> {
   try {
-    const result = await syncFitbitDay(date, tokens, prisma)
+    const result = await syncFitbitDay(date, tokens!, prisma)
 
-    if (result.newTokens) {
+    if (result.newTokens && isFirstSync) {
       await saveFitbitTokens(result.newTokens)
       console.log('[fitbit-sync] Tokens refreshed and persisted to DB.')
     }
@@ -49,20 +38,7 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    return NextResponse.json({
-      ok: true,
-      date: result.date,
-      synced: {
-        weight: result.weight,
-        bodyFat: result.bodyFat,
-        bmi: result.bmi,
-        activeMinutes: result.activeMinutes,
-        caloriesBurned: result.caloriesBurned,
-        distance: result.distance,
-        restingHR: result.restingHR,
-      },
-      tokensRefreshed: !!result.newTokens,
-    })
+    return { result }
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err)
 
@@ -77,18 +53,52 @@ export async function GET(request: NextRequest) {
             ? `Auth failed: ${errorMessage}`
             : errorMessage,
       },
-    }).catch(() => {}) // Log-Fehler nicht nach oben propagieren
+    }).catch(() => {})
 
-    if (err instanceof FitbitRateLimitError) {
-      return NextResponse.json(
-        { error: 'Rate limit exceeded', retryAfterSeconds: err.retryAfterSeconds },
-        { status: 429 },
-      )
-    }
-    if (err instanceof FitbitAuthError) {
-      return NextResponse.json({ error: 'Fitbit auth failed', detail: err.message }, { status: 401 })
-    }
-    console.error('[fitbit-sync] Unexpected error:', err)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    if (err instanceof FitbitRateLimitError) return { rateLimited: true }
+    return { error: errorMessage }
   }
+}
+
+export async function GET(request: NextRequest) {
+  const authHeader = request.headers.get('authorization')
+  if (!process.env.CRON_SECRET || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const tokens = await loadFitbitTokens()
+  if (!tokens) {
+    return NextResponse.json({ error: 'Fitbit tokens not configured' }, { status: 500 })
+  }
+
+  const dateParam = request.nextUrl.searchParams.get('date')
+
+  // Explicit date: sync only that day (used by manual trigger / admin)
+  if (dateParam) {
+    const { result, error, rateLimited } = await syncDate(dateParam, tokens, true)
+    if (rateLimited) return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
+    if (error) return NextResponse.json({ error }, { status: 500 })
+    return NextResponse.json({ ok: true, date: result!.date, synced: result })
+  }
+
+  // No date param: sync yesterday + today to always have fresh data
+  const yesterday = getYesterdayDate()
+  const today = zurichDateStr()
+
+  const [r1, r2] = await Promise.all([
+    syncDate(yesterday, tokens, true),
+    syncDate(today, tokens, false),
+  ])
+
+  if (r1.rateLimited || r2.rateLimited) {
+    return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
+  }
+
+  return NextResponse.json({
+    ok: true,
+    synced: {
+      [yesterday]: r1.result ?? { error: r1.error },
+      [today]: r2.result ?? { error: r2.error },
+    },
+  })
 }
