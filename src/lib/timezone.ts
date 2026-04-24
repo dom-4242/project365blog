@@ -20,6 +20,22 @@ export function zurichDayStart(now = new Date()): Date {
 }
 
 /**
+ * Returns the current date in Europe/Zurich as "YYYY-MM-DD".
+ */
+export function zurichDateStr(now = new Date()): string {
+  const parts = new Intl.DateTimeFormat('de-CH', {
+    timeZone: TZ,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(now)
+  const y = parts.find((p) => p.type === 'year')!.value
+  const m = parts.find((p) => p.type === 'month')!.value
+  const d = parts.find((p) => p.type === 'day')!.value
+  return `${y}-${m}-${d}`
+}
+
+/**
  * Formats a UTC Date as a time string in Europe/Zurich local time.
  */
 export function formatZurichTime(date: Date, locale = 'de-CH'): string {

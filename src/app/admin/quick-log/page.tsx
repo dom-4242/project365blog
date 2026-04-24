@@ -2,7 +2,7 @@ import { prisma } from '@/lib/db'
 import { QuickLogButtons } from '@/components/admin/QuickLogButtons'
 import { SweetsHistory } from '@/components/admin/SweetsHistory'
 import { DRINK_VOLUME } from '@/lib/drinks'
-import { zurichDayStart, formatZurichTime } from '@/lib/timezone'
+import { zurichDayStart, zurichDateStr, formatZurichTime } from '@/lib/timezone'
 
 export const dynamic = 'force-dynamic'
 
@@ -69,7 +69,7 @@ export default async function QuickLogPage() {
           date: e.date.toISOString().slice(0, 10),
           consumed: e.consumed,
         }))}
-        todayStr={start.toISOString().slice(0, 10)}
+        todayStr={zurichDateStr()}
       />
     </div>
   )
