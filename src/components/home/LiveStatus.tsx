@@ -12,12 +12,14 @@ import {
   isSmokingFulfilled,
 } from '@/lib/habits'
 import {
-  getDrinkAvg7d,
+  getDrinkAnalytics,
   getSweetsHistory,
   WATER_DAILY_TARGET_ML,
   COLA_ZERO_DAILY_LIMIT_ML,
+  type DrinkDayData,
 } from '@/lib/drinks'
 import { StepsSparkline } from './StepsSparkline'
+import { DrinkSparkline } from './DrinkSparkline'
 
 // ─── Constants ────────────────────────────────────────────────────────────
 const TARGET_BODY_FAT_PCT = 15
@@ -498,10 +500,11 @@ interface DrinkMetricTileProps {
   targetMl: number
   moreIsBetter: boolean
   labelGoal: string
-  unit?: string
+  history: DrinkDayData[]
+  dataKey: 'waterMl' | 'colaZeroMl'
 }
 
-function DrinkMetricTile({ label, avgMl, targetMl, moreIsBetter, labelGoal, unit = 'ml' }: DrinkMetricTileProps) {
+function DrinkMetricTile({ label, avgMl, targetMl, moreIsBetter, labelGoal, history, dataKey }: DrinkMetricTileProps) {
   const ratio = targetMl > 0 ? avgMl / targetMl : 0
   const displayPct = Math.round(ratio * 100)
   const barPct = Math.min(100, displayPct)
@@ -509,9 +512,8 @@ function DrinkMetricTile({ label, avgMl, targetMl, moreIsBetter, labelGoal, unit
   const barColor = goalMet ? 'bg-movement-400' : moreIsBetter ? 'bg-primary' : 'bg-error'
   const valueColor = goalMet ? 'text-movement-300' : 'text-on-surface'
 
-  const goalDisplay = unit === 'L'
-    ? `${(targetMl / 1000).toFixed(1)} L`
-    : `${targetMl} ml`
+  const goalDisplay = `${(targetMl / 1000).toFixed(1)} L`
+  const sparkData = history.map((d) => ({ date: d.date, ml: d[dataKey] }))
 
   return (
     <div className="col-span-1 sm:col-span-1 lg:col-span-4 bg-surface-container-high border border-outline-variant/10 rounded-xl p-4 flex flex-col gap-3">
@@ -531,6 +533,9 @@ function DrinkMetricTile({ label, avgMl, targetMl, moreIsBetter, labelGoal, unit
         </div>
         <p className="text-xs text-on-surface-variant text-right">{displayPct}%</p>
       </div>
+      {sparkData.length > 1 && (
+        <DrinkSparkline data={sparkData} targetMl={targetMl} moreIsBetter={moreIsBetter} />
+      )}
     </div>
   )
 }
@@ -553,10 +558,10 @@ export async function LiveStatus() {
     getTranslations('HomePage'),
   ])
 
-  const [entries, metrics, drinkAvg, priorityPillar, stepsHistoryRaw, sweetsHistory] = await Promise.all([
+  const [entries, metrics, drinkAnalytics, priorityPillar, stepsHistoryRaw, sweetsHistory] = await Promise.all([
     getAllEntries(),
     getLatestMetrics(profile.projectStartDate ?? undefined),
-    getDrinkAvg7d(),
+    getDrinkAnalytics(7),
     getPriorityPillar(),
     getStepsHistory(30),
     getSweetsHistory(90),
@@ -687,17 +692,21 @@ export async function LiveStatus() {
         />
         <DrinkMetricTile
           label={t('metricWater')}
-          avgMl={drinkAvg.waterMl}
+          avgMl={drinkAnalytics.waterStats.avg}
           targetMl={WATER_DAILY_TARGET_ML}
           moreIsBetter={true}
           labelGoal={t('metricDailyGoal')}
+          history={drinkAnalytics.days}
+          dataKey="waterMl"
         />
         <DrinkMetricTile
           label={t('metricColaZero')}
-          avgMl={drinkAvg.colaZeroMl}
+          avgMl={drinkAnalytics.colaStats.avg}
           targetMl={COLA_ZERO_DAILY_LIMIT_ML}
           moreIsBetter={false}
           labelGoal={t('metricDailyLimit')}
+          history={drinkAnalytics.days}
+          dataKey="colaZeroMl"
         />
 
       </div>
