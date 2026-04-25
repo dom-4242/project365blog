@@ -7,7 +7,7 @@ import {
   FitbitAuthError,
 } from '@/lib/fitbit'
 import { loadFitbitTokens, saveFitbitTokens } from '@/lib/fitbit-tokens'
-import { zurichDateStr } from '@/lib/timezone'
+import { zurichDateStr, zurichYesterdayStr } from '@/lib/timezone'
 
 async function syncDate(
   date: string,
@@ -81,8 +81,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: true, date: result!.date, synced: result })
   }
 
-  // No date param: sync yesterday + today to always have fresh data
-  const yesterday = getYesterdayDate()
+  // No date param: sync yesterday + today (both in Zurich timezone) for fresh data
+  const yesterday = zurichYesterdayStr()
   const today = zurichDateStr()
 
   const [r1, r2] = await Promise.all([

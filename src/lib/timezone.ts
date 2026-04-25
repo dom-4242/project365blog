@@ -20,6 +20,13 @@ export function zurichDayStart(now = new Date()): Date {
 }
 
 /**
+ * Returns yesterday's date in Europe/Zurich as "YYYY-MM-DD".
+ */
+export function zurichYesterdayStr(): string {
+  return zurichDateStr(new Date(Date.now() - 24 * 60 * 60 * 1000))
+}
+
+/**
  * Returns the current date in Europe/Zurich as "YYYY-MM-DD".
  */
 export function zurichDateStr(now = new Date()): string {
