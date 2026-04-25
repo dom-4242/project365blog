@@ -41,6 +41,9 @@ RUN apk add --no-cache openssl
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# Private upload dirs — must be owned by nextjs before volume mounts override them
+RUN mkdir -p /app/private/body-photos && chown -R nextjs:nodejs /app/private
+
 # Next.js Standalone Output
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./

@@ -20,6 +20,7 @@ const nextConfig = {
   pageExtensions: ['ts', 'tsx', 'mdx'],
   experimental: {
     mdxRs: true,
+    serverBodySizeLimit: '15mb',
   },
   images: {
     domains: [],
