@@ -46,23 +46,33 @@ export function BodyPhotoGallery({ photos, todayDate }: BodyPhotoGalleryProps) {
     setError(null)
     setUploading(true)
 
-    const fd = new FormData()
-    fd.append('file', file)
-    fd.append('date', uploadDate)
-    fd.append('category', uploadCategory)
-    fd.append('notes', uploadNotes)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('date', uploadDate)
+      fd.append('category', uploadCategory)
+      fd.append('notes', uploadNotes)
 
-    const res = await fetch('/api/admin/body-photos', { method: 'POST', body: fd })
-    const data = await res.json() as { id?: string; error?: string }
-    setUploading(false)
+      const res = await fetch('/api/admin/body-photos', { method: 'POST', body: fd })
+      let data: { id?: string; error?: string } = {}
+      try {
+        data = await res.json()
+      } catch {
+        // Server returned non-JSON (e.g. HTML error page)
+      }
 
-    if (!res.ok || !data.id) {
-      setError(data.error ?? 'Upload fehlgeschlagen')
-    } else {
-      setUploadNotes('')
-      router.refresh()
+      if (!res.ok || !data.id) {
+        setError(data.error ?? `Upload fehlgeschlagen (${res.status})`)
+      } else {
+        setUploadNotes('')
+        router.refresh()
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Netzwerkfehler beim Upload')
+    } finally {
+      setUploading(false)
+      if (fileRef.current) fileRef.current.value = ''
     }
-    if (fileRef.current) fileRef.current.value = ''
   }
 
   function handleDelete(id: string) {
