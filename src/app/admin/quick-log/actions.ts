@@ -5,7 +5,7 @@ import { prisma } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
 import { DrinkType } from '@prisma/client'
 import { DRINK_VOLUME, type TodayDrinks } from '@/lib/drinks'
-import { zurichDayStart } from '@/lib/timezone'
+import { zurichDayStart, zurichDateStr } from '@/lib/timezone'
 
 export async function logDrink(type: DrinkType): Promise<{ error?: string }> {
   const session = await requireAdmin()
@@ -32,7 +32,7 @@ export async function setSweetsConsumed(value: boolean | null): Promise<{ error?
   const session = await requireAdmin()
   if (!session) return { error: 'Nicht autorisiert' }
 
-  const today = zurichDayStart()
+  const today = new Date(`${zurichDateStr()}T00:00:00.000Z`)
 
   if (value === null) {
     await prisma.sweetsLog.deleteMany({ where: { date: today } })

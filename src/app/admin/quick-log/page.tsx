@@ -7,21 +7,21 @@ import { zurichDayStart, zurichDateStr, formatZurichTime } from '@/lib/timezone'
 export const dynamic = 'force-dynamic'
 
 export default async function QuickLogPage() {
-  const start = zurichDayStart()
-
-  // Last 14 days for sweets history (UTC midnight = Zurich date)
-  const historyFrom = new Date(start.getTime() - 13 * 24 * 60 * 60 * 1000)
+  const drinkStart = zurichDayStart()
+  const todayDateStr = zurichDateStr()
+  const todayDate = new Date(`${todayDateStr}T00:00:00.000Z`)
+  const historyFrom = new Date(todayDate.getTime() - 13 * 24 * 60 * 60 * 1000)
 
   const [todayEntries, todaySweetsLog, sweetsHistory] = await Promise.all([
     prisma.drinkLog.findMany({
-      where: { timestamp: { gte: start } },
+      where: { timestamp: { gte: drinkStart } },
       orderBy: { timestamp: 'desc' },
     }),
     prisma.sweetsLog.findUnique({
-      where: { date: start },
+      where: { date: todayDate },
     }),
     prisma.sweetsLog.findMany({
-      where: { date: { gte: historyFrom, lt: start } },
+      where: { date: { gte: historyFrom, lt: todayDate } },
       orderBy: { date: 'desc' },
     }),
   ])
