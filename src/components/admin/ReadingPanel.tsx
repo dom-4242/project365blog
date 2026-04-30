@@ -63,7 +63,17 @@ function BookForm({ book, onDone }: { book?: Book; onDone: () => void }) {
           className="border border-surface-container-high rounded-lg px-3 py-1.5 text-sm bg-surface-container text-on-surface focus:outline-none" />
       </div>
       <label className="flex items-center gap-2 text-sm text-on-surface-variant">
-        <input type="checkbox" checked={completed} onChange={(e) => setCompleted(e.target.checked)} className="rounded" />
+        <input
+          type="checkbox"
+          checked={completed}
+          onChange={(e) => {
+            setCompleted(e.target.checked)
+            if (e.target.checked && !endDate) {
+              setEndDate(new Date().toISOString().slice(0, 10))
+            }
+          }}
+          className="rounded"
+        />
         Abgeschlossen
       </label>
       <div className="flex gap-2">

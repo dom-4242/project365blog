@@ -19,24 +19,34 @@ export async function saveBook(data: {
   if (!session) return { error: 'Nicht autorisiert' }
   if (!data.title.trim()) return { error: 'Titel erforderlich' }
 
+  const resolvedEndDate = data.endDate
+    ? new Date(data.endDate)
+    : data.completed
+      ? new Date()
+      : null
+
   const row = {
     title:      data.title.trim(),
     author:     data.author.trim() || null,
     totalPages: data.totalPages ? parseInt(data.totalPages) : null,
     startDate:  data.startDate ? new Date(data.startDate) : null,
-    endDate:    data.endDate ? new Date(data.endDate) : null,
+    endDate:    resolvedEndDate,
     completed:  data.completed,
   }
 
   if (data.id) {
     await prisma.book.update({ where: { id: data.id }, data: row })
-    revalidatePath('/admin/reading')
-    return { id: data.id }
   } else {
-    const book = await prisma.book.create({ data: row })
-    revalidatePath('/admin/reading')
-    return { id: book.id }
+    await prisma.book.create({ data: row })
   }
+
+  revalidatePath('/admin/reading')
+  revalidatePath('/')
+  revalidatePath('/de')
+  revalidatePath('/en')
+  revalidatePath('/de/metrics')
+  revalidatePath('/en/metrics')
+  return { id: data.id ?? '' }
 }
 
 export async function deleteBook(id: string): Promise<{ error?: string }> {
