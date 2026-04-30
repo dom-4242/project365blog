@@ -5,19 +5,19 @@ import {
   getYesterdayDate,
   FitbitRateLimitError,
   FitbitAuthError,
+  type FitbitTokens,
 } from '@/lib/fitbit'
 import { loadFitbitTokens, saveFitbitTokens } from '@/lib/fitbit-tokens'
 import { zurichDateStr, zurichYesterdayStr } from '@/lib/timezone'
 
 async function syncDate(
   date: string,
-  tokens: Awaited<ReturnType<typeof loadFitbitTokens>>,
-  isFirstSync: boolean,
+  tokens: FitbitTokens,
 ): Promise<{ result?: Awaited<ReturnType<typeof syncFitbitDay>>; error?: string; rateLimited?: boolean }> {
   try {
-    const result = await syncFitbitDay(date, tokens!, prisma)
+    const result = await syncFitbitDay(date, tokens, prisma)
 
-    if (result.newTokens && isFirstSync) {
+    if (result.newTokens) {
       await saveFitbitTokens(result.newTokens)
       console.log('[fitbit-sync] Tokens refreshed and persisted to DB.')
     }
@@ -75,24 +75,23 @@ export async function GET(request: NextRequest) {
 
   // Explicit date: sync only that day (used by manual trigger / admin)
   if (dateParam) {
-    const { result, error, rateLimited } = await syncDate(dateParam, tokens, true)
+    const { result, error, rateLimited } = await syncDate(dateParam, tokens)
     if (rateLimited) return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
     if (error) return NextResponse.json({ error }, { status: 500 })
     return NextResponse.json({ ok: true, date: result!.date, synced: result })
   }
 
-  // No date param: sync yesterday + today (both in Zurich timezone) for fresh data
+  // No date param: sync yesterday then today sequentially so that a token refresh
+  // in the first sync is available for the second (Fitbit refresh tokens are single-use).
   const yesterday = zurichYesterdayStr()
   const today = zurichDateStr()
 
-  const [r1, r2] = await Promise.all([
-    syncDate(yesterday, tokens, true),
-    syncDate(today, tokens, false),
-  ])
+  const r1 = await syncDate(yesterday, tokens)
+  if (r1.rateLimited) return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
 
-  if (r1.rateLimited || r2.rateLimited) {
-    return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
-  }
+  const tokensForToday = r1.result?.newTokens ?? tokens
+  const r2 = await syncDate(today, tokensForToday)
+  if (r2.rateLimited) return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
 
   return NextResponse.json({
     ok: true,
