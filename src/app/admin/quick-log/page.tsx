@@ -1,8 +1,10 @@
 import { prisma } from '@/lib/db'
 import { QuickLogButtons } from '@/components/admin/QuickLogButtons'
 import { SweetsHistory } from '@/components/admin/SweetsHistory'
+import { MealLogForm } from '@/components/admin/MealLogForm'
 import { DRINK_VOLUME } from '@/lib/drinks'
 import { zurichDayStart, zurichDateStr, formatZurichTime } from '@/lib/timezone'
+import { getMealLog } from '@/lib/meal-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,7 +14,7 @@ export default async function QuickLogPage() {
   const todayDate = new Date(`${todayDateStr}T00:00:00.000Z`)
   const historyFrom = new Date(todayDate.getTime() - 13 * 24 * 60 * 60 * 1000)
 
-  const [todayEntries, todaySweetsLog, sweetsHistory] = await Promise.all([
+  const [todayEntries, todaySweetsLog, sweetsHistory, todayMealLog] = await Promise.all([
     prisma.drinkLog.findMany({
       where: { timestamp: { gte: drinkStart } },
       orderBy: { timestamp: 'desc' },
@@ -24,6 +26,7 @@ export default async function QuickLogPage() {
       where: { date: { gte: historyFrom, lt: todayDate } },
       orderBy: { date: 'desc' },
     }),
+    getMealLog(todayDateStr),
   ])
 
   const water = todayEntries.filter((e) => e.type === 'WATER').length
@@ -37,11 +40,14 @@ export default async function QuickLogPage() {
   }))
 
   return (
-    <div className="max-w-sm mx-auto space-y-8 py-4">
+    <div className="max-w-lg mx-auto space-y-8 py-4">
       <div>
         <h1 className="font-headline text-2xl font-bold text-on-surface mb-1">Quick Log</h1>
-        <p className="text-on-surface-variant text-sm">Getränke und Süssigkeiten erfassen</p>
+        <p className="text-on-surface-variant text-sm">Mahlzeiten, Getränke und Süssigkeiten erfassen</p>
       </div>
+
+      {/* Mahlzeiten */}
+      <MealLogForm dateStr={todayDateStr} initial={todayMealLog} />
 
       {/* Today's summary */}
       <div className="grid grid-cols-3 gap-3 text-center">

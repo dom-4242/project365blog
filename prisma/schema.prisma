@@ -198,6 +198,26 @@ enum PhotoCategory {
 }
 
 // =============================================
+// MAHLZEITEN-LOG — tägliche Erfassung mit Bewertung
+// =============================================
+
+model MealLog {
+  id             String   @id @default(cuid())
+  date           DateTime @unique @db.Date
+  breakfast      Int?     // null = nicht eingenommen, 1-5
+  snackMorning   Int?     // Zwischenmahlzeit Morgen
+  lunch          Int?     // Mittagessen
+  snackAfternoon Int?     // Zwischenmahlzeit Nachmittag
+  dinner         Int?     // Abendessen
+  snack          Int?     // Tages-Snack optional (Nüsse etc.) — Bonus
+  score          Float?   // berechneter Tages-Score 0.0–5.0
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([date])
+}
+
+// =============================================
 // LESEN — Bücher und tägliche Seiten
 // =============================================
 

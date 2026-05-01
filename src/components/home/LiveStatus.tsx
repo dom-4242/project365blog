@@ -18,6 +18,7 @@ import {
   COLA_ZERO_DAILY_LIMIT_ML,
   type DrinkDayData,
 } from '@/lib/drinks'
+import { getMealScoreHistory, type MealScoreDay } from '@/lib/meal-log'
 import { StepsSparkline } from './StepsSparkline'
 import { DrinkSparkline } from './DrinkSparkline'
 
@@ -540,6 +541,91 @@ function DrinkMetricTile({ label, avgMl, targetMl, moreIsBetter, labelGoal, hist
   )
 }
 
+// ─── NutritionScoreTile ────────────────────────────────────────────────────
+
+interface NutritionScoreTileProps {
+  history: MealScoreDay[]
+  labelNutrition: string
+  labelNoData: string
+}
+
+function NutritionScoreTile({ history, labelNutrition, labelNoData }: NutritionScoreTileProps) {
+  const withScore = history.filter((d) => d.score !== null)
+  const latest = withScore.at(-1)
+  const score = latest?.score ?? null
+
+  const avg30 = withScore.length > 0
+    ? withScore.reduce((s, d) => s + (d.score ?? 0), 0) / withScore.length
+    : null
+
+  function barColor(s: number) {
+    if (s >= 4.0) return 'bg-green-500'
+    if (s >= 2.5) return 'bg-yellow-500'
+    return 'bg-red-500'
+  }
+  function textColor(s: number) {
+    if (s >= 4.0) return 'text-green-400'
+    if (s >= 2.5) return 'text-yellow-400'
+    return 'text-red-400'
+  }
+
+  const DOT_COUNT = 14
+  const recent = history.slice(-DOT_COUNT)
+
+  return (
+    <div className="col-span-1 sm:col-span-2 lg:col-span-6 bg-surface-container-high border border-outline-variant/10 rounded-xl p-4 flex flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">
+          {labelNutrition}
+        </span>
+        {score !== null && (
+          <span className={`text-lg font-bold tabular-nums ${textColor(score)}`}>
+            {score.toFixed(1)}<span className="text-xs font-normal text-on-surface-variant ml-0.5">/5</span>
+          </span>
+        )}
+        {score === null && <span className="text-xs text-on-surface-variant">{labelNoData}</span>}
+      </div>
+
+      {score !== null && (
+        <div className="h-1.5 bg-surface-container rounded-full overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all duration-700 ${barColor(score)}`}
+            style={{ width: `${(score / 5) * 100}%` }}
+          />
+        </div>
+      )}
+
+      {/* 14-day dot trend */}
+      {recent.length > 0 && (
+        <div className="flex items-end gap-1 h-6">
+          {recent.map((d, i) => {
+            const s = d.score
+            const color = s === null ? 'bg-surface-container-highest'
+              : s >= 4.0 ? 'bg-green-500'
+              : s >= 2.5 ? 'bg-yellow-500'
+              : 'bg-red-500'
+            const height = s === null ? 'h-1' : `h-${Math.round((s / 5) * 4) + 1}`
+            return (
+              <div
+                key={i}
+                title={s !== null ? `${d.date}: ${s.toFixed(1)}` : d.date}
+                className={`flex-1 rounded-full ${color} transition-all duration-300`}
+                style={{ height: s === null ? '4px' : `${Math.round((s / 5) * 20) + 4}px` }}
+              />
+            )
+          })}
+        </div>
+      )}
+
+      {avg30 !== null && (
+        <p className="text-xs text-on-surface-variant">
+          Ø 30 Tage: <span className={`font-bold ${textColor(avg30)}`}>{avg30.toFixed(1)}</span>
+        </p>
+      )}
+    </div>
+  )
+}
+
 // ─── Helper: 7-day vs 30-day success rate ─────────────────────────────────
 
 function computeRates(booleans: boolean[]): { pct30d: number; pct7d: number } {
@@ -558,13 +644,14 @@ export async function LiveStatus() {
     getTranslations('HomePage'),
   ])
 
-  const [entries, metrics, drinkAnalytics, priorityPillar, stepsHistoryRaw, sweetsHistory] = await Promise.all([
+  const [entries, metrics, drinkAnalytics, priorityPillar, stepsHistoryRaw, sweetsHistory, mealScoreHistory] = await Promise.all([
     getAllEntries(),
     getLatestMetrics(profile.projectStartDate ?? undefined),
     getDrinkAnalytics(7),
     getPriorityPillar(),
     getStepsHistory(30),
     getSweetsHistory(90),
+    getMealScoreHistory(30),
   ])
 
   const movementBools = entries.map((e) => isMovementFulfilled(e.habits.movement))
@@ -707,6 +794,13 @@ export async function LiveStatus() {
           labelGoal={t('metricDailyLimit')}
           history={drinkAnalytics.days}
           dataKey="colaZeroMl"
+        />
+
+        {/* Row E — Nutrition score */}
+        <NutritionScoreTile
+          history={mealScoreHistory}
+          labelNutrition={t('metricNutritionScore')}
+          labelNoData={t('metricNoData')}
         />
 
       </div>
