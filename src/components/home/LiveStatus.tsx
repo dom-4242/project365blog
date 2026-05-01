@@ -559,13 +559,13 @@ function NutritionScoreTile({ history, labelNutrition, labelNoData }: NutritionS
     : null
 
   function barColor(s: number) {
-    if (s >= 4.0) return 'bg-green-500'
-    if (s >= 2.5) return 'bg-yellow-500'
+    if (s >= 8.0) return 'bg-green-500'
+    if (s >= 5.0) return 'bg-yellow-500'
     return 'bg-red-500'
   }
   function textColor(s: number) {
-    if (s >= 4.0) return 'text-green-400'
-    if (s >= 2.5) return 'text-yellow-400'
+    if (s >= 8.0) return 'text-green-400'
+    if (s >= 5.0) return 'text-yellow-400'
     return 'text-red-400'
   }
 
@@ -589,7 +589,7 @@ function NutritionScoreTile({ history, labelNutrition, labelNoData }: NutritionS
             <div className={`text-6xl font-headline font-bold tracking-tighter leading-none ${textColor(score)}`}>
               {score.toFixed(1)}
             </div>
-            <div className="text-xs text-on-surface-variant mt-1">/ 5.0</div>
+            <div className="text-xs text-on-surface-variant mt-1">/ 10.0</div>
           </div>
 
           {/* Score bar + 30d average */}
@@ -597,14 +597,14 @@ function NutritionScoreTile({ history, labelNutrition, labelNoData }: NutritionS
             <div className="h-3 bg-surface-container-high rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all duration-700 ${barColor(score)}`}
-                style={{ width: `${(score / 5) * 100}%` }}
+                style={{ width: `${(score / 10) * 100}%` }}
               />
             </div>
             {avg30 !== null && (
               <p className="text-xs text-on-surface-variant">
                 Ø 30 Tage:{' '}
                 <span className={`font-bold ${textColor(avg30)}`}>{avg30.toFixed(1)}</span>
-                <span className="text-on-surface-variant"> / 5.0</span>
+                <span className="text-on-surface-variant"> / 10.0</span>
               </p>
             )}
           </div>
@@ -617,15 +617,15 @@ function NutritionScoreTile({ history, labelNutrition, labelNoData }: NutritionS
           {recent.map((d, i) => {
             const s = d.score
             const color = s === null ? 'bg-surface-container-highest'
-              : s >= 4.0 ? 'bg-green-500'
-              : s >= 2.5 ? 'bg-yellow-500'
+              : s >= 8.0 ? 'bg-green-500'
+              : s >= 5.0 ? 'bg-yellow-500'
               : 'bg-red-500'
             return (
               <div
                 key={i}
                 title={s !== null ? `${d.date}: ${s.toFixed(1)}` : d.date}
                 className={`flex-1 rounded-sm ${color} transition-all duration-300`}
-                style={{ height: s === null ? '3px' : `${Math.round((s / 5) * 36) + 4}px` }}
+                style={{ height: s === null ? '3px' : `${Math.round((s / 10) * 36) + 4}px` }}
               />
             )
           })}

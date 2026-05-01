@@ -33,15 +33,15 @@ export interface MealScoreDay {
 export function calculateMealScore(data: MealInput): number {
   const main = [data.breakfast, data.snackMorning, data.lunch, data.snackAfternoon, data.dinner]
   const sum = main.reduce<number>((acc, m) => acc + (m ?? 0), 0)
-  const base = (sum / 50) * 5   // 5 meals × max 10 = 50, normalized to 0–5
-  const bonus = data.snack ? (data.snack / 10) * 0.3 : 0
-  return Math.min(5.0, parseFloat((base + bonus).toFixed(2)))
+  const base = (sum / 50) * 10  // 5 meals × max 10 = 50, normalized to 0–10
+  const bonus = data.snack ? (data.snack / 10) * 0.5 : 0
+  return Math.min(10.0, parseFloat((base + bonus).toFixed(2)))
 }
 
 export function scoreToNutritionLevel(score: number): NutritionLevel {
-  if (score >= 4.0) return NutritionLevel.THREE_MEALS
-  if (score >= 2.5) return NutritionLevel.TWO_MEALS
-  if (score >= 1.0) return NutritionLevel.ONE_MEAL
+  if (score >= 8.0) return NutritionLevel.THREE_MEALS
+  if (score >= 5.0) return NutritionLevel.TWO_MEALS
+  if (score >= 2.0) return NutritionLevel.ONE_MEAL
   return NutritionLevel.NONE
 }
 

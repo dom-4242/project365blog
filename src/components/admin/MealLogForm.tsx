@@ -14,14 +14,14 @@ const MEAL_SLOTS: { key: keyof MealInput; label: string; required: boolean }[] =
 ]
 
 function scoreColor(score: number): string {
-  if (score >= 4.0) return 'text-green-400'
-  if (score >= 2.5) return 'text-yellow-400'
+  if (score >= 8.0) return 'text-green-400'
+  if (score >= 5.0) return 'text-yellow-400'
   return 'text-red-400'
 }
 
 function scoreBarColor(score: number): string {
-  if (score >= 4.0) return 'bg-green-500'
-  if (score >= 2.5) return 'bg-yellow-500'
+  if (score >= 8.0) return 'bg-green-500'
+  if (score >= 5.0) return 'bg-yellow-500'
   return 'bg-red-500'
 }
 
@@ -108,7 +108,7 @@ export function MealLogForm({ dateStr, initial }: MealLogFormProps) {
   const [saved, setSaved] = useState(false)
 
   const score = calculateMealScore(values)
-  const barPct = (score / 5) * 100
+  const barPct = (score / 10) * 100
 
   function setMeal(key: keyof MealInput, val: number | null) {
     setValues((prev) => ({ ...prev, [key]: val }))
@@ -137,7 +137,7 @@ export function MealLogForm({ dateStr, initial }: MealLogFormProps) {
               />
             </div>
             <span className={`text-sm font-bold tabular-nums ${scoreColor(score)}`}>
-              {score.toFixed(1)}
+              {score.toFixed(1)}<span className="text-xs font-normal text-on-surface-variant ml-0.5">/10</span>
             </span>
           </div>
         </div>
