@@ -65,7 +65,7 @@ function toDateString(date: Date): string {
 
 export function isPerfectDay(habits: HabitsFrontmatter): boolean {
   const movementGood = habits.movement === 'steps_only' || habits.movement === 'trained_only' || habits.movement === 'steps_trained'
-  const nutritionGood = habits.nutrition === 'two_meals' || habits.nutrition === 'three_meals'
+  const nutritionGood = habits.nutrition === 'three_meals'
   const smokingGood = habits.smoking === 'nicotine_replacement' || habits.smoking === 'smoke_free'
   return movementGood && nutritionGood && smokingGood
 }
