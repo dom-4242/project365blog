@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useRef } from 'react'
 import { calculateMealScore, type MealInput, type MealLogData } from '@/lib/meal-log'
 import { saveMealLogAction } from '@/app/admin/quick-log/meal-actions'
 
@@ -25,15 +25,17 @@ function scoreBarColor(score: number): string {
   return 'bg-red-500'
 }
 
-interface MealRowProps {
+interface MealSliderProps {
   label: string
   required: boolean
   value: number | null
   onChange: (v: number | null) => void
 }
 
-function MealRow({ label, required, value, onChange }: MealRowProps) {
+function MealSlider({ label, required, value, onChange }: MealSliderProps) {
   const isSkipped = value === null
+  // pct from 0 to 100 representing where on the 1–10 track the thumb sits
+  const pct = value !== null ? ((value - 1) / 9) * 100 : 0
 
   return (
     <div className="flex items-center gap-3 py-2.5 border-b border-outline-variant/10 last:border-0">
@@ -46,7 +48,7 @@ function MealRow({ label, required, value, onChange }: MealRowProps) {
 
       <button
         type="button"
-        onClick={() => onChange(isSkipped ? 3 : null)}
+        onClick={() => onChange(isSkipped ? 5 : null)}
         className={`shrink-0 text-xs font-label font-bold tracking-widest uppercase px-2.5 py-1 rounded border transition-colors ${
           isSkipped
             ? 'bg-red-500/10 border-red-500/30 text-red-400'
@@ -56,26 +58,34 @@ function MealRow({ label, required, value, onChange }: MealRowProps) {
         {isSkipped ? '✕ Nicht' : '✕'}
       </button>
 
-      {!isSkipped && (
-        <div className="flex gap-1">
-          {[1, 2, 3, 4, 5].map((n) => (
-            <button
-              key={n}
-              type="button"
-              onClick={() => onChange(n)}
-              className={`w-8 h-8 rounded text-xs font-bold transition-colors ${
-                value === n
-                  ? 'bg-primary text-on-primary'
-                  : 'bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest'
-              }`}
-            >
-              {n}
-            </button>
-          ))}
+      {!isSkipped ? (
+        <div className="relative flex-1 h-8 flex items-center">
+          {/* Gradient track */}
+          <div
+            className="absolute inset-x-0 h-2 rounded-full"
+            style={{
+              background: 'linear-gradient(to right, #ef4444 0%, #eab308 45%, #22c55e 100%)',
+            }}
+          />
+          {/* Thumb indicator (purely visual) */}
+          <div
+            className="absolute w-4 h-4 rounded-full bg-white shadow-md border-2 border-white/80 pointer-events-none"
+            style={{ left: `calc(${pct}% - 8px)` }}
+          />
+          {/* Native range input (transparent, captures events) */}
+          <input
+            type="range"
+            min={1}
+            max={10}
+            step={0.1}
+            value={value ?? 5}
+            onChange={(e) => onChange(parseFloat(e.target.value))}
+            className="absolute inset-0 w-full opacity-0 cursor-pointer"
+          />
         </div>
+      ) : (
+        <div className="flex-1" />
       )}
-
-      {isSkipped && <div className="flex-1" />}
     </div>
   )
 }
@@ -136,7 +146,7 @@ export function MealLogForm({ dateStr, initial }: MealLogFormProps) {
       {/* Meal rows */}
       <div className="px-5">
         {MEAL_SLOTS.map(({ key, label, required }) => (
-          <MealRow
+          <MealSlider
             key={key}
             label={label}
             required={required}

@@ -33,8 +33,8 @@ export interface MealScoreDay {
 export function calculateMealScore(data: MealInput): number {
   const main = [data.breakfast, data.snackMorning, data.lunch, data.snackAfternoon, data.dinner]
   const sum = main.reduce<number>((acc, m) => acc + (m ?? 0), 0)
-  const base = (sum / 25) * 5
-  const bonus = data.snack ? (data.snack / 5) * 0.3 : 0
+  const base = (sum / 50) * 5   // 5 meals × max 10 = 50, normalized to 0–5
+  const bonus = data.snack ? (data.snack / 10) * 0.3 : 0
   return Math.min(5.0, parseFloat((base + bonus).toFixed(2)))
 }
 
