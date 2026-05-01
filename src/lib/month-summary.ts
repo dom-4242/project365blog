@@ -91,9 +91,25 @@ interface EntryContext {
 
 interface MetricsContext {
   avgWeight: number | null
+  avgBodyFat: number | null
   avgSteps: number | null
-  avgSleepH: number | null
-  avgRestingHR: number | null
+}
+
+interface DrinksContext {
+  avgWaterMl: number | null
+  avgColaZeroMl: number | null
+}
+
+interface SweetsContext {
+  daysConsumed: number
+  daysClean: number
+  totalDays: number
+}
+
+interface BooksContext {
+  pagesRead: number
+  booksCompleted: { title: string; author: string | null }[]
+  booksInProgress: { title: string; author: string | null; pagesRead: number }[]
 }
 
 interface SummaryContext {
@@ -109,6 +125,9 @@ interface SummaryContext {
     smokingSmoked: string
   }
   metrics: MetricsContext
+  drinks: DrinksContext
+  sweets: SweetsContext
+  books: BooksContext
 }
 
 function buildPrompt(ctx: SummaryContext): string {
@@ -116,10 +135,17 @@ function buildPrompt(ctx: SummaryContext): string {
     .map((e) => `- ${e.date} "${e.title}" | Bewegung: ${e.movement} | Ernährung: ${e.nutrition} | Rauchen: ${e.smoking}${e.excerpt ? ` | "${e.excerpt}"` : ''}`)
     .join('\n')
 
+  const booksCompletedText = ctx.books.booksCompleted.length > 0
+    ? ctx.books.booksCompleted.map((b) => `"${b.title}"${b.author ? ` von ${b.author}` : ''}`).join(', ')
+    : '—'
+  const booksInProgressText = ctx.books.booksInProgress.length > 0
+    ? ctx.books.booksInProgress.map((b) => `"${b.title}"${b.author ? ` von ${b.author}` : ''} (${b.pagesRead} Seiten gelesen)`).join(', ')
+    : '—'
+
   return `Monat: ${ctx.monthName} ${ctx.year}
 Einträge: ${ctx.entryCount} von ~${new Date(ctx.year, ctx.month, 0).getDate()} Tagen
 
-HABITS-STATISTIK:
+HABITS-STATISTIK (die drei Säulen):
 - Bewegung gut (STEPS_ONLY, TRAINED_ONLY oder STEPS_TRAINED): ${ctx.habitStats.movementGood}
 - Ernährung gut (mind. 2 Mahlzeiten): ${ctx.habitStats.nutritionGood}
 - Nicht geraucht (NICOTINE_REPLACEMENT oder SMOKE_FREE): ${ctx.habitStats.smokingClean}
@@ -127,9 +153,18 @@ HABITS-STATISTIK:
 
 METRIKEN (Monatsdurchschnitt):
 - Gewicht: ${fmt(ctx.metrics.avgWeight, 1, ' kg')}
+- Körperfett: ${fmt(ctx.metrics.avgBodyFat, 1, ' %')}
 - Schritte: ${ctx.metrics.avgSteps !== null ? Math.round(ctx.metrics.avgSteps).toLocaleString('de-CH') : '—'}
-- Schlaf: ${ctx.metrics.avgSleepH !== null ? fmt(ctx.metrics.avgSleepH, 1, ' h') : '—'}
-- Ruheherzfrequenz: ${ctx.metrics.avgRestingHR !== null ? Math.round(ctx.metrics.avgRestingHR) + ' bpm' : '—'}
+
+KONSUM:
+- Wasser (Ø/Tag): ${ctx.drinks.avgWaterMl !== null ? Math.round(ctx.drinks.avgWaterMl) + ' ml' : '—'}
+- Cola Zero (Ø/Tag): ${ctx.drinks.avgColaZeroMl !== null ? Math.round(ctx.drinks.avgColaZeroMl) + ' ml' : '—'}
+- Süssigkeiten: ${ctx.sweets.totalDays > 0 ? `${ctx.sweets.daysConsumed} von ${ctx.sweets.totalDays} Tagen mit Süssigkeiten (${ctx.sweets.daysClean} Tage clean)` : '—'}
+
+LESEN:
+- Seiten gelesen: ${ctx.books.pagesRead > 0 ? ctx.books.pagesRead : '—'}
+- Bücher abgeschlossen: ${booksCompletedText}
+- Bücher in Arbeit: ${booksInProgressText}
 
 EINTRÄGE DES MONATS:
 ${entriesText}
@@ -171,7 +206,10 @@ export async function generateAndSaveMonthSummary(year: number, month: number): 
   const start = new Date(year, month - 1, 1)
   const end = new Date(year, month, 0, 23, 59, 59)
 
-  const [entries, metricsRows] = await Promise.all([
+  const drinkStart = new Date(year, month - 1, 1)
+  const drinkEnd = new Date(year, month, 1)
+
+  const [entries, metricsRows, drinkRows, sweetsRows, readingRows] = await Promise.all([
     prisma.journalEntry.findMany({
       where: { date: { gte: start, lte: end }, published: true },
       orderBy: { date: 'asc' },
@@ -179,13 +217,52 @@ export async function generateAndSaveMonthSummary(year: number, month: number): 
     }),
     prisma.dailyMetrics.findMany({
       where: { date: { gte: start, lte: end } },
-      select: { weight: true, steps: true, sleepDuration: true, restingHR: true },
+      select: { weight: true, bodyFat: true, steps: true },
+    }),
+    prisma.drinkLog.findMany({
+      where: { timestamp: { gte: drinkStart, lt: drinkEnd } },
+      select: { type: true, volume: true, timestamp: true },
+    }),
+    prisma.sweetsLog.findMany({
+      where: { date: { gte: start, lte: end } },
+      select: { consumed: true },
+    }),
+    prisma.readingLog.findMany({
+      where: { date: { gte: start, lte: end } },
+      select: { pagesRead: true, book: { select: { id: true, title: true, author: true, completed: true, endDate: true } } },
     }),
   ])
 
   const movements = entries.map((e) => e.movement)
   const nutritions = entries.map((e) => e.nutrition)
   const smokings = entries.map((e) => e.smoking)
+
+  // Drinks: group by day to compute daily averages
+  const drinkDays = new Map<string, { water: number; cola: number }>()
+  for (const d of drinkRows) {
+    const day = d.timestamp.toISOString().slice(0, 10)
+    const entry = drinkDays.get(day) ?? { water: 0, cola: 0 }
+    if (d.type === 'WATER') entry.water += d.volume
+    else entry.cola += d.volume
+    drinkDays.set(day, entry)
+  }
+  const drinkDayValues = Array.from(drinkDays.values())
+
+  // Books: aggregate pages per book, find completed books
+  const bookPages = new Map<string, { title: string; author: string | null; pages: number; completed: boolean; endDate: Date | null }>()
+  for (const r of readingRows) {
+    const b = r.book
+    const entry = bookPages.get(b.id) ?? { title: b.title, author: b.author, pages: 0, completed: b.completed, endDate: b.endDate }
+    entry.pages += r.pagesRead
+    bookPages.set(b.id, entry)
+  }
+  const bookList = Array.from(bookPages.values())
+  const booksCompleted = bookList
+    .filter((b) => b.completed && b.endDate && b.endDate >= start && b.endDate <= end)
+    .map((b) => ({ title: b.title, author: b.author }))
+  const booksInProgress = bookList
+    .filter((b) => !booksCompleted.some((c) => c.title === b.title))
+    .map((b) => ({ title: b.title, author: b.author, pagesRead: b.pages }))
 
   const monthNames = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']
 
@@ -210,9 +287,22 @@ export async function generateAndSaveMonthSummary(year: number, month: number): 
     },
     metrics: {
       avgWeight: avg(metricsRows.map((m) => m.weight)),
+      avgBodyFat: avg(metricsRows.map((m) => m.bodyFat)),
       avgSteps: avg(metricsRows.map((m) => m.steps)),
-      avgSleepH: avg(metricsRows.map((m) => (m.sleepDuration !== null ? m.sleepDuration / 60 : null))),
-      avgRestingHR: avg(metricsRows.map((m) => m.restingHR)),
+    },
+    drinks: {
+      avgWaterMl: drinkDayValues.length > 0 ? avg(drinkDayValues.map((d) => d.water)) : null,
+      avgColaZeroMl: drinkDayValues.length > 0 ? avg(drinkDayValues.map((d) => d.cola)) : null,
+    },
+    sweets: {
+      daysConsumed: sweetsRows.filter((s) => s.consumed).length,
+      daysClean: sweetsRows.filter((s) => !s.consumed).length,
+      totalDays: sweetsRows.length,
+    },
+    books: {
+      pagesRead: bookList.reduce((sum, b) => sum + b.pages, 0),
+      booksCompleted,
+      booksInProgress,
     },
   }
 
