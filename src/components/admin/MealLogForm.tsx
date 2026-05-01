@@ -37,7 +37,7 @@ function MealRow({ label, required, value, onChange }: MealRowProps) {
 
   return (
     <div className="flex items-center gap-3 py-2.5 border-b border-outline-variant/10 last:border-0">
-      <div className="w-44 shrink-0">
+      <div className="w-36 shrink-0">
         <span className="text-sm text-on-surface">{label}</span>
         {!required && (
           <span className="ml-1.5 text-[10px] font-label font-bold tracking-widest uppercase text-primary">Bonus</span>
@@ -57,32 +57,21 @@ function MealRow({ label, required, value, onChange }: MealRowProps) {
       </button>
 
       {!isSkipped && (
-        <div className="flex items-center gap-2 flex-1">
-          <input
-            type="range"
-            min={1}
-            max={5}
-            step={1}
-            value={value ?? 3}
-            onChange={(e) => onChange(Number(e.target.value))}
-            className="flex-1 h-1.5 accent-primary cursor-pointer"
-          />
-          <div className="flex gap-1 shrink-0">
-            {[1, 2, 3, 4, 5].map((n) => (
-              <button
-                key={n}
-                type="button"
-                onClick={() => onChange(n)}
-                className={`w-7 h-7 rounded text-xs font-bold transition-colors ${
-                  value === n
-                    ? 'bg-primary text-on-primary'
-                    : 'bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest'
-                }`}
-              >
-                {n}
-              </button>
-            ))}
-          </div>
+        <div className="flex gap-1">
+          {[1, 2, 3, 4, 5].map((n) => (
+            <button
+              key={n}
+              type="button"
+              onClick={() => onChange(n)}
+              className={`w-8 h-8 rounded text-xs font-bold transition-colors ${
+                value === n
+                  ? 'bg-primary text-on-primary'
+                  : 'bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest'
+              }`}
+            >
+              {n}
+            </button>
+          ))}
         </div>
       )}
 
