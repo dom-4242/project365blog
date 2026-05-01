@@ -48,7 +48,8 @@
     "metricImport": "Importado",
     "metricSweets": "Dias Sem Doces",
     "monthlySummaryHeading": "Retrospectiva Mensal",
-    "monthlySummaryReadMore": "Ler resumo completo"
+    "monthlySummaryReadMore": "Ler resumo completo",
+    "monthlySummaryViewAll": "Todas as retrospectivas mensais"
   },
   "AboutPage": {
     "metaTitle": "Sobre o Projeto — Project 365",

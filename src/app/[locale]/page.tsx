@@ -228,6 +228,16 @@ export default async function HomePage({ params }: HomePageProps) {
                     className="prose prose-invert max-w-none text-on-surface-variant [&_h2]:font-headline [&_h2]:text-on-surface [&_h2]:text-lg [&_h2]:font-bold [&_h2]:mt-6 [&_h2]:mb-2 [&_strong]:text-on-surface [&_p]:leading-relaxed"
                     dangerouslySetInnerHTML={{ __html: summaryContent }}
                   />
+                  <div className="mt-6 pt-6 border-t border-outline-variant/15">
+                    <Link
+                      href={`/${locale}/monthly`}
+                      className="group inline-flex items-center gap-2 text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant hover:text-primary transition-colors"
+                    >
+                      <Icon name="calendar_month" size={14} />
+                      {t('monthlySummaryViewAll')}
+                      <Icon name="arrow_forward" size={14} className="group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  </div>
                 </div>
               )}
             </div>

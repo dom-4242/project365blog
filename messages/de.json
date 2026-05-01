@@ -51,7 +51,8 @@
     "metricImport": "Import",
     "metricSweets": "Süssigkeiten-Freie-Serie",
     "monthlySummaryHeading": "Monats-Rückblick",
-    "monthlySummaryReadMore": "Vollständige Zusammenfassung lesen"
+    "monthlySummaryReadMore": "Vollständige Zusammenfassung lesen",
+    "monthlySummaryViewAll": "Alle Monats-Rückblicke"
   },
   "AboutPage": {
     "metaTitle": "Über das Projekt — Project 365",
