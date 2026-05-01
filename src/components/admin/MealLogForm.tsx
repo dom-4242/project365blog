@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { saveMealLogAction, calculateMealScore, type MealInput, type MealLogData } from '@/lib/meal-log'
+import { calculateMealScore, type MealInput, type MealLogData } from '@/lib/meal-log'
+import { saveMealLogAction } from '@/app/admin/quick-log/meal-actions'
 
 const MEAL_SLOTS: { key: keyof MealInput; label: string; required: boolean }[] = [
   { key: 'breakfast',      label: 'Frühstück',              required: true  },

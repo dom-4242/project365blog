@@ -1,5 +1,3 @@
-'use server'
-
 import { NutritionLevel } from '@prisma/client'
 import { prisma } from './db'
 import { zurichDateStr } from './timezone'
@@ -79,29 +77,3 @@ export async function getMealScoreHistory(days = 30): Promise<MealScoreDay[]> {
   return rows.map((r) => ({ date: r.date.toISOString().slice(0, 10), score: r.score }))
 }
 
-// =============================================
-// Server Action
-// =============================================
-
-export async function saveMealLogAction(dateStr: string, input: MealInput) {
-  const date = new Date(`${dateStr}T00:00:00.000Z`)
-  const score = calculateMealScore(input)
-  const nutritionLevel = scoreToNutritionLevel(score)
-
-  await prisma.mealLog.upsert({
-    where: { date },
-    create: { date, ...input, score },
-    update: { ...input, score },
-  })
-
-  // Auto-update JournalEntry nutrition if one exists for this date
-  const entry = await prisma.journalEntry.findFirst({
-    where: { date: { gte: date, lt: new Date(date.getTime() + 24 * 60 * 60 * 1000) } },
-  })
-  if (entry) {
-    await prisma.journalEntry.update({
-      where: { id: entry.id },
-      data: { nutrition: nutritionLevel },
-    })
-  }
-}
