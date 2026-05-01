@@ -63,6 +63,8 @@ interface HabitsPickerProps {
   onMovementChange: (v: MovementLevel) => void
   onNutritionChange: (v: NutritionLevel) => void
   onSmokingChange: (v: SmokingStatus) => void
+  nutritionLocked?: boolean
+  mealScore?: number | null
 }
 
 // =============================================
@@ -76,6 +78,8 @@ export function HabitsPicker({
   onMovementChange,
   onNutritionChange,
   onSmokingChange,
+  nutritionLocked = false,
+  mealScore,
 }: HabitsPickerProps) {
   const movementLabel = MOVEMENT_OPTIONS.find((o) => o.value === movement)?.label ?? movement
   const nutritionLabel = NUTRITION_OPTIONS.find((o) => o.value === nutrition)?.label ?? nutrition
@@ -114,12 +118,32 @@ export function HabitsPicker({
           value={movement}
           onChange={onMovementChange}
         />
-        <HabitSelector
-          pillar="nutrition"
-          options={NUTRITION_OPTIONS}
-          value={nutrition}
-          onChange={onNutritionChange}
-        />
+        {nutritionLocked ? (
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-1.5 mb-1">
+              <span className="material-symbols-outlined text-[14px] text-nutrition-400">lock</span>
+              <span className="text-xs font-label font-bold tracking-widest uppercase text-nutrition-400">Ernährung</span>
+            </div>
+            <div className="rounded-lg border border-nutrition-400/30 bg-nutrition-400/5 px-3 py-3 flex flex-col gap-1.5">
+              <span className="text-xs text-on-surface-variant">Automatisch vom Meal-Log</span>
+              {mealScore !== null && mealScore !== undefined && (
+                <span className="text-lg font-headline font-bold text-nutrition-300">
+                  {mealScore.toFixed(1)}<span className="text-xs font-normal text-on-surface-variant ml-0.5">/10</span>
+                </span>
+              )}
+              <span className="text-sm font-medium text-on-surface">
+                {NUTRITION_OPTIONS.find((o) => o.value === nutrition)?.label ?? nutrition}
+              </span>
+            </div>
+          </div>
+        ) : (
+          <HabitSelector
+            pillar="nutrition"
+            options={NUTRITION_OPTIONS}
+            value={nutrition}
+            onChange={onNutritionChange}
+          />
+        )}
         <HabitSelector
           pillar="smoking"
           options={SMOKING_OPTIONS}

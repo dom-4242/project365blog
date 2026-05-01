@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { MovementLevel, NutritionLevel, SmokingStatus } from '@prisma/client'
+import type { MealLogData } from '@/lib/meal-log'
 import { clsx } from 'clsx'
 import { TiptapEditor } from './TiptapEditor'
 import { HabitsPicker } from './HabitsPicker'
@@ -30,13 +31,14 @@ interface EntryFormProps {
   mode: 'create' | 'edit'
   entryId?: string
   initial?: Partial<EntryFormData>
+  mealLog?: MealLogData | null
 }
 
 // =============================================
 // Component
 // =============================================
 
-export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
+export function EntryForm({ mode, entryId, initial, mealLog }: EntryFormProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
@@ -279,6 +281,8 @@ export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
         onMovementChange={setMovement}
         onNutritionChange={setNutrition}
         onSmokingChange={setSmoking}
+        nutritionLocked={!!mealLog?.score}
+        mealScore={mealLog?.score}
       />
 
       {/* Submit */}
