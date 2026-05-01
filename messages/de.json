@@ -49,7 +49,9 @@
     "metricStart": "Start",
     "metricProgress": "vom Weg geschafft",
     "metricImport": "Import",
-    "metricSweets": "Süssigkeiten-Freie-Serie"
+    "metricSweets": "Süssigkeiten-Freie-Serie",
+    "monthlySummaryHeading": "Monats-Rückblick",
+    "monthlySummaryReadMore": "Vollständige Zusammenfassung lesen"
   },
   "AboutPage": {
     "metaTitle": "Über das Projekt — Project 365",

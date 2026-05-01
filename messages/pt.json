@@ -46,7 +46,9 @@
     "metricStart": "Início",
     "metricProgress": "do caminho percorrido",
     "metricImport": "Importado",
-    "metricSweets": "Dias Sem Doces"
+    "metricSweets": "Dias Sem Doces",
+    "monthlySummaryHeading": "Retrospectiva Mensal",
+    "monthlySummaryReadMore": "Ler resumo completo"
   },
   "AboutPage": {
     "metaTitle": "Sobre o Projeto — Project 365",

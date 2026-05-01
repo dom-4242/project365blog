@@ -31,6 +31,10 @@ export async function getAllMonthSummaries(): Promise<MonthSummaryData[]> {
   return prisma.monthSummary.findMany({ orderBy: [{ year: 'desc' }, { month: 'desc' }] })
 }
 
+export async function getLatestMonthSummary(): Promise<MonthSummaryData | null> {
+  return prisma.monthSummary.findFirst({ orderBy: [{ year: 'desc' }, { month: 'desc' }] })
+}
+
 // =============================================
 // Stats helpers
 // =============================================
@@ -61,7 +65,7 @@ const SYSTEM_PROMPT = `Du bist ein einfühlsamer persönlicher Assistent, der mo
 - Ernährung: NONE | ONE_MEAL | TWO_MEALS | THREE_MEALS (gesunde Mahlzeiten pro Tag)
 - Rauchstopp: SMOKED | NICOTINE_REPLACEMENT (Nikotinersatz) | SMOKE_FREE (rauchfrei)
 
-Schreibe einen motivierenden, ehrlichen Monatsrückblick in der Du-Form. Tone: warm, persönlich, ehrlich — kein klinisches Dashboard.
+Schreibe den Monatsrückblick in der Ich-Form — als ob der Autor selbst über seinen Monat schreibt. Tone: warm, persönlich, ehrlich, reflektiert — kein klinisches Dashboard, kein Coaching-Ton.
 
 Strukturiere den Text als HTML mit diesen Abschnitten (verwende <h2> für Überschriften):
 1. Highlights & Meilensteine
@@ -72,9 +76,9 @@ Strukturiere den Text als HTML mit diesen Abschnitten (verwende <h2> für Übers
 Regeln:
 - Nur HTML-Body-Content (kein <!DOCTYPE>, kein <html>/<body>)
 - Verwende <p>, <h2>, <ul>, <li>, <strong> — kein Markdown
-- Sprich den Autor direkt mit "Du" an
+- Schreibe konsequent in der Ich-Form ("Ich habe…", "Mir ist aufgefallen…", "Ich bin stolz auf…")
 - Sei konkret mit den Zahlen aus den Daten
-- Sei motivierend aber realistisch — auch schlechte Monate verdienen ehrliche Worte`
+- Sei ehrlich und reflektiert — auch schwierige Monate verdienen aufrichtige Worte`
 
 interface EntryContext {
   date: string
@@ -130,7 +134,7 @@ METRIKEN (Monatsdurchschnitt):
 EINTRÄGE DES MONATS:
 ${entriesText}
 
-Bitte schreibe den Monatsrückblick auf Deutsch.`
+Bitte schreibe den Monatsrückblick auf Deutsch, in der Ich-Form.`
 }
 
 async function translateSummary(deSummary: string, targetLang: 'en' | 'pt'): Promise<string> {
@@ -139,14 +143,14 @@ async function translateSummary(deSummary: string, targetLang: 'en' | 'pt'): Pro
       system: `You are a professional German-to-English translator specializing in personal blog content.
 Translate the HTML content from German to English.
 Preserve ALL HTML tags exactly. Only translate the visible text.
-Keep "Du" → "you" (informal, direct address).
+The text is written in first person (Ich-Form) — keep it in first person ("I have…", "I noticed…").
 Return ONLY the translated HTML — no extra text, no code fences.`,
     },
     pt: {
       system: `You are a professional German-to-Portuguese (Brazilian) translator specializing in personal blog content.
 Translate the HTML content from German to Portuguese.
 Preserve ALL HTML tags exactly. Only translate the visible text.
-Keep "Du" → "você" (informal, direct address).
+The text is written in first person (Ich-Form) — keep it in first person ("Eu fiz…", "Percebi que…").
 Return ONLY the translated HTML — no extra text, no code fences.`,
     },
   }

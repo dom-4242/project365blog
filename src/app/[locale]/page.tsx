@@ -20,6 +20,7 @@ import {
   buildAlternates,
   OG_LOCALE,
 } from '@/lib/site'
+import { getLatestMonthSummary } from '@/lib/month-summary'
 
 interface HomePageProps {
   params: { locale: string }
@@ -65,15 +66,34 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
 const JOURNAL_HOME_COUNT = 3
 
 export default async function HomePage({ params }: HomePageProps) {
-  const [entries, t, startDate] = await Promise.all([
+  const [entries, t, startDate, latestSummary] = await Promise.all([
     getAllEntriesForLocale(params.locale),
     getTranslations('HomePage'),
     getProjectStartDate(),
+    getLatestMonthSummary(),
   ])
 
   const today = new Date().toISOString().slice(0, 10)
   const currentDay = getDayNumber(today, startDate)
   const latestEntries = entries.slice(0, JOURNAL_HOME_COUNT)
+
+  const MONTH_NAMES: Record<string, string[]> = {
+    de: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'],
+    en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+    pt: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+  }
+  const locale = params.locale
+  const summaryContent = latestSummary
+    ? (locale === 'en' && latestSummary.contentEn ? latestSummary.contentEn
+      : locale === 'pt' && latestSummary.contentPt ? latestSummary.contentPt
+      : latestSummary.contentDe)
+    : null
+  const summaryMonthName = latestSummary
+    ? (MONTH_NAMES[locale] ?? MONTH_NAMES.de)[latestSummary.month - 1]
+    : null
+  const summarySlug = latestSummary
+    ? `${latestSummary.year}-${String(latestSummary.month).padStart(2, '0')}`
+    : null
 
   return (
     <div>
@@ -183,6 +203,33 @@ export default async function HomePage({ params }: HomePageProps) {
                   <JournalCardHome key={entry.slug} entry={entry} />
                 ))}
               </div>
+
+              {/* Monthly summary */}
+              {latestSummary && summaryContent && summarySlug && (
+                <div className="mt-10 border-t border-outline-variant/15 pt-10">
+                  <div className="flex items-center justify-between mb-6">
+                    <div>
+                      <p className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant mb-1">
+                        {t('monthlySummaryHeading')}
+                      </p>
+                      <h2 className="font-headline text-2xl font-bold text-on-surface">
+                        {summaryMonthName} {latestSummary.year}
+                      </h2>
+                    </div>
+                    <Link
+                      href={`/${locale}/monthly/${summarySlug}`}
+                      className="group inline-flex items-center gap-2 text-xs font-label font-bold tracking-widest uppercase text-primary hover:gap-3 transition-all duration-150 shrink-0"
+                    >
+                      {t('monthlySummaryReadMore')}
+                      <Icon name="arrow_forward" size={14} />
+                    </Link>
+                  </div>
+                  <div
+                    className="prose prose-invert max-w-none text-on-surface-variant [&_h2]:font-headline [&_h2]:text-on-surface [&_h2]:text-lg [&_h2]:font-bold [&_h2]:mt-6 [&_h2]:mb-2 [&_strong]:text-on-surface [&_p]:leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: summaryContent }}
+                  />
+                </div>
+              )}
             </div>
           }
           habitsContent={<HabitsDashboard />}

@@ -49,7 +49,9 @@
     "metricStart": "Start",
     "metricProgress": "of the way there",
     "metricImport": "Import",
-    "metricSweets": "Sweets-Free Streak"
+    "metricSweets": "Sweets-Free Streak",
+    "monthlySummaryHeading": "Monthly Retrospective",
+    "monthlySummaryReadMore": "Read full summary"
   },
   "AboutPage": {
     "metaTitle": "About the Project — Project 365",
