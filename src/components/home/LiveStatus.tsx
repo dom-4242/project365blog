@@ -569,58 +569,67 @@ function NutritionScoreTile({ history, labelNutrition, labelNoData }: NutritionS
     return 'text-red-400'
   }
 
-  const DOT_COUNT = 14
-  const recent = history.slice(-DOT_COUNT)
+  const BAR_COUNT = 30
+  const recent = history.slice(-BAR_COUNT)
 
   return (
-    <div className="col-span-1 sm:col-span-2 lg:col-span-6 bg-surface-container-high border border-outline-variant/10 rounded-xl p-4 flex flex-col gap-3">
-      <div className="flex items-center justify-between">
+    <div className="col-span-1 sm:col-span-2 lg:col-span-12 bg-surface-container border border-outline-variant/10 rounded-xl p-5 flex flex-col gap-4">
+      {/* Header row */}
+      <div className="flex items-center justify-between gap-4">
         <span className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">
           {labelNutrition}
         </span>
-        {score !== null && (
-          <span className={`text-lg font-bold tabular-nums ${textColor(score)}`}>
-            {score.toFixed(1)}<span className="text-xs font-normal text-on-surface-variant ml-0.5">/5</span>
-          </span>
-        )}
         {score === null && <span className="text-xs text-on-surface-variant">{labelNoData}</span>}
       </div>
 
       {score !== null && (
-        <div className="h-1.5 bg-surface-container rounded-full overflow-hidden">
-          <div
-            className={`h-full rounded-full transition-all duration-700 ${barColor(score)}`}
-            style={{ width: `${(score / 5) * 100}%` }}
-          />
+        <div className="flex items-center gap-6">
+          {/* Big score */}
+          <div className="shrink-0">
+            <div className={`text-6xl font-headline font-bold tracking-tighter leading-none ${textColor(score)}`}>
+              {score.toFixed(1)}
+            </div>
+            <div className="text-xs text-on-surface-variant mt-1">/ 5.0</div>
+          </div>
+
+          {/* Score bar + 30d average */}
+          <div className="flex-1 flex flex-col gap-3">
+            <div className="h-3 bg-surface-container-high rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-700 ${barColor(score)}`}
+                style={{ width: `${(score / 5) * 100}%` }}
+              />
+            </div>
+            {avg30 !== null && (
+              <p className="text-xs text-on-surface-variant">
+                Ø 30 Tage:{' '}
+                <span className={`font-bold ${textColor(avg30)}`}>{avg30.toFixed(1)}</span>
+                <span className="text-on-surface-variant"> / 5.0</span>
+              </p>
+            )}
+          </div>
         </div>
       )}
 
-      {/* 14-day dot trend */}
+      {/* 30-day bar chart */}
       {recent.length > 0 && (
-        <div className="flex items-end gap-1 h-6">
+        <div className="flex items-end gap-0.5 h-10">
           {recent.map((d, i) => {
             const s = d.score
             const color = s === null ? 'bg-surface-container-highest'
               : s >= 4.0 ? 'bg-green-500'
               : s >= 2.5 ? 'bg-yellow-500'
               : 'bg-red-500'
-            const height = s === null ? 'h-1' : `h-${Math.round((s / 5) * 4) + 1}`
             return (
               <div
                 key={i}
                 title={s !== null ? `${d.date}: ${s.toFixed(1)}` : d.date}
-                className={`flex-1 rounded-full ${color} transition-all duration-300`}
-                style={{ height: s === null ? '4px' : `${Math.round((s / 5) * 20) + 4}px` }}
+                className={`flex-1 rounded-sm ${color} transition-all duration-300`}
+                style={{ height: s === null ? '3px' : `${Math.round((s / 5) * 36) + 4}px` }}
               />
             )
           })}
         </div>
-      )}
-
-      {avg30 !== null && (
-        <p className="text-xs text-on-surface-variant">
-          Ø 30 Tage: <span className={`font-bold ${textColor(avg30)}`}>{avg30.toFixed(1)}</span>
-        </p>
       )}
     </div>
   )
@@ -728,7 +737,14 @@ export async function LiveStatus() {
           pillarKey="nutrition"
         />
 
-        {/* Row B — Weight & Body Fat */}
+        {/* Row B — Nutrition score (full width) */}
+        <NutritionScoreTile
+          history={mealScoreHistory}
+          labelNutrition={t('metricNutritionScore')}
+          labelNoData={t('metricNoData')}
+        />
+
+        {/* Row C — Weight & Body Fat */}
         <WeightTile
           weight={metrics.latestWeight}
           bmi={metrics.latestBmi}
@@ -755,7 +771,7 @@ export async function LiveStatus() {
           labelNoData={t('metricNoData')}
         />
 
-        {/* Row C — Steps with sparkline */}
+        {/* Row D — Steps with sparkline */}
         <StepsTile
           avgSteps={metrics.avgSteps30d}
           stepsGoal={stepsGoal}
@@ -767,7 +783,7 @@ export async function LiveStatus() {
           labelNoData={t('metricNoData')}
         />
 
-        {/* Row D — Sweets + Drink metrics */}
+        {/* Row E — Sweets + Drink metrics */}
         <SweetsTile
           streak={sweetsStreak.current}
           longestStreak={sweetsStreak.longest}
@@ -794,13 +810,6 @@ export async function LiveStatus() {
           labelGoal={t('metricDailyLimit')}
           history={drinkAnalytics.days}
           dataKey="colaZeroMl"
-        />
-
-        {/* Row E — Nutrition score */}
-        <NutritionScoreTile
-          history={mealScoreHistory}
-          labelNutrition={t('metricNutritionScore')}
-          labelNoData={t('metricNoData')}
         />
 
       </div>
