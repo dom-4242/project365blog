@@ -9,6 +9,7 @@ interface SummaryData {
   month: number
   contentDe: string
   contentEn: string | null
+  contentPt: string | null
 }
 
 interface SummaryEditFormProps {
@@ -18,7 +19,8 @@ interface SummaryEditFormProps {
 export function SummaryEditForm({ summary }: SummaryEditFormProps) {
   const [contentDe, setContentDe] = useState(summary.contentDe)
   const [contentEn, setContentEn] = useState(summary.contentEn ?? '')
-  const [activeTab, setActiveTab] = useState<'de' | 'en'>('de')
+  const [contentPt, setContentPt] = useState(summary.contentPt ?? '')
+  const [activeTab, setActiveTab] = useState<'de' | 'en' | 'pt'>('de')
   const [isPending, startTransition] = useTransition()
   const [isDeleting, startDeleteTransition] = useTransition()
   const [saved, setSaved] = useState(false)
@@ -30,7 +32,7 @@ export function SummaryEditForm({ summary }: SummaryEditFormProps) {
     setSaved(false)
     startTransition(async () => {
       try {
-        await updateSummaryAction(summary.id, contentDe, contentEn)
+        await updateSummaryAction(summary.id, contentDe, contentEn, contentPt)
         setSaved(true)
         setTimeout(() => setSaved(false), 3000)
       } catch (err) {
@@ -52,7 +54,7 @@ export function SummaryEditForm({ summary }: SummaryEditFormProps) {
     <form onSubmit={handleSave} className="space-y-4">
       {/* Tabs */}
       <div className="flex gap-2 border-b border-surface-container-high">
-        {(['de', 'en'] as const).map((lang) => (
+        {(['de', 'en', 'pt'] as const).map((lang) => (
           <button
             key={lang}
             type="button"
@@ -63,14 +65,14 @@ export function SummaryEditForm({ summary }: SummaryEditFormProps) {
                 : 'border-transparent text-on-surface-variant hover:text-on-surface'
             }`}
           >
-            {lang === 'de' ? 'Deutsch' : 'English'}
+            {lang === 'de' ? 'Deutsch' : lang === 'en' ? 'English' : 'Português'}
           </button>
         ))}
       </div>
 
       {/* Editor */}
       <div>
-        {activeTab === 'de' ? (
+        {activeTab === 'de' && (
           <textarea
             value={contentDe}
             onChange={(e) => setContentDe(e.target.value)}
@@ -78,13 +80,23 @@ export function SummaryEditForm({ summary }: SummaryEditFormProps) {
             className="w-full font-mono text-xs px-4 py-3 rounded-xl border border-surface-container-high bg-surface-container-low text-on-surface focus:outline-none focus:ring-2 focus:ring-nutrition-400 resize-none"
             placeholder="HTML-Content auf Deutsch…"
           />
-        ) : (
+        )}
+        {activeTab === 'en' && (
           <textarea
             value={contentEn}
             onChange={(e) => setContentEn(e.target.value)}
             rows={24}
             className="w-full font-mono text-xs px-4 py-3 rounded-xl border border-surface-container-high bg-surface-container-low text-on-surface focus:outline-none focus:ring-2 focus:ring-nutrition-400 resize-none"
             placeholder="HTML content in English…"
+          />
+        )}
+        {activeTab === 'pt' && (
+          <textarea
+            value={contentPt}
+            onChange={(e) => setContentPt(e.target.value)}
+            rows={24}
+            className="w-full font-mono text-xs px-4 py-3 rounded-xl border border-surface-container-high bg-surface-container-low text-on-surface focus:outline-none focus:ring-2 focus:ring-nutrition-400 resize-none"
+            placeholder="Conteúdo HTML em Português…"
           />
         )}
       </div>

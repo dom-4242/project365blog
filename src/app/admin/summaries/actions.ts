@@ -14,14 +14,15 @@ export async function generateSummaryAction(year: number, month: number) {
   }
 }
 
-export async function updateSummaryAction(id: string, contentDe: string, contentEn: string) {
+export async function updateSummaryAction(id: string, contentDe: string, contentEn: string, contentPt: string) {
   await prisma.monthSummary.update({
     where: { id },
-    data: { contentDe, contentEn },
+    data: { contentDe, contentEn, contentPt },
   })
   revalidatePath('/admin/summaries')
   revalidatePath(`/de/monthly`)
   revalidatePath(`/en/monthly`)
+  revalidatePath(`/pt/monthly`)
 }
 
 export async function deleteSummaryAction(id: string) {

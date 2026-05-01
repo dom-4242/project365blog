@@ -14,6 +14,7 @@ export interface MonthSummaryData {
   month: number
   contentDe: string
   contentEn: string | null
+  contentPt: string | null
   generatedAt: Date
   updatedAt: Date
 }
@@ -132,15 +133,28 @@ ${entriesText}
 Bitte schreibe den Monatsrückblick auf Deutsch.`
 }
 
-async function translateSummaryToEnglish(deSummary: string): Promise<string> {
-  const message = await client.messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 4096,
-    system: `You are a professional German-to-English translator specializing in personal blog content.
+async function translateSummary(deSummary: string, targetLang: 'en' | 'pt'): Promise<string> {
+  const langConfig = {
+    en: {
+      system: `You are a professional German-to-English translator specializing in personal blog content.
 Translate the HTML content from German to English.
 Preserve ALL HTML tags exactly. Only translate the visible text.
 Keep "Du" → "you" (informal, direct address).
 Return ONLY the translated HTML — no extra text, no code fences.`,
+    },
+    pt: {
+      system: `You are a professional German-to-Portuguese (Brazilian) translator specializing in personal blog content.
+Translate the HTML content from German to Portuguese.
+Preserve ALL HTML tags exactly. Only translate the visible text.
+Keep "Du" → "você" (informal, direct address).
+Return ONLY the translated HTML — no extra text, no code fences.`,
+    },
+  }
+
+  const message = await client.messages.create({
+    model: 'claude-sonnet-4-6',
+    max_tokens: 4096,
+    system: langConfig[targetLang].system,
     messages: [{ role: 'user', content: deSummary }],
   })
 
@@ -210,12 +224,15 @@ export async function generateAndSaveMonthSummary(year: number, month: number): 
     if (raw.type !== 'text') throw new Error('Unexpected Claude response type')
     const contentDe = raw.text.trim()
 
-    const contentEn = await translateSummaryToEnglish(contentDe)
+    const [contentEn, contentPt] = await Promise.all([
+      translateSummary(contentDe, 'en'),
+      translateSummary(contentDe, 'pt'),
+    ])
 
     const saved = await prisma.monthSummary.upsert({
       where: { year_month: { year, month } },
-      create: { year, month, contentDe, contentEn, generatedAt: new Date() },
-      update: { contentDe, contentEn, generatedAt: new Date() },
+      create: { year, month, contentDe, contentEn, contentPt, generatedAt: new Date() },
+      update: { contentDe, contentEn, contentPt, generatedAt: new Date() },
     })
 
     return saved

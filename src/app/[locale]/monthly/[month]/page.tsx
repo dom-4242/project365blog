@@ -9,6 +9,7 @@ import type { Metadata } from 'next'
 
 const MONTH_NAMES_DE = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']
 const MONTH_NAMES_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+const MONTH_NAMES_PT = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
 
 interface MonthSummaryPageProps {
   params: { locale: string; month: string }
@@ -30,10 +31,12 @@ export async function generateMetadata({ params }: MonthSummaryPageProps): Promi
   const summary = await getMonthSummary(parsed.year, parsed.month)
   if (!summary) return {}
 
-  const monthNames = params.locale === 'en' ? MONTH_NAMES_EN : MONTH_NAMES_DE
+  const monthNames = params.locale === 'en' ? MONTH_NAMES_EN : params.locale === 'pt' ? MONTH_NAMES_PT : MONTH_NAMES_DE
   const monthName = monthNames[parsed.month - 1]
   const title = params.locale === 'en'
     ? `${monthName} ${parsed.year} — Monthly Summary`
+    : params.locale === 'pt'
+    ? `${monthName} ${parsed.year} — Resumo Mensal`
     : `${monthName} ${parsed.year} — Monats-Zusammenfassung`
 
   const canonicalUrl = `${SITE_URL}/${params.locale}/monthly/${params.month}`
@@ -45,6 +48,7 @@ export async function generateMetadata({ params }: MonthSummaryPageProps): Promi
       languages: {
         de: `${SITE_URL}/de/monthly/${params.month}`,
         en: `${SITE_URL}/en/monthly/${params.month}`,
+        pt: `${SITE_URL}/pt/monthly/${params.month}`,
       },
     },
     openGraph: {
@@ -65,11 +69,14 @@ export default async function MonthSummaryPage({ params }: MonthSummaryPageProps
   if (!summary) notFound()
 
   const t = await getTranslations({ locale: params.locale, namespace: 'MonthlySummary' })
-  const monthNames = params.locale === 'en' ? MONTH_NAMES_EN : MONTH_NAMES_DE
+  const monthNames = params.locale === 'en' ? MONTH_NAMES_EN : params.locale === 'pt' ? MONTH_NAMES_PT : MONTH_NAMES_DE
   const monthName = monthNames[month - 1]
 
-  const isEn = params.locale === 'en'
-  const content = isEn && summary.contentEn ? summary.contentEn : summary.contentDe
+  const locale = params.locale
+  const content =
+    locale === 'en' && summary.contentEn ? summary.contentEn :
+    locale === 'pt' && summary.contentPt ? summary.contentPt :
+    summary.contentDe
 
   return (
     <article className="max-w-2xl mx-auto py-12 px-4">
@@ -90,9 +97,12 @@ export default async function MonthSummaryPage({ params }: MonthSummaryPageProps
           {monthName} {year}
         </h1>
         <p className="text-xs text-on-surface-variant mt-2">
-          {t('generatedOn', { date: summary.generatedAt.toLocaleDateString(isEn ? 'en-GB' : 'de-CH', { day: 'numeric', month: 'long', year: 'numeric' }) })}
-          {isEn && !summary.contentEn && (
+          {t('generatedOn', { date: summary.generatedAt.toLocaleDateString(locale === 'en' ? 'en-GB' : locale === 'pt' ? 'pt-BR' : 'de-CH', { day: 'numeric', month: 'long', year: 'numeric' }) })}
+          {locale === 'en' && !summary.contentEn && (
             <span className="ml-2 italic">(Original auf Deutsch)</span>
+          )}
+          {locale === 'pt' && !summary.contentPt && (
+            <span className="ml-2 italic">(Original em Alemão)</span>
           )}
         </p>
       </header>

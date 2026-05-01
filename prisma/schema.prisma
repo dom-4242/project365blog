@@ -166,6 +166,7 @@ model MonthSummary {
   month       Int      // 1–12
   contentDe   String   @db.Text
   contentEn   String?  @db.Text
+  contentPt   String?  @db.Text
   generatedAt DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
