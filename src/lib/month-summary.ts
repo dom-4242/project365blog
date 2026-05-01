@@ -62,7 +62,7 @@ const SYSTEM_PROMPT = `Du bist ein einfühlsamer persönlicher Assistent, der mo
 
 "Project 365" ist ein öffentliches 365-Tage-Tagebuch. Der Autor dokumentiert täglich seine drei Gewohnheits-Säulen:
 - Bewegung: MINIMAL | STEPS_ONLY (10'000+ Schritte) | TRAINED_ONLY (Training, unter 10k) | STEPS_TRAINED (10'000+ Schritte + Training)
-- Ernährung: NONE | ONE_MEAL | TWO_MEALS | THREE_MEALS (gesunde Mahlzeiten pro Tag)
+- Ernährung: NONE | ONE_MEAL | TWO_MEALS | THREE_MEALS (gesunde Mahlzeiten pro Tag); ergänzt durch einen Ernährungs-Score (0–10), bei dem 5 Mahlzeiten des Tages (Frühstück, Zmorgenschnäcke, Mittagessen, Nachmittagssnack, Abendessen) je auf einer Skala von 1–10 bewertet werden. Score ≥ 8.0 gilt als Ziel erfüllt.
 - Rauchstopp: SMOKED | NICOTINE_REPLACEMENT (Nikotinersatz) | SMOKE_FREE (rauchfrei)
 
 Schreibe den Monatsrückblick in der Ich-Form — als ob der Autor selbst über seinen Monat schreibt. Tone: warm, persönlich, ehrlich, reflektiert — kein klinisches Dashboard, kein Coaching-Ton.
@@ -112,6 +112,13 @@ interface BooksContext {
   booksInProgress: { title: string; author: string | null; pagesRead: number }[]
 }
 
+interface MealScoreContext {
+  daysLogged: number
+  avgScore: number | null     // 0–10
+  daysFullfilled: number      // score ≥ 8.0
+  bestScore: number | null
+}
+
 interface SummaryContext {
   year: number
   month: number
@@ -128,6 +135,7 @@ interface SummaryContext {
   drinks: DrinksContext
   sweets: SweetsContext
   books: BooksContext
+  mealScore: MealScoreContext
 }
 
 function buildPrompt(ctx: SummaryContext): string {
@@ -160,6 +168,12 @@ KONSUM:
 - Wasser (Ø/Tag): ${ctx.drinks.avgWaterMl !== null ? Math.round(ctx.drinks.avgWaterMl) + ' ml' : '—'}
 - Cola Zero (Ø/Tag): ${ctx.drinks.avgColaZeroMl !== null ? Math.round(ctx.drinks.avgColaZeroMl) + ' ml' : '—'}
 - Süssigkeiten: ${ctx.sweets.totalDays > 0 ? `${ctx.sweets.daysConsumed} von ${ctx.sweets.totalDays} Tagen mit Süssigkeiten (${ctx.sweets.daysClean} Tage clean)` : '—'}
+
+ERNÄHRUNGS-SCORE (Mahlzeiten-Bewertung, Skala 0–10):
+- Tage mit erfasstem Score: ${ctx.mealScore.daysLogged > 0 ? ctx.mealScore.daysLogged : '—'}
+- Durchschnittlicher Score: ${ctx.mealScore.avgScore !== null ? ctx.mealScore.avgScore.toFixed(1) + ' / 10' : '—'}
+- Tage mit erfülltem Ernährungs-Ziel (Score ≥ 8.0): ${ctx.mealScore.daysLogged > 0 ? ctx.mealScore.daysFullfilled : '—'}
+- Bester Tages-Score: ${ctx.mealScore.bestScore !== null ? ctx.mealScore.bestScore.toFixed(1) + ' / 10' : '—'}
 
 LESEN:
 - Seiten gelesen: ${ctx.books.pagesRead > 0 ? ctx.books.pagesRead : '—'}
@@ -209,7 +223,7 @@ export async function generateAndSaveMonthSummary(year: number, month: number): 
   const drinkStart = new Date(year, month - 1, 1)
   const drinkEnd = new Date(year, month, 1)
 
-  const [entries, metricsRows, drinkRows, sweetsRows, readingRows] = await Promise.all([
+  const [entries, metricsRows, drinkRows, sweetsRows, readingRows, mealLogRows] = await Promise.all([
     prisma.journalEntry.findMany({
       where: { date: { gte: start, lte: end }, published: true },
       orderBy: { date: 'asc' },
@@ -230,6 +244,10 @@ export async function generateAndSaveMonthSummary(year: number, month: number): 
     prisma.readingLog.findMany({
       where: { date: { gte: start, lte: end } },
       select: { pagesRead: true, book: { select: { id: true, title: true, author: true, completed: true, endDate: true } } },
+    }),
+    prisma.mealLog.findMany({
+      where: { date: { gte: start, lte: end } },
+      select: { score: true },
     }),
   ])
 
@@ -304,6 +322,15 @@ export async function generateAndSaveMonthSummary(year: number, month: number): 
       booksCompleted,
       booksInProgress,
     },
+    mealScore: (() => {
+      const scores = mealLogRows.map((r) => r.score).filter((s): s is number => s !== null)
+      return {
+        daysLogged: scores.length,
+        avgScore: scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : null,
+        daysFullfilled: scores.filter((s) => s >= 8.0).length,
+        bestScore: scores.length > 0 ? Math.max(...scores) : null,
+      }
+    })(),
   }
 
   try {
