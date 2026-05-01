@@ -168,7 +168,8 @@
   },
   "JournalCard": {
     "day": "Dia {number}",
-    "readMore": "Ler mais →"
+    "readMore": "Ler mais →",
+    "perfectDay": "Dia Perfeito"
   },
   "SearchModal": {
     "ariaLabel": "Pesquisar",

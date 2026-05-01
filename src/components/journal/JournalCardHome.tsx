@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { getLocale, getTranslations } from 'next-intl/server'
 import type { JournalEntryMeta } from '@/lib/journal'
-import { getDayNumber } from '@/lib/journal'
+import { getDayNumber, isPerfectDay } from '@/lib/journal'
 import { getProjectStartDate } from '@/lib/project-config'
 import { ReactionBarCompact } from '@/components/reactions/ReactionBarCompact'
 
@@ -17,6 +17,7 @@ export async function JournalCardHome({ entry }: JournalCardHomeProps) {
   ])
 
   const dayNumber = getDayNumber(entry.date, startDate)
+  const perfect = isPerfectDay(entry.habits)
 
   const formattedDate = new Date(entry.date).toLocaleDateString(locale, {
     day: 'numeric',
@@ -25,11 +26,20 @@ export async function JournalCardHome({ entry }: JournalCardHomeProps) {
   })
 
   return (
-    <article className="group flex flex-col bg-surface-variant/40 backdrop-blur-xl border border-outline-variant/15 rounded-xl overflow-hidden hover:bg-surface-variant/60 transition-colors duration-150">
+    <article className={`group flex flex-col backdrop-blur-xl rounded-xl overflow-hidden transition-colors duration-150 ${
+      perfect
+        ? 'bg-primary/5 border border-primary/40 hover:bg-primary/10 shadow-[0_0_24px_rgba(255,143,112,0.08)]'
+        : 'bg-surface-variant/40 border border-outline-variant/15 hover:bg-surface-variant/60'
+    }`}>
       <Link href={`/journal/${entry.slug}`} className="flex flex-col flex-1 p-5 gap-3">
 
         {/* Date + Day number */}
         <div className="flex items-center gap-2">
+          {perfect && (
+            <span className="inline-flex items-center gap-1 text-[10px] font-label font-bold tracking-widest uppercase text-primary bg-primary/10 border border-primary/20 rounded px-2 py-0.5 mr-1">
+              ✦ {t('perfectDay')}
+            </span>
+          )}
           <span className="text-xs font-label font-bold tracking-widest uppercase text-outline">
             {t('day', { number: dayNumber })}
           </span>

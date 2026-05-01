@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { getLocale, getTranslations } from 'next-intl/server'
 import type { JournalEntryMeta } from '@/lib/journal'
-import { getDayNumber } from '@/lib/journal'
+import { getDayNumber, isPerfectDay } from '@/lib/journal'
 import { getProjectStartDate } from '@/lib/project-config'
 import { HabitBadges } from './HabitBadges'
 import { BannerImage } from '@/components/ui/BannerImage'
@@ -20,6 +20,7 @@ export async function JournalCard({ entry }: JournalCardProps) {
 
   const excerpt = entry.excerpt ?? ''
   const dayNumber = getDayNumber(entry.date, startDate)
+  const perfect = isPerfectDay(entry.habits)
 
   function formatDate(dateStr: string): string {
     return new Date(dateStr).toLocaleDateString(locale, {
@@ -30,7 +31,11 @@ export async function JournalCard({ entry }: JournalCardProps) {
   }
 
   return (
-    <article className="group bg-surface-variant/40 backdrop-blur-xl border border-outline-variant/15 rounded-xl overflow-hidden hover:bg-surface-variant/60 transition-colors duration-150">
+    <article className={`group backdrop-blur-xl rounded-xl overflow-hidden transition-colors duration-150 ${
+      perfect
+        ? 'bg-primary/5 border border-primary/40 hover:bg-primary/10 shadow-[0_0_24px_rgba(255,143,112,0.08)]'
+        : 'bg-surface-variant/40 border border-outline-variant/15 hover:bg-surface-variant/60'
+    }`}>
       <Link href={`/journal/${entry.slug}`} className="block">
 
         {entry.banner ? (
@@ -55,10 +60,15 @@ export async function JournalCard({ entry }: JournalCardProps) {
         )}
 
         <div className="px-5 py-4 space-y-3">
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 flex-wrap">
             <span className="font-label font-bold text-xs tracking-widest uppercase text-primary bg-primary/10 border border-primary/20 rounded px-2.5 py-0.5">
               {t('day', { number: dayNumber })}
             </span>
+            {perfect && (
+              <span className="inline-flex items-center gap-1 text-[10px] font-label font-bold tracking-widest uppercase text-primary bg-primary/10 border border-primary/20 rounded px-2 py-0.5">
+                ✦ {t('perfectDay')}
+              </span>
+            )}
             <span className="text-outline-variant/60 select-none" aria-hidden="true">·</span>
             <time className="text-xs font-label text-on-surface-variant" dateTime={entry.date}>
               {formatDate(entry.date)}
