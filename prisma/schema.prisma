@@ -218,6 +218,25 @@ model MealLog {
 }
 
 // =============================================
+// MAHLZEITEN-PLANUNG — Planung für den nächsten Tag
+// =============================================
+
+model MealPlan {
+  id             String   @id @default(cuid())
+  date           DateTime @unique @db.Date
+  breakfast      String?
+  snackMorning   String?
+  lunch          String?
+  snackAfternoon String?
+  dinner         String?
+  snack          String?  // optionaler Bonus-Snack
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([date])
+}
+
+// =============================================
 // LESEN — Bücher und tägliche Seiten
 // =============================================
 

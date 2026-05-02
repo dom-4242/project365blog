@@ -20,7 +20,8 @@ const NAV_GROUPS = [
   {
     label: 'Daten',
     items: [
-      { href: '/admin/quick-log',  label: 'Quick Log',  exact: false },
+      { href: '/admin/quick-log',   label: 'Quick Log',      exact: false },
+      { href: '/admin/meal-plan',   label: 'Mahlzeitenplan', exact: false },
       { href: '/admin/drinks',     label: 'Getränke',   exact: false },
       { href: '/admin/metrics',            label: 'Metriken',    exact: false },
       { href: '/admin/body-measurements', label: 'Körpermasse', exact: false },
