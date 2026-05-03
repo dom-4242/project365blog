@@ -66,7 +66,7 @@ export default async function MealPlanPage({
         <h1 className="font-headline text-2xl font-bold text-on-surface mb-1">Mahlzeitenplan</h1>
         <p className="text-on-surface-variant text-sm">Mahlzeiten für den Tag planen</p>
       </div>
-      <MealPlanForm dateStr={dateStr} initial={initial} suggestions={suggestions} />
+      <MealPlanForm key={dateStr} dateStr={dateStr} initial={initial} suggestions={suggestions} />
     </div>
   )
 }
