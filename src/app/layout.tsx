@@ -5,7 +5,7 @@ import { headers } from 'next/headers'
 import '@/styles/globals.css'
 import { AuthSessionProvider } from '@/components/providers/SessionProvider'
 import { ThemeProvider } from '@/components/providers/ThemeProvider'
-import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from '@/lib/site'
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '@/lib/site'
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -21,6 +21,11 @@ const manrope = Manrope({
   display: 'swap',
 })
 
+// Locale-routed pages set their own title/description/openGraph/twitter via
+// `buildLocaleMetadata` (lib/site.ts). The root layout only carries
+// language-neutral defaults so a page that forgets to set them doesn't leak
+// the wrong language into a social card. The `default` title is the fallback
+// for non-localized routes (admin) and is intentionally German.
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -28,26 +33,12 @@ export const metadata: Metadata = {
     template: `%s — ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
-  openGraph: {
-    type: 'website',
-    siteName: SITE_NAME,
-    title: `${SITE_NAME} — Tägliches Journal`,
-    description: SITE_DESCRIPTION,
-    images: [{ url: '/og-default.png', width: 1200, height: 630, alt: SITE_NAME }],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: `${SITE_NAME} — Tägliches Journal`,
-    description: SITE_DESCRIPTION,
-    images: ['/og-default.png'],
-  },
   icons: {
     icon: '/icon.svg',
     apple: '/apple-icon.svg',
   },
   robots: { index: true, follow: true },
   alternates: {
-    canonical: SITE_URL,
     types: { 'application/rss+xml': `${SITE_URL}/feed.xml` },
   },
 }

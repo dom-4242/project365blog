@@ -3,32 +3,21 @@ import React from 'react'
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { Icon } from '@/components/ui/Icon'
-import { SITE_URL, buildAlternates, OG_LOCALE } from '@/lib/site'
+import { buildLocaleMetadata } from '@/lib/site'
 
 interface AboutPageProps {
   params: { locale: string }
 }
 
 export async function generateMetadata({ params }: AboutPageProps): Promise<Metadata> {
-  const t = await getTranslations('AboutPage')
-  const canonicalUrl = `${SITE_URL}/${params.locale}/about`
-  const ogLocale = OG_LOCALE[params.locale] ?? OG_LOCALE.de
+  const t = await getTranslations({ locale: params.locale, namespace: 'AboutPage' })
 
-  return {
+  return buildLocaleMetadata({
+    locale: params.locale,
+    path: '/about',
     title: t('metaTitle'),
     description: t('metaDescription'),
-    alternates: {
-      ...buildAlternates(`${SITE_URL}/de/about`, `${SITE_URL}/en/about`, `${SITE_URL}/pt/about`),
-      canonical: canonicalUrl,
-    },
-    openGraph: {
-      type: 'website',
-      url: canonicalUrl,
-      title: t('metaTitle'),
-      description: t('metaDescription'),
-      locale: ogLocale,
-    },
-  }
+  })
 }
 
 const PILLARS = [

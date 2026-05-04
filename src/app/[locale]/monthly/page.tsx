@@ -1,8 +1,10 @@
 export const dynamic = 'force-dynamic'
 
+import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
 import { getAllMonthSummaries } from '@/lib/month-summary'
+import { buildLocaleMetadata } from '@/lib/site'
 
 const MONTH_NAMES_DE = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']
 const MONTH_NAMES_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
@@ -13,6 +15,16 @@ function monthSlug(year: number, month: number): string {
 
 interface MonthlyOverviewPageProps {
   params: { locale: string }
+}
+
+export async function generateMetadata({ params }: MonthlyOverviewPageProps): Promise<Metadata> {
+  const t = await getTranslations({ locale: params.locale, namespace: 'MonthlySummary' })
+  return buildLocaleMetadata({
+    locale: params.locale,
+    path: '/monthly',
+    title: t('overviewHeading'),
+    description: t('overviewDescription'),
+  })
 }
 
 export default async function MonthlyOverviewPage({ params }: MonthlyOverviewPageProps) {

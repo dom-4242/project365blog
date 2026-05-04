@@ -5,7 +5,7 @@ import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { getEntryBySlugWithTranslation } from '@/lib/journal'
 import { JournalPost } from '@/components/journal/JournalPost'
-import { SITE_NAME, SITE_URL, stripHtml, buildAlternates, OG_LOCALE } from '@/lib/site'
+import { SITE_NAME, SITE_URL, stripHtml, buildLocaleMetadata } from '@/lib/site'
 
 interface JournalPostPageProps {
   params: {
@@ -26,38 +26,17 @@ export async function generateMetadata({ params }: JournalPostPageProps): Promis
     ? (translation!.excerpt || translation!.title)
     : (entry.excerpt ?? '')
   const description = excerptSource || stripHtml(entry.content).slice(0, 160).trimEnd() + '…'
-
-  const deUrl = `${SITE_URL}/de/journal/${entry.slug}`
-  const enUrl = `${SITE_URL}/en/journal/${entry.slug}`
-  const ptUrl = `${SITE_URL}/pt/journal/${entry.slug}`
-  const canonicalUrl = `${SITE_URL}/${params.locale}/journal/${entry.slug}`
-  const ogLocale = OG_LOCALE[params.locale] ?? OG_LOCALE.de
   const ogImage = entry.banner ? entry.banner : '/og-default.png'
 
-  return {
+  return buildLocaleMetadata({
+    locale: params.locale,
+    path: `/journal/${entry.slug}`,
     title,
     description,
-    alternates: {
-      ...buildAlternates(deUrl, enUrl, ptUrl),
-      canonical: canonicalUrl,
-    },
-    openGraph: {
-      type: 'article',
-      url: canonicalUrl,
-      siteName: SITE_NAME,
-      title,
-      description,
-      locale: ogLocale,
-      images: [{ url: ogImage, width: 1600, height: 700, alt: title }],
-      publishedTime: entry.date,
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: [ogImage],
-    },
-  }
+    type: 'article',
+    images: [{ url: ogImage, width: 1600, height: 700, alt: title }],
+    publishedTime: entry.date,
+  })
 }
 
 export default async function JournalPostPage({ params }: JournalPostPageProps) {
