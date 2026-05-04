@@ -16,9 +16,8 @@ import {
   SITE_NAME,
   SITE_DESCRIPTION,
   SITE_DESCRIPTION_EN,
-  SITE_URL,
-  buildAlternates,
-  OG_LOCALE,
+  SITE_DESCRIPTION_PT,
+  buildLocaleMetadata,
 } from '@/lib/site'
 import { getLatestMonthSummary } from '@/lib/month-summary'
 
@@ -26,41 +25,25 @@ interface HomePageProps {
   params: { locale: string }
 }
 
+const HOME_TITLES: Record<string, string> = {
+  de: `${SITE_NAME} — Tägliches Journal`,
+  en: `${SITE_NAME} — Daily Journal`,
+  pt: `${SITE_NAME} — Diário`,
+}
+
+const HOME_DESCRIPTIONS: Record<string, string> = {
+  de: SITE_DESCRIPTION,
+  en: SITE_DESCRIPTION_EN,
+  pt: SITE_DESCRIPTION_PT,
+}
+
 export async function generateMetadata({ params }: HomePageProps): Promise<Metadata> {
   const { locale } = params
-  const isEn = locale === 'en'
-
-  const title = isEn
-    ? `${SITE_NAME} — Daily Journal`
-    : `${SITE_NAME} — Tägliches Journal`
-  const description = isEn ? SITE_DESCRIPTION_EN : SITE_DESCRIPTION
-  const canonicalUrl = `${SITE_URL}/${locale}`
-  const ogLocale = OG_LOCALE[locale] ?? OG_LOCALE.de
-
-  return {
-    title,
-    description,
-    alternates: {
-      ...buildAlternates(`${SITE_URL}/de`, `${SITE_URL}/en`, `${SITE_URL}/pt`),
-      canonical: canonicalUrl,
-    },
-    openGraph: {
-      type: 'website',
-      url: canonicalUrl,
-      siteName: SITE_NAME,
-      title,
-      description,
-      locale: ogLocale,
-      alternateLocale: [isEn ? OG_LOCALE.de : OG_LOCALE.en],
-      images: [{ url: '/og-default.png', width: 1200, height: 630, alt: SITE_NAME }],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: ['/og-default.png'],
-    },
-  }
+  return buildLocaleMetadata({
+    locale,
+    title: HOME_TITLES[locale] ?? HOME_TITLES.de,
+    description: HOME_DESCRIPTIONS[locale] ?? HOME_DESCRIPTIONS.de,
+  })
 }
 
 const JOURNAL_HOME_COUNT = 3

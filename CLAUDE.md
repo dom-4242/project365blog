@@ -267,3 +267,9 @@ Keine aktiven Issues. Nächste Schritte aus dem Backlog priorisieren.
 ### BannerImage-Wrapper
 
 `src/components/ui/BannerImage.tsx` — next/image-Wrapper für alle Banner. Setzt automatisch `unoptimized={true}` für `.svg`-Dateien, da der Next.js Image-Optimizer SVGs mit 400 ablehnt. Alle neuen Komponenten die Bannerbilder rendern müssen `BannerImage` statt `next/image` direkt verwenden.
+
+### Locale-aware Metadata
+
+Jede `[locale]/.../page.tsx` muss `generateMetadata` exportieren und intern `buildLocaleMetadata({ locale, path, title, description, ... })` aus `src/lib/site.ts` aufrufen. Der Helper setzt `title` (mit `absolute`, damit das Root-Template nicht doppelt anhängt), `description`, `openGraph` (inkl. `locale`, `alternateLocale`, `siteName`, `images`), `twitter` und `alternates` (canonical + hreflang) konsistent für DE/EN/PT.
+
+Das Root-Layout (`src/app/layout.tsx`) trägt absichtlich keine sprachspezifischen `openGraph`/`twitter`-Felder mehr — würde es das tun, würden Pages, die nur einen Teil der Felder überschreiben, deutsche Strings für die fehlenden Felder leaken (genau das war der Bug bei `/en/about`, `/en/journal`, `/en/monthly`). Default-Title und Description im Root bleiben für nicht lokalisierte Routen (Admin) bestehen.

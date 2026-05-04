@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { getAllEntriesForLocale } from '@/lib/journal'
 import { JournalFeed } from '@/components/journal/JournalFeed'
 import { Icon } from '@/components/ui/Icon'
-import { SITE_NAME, SITE_URL, buildAlternates, OG_LOCALE } from '@/lib/site'
+import { SITE_NAME, buildLocaleMetadata } from '@/lib/site'
 
 interface JournalPageProps {
   params: { locale: string }
@@ -16,32 +16,12 @@ export async function generateMetadata({ params }: JournalPageProps): Promise<Me
   const { locale } = params
   const t = await getTranslations({ locale, namespace: 'JournalPage' })
 
-  const title = `${t('title')} — ${SITE_NAME}`
-  const description = t('description')
-  const canonicalUrl = `${SITE_URL}/${locale}/journal`
-  const ogLocale = OG_LOCALE[locale] ?? OG_LOCALE.de
-
-  return {
-    title,
-    description,
-    alternates: {
-      ...buildAlternates(
-        `${SITE_URL}/de/journal`,
-        `${SITE_URL}/en/journal`,
-        `${SITE_URL}/pt/journal`,
-      ),
-      canonical: canonicalUrl,
-    },
-    openGraph: {
-      type: 'website',
-      url: canonicalUrl,
-      siteName: SITE_NAME,
-      title,
-      description,
-      locale: ogLocale,
-      images: [{ url: '/og-default.png', width: 1200, height: 630, alt: SITE_NAME }],
-    },
-  }
+  return buildLocaleMetadata({
+    locale,
+    path: '/journal',
+    title: `${t('title')} — ${SITE_NAME}`,
+    description: t('description'),
+  })
 }
 
 export default async function JournalPage({ params }: JournalPageProps) {

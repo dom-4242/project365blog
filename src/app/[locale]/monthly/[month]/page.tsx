@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
 import { getMonthSummary } from '@/lib/month-summary'
-import { SITE_NAME, SITE_URL } from '@/lib/site'
+import { buildLocaleMetadata, stripHtml } from '@/lib/site'
 import type { Metadata } from 'next'
 
 const MONTH_NAMES_DE = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']
@@ -39,25 +39,19 @@ export async function generateMetadata({ params }: MonthSummaryPageProps): Promi
     ? `${monthName} ${parsed.year} — Resumo Mensal`
     : `${monthName} ${parsed.year} — Monats-Zusammenfassung`
 
-  const canonicalUrl = `${SITE_URL}/${params.locale}/monthly/${params.month}`
+  const localizedContent =
+    params.locale === 'en' && summary.contentEn ? summary.contentEn :
+    params.locale === 'pt' && summary.contentPt ? summary.contentPt :
+    summary.contentDe
+  const description = stripHtml(localizedContent).slice(0, 160).trimEnd() + '…'
 
-  return {
+  return buildLocaleMetadata({
+    locale: params.locale,
+    path: `/monthly/${params.month}`,
     title,
-    alternates: {
-      canonical: canonicalUrl,
-      languages: {
-        de: `${SITE_URL}/de/monthly/${params.month}`,
-        en: `${SITE_URL}/en/monthly/${params.month}`,
-        pt: `${SITE_URL}/pt/monthly/${params.month}`,
-      },
-    },
-    openGraph: {
-      type: 'article',
-      url: canonicalUrl,
-      siteName: SITE_NAME,
-      title,
-    },
-  }
+    description,
+    type: 'article',
+  })
 }
 
 export default async function MonthSummaryPage({ params }: MonthSummaryPageProps) {
