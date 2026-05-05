@@ -29,8 +29,12 @@ const SMOKING_LABELS: Record<SmokingStatus, string> = {
 function isMovementOk(m: MovementLevel) {
   return m === 'STEPS_ONLY' || m === 'TRAINED_ONLY' || m === 'STEPS_TRAINED'
 }
-function isNutritionOk(n: NutritionLevel) {
-  return n === 'TWO_MEALS' || n === 'THREE_MEALS'
+/** Mirrors `lib/habits.ts:isNutritionFulfilled` on the UPPERCASE enum side. */
+function isNutritionOk(n: NutritionLevel, mealScore?: number | null) {
+  if (mealScore !== null && mealScore !== undefined) {
+    return mealScore >= 8.0
+  }
+  return n === 'THREE_MEALS'
 }
 function isSmokingOk(s: SmokingStatus) {
   return s === 'NICOTINE_REPLACEMENT' || s === 'SMOKE_FREE'
@@ -72,6 +76,9 @@ export interface EntryPreviewProps {
   smoking: SmokingStatus
   tags: string
   bannerUrl?: string
+  /** When a meal-log score is present, the nutrition badge shows the score (e.g. `9.6 / 10`)
+   * and fulfillment is computed from the score. */
+  mealScore?: number | null
 }
 
 // =============================================
@@ -87,7 +94,12 @@ export function EntryPreview({
   smoking,
   tags,
   bannerUrl,
+  mealScore,
 }: EntryPreviewProps) {
+  const hasMealScore = mealScore !== null && mealScore !== undefined
+  const nutritionLabel = hasMealScore
+    ? `${mealScore.toFixed(1)} / 10`
+    : NUTRITION_LABELS[nutrition]
   const dayNumber = date ? getDayNumber(date) : 1
 
   const formattedDate = date
@@ -156,8 +168,8 @@ export function EntryPreview({
               colorClass="bg-movement-100 bg-movement-600/20 text-movement-700 text-movement-400"
             />
             <HabitBadge
-              label={NUTRITION_LABELS[nutrition]}
-              fulfilled={isNutritionOk(nutrition)}
+              label={nutritionLabel}
+              fulfilled={isNutritionOk(nutrition, mealScore)}
               colorClass="bg-nutrition-100 bg-nutrition-600/20 text-nutrition-700 text-nutrition-400"
             />
             <HabitBadge

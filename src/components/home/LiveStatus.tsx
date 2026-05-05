@@ -664,7 +664,7 @@ export async function LiveStatus() {
   ])
 
   const movementBools = entries.map((e) => isMovementFulfilled(e.habits.movement))
-  const nutritionBools = entries.map((e) => isNutritionFulfilled(e.habits.nutrition))
+  const nutritionBools = entries.map((e) => isNutritionFulfilled(e.habits.nutrition, e.mealScore))
   const smokingBools   = entries.map((e) => isSmokingFulfilled(e.habits.smoking))
 
   const movementStreak = calculateStreak(movementBools)

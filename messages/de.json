@@ -199,6 +199,7 @@
       "steps_trained": "10k+ & Training"
     },
     "nutrition": {
+      "scoreTitle": "Ernährungs-Score",
       "none": "Keine ges. Mahlzeit",
       "one_meal": "1 ges. Mahlzeit",
       "two_meals": "2 ges. Mahlzeiten",
