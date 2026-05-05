@@ -31,6 +31,14 @@ export interface JournalEntry {
   content: string
   excerpt?: string
   sweetsConsumed?: boolean | null
+  /**
+   * Nutrition score (0–10) from the day's MealLog, when one exists. The enum
+   * `habits.nutrition` mirrors this via `scoreToNutritionLevel` (auto-synced
+   * by `saveMealLogAction`), but the raw score is the canonical fulfillment
+   * input — score ≥ 8.0 counts as the nutrition goal met. Falls back to the
+   * enum threshold (`three_meals`) only for entries without a meal log.
+   */
+  mealScore?: number | null
 }
 
 export type JournalEntryMeta = Omit<JournalEntry, 'content'>
@@ -63,9 +71,12 @@ function toDateString(date: Date): string {
   return date.toISOString().slice(0, 10)
 }
 
-export function isPerfectDay(habits: HabitsFrontmatter): boolean {
+export function isPerfectDay(habits: HabitsFrontmatter, mealScore?: number | null): boolean {
   const movementGood = habits.movement === 'steps_only' || habits.movement === 'trained_only' || habits.movement === 'steps_trained'
-  const nutritionGood = habits.nutrition === 'three_meals'
+  const nutritionGood =
+    mealScore !== null && mealScore !== undefined
+      ? mealScore >= 8.0
+      : habits.nutrition === 'three_meals'
   const smokingGood = habits.smoking === 'nicotine_replacement' || habits.smoking === 'smoke_free'
   return movementGood && nutritionGood && smokingGood
 }
@@ -99,12 +110,34 @@ function toFull(entry: PrismaJournalEntry): JournalEntry {
 // DB-Queries (ersetzen Filesystem-Reads)
 // =============================================
 
+/**
+ * Fetch meal-log scores for a list of entry dates and return a `date → score`
+ * lookup map (date string `YYYY-MM-DD`). Entries without a logged meal map
+ * to nothing — callers should treat absence as "no score, fall back to enum".
+ */
+async function getMealScoreMapForDates(dates: Date[]): Promise<Map<string, number>> {
+  if (dates.length === 0) return new Map()
+  const rows = await prisma.mealLog.findMany({
+    where: { date: { in: dates }, score: { not: null } },
+    select: { date: true, score: true },
+  })
+  return new Map(
+    rows
+      .filter((r): r is { date: Date; score: number } => r.score !== null)
+      .map((r) => [toDateString(r.date), r.score]),
+  )
+}
+
 export async function getAllEntries(): Promise<JournalEntryMeta[]> {
   const entries = await prisma.journalEntry.findMany({
     where: { published: true },
     orderBy: { date: 'desc' },
   })
-  return entries.map(toMeta)
+  const scores = await getMealScoreMapForDates(entries.map((e) => e.date))
+  return entries.map((entry) => ({
+    ...toMeta(entry),
+    mealScore: scores.get(toDateString(entry.date)) ?? null,
+  }))
 }
 
 export async function getAllEntriesForLocale(locale: string): Promise<JournalEntryMeta[]> {
@@ -115,9 +148,13 @@ export async function getAllEntriesForLocale(locale: string): Promise<JournalEnt
     orderBy: { date: 'desc' },
     include: { translations: { where: { locale } } },
   })
+  const scores = await getMealScoreMapForDates(entries.map((e) => e.date))
 
   return entries.map((entry) => {
-    const meta = toMeta(entry)
+    const meta: JournalEntryMeta = {
+      ...toMeta(entry),
+      mealScore: scores.get(toDateString(entry.date)) ?? null,
+    }
     const translation = entry.translations[0] ?? null
     if (translation) {
       meta.title = translation.title
@@ -130,7 +167,8 @@ export async function getAllEntriesForLocale(locale: string): Promise<JournalEnt
 export async function getEntryBySlug(slug: string): Promise<JournalEntry | null> {
   const entry = await prisma.journalEntry.findUnique({ where: { slug } })
   if (!entry || !entry.published) return null
-  return toFull(entry)
+  const scores = await getMealScoreMapForDates([entry.date])
+  return { ...toFull(entry), mealScore: scores.get(toDateString(entry.date)) ?? null }
 }
 
 export async function getEntryBySlugWithTranslation(
@@ -143,7 +181,11 @@ export async function getEntryBySlugWithTranslation(
   })
   if (!row || !row.published) return null
 
-  const entry = toFull(row)
+  const scores = await getMealScoreMapForDates([row.date])
+  const entry: JournalEntry = {
+    ...toFull(row),
+    mealScore: scores.get(toDateString(row.date)) ?? null,
+  }
   const t = row.translations[0] ?? null
   const translation = t
     ? { title: t.title, content: t.content, excerpt: t.excerpt ?? '' }

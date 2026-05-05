@@ -199,6 +199,7 @@
       "steps_trained": "10k+ & workout"
     },
     "nutrition": {
+      "scoreTitle": "Nutrition score",
       "none": "No healthy meal",
       "one_meal": "1 healthy meal",
       "two_meals": "2 healthy meals",

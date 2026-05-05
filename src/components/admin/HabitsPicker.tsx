@@ -11,12 +11,20 @@ import {
 
 // =============================================
 // Fulfillment-Status aus den Prisma-Enum-Werten
+// (Spiegelt lib/habits.ts auf der UPPERCASE-Enum-Seite. `isNutritionFulfilled`
+//  ist score-aware: Wenn ein Meal-Score vorliegt, gilt Score ≥ 8.0; sonst
+//  zählt nur THREE_MEALS — analog zur kanonischen Definition.)
 // =============================================
+
+const NUTRITION_SCORE_THRESHOLD = 8.0
 
 function isMovementFulfilled(m: MovementLevel): boolean {
   return m === 'STEPS_ONLY' || m === 'TRAINED_ONLY' || m === 'STEPS_TRAINED'
 }
-function isNutritionFulfilled(n: NutritionLevel): boolean {
+function isNutritionFulfilled(n: NutritionLevel, mealScore?: number | null): boolean {
+  if (mealScore !== null && mealScore !== undefined) {
+    return mealScore >= NUTRITION_SCORE_THRESHOLD
+  }
   return n === 'THREE_MEALS'
 }
 function isSmokingFulfilled(s: SmokingStatus): boolean {
@@ -82,12 +90,15 @@ export function HabitsPicker({
   mealScore,
 }: HabitsPickerProps) {
   const movementLabel = MOVEMENT_OPTIONS.find((o) => o.value === movement)?.label ?? movement
-  const nutritionLabel = NUTRITION_OPTIONS.find((o) => o.value === nutrition)?.label ?? nutrition
+  const hasMealScore = mealScore !== null && mealScore !== undefined
+  const nutritionLabel = hasMealScore
+    ? `${mealScore.toFixed(1)} / 10`
+    : NUTRITION_OPTIONS.find((o) => o.value === nutrition)?.label ?? nutrition
   const smokingLabel = SMOKING_OPTIONS.find((o) => o.value === smoking)?.label ?? smoking
 
   const fulfilledCount = [
     isMovementFulfilled(movement),
-    isNutritionFulfilled(nutrition),
+    isNutritionFulfilled(nutrition, mealScore),
     isSmokingFulfilled(smoking),
   ].filter(Boolean).length
 
@@ -131,8 +142,15 @@ export function HabitsPicker({
                   {mealScore.toFixed(1)}<span className="text-xs font-normal text-on-surface-variant ml-0.5">/10</span>
                 </span>
               )}
-              <span className="text-sm font-medium text-on-surface">
-                {NUTRITION_OPTIONS.find((o) => o.value === nutrition)?.label ?? nutrition}
+              <span
+                className={clsx(
+                  'text-xs font-label font-bold tracking-widest uppercase',
+                  isNutritionFulfilled(nutrition, mealScore)
+                    ? 'text-nutrition-300'
+                    : 'text-on-surface-variant',
+                )}
+              >
+                {isNutritionFulfilled(nutrition, mealScore) ? 'Ziel erreicht' : 'Ziel verfehlt'}
               </span>
             </div>
           </div>
@@ -163,7 +181,7 @@ export function HabitsPicker({
           />
           <PreviewBadge
             label={nutritionLabel}
-            fulfilled={isNutritionFulfilled(nutrition)}
+            fulfilled={isNutritionFulfilled(nutrition, mealScore)}
             colorClass="bg-nutrition-100 text-nutrition-700"
           />
           <PreviewBadge

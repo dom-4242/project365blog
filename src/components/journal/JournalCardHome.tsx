@@ -17,7 +17,7 @@ export async function JournalCardHome({ entry }: JournalCardHomeProps) {
   ])
 
   const dayNumber = getDayNumber(entry.date, startDate)
-  const perfect = isPerfectDay(entry.habits)
+  const perfect = isPerfectDay(entry.habits, entry.mealScore)
 
   const formattedDate = new Date(entry.date).toLocaleDateString(locale, {
     day: 'numeric',

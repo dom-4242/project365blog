@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { MovementLevel, NutritionLevel, SmokingStatus } from '@prisma/client'
-import type { MealLogData } from '@/lib/meal-log'
+import { scoreToNutritionLevel, type MealLogData } from '@/lib/meal-log'
 import { clsx } from 'clsx'
 import { TiptapEditor } from './TiptapEditor'
 import { HabitsPicker } from './HabitsPicker'
@@ -50,7 +50,14 @@ export function EntryForm({ mode, entryId, initial, mealLog }: EntryFormProps) {
   const [content, setContent] = useState(initial?.content ?? '')
   const [excerpt, setExcerpt] = useState(initial?.excerpt ?? '')
   const [movement, setMovement] = useState<MovementLevel>(initial?.movement ?? 'STEPS_ONLY')
-  const [nutrition, setNutrition] = useState<NutritionLevel>(initial?.nutrition ?? 'TWO_MEALS')
+  // If the meal log has a score (saved before the entry was created), derive
+  // the initial enum value from it instead of falling back to the TWO_MEALS
+  // default — otherwise the user has to manually fix the picker every time.
+  // For existing entries we always trust the persisted enum value.
+  const defaultNutrition: NutritionLevel =
+    initial?.nutrition ??
+    (mealLog?.score != null ? scoreToNutritionLevel(mealLog.score) : 'TWO_MEALS')
+  const [nutrition, setNutrition] = useState<NutritionLevel>(defaultNutrition)
   const [smoking, setSmoking] = useState<SmokingStatus>(initial?.smoking ?? 'SMOKE_FREE')
   const [bannerUrl, setBannerUrl] = useState<string | undefined>(initial?.bannerUrl)
   const [tags, setTags] = useState<string>(initial?.tags?.join(', ') ?? '')
@@ -139,6 +146,7 @@ export function EntryForm({ mode, entryId, initial, mealLog }: EntryFormProps) {
           smoking={smoking}
           tags={tags}
           bannerUrl={bannerUrl}
+          mealScore={mealLog?.score}
         />
       ) : (
     <form onSubmit={handleSubmit} className="space-y-6">

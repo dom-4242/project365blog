@@ -30,17 +30,44 @@ describe('isMovementFulfilled', () => {
 })
 
 describe('isNutritionFulfilled', () => {
-  it('returns false for none', () => {
+  // Without meal score → enum fallback (only three_meals counts).
+  it('returns false for none (no score)', () => {
     expect(isNutritionFulfilled('none')).toBe(false)
   })
-  it('returns false for one_meal', () => {
+  it('returns false for one_meal (no score)', () => {
     expect(isNutritionFulfilled('one_meal')).toBe(false)
   })
-  it('returns false for two_meals', () => {
+  it('returns false for two_meals (no score)', () => {
     expect(isNutritionFulfilled('two_meals')).toBe(false)
   })
-  it('returns true for three_meals', () => {
+  it('returns true for three_meals (no score)', () => {
     expect(isNutritionFulfilled('three_meals')).toBe(true)
+  })
+  it('treats null mealScore as "no score" (enum fallback)', () => {
+    expect(isNutritionFulfilled('three_meals', null)).toBe(true)
+    expect(isNutritionFulfilled('two_meals', null)).toBe(false)
+  })
+
+  // With meal score → score takes priority over the enum.
+  it('returns true when mealScore ≥ 8.0 (boundary)', () => {
+    expect(isNutritionFulfilled('none', 8.0)).toBe(true)
+  })
+  it('returns true when mealScore is well above threshold', () => {
+    expect(isNutritionFulfilled('none', 9.6)).toBe(true)
+  })
+  it('returns false when mealScore is just below threshold', () => {
+    expect(isNutritionFulfilled('three_meals', 7.9)).toBe(false)
+  })
+  it('returns false when mealScore is 0', () => {
+    expect(isNutritionFulfilled('three_meals', 0)).toBe(false)
+  })
+  it('score overrides enum (high enum, low score)', () => {
+    // Stale enum should not save a low-score day.
+    expect(isNutritionFulfilled('three_meals', 5.5)).toBe(false)
+  })
+  it('score overrides enum (low enum, high score)', () => {
+    // Stale enum should not block a high-score day.
+    expect(isNutritionFulfilled('two_meals', 9.0)).toBe(true)
   })
 })
 

@@ -2,17 +2,31 @@ import { MovementLevel, NutritionLevel, SmokingStatus } from '@prisma/client'
 import { getAllEntries, type MovementValue, type NutritionValue, type SmokingValue } from './journal'
 
 // =============================================
-// Streak-Definitionen (Issue #87):
+// Streak-Definitionen (Issue #87, score-aware):
 //   Bewegung  ≥ STEPS_ONLY oder TRAINED_ONLY → steps_only | trained_only | steps_trained
-//   Ernährung = THREE_MEALS                  → three_meals
+//   Ernährung   mealScore ≥ 8.0  (sonst Enum-Fallback: three_meals)
 //   Rauchstopp ≠ SMOKED                      → nicotine_replacement | smoke_free
 // =============================================
+
+/** Score threshold for "nutrition goal met" — kept in sync with `scoreToNutritionLevel` (THREE_MEALS). */
+export const NUTRITION_SCORE_THRESHOLD = 8.0
 
 export function isMovementFulfilled(movement: MovementValue): boolean {
   return movement === 'steps_only' || movement === 'trained_only' || movement === 'steps_trained'
 }
 
-export function isNutritionFulfilled(nutrition: NutritionValue): boolean {
+/**
+ * Nutrition goal met for the day. When a meal-log score is present (preferred,
+ * authoritative), score ≥ 8.0 = fulfilled. Without a score we fall back to the
+ * enum threshold so historical entries that pre-date the meal-log still count.
+ */
+export function isNutritionFulfilled(
+  nutrition: NutritionValue,
+  mealScore?: number | null,
+): boolean {
+  if (mealScore !== null && mealScore !== undefined) {
+    return mealScore >= NUTRITION_SCORE_THRESHOLD
+  }
   return nutrition === 'three_meals'
 }
 
@@ -92,7 +106,13 @@ export function getMovementLevel(m: MovementValue): number {
   return 0
 }
 
-export function getNutritionLevel(n: NutritionValue): number {
+export function getNutritionLevel(n: NutritionValue, mealScore?: number | null): number {
+  if (mealScore !== null && mealScore !== undefined) {
+    if (mealScore >= 8.0) return 3
+    if (mealScore >= 5.0) return 2
+    if (mealScore >= 2.0) return 1
+    return 0
+  }
   if (n === 'three_meals') return 3
   if (n === 'two_meals') return 2
   if (n === 'one_meal') return 1
@@ -112,7 +132,7 @@ export async function getMovementStreak(): Promise<StreakResult> {
 
 export async function getNutritionStreak(): Promise<StreakResult> {
   const entries = await getAllEntries()
-  return calculateStreak(entries.map((e) => isNutritionFulfilled(e.habits.nutrition)))
+  return calculateStreak(entries.map((e) => isNutritionFulfilled(e.habits.nutrition, e.mealScore)))
 }
 
 export async function getSmokingStreak(): Promise<StreakResult> {

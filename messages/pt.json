@@ -196,6 +196,7 @@
       "steps_trained": "10k+ e treino"
     },
     "nutrition": {
+      "scoreTitle": "Pontuação alimentar",
       "none": "Sem refeição saudável",
       "one_meal": "1 refeição saudável",
       "two_meals": "2 refeições saudáveis",

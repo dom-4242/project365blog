@@ -39,21 +39,24 @@ export async function HabitsDashboard() {
     date,
     level: entryMap.has(date) ? getMovementLevel(entryMap.get(date)!.habits.movement) : -1,
   }))
-  const nutritionDays = allDates.map((date) => ({
-    date,
-    level: entryMap.has(date) ? getNutritionLevel(entryMap.get(date)!.habits.nutrition) : -1,
-  }))
+  const nutritionDays = allDates.map((date) => {
+    const e = entryMap.get(date)
+    return {
+      date,
+      level: e ? getNutritionLevel(e.habits.nutrition, e.mealScore) : -1,
+    }
+  })
   const smokingDays = allDates.map((date) => ({
     date,
     level: entryMap.has(date) ? getSmokingLevel(entryMap.get(date)!.habits.smoking) : -1,
   }))
 
   const movementStreak = calculateStreak(entries.map((e) => isMovementFulfilled(e.habits.movement)))
-  const nutritionStreak = calculateStreak(entries.map((e) => isNutritionFulfilled(e.habits.nutrition)))
+  const nutritionStreak = calculateStreak(entries.map((e) => isNutritionFulfilled(e.habits.nutrition, e.mealScore)))
   const smokingStreak = calculateStreak(entries.map((e) => isSmokingFulfilled(e.habits.smoking)))
 
   const movementFulfilled = entries.filter((e) => isMovementFulfilled(e.habits.movement)).length
-  const nutritionFulfilled = entries.filter((e) => isNutritionFulfilled(e.habits.nutrition)).length
+  const nutritionFulfilled = entries.filter((e) => isNutritionFulfilled(e.habits.nutrition, e.mealScore)).length
   const smokingFulfilled = entries.filter((e) => isSmokingFulfilled(e.habits.smoking)).length
 
   return (
