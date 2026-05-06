@@ -51,6 +51,12 @@
     "metricImport": "Import",
     "metricSweets": "Sweets-Free Streak",
     "metricNutritionScore": "Nutrition Score",
+    "metricMealAverages": "Avg score per meal (30d)",
+    "mealBreakfast": "Breakfast",
+    "mealSnackMorning": "Morning snack",
+    "mealLunch": "Lunch",
+    "mealSnackAfternoon": "Afternoon snack",
+    "mealDinner": "Dinner",
     "monthlySummaryHeading": "Monthly Retrospective",
     "monthlySummaryReadMore": "Read full summary",
     "monthlySummaryViewAll": "All monthly retrospectives"

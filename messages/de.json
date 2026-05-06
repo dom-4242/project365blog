@@ -51,6 +51,12 @@
     "metricImport": "Import",
     "metricSweets": "Süssigkeiten-Freie-Serie",
     "metricNutritionScore": "Ernährungs-Score",
+    "metricMealAverages": "Ø Score pro Mahlzeit (30T)",
+    "mealBreakfast": "Frühstück",
+    "mealSnackMorning": "Snack Vormittag",
+    "mealLunch": "Mittagessen",
+    "mealSnackAfternoon": "Snack Nachmittag",
+    "mealDinner": "Abendessen",
     "monthlySummaryHeading": "Monats-Rückblick",
     "monthlySummaryReadMore": "Vollständige Zusammenfassung lesen",
     "monthlySummaryViewAll": "Alle Monats-Rückblicke"

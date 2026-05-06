@@ -48,6 +48,12 @@
     "metricImport": "Importado",
     "metricSweets": "Dias Sem Doces",
     "metricNutritionScore": "Pontuação Nutricional",
+    "metricMealAverages": "Pontuação média por refeição (30d)",
+    "mealBreakfast": "Café da manhã",
+    "mealSnackMorning": "Lanche da manhã",
+    "mealLunch": "Almoço",
+    "mealSnackAfternoon": "Lanche da tarde",
+    "mealDinner": "Jantar",
     "monthlySummaryHeading": "Retrospectiva Mensal",
     "monthlySummaryReadMore": "Ler resumo completo",
     "monthlySummaryViewAll": "Todas as retrospectivas mensais"
