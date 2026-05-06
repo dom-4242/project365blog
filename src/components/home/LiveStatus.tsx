@@ -18,7 +18,13 @@ import {
   COLA_ZERO_DAILY_LIMIT_ML,
   type DrinkDayData,
 } from '@/lib/drinks'
-import { getMealScoreHistory, type MealScoreDay } from '@/lib/meal-log'
+import {
+  getMealScoreHistory,
+  getMealAverages,
+  type MealScoreDay,
+  type MealAverage,
+  type MealSlotKey,
+} from '@/lib/meal-log'
 import { StepsSparkline } from './StepsSparkline'
 import { DrinkSparkline } from './DrinkSparkline'
 
@@ -181,36 +187,36 @@ function HabitStreakTile({
 
   return (
     <div
-      className={`relative col-span-1 sm:col-span-1 lg:col-span-4 bg-surface-container-high rounded-xl p-4 overflow-hidden flex flex-col gap-3 transition-shadow ${glow ? `border ${glow.border}` : 'border border-outline-variant/10'}`}
+      className={`relative col-span-1 sm:col-span-1 lg:col-span-4 bg-surface-variant/40 backdrop-blur-xl rounded-xl p-5 overflow-hidden flex flex-col gap-4 transition-shadow ${glow ? `border ${glow.border}` : 'border border-outline-variant/15'}`}
       style={glow ? { boxShadow: glow.shadow } : undefined}
       role={isPriority ? 'region' : undefined}
       aria-label={isPriority && pillarKey ? `Priorität: ${label}` : undefined}
     >
       {isPriority && <span className="sr-only">Aktueller Fokus</span>}
       <span
-        className={`pointer-events-none select-none absolute -right-3 -bottom-3 font-headline font-bold leading-none opacity-[0.04]`}
-        style={{ fontSize: '8rem', color: 'currentColor' }}
+        className={`pointer-events-none select-none absolute -right-4 -bottom-4 font-headline font-bold leading-none ${colorText} opacity-[0.05]`}
+        style={{ fontSize: '10rem' }}
         aria-hidden="true"
       >
         {streak}
       </span>
       <p className={`text-xs font-label font-bold tracking-widest uppercase ${colorText}`}>{label}</p>
       <div className="flex items-baseline gap-2">
-        <span className={`text-5xl font-headline font-bold tracking-tighter leading-none ${colorText} opacity-90`}>
+        <span className={`text-7xl font-headline font-bold tracking-tighter leading-none ${colorText}`}>
           {streak}
         </span>
         <span className="text-sm text-on-surface-variant">{labelDays}</span>
       </div>
       <div className="space-y-1.5">
-        <div className="h-1 bg-surface-container rounded-full overflow-hidden">
+        <div className="h-1 bg-surface-container-high rounded-full overflow-hidden">
           <div className={`h-full rounded-full ${colorClass} transition-all duration-700`} style={{ width: `${Math.min(100, pct30d)}%` }} />
         </div>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <span className="text-xs text-on-surface-variant">
             {labelRate}: <span className={`${colorText} font-semibold`}>{pct30d}%</span>
-            <span className={`ml-2 font-semibold ${trendColor}`}>({labelTrend}: {trendSign}{trend}%)</span>
+            <span className={`ml-1.5 font-semibold ${trendColor}`}>({labelTrend}: {trendSign}{trend}%)</span>
           </span>
-          <span className="text-xs text-on-surface-variant">
+          <span className="text-xs text-on-surface-variant whitespace-nowrap">
             {labelLongest}: <span className="text-on-surface font-semibold">{longestStreak}</span>
           </span>
         </div>
@@ -573,7 +579,7 @@ function NutritionScoreTile({ history, labelNutrition, labelNoData }: NutritionS
   const recent = history.slice(-BAR_COUNT)
 
   return (
-    <div className="col-span-1 sm:col-span-2 lg:col-span-12 bg-surface-container border border-outline-variant/10 rounded-xl p-5 flex flex-col gap-4">
+    <div className="col-span-1 sm:col-span-2 lg:col-span-6 bg-surface-container border border-outline-variant/10 rounded-xl p-5 flex flex-col gap-4">
       {/* Header row */}
       <div className="flex items-center justify-between gap-4">
         <span className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">
@@ -635,6 +641,84 @@ function NutritionScoreTile({ history, labelNutrition, labelNoData }: NutritionS
   )
 }
 
+// ─── MealAveragesTile ──────────────────────────────────────────────────────
+
+interface MealAveragesTileProps {
+  averages: MealAverage[]
+  labelTitle: string
+  labelTrend: string
+  labelNoData: string
+  mealLabels: Record<MealSlotKey, string>
+}
+
+function MealAveragesTile({
+  averages, labelTitle, labelTrend, labelNoData, mealLabels,
+}: MealAveragesTileProps) {
+  const hasAny = averages.some((a) => a.avg30 !== null)
+
+  function barColor(s: number) {
+    if (s >= 8.0) return 'bg-green-500'
+    if (s >= 5.0) return 'bg-yellow-500'
+    return 'bg-red-500'
+  }
+  function textColor(s: number) {
+    if (s >= 8.0) return 'text-green-400'
+    if (s >= 5.0) return 'text-yellow-400'
+    return 'text-red-400'
+  }
+
+  return (
+    <div className="col-span-1 sm:col-span-2 lg:col-span-6 bg-surface-container border border-outline-variant/10 rounded-xl p-5 flex flex-col gap-4">
+      <div className="flex items-center justify-between gap-4">
+        <span className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">
+          {labelTitle}
+        </span>
+        {!hasAny && <span className="text-xs text-on-surface-variant">{labelNoData}</span>}
+      </div>
+
+      {hasAny && (
+        <div className="flex flex-col gap-2.5">
+          {averages.map((m) => {
+            const avg = m.avg30
+            const trend = m.trend
+            const trendAbs = trend !== null ? Math.abs(trend) : 0
+            const showTrend = trend !== null && trendAbs >= 0.05
+            const trendArrow = trend === null ? '' : trend > 0 ? '↑' : trend < 0 ? '↓' : '→'
+            const trendSign = trend !== null && trend > 0 ? '+' : ''
+            const trendColor = trend === null
+              ? 'text-on-surface-variant'
+              : trend > 0 ? 'text-movement-400' : 'text-error'
+            return (
+              <div key={m.key} className="flex items-center gap-3">
+                <span className="w-32 shrink-0 text-xs font-label font-semibold uppercase tracking-wider text-on-surface-variant truncate">
+                  {mealLabels[m.key]}
+                </span>
+                <div className="flex-1 h-2 bg-surface-container-high rounded-full overflow-hidden">
+                  {avg !== null && (
+                    <div
+                      className={`h-full rounded-full transition-all duration-700 ${barColor(avg)}`}
+                      style={{ width: `${(avg / 10) * 100}%` }}
+                    />
+                  )}
+                </div>
+                <span className={`w-10 shrink-0 text-right text-sm font-headline font-bold tabular-nums ${avg !== null ? textColor(avg) : 'text-on-surface-variant'}`}>
+                  {avg !== null ? avg.toFixed(1) : '—'}
+                </span>
+                <span
+                  className={`w-14 shrink-0 text-right text-xs font-semibold tabular-nums ${trendColor}`}
+                  title={labelTrend}
+                >
+                  {showTrend ? `${trendArrow} ${trendSign}${trend!.toFixed(1)}` : ''}
+                </span>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Helper: 7-day vs 30-day success rate ─────────────────────────────────
 
 function computeRates(booleans: boolean[]): { pct30d: number; pct7d: number } {
@@ -653,7 +737,7 @@ export async function LiveStatus() {
     getTranslations('HomePage'),
   ])
 
-  const [entries, metrics, drinkAnalytics, priorityPillar, stepsHistoryRaw, sweetsHistory, mealScoreHistory] = await Promise.all([
+  const [entries, metrics, drinkAnalytics, priorityPillar, stepsHistoryRaw, sweetsHistory, mealScoreHistory, mealAverages] = await Promise.all([
     getAllEntries(),
     getLatestMetrics(profile.projectStartDate ?? undefined),
     getDrinkAnalytics(7),
@@ -661,7 +745,16 @@ export async function LiveStatus() {
     getStepsHistory(30),
     getSweetsHistory(90),
     getMealScoreHistory(30),
+    getMealAverages(30),
   ])
+
+  const mealLabels: Record<MealSlotKey, string> = {
+    breakfast:      t('mealBreakfast'),
+    snackMorning:   t('mealSnackMorning'),
+    lunch:          t('mealLunch'),
+    snackAfternoon: t('mealSnackAfternoon'),
+    dinner:         t('mealDinner'),
+  }
 
   const movementBools = entries.map((e) => isMovementFulfilled(e.habits.movement))
   const nutritionBools = entries.map((e) => isNutritionFulfilled(e.habits.nutrition, e.mealScore))
@@ -737,11 +830,18 @@ export async function LiveStatus() {
           pillarKey="nutrition"
         />
 
-        {/* Row B — Nutrition score (full width) */}
+        {/* Row B — Nutrition score + per-meal averages (each half width) */}
         <NutritionScoreTile
           history={mealScoreHistory}
           labelNutrition={t('metricNutritionScore')}
           labelNoData={t('metricNoData')}
+        />
+        <MealAveragesTile
+          averages={mealAverages}
+          labelTitle={t('metricMealAverages')}
+          labelTrend={t('trend7d')}
+          labelNoData={t('metricNoData')}
+          mealLabels={mealLabels}
         />
 
         {/* Row C — Weight & Body Fat */}

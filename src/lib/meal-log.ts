@@ -77,3 +77,64 @@ export async function getMealScoreHistory(days = 30): Promise<MealScoreDay[]> {
   return rows.map((r) => ({ date: r.date.toISOString().slice(0, 10), score: r.score }))
 }
 
+// =============================================
+// Per-meal averages (5 main meals, excluding bonus snack)
+// =============================================
+
+export type MealSlotKey = 'breakfast' | 'snackMorning' | 'lunch' | 'snackAfternoon' | 'dinner'
+
+export const MAIN_MEAL_KEYS: readonly MealSlotKey[] = [
+  'breakfast',
+  'snackMorning',
+  'lunch',
+  'snackAfternoon',
+  'dinner',
+] as const
+
+export interface MealAverage {
+  key: MealSlotKey
+  avg30: number | null   // 30-day average, 0–10 (null if no logs)
+  avg7: number | null    // last-7-day average, 0–10 (null if no logs)
+  trend: number | null   // avg7 − avg30 (null if either missing)
+  count30: number        // number of days with a non-null value in window
+}
+
+/**
+ * Returns the per-meal average score (0–10) over the trailing window,
+ * plus the trailing 7-day average and trend (avg7 − avg30) for each main meal.
+ * Days where a given meal slot is null are excluded from that meal's average.
+ */
+export async function getMealAverages(days = 30): Promise<MealAverage[]> {
+  const today = new Date(`${zurichDateStr()}T00:00:00.000Z`)
+  const from30 = new Date(today.getTime() - (days - 1) * 24 * 60 * 60 * 1000)
+  const from7 = new Date(today.getTime() - 6 * 24 * 60 * 60 * 1000)
+
+  const rows = await prisma.mealLog.findMany({
+    where: { date: { gte: from30, lte: today } },
+    orderBy: { date: 'asc' },
+    select: {
+      date: true,
+      breakfast: true,
+      snackMorning: true,
+      lunch: true,
+      snackAfternoon: true,
+      dinner: true,
+    },
+  })
+
+  return MAIN_MEAL_KEYS.map((key) => {
+    const all: number[] = []
+    const last7: number[] = []
+    for (const r of rows) {
+      const v = r[key]
+      if (v === null || v === undefined) continue
+      all.push(v)
+      if (r.date >= from7) last7.push(v)
+    }
+    const avg30 = all.length > 0 ? all.reduce((s, n) => s + n, 0) / all.length : null
+    const avg7 = last7.length > 0 ? last7.reduce((s, n) => s + n, 0) / last7.length : null
+    const trend = avg30 !== null && avg7 !== null ? avg7 - avg30 : null
+    return { key, avg30, avg7, trend, count30: all.length }
+  })
+}
+
