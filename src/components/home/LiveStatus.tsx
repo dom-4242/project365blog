@@ -308,16 +308,14 @@ function WeightTile({ weight, weightAvg7d, weightAvg7dPrev, bmi, targetWeight, b
                     {weight !== undefined && (
                       <> · {labelToday}: <span className="text-on-surface font-semibold">{weight.toFixed(1)} kg</span></>
                     )}
+                    {bmi && (
+                      <> · {labelBmi}: <span className="text-on-surface font-semibold">{bmi}</span></>
+                    )}
                   </>
                 ) : (
                   bmi && <>{labelBmi}: <span className="text-on-surface font-semibold">{bmi}</span></>
                 )}
               </p>
-              {showingAvg && bmi && (
-                <p className="text-xs text-on-surface-variant mt-0.5">
-                  {labelBmi}: <span className="text-on-surface font-semibold">{bmi}</span>
-                </p>
-              )}
             </div>
             {hasTarget && (
               <div className="text-right">
