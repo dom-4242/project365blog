@@ -80,12 +80,8 @@ export async function JournalCard({ entry }: JournalCardProps) {
             </time>
           </div>
 
-          <h2 className="font-headline text-xl sm:text-2xl font-bold leading-snug text-on-surface">
-            {entry.title}
-          </h2>
-
           {entry.dailyQuote && (
-            <blockquote className="border-l-2 border-primary/40 pl-3 py-1 text-sm font-headline italic text-on-surface-variant leading-relaxed">
+            <blockquote className="border-l-2 border-primary/40 pl-3 py-1 text-base font-headline italic text-on-surface leading-relaxed">
               {entry.dailyQuote}
             </blockquote>
           )}

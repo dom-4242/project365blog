@@ -177,17 +177,19 @@ export function EntryForm({ mode, entryId, initial, mealLog }: EntryFormProps) {
         </div>
       )}
 
-      {/* Titel */}
-      <div>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Titel des Eintrags"
-          required
-          className="w-full font-headline text-2xl font-bold bg-transparent border-0 border-b-2 border-surface-container-high focus:border-nutrition-500 focus:outline-none pb-2 text-on-surface placeholder:text-outline transition-colors"
-        />
-      </div>
+      {/* Titel — bei Tagesnotizen automatisch gesetzt, daher versteckt */}
+      {!isFiller && (
+        <div>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Titel des Eintrags"
+            required
+            className="w-full font-headline text-2xl font-bold bg-transparent border-0 border-b-2 border-surface-container-high focus:border-nutrition-500 focus:outline-none pb-2 text-on-surface placeholder:text-outline transition-colors"
+          />
+        </div>
+      )}
 
       {/* Datum + Slug + Veröffentlicht */}
       <div className="flex flex-wrap items-end gap-4">
@@ -244,19 +246,21 @@ export function EntryForm({ mode, entryId, initial, mealLog }: EntryFormProps) {
         </div>
       </div>
 
-      {/* Tags */}
-      <div>
-        <label className="block text-xs font-medium text-on-surface-variant mb-1">
-          Tags <span className="text-on-surface-variant font-normal">(kommagetrennt, optional)</span>
-        </label>
-        <input
-          type="text"
-          value={tags}
-          onChange={(e) => setTags(e.target.value)}
-          placeholder="motivation, training, ernährung"
-          className="w-full border border-surface-container-high rounded-lg px-3 py-1.5 text-sm text-on-surface focus:outline-none focus:border-on-surface-variant bg-surface-container"
-        />
-      </div>
+      {/* Tags — bei Tagesnotizen ausgeblendet */}
+      {!isFiller && (
+        <div>
+          <label className="block text-xs font-medium text-on-surface-variant mb-1">
+            Tags <span className="text-on-surface-variant font-normal">(kommagetrennt, optional)</span>
+          </label>
+          <input
+            type="text"
+            value={tags}
+            onChange={(e) => setTags(e.target.value)}
+            placeholder="motivation, training, ernährung"
+            className="w-full border border-surface-container-high rounded-lg px-3 py-1.5 text-sm text-on-surface focus:outline-none focus:border-on-surface-variant bg-surface-container"
+          />
+        </div>
+      )}
 
       {/* Eintrag-Typ */}
       <div>
