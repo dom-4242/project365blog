@@ -31,6 +31,15 @@ export interface ActionResult {
   slug?: string
 }
 
+function fillerTitleForDate(dateStr: string): string {
+  const formatted = new Date(dateStr).toLocaleDateString('de-CH', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  })
+  return `Tagesnotiz – ${formatted}`
+}
+
 function extractExcerpt(html: string, maxLength = 160): string {
   const text = html
     .replace(/<[^>]+>/g, ' ')
@@ -43,12 +52,12 @@ export async function createEntry(data: EntryFormData): Promise<ActionResult> {
   const session = await requireAdmin()
   if (!session) return { error: 'Nicht autorisiert' }
 
-  if (!data.title.trim()) return { error: 'Titel ist erforderlich' }
   if (!data.slug.trim()) return { error: 'Slug ist erforderlich' }
   if (!data.date) return { error: 'Datum ist erforderlich' }
   const isFiller = data.entryType === 'FILLER'
-  if (!isFiller && (!data.content || data.content === '<p></p>')) {
-    return { error: 'Inhalt ist erforderlich' }
+  if (!isFiller) {
+    if (!data.title.trim()) return { error: 'Titel ist erforderlich' }
+    if (!data.content || data.content === '<p></p>') return { error: 'Inhalt ist erforderlich' }
   }
 
   const existing = await prisma.journalEntry.findUnique({ where: { slug: data.slug } })
@@ -57,7 +66,7 @@ export async function createEntry(data: EntryFormData): Promise<ActionResult> {
   try {
     await prisma.journalEntry.create({
       data: {
-        title: data.title.trim(),
+        title: isFiller ? fillerTitleForDate(data.date) : data.title.trim(),
         slug: data.slug.trim(),
         date: new Date(data.date),
         content: isFiller ? '' : data.content,
@@ -69,7 +78,7 @@ export async function createEntry(data: EntryFormData): Promise<ActionResult> {
         movement: data.movement,
         nutrition: data.nutrition,
         smoking: data.smoking,
-        tags: data.tags,
+        tags: isFiller ? [] : data.tags,
         published: data.published,
         privateNotes: data.privateNotes?.trim() || null,
         dailyQuote: data.dailyQuote?.trim() || null,
@@ -91,17 +100,17 @@ export async function updateEntry(id: string, data: EntryFormData): Promise<Acti
   const session = await requireAdmin()
   if (!session) return { error: 'Nicht autorisiert' }
 
-  if (!data.title.trim()) return { error: 'Titel ist erforderlich' }
   const isFiller = data.entryType === 'FILLER'
-  if (!isFiller && (!data.content || data.content === '<p></p>')) {
-    return { error: 'Inhalt ist erforderlich' }
+  if (!isFiller) {
+    if (!data.title.trim()) return { error: 'Titel ist erforderlich' }
+    if (!data.content || data.content === '<p></p>') return { error: 'Inhalt ist erforderlich' }
   }
 
   try {
     const entry = await prisma.journalEntry.update({
       where: { id },
       data: {
-        title: data.title.trim(),
+        title: isFiller ? fillerTitleForDate(data.date) : data.title.trim(),
         date: new Date(data.date),
         content: isFiller ? '' : data.content,
         excerpt: isFiller
@@ -112,7 +121,7 @@ export async function updateEntry(id: string, data: EntryFormData): Promise<Acti
         movement: data.movement,
         nutrition: data.nutrition,
         smoking: data.smoking,
-        tags: data.tags,
+        tags: isFiller ? [] : data.tags,
         published: data.published,
         privateNotes: data.privateNotes?.trim() || null,
         dailyQuote: data.dailyQuote?.trim() || null,
