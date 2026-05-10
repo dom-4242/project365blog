@@ -10,6 +10,8 @@ import { HabitsPicker } from './HabitsPicker'
 import { BannerUpload } from './BannerUpload'
 import { EntryPreview } from './EntryPreview'
 import { createEntry, updateEntry, generateQuoteForEntry, type EntryFormData } from '@/app/admin/entries/actions'
+import { defaultCaption } from '@/lib/social-caption'
+import { SocialPostDialog } from './SocialPostDialog'
 
 // =============================================
 // Helper
@@ -70,6 +72,7 @@ export function EntryForm({ mode, entryId, initial, mealLog }: EntryFormProps) {
   const [quoteError, setQuoteError] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isPreview, setIsPreview] = useState(false)
+  const [showSocialDialog, setShowSocialDialog] = useState(false)
 
   async function handleGenerateQuote() {
     setQuoteLoading(true)
@@ -403,18 +406,43 @@ export function EntryForm({ mode, entryId, initial, mealLog }: EntryFormProps) {
         >
           ← Abbrechen
         </button>
-        <button
-          type="submit"
-          disabled={isPending}
-          className="px-6 py-2.5 bg-nutrition-600 text-white rounded-xl text-sm font-medium hover:bg-nutrition-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          {isPending
-            ? 'Speichern...'
-            : mode === 'create'
-            ? 'Eintrag erstellen'
-            : 'Änderungen speichern'}
-        </button>
+        <div className="flex items-center gap-2">
+          {mode === 'edit' && entryId && (
+            <button
+              type="button"
+              onClick={() => setShowSocialDialog(true)}
+              className="px-4 py-2.5 border border-outline-variant/40 text-on-surface rounded-xl text-sm font-medium hover:border-on-surface-variant transition-colors"
+            >
+              An Social Media senden
+            </button>
+          )}
+          <button
+            type="submit"
+            disabled={isPending}
+            className="px-6 py-2.5 bg-nutrition-600 text-white rounded-xl text-sm font-medium hover:bg-nutrition-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {isPending
+              ? 'Speichern...'
+              : mode === 'create'
+              ? 'Eintrag erstellen'
+              : 'Änderungen speichern'}
+          </button>
+        </div>
       </div>
+
+      {showSocialDialog && entryId && (
+        <SocialPostDialog
+          entryId={entryId}
+          defaultCaption={defaultCaption({
+            title,
+            slug,
+            excerpt: excerpt || null,
+            dailyQuote: dailyQuote || null,
+            entryType,
+          })}
+          onClose={() => setShowSocialDialog(false)}
+        />
+      )}
     </form>
       )}
     </div>
