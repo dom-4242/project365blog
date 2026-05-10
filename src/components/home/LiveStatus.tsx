@@ -234,8 +234,8 @@ function TrendBadge({ current, baseline, unit, threshold = 0.05 }: { current: nu
   const sign = delta < 0 ? '−' : '+'
   const arrow = delta < 0 ? '↓' : '↑'
   return (
-    <span className={`inline-flex items-center gap-0.5 text-xs font-semibold px-1.5 py-0.5 rounded ${
-      isGood ? 'text-movement-400 bg-movement-900/20' : 'text-secondary bg-secondary/10'
+    <span className={`inline-flex items-center gap-0.5 text-xs font-semibold ${
+      isGood ? 'text-movement-400' : 'text-secondary'
     }`}>
       {arrow} {sign}{Math.abs(delta).toFixed(1)}{unit}
     </span>
