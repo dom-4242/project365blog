@@ -46,6 +46,8 @@
     "metricStart": "Início",
     "metricProgress": "do caminho percorrido",
     "metricImport": "Importado",
+    "metricAvg7d": "Méd. 7 dias",
+    "metricToday": "Hoje",
     "metricSweets": "Dias Sem Doces",
     "metricNutritionScore": "Pontuação Nutricional",
     "metricMealAverages": "Pontuação média por refeição (30d)",

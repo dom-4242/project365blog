@@ -49,6 +49,8 @@
     "metricStart": "Start",
     "metricProgress": "of the way there",
     "metricImport": "Import",
+    "metricAvg7d": "7-day avg",
+    "metricToday": "Today",
     "metricSweets": "Sweets-Free Streak",
     "metricNutritionScore": "Nutrition Score",
     "metricMealAverages": "Avg score per meal (30d)",

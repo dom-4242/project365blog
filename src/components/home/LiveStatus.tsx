@@ -227,9 +227,9 @@ function HabitStreakTile({
 
 // ─── Trend Badge ──────────────────────────────────────────────────────────
 
-function TrendBadge({ current, baseline, unit }: { current: number; baseline: number; unit: string }) {
+function TrendBadge({ current, baseline, unit, threshold = 0.05 }: { current: number; baseline: number; unit: string; threshold?: number }) {
   const delta = current - baseline
-  if (Math.abs(delta) < 0.05) return null
+  if (Math.abs(delta) < threshold) return null
   const isGood = delta < 0
   const sign = delta < 0 ? '−' : '+'
   const arrow = delta < 0 ? '↓' : '↑'
@@ -246,6 +246,8 @@ function TrendBadge({ current, baseline, unit }: { current: number; baseline: nu
 
 interface WeightTileProps {
   weight?: number
+  weightAvg7d?: number
+  weightAvg7dPrev?: number
   bmi?: number
   targetWeight?: number | null
   baselineWeight?: number
@@ -256,18 +258,22 @@ interface WeightTileProps {
   labelImport: string
   labelStart: string
   labelProgress: string
+  labelAvg7d: string
+  labelToday: string
   labelNoData: string
 }
 
-function WeightTile({ weight, bmi, targetWeight, baselineWeight, importedAt, labelWeight, labelBmi, labelTarget, labelImport, labelStart, labelProgress, labelNoData }: WeightTileProps) {
-  const hasWeight = weight !== undefined
+function WeightTile({ weight, weightAvg7d, weightAvg7dPrev, bmi, targetWeight, baselineWeight, importedAt, labelWeight, labelBmi, labelTarget, labelImport, labelStart, labelProgress, labelAvg7d, labelToday, labelNoData }: WeightTileProps) {
+  const display = weightAvg7d ?? weight
+  const hasDisplay = display !== undefined
   const hasTarget = targetWeight !== null && targetWeight !== undefined
   const hasBaseline = baselineWeight !== undefined
+  const showingAvg = weightAvg7d !== undefined
 
   let pct = 0
-  if (hasWeight && hasTarget && hasBaseline) {
+  if (hasDisplay && hasTarget && hasBaseline) {
     const totalNeeded = baselineWeight! - targetWeight!
-    const achieved = baselineWeight! - weight!
+    const achieved = baselineWeight! - display!
     if (totalNeeded > 0) pct = clampPct((achieved / totalNeeded) * 100)
   }
 
@@ -282,19 +288,33 @@ function WeightTile({ weight, bmi, targetWeight, baselineWeight, importedAt, lab
         )}
       </div>
 
-      {hasWeight ? (
+      {hasDisplay ? (
         <>
           <div className="flex items-end gap-6">
             <div>
               <div className="flex items-baseline gap-1.5">
                 <span className="text-5xl font-headline font-bold tracking-tighter leading-none text-on-surface">
-                  {weight!.toFixed(1)}
+                  {display!.toFixed(1)}
                 </span>
                 <span className="text-sm text-on-surface-variant">kg</span>
-                {hasBaseline && <TrendBadge current={weight!} baseline={baselineWeight!} unit=" kg" />}
+                {showingAvg && weightAvg7dPrev !== undefined && (
+                  <TrendBadge current={weightAvg7d!} baseline={weightAvg7dPrev} unit=" kg" threshold={0.1} />
+                )}
               </div>
-              {bmi && (
-                <p className="text-xs text-on-surface-variant mt-1">
+              <p className="text-xs text-on-surface-variant mt-1">
+                {showingAvg ? (
+                  <>
+                    <span className="font-semibold text-on-surface">{labelAvg7d}</span>
+                    {weight !== undefined && (
+                      <> · {labelToday}: <span className="text-on-surface font-semibold">{weight.toFixed(1)} kg</span></>
+                    )}
+                  </>
+                ) : (
+                  bmi && <>{labelBmi}: <span className="text-on-surface font-semibold">{bmi}</span></>
+                )}
+              </p>
+              {showingAvg && bmi && (
+                <p className="text-xs text-on-surface-variant mt-0.5">
                   {labelBmi}: <span className="text-on-surface font-semibold">{bmi}</span>
                 </p>
               )}
@@ -334,6 +354,8 @@ function WeightTile({ weight, bmi, targetWeight, baselineWeight, importedAt, lab
 
 interface BodyFatTileProps {
   bodyFat?: number
+  bodyFatAvg7d?: number
+  bodyFatAvg7dPrev?: number
   baselineBodyFat?: number
   importedAt?: Date
   labelBodyFat: string
@@ -341,17 +363,21 @@ interface BodyFatTileProps {
   labelImport: string
   labelStart: string
   labelProgress: string
+  labelAvg7d: string
+  labelToday: string
   labelNoData: string
 }
 
-function BodyFatTile({ bodyFat, baselineBodyFat, importedAt, labelBodyFat, labelTarget, labelImport, labelStart, labelProgress, labelNoData }: BodyFatTileProps) {
-  const hasBodyFat = bodyFat !== undefined
+function BodyFatTile({ bodyFat, bodyFatAvg7d, bodyFatAvg7dPrev, baselineBodyFat, importedAt, labelBodyFat, labelTarget, labelImport, labelStart, labelProgress, labelAvg7d, labelToday, labelNoData }: BodyFatTileProps) {
+  const display = bodyFatAvg7d ?? bodyFat
+  const hasDisplay = display !== undefined
   const hasBaseline = baselineBodyFat !== undefined
+  const showingAvg = bodyFatAvg7d !== undefined
 
   let pct = 0
-  if (hasBodyFat && hasBaseline) {
+  if (hasDisplay && hasBaseline) {
     const totalNeeded = baselineBodyFat! - TARGET_BODY_FAT_PCT
-    const achieved = baselineBodyFat! - bodyFat!
+    const achieved = baselineBodyFat! - display!
     if (totalNeeded > 0) pct = clampPct((achieved / totalNeeded) * 100)
   }
 
@@ -366,15 +392,27 @@ function BodyFatTile({ bodyFat, baselineBodyFat, importedAt, labelBodyFat, label
         )}
       </div>
 
-      {hasBodyFat ? (
+      {hasDisplay ? (
         <>
           <div className="flex items-end gap-6">
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-5xl font-headline font-bold tracking-tighter leading-none text-on-surface">
-                {bodyFat!.toFixed(1)}
-              </span>
-              <span className="text-sm text-on-surface-variant">%</span>
-              {hasBaseline && <TrendBadge current={bodyFat!} baseline={baselineBodyFat!} unit="%" />}
+            <div>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-5xl font-headline font-bold tracking-tighter leading-none text-on-surface">
+                  {display!.toFixed(1)}
+                </span>
+                <span className="text-sm text-on-surface-variant">%</span>
+                {showingAvg && bodyFatAvg7dPrev !== undefined && (
+                  <TrendBadge current={bodyFatAvg7d!} baseline={bodyFatAvg7dPrev} unit="%" threshold={0.1} />
+                )}
+              </div>
+              {showingAvg && (
+                <p className="text-xs text-on-surface-variant mt-1">
+                  <span className="font-semibold text-on-surface">{labelAvg7d}</span>
+                  {bodyFat !== undefined && (
+                    <> · {labelToday}: <span className="text-on-surface font-semibold">{bodyFat.toFixed(1)} %</span></>
+                  )}
+                </p>
+              )}
             </div>
             <div className="text-right">
               <span className="text-xs text-on-surface-variant">{labelTarget}</span>
@@ -847,6 +885,8 @@ export async function LiveStatus() {
         {/* Row C — Weight & Body Fat */}
         <WeightTile
           weight={metrics.latestWeight}
+          weightAvg7d={metrics.weightAvg7d}
+          weightAvg7dPrev={metrics.weightAvg7dPrev}
           bmi={metrics.latestBmi}
           targetWeight={profile.targetWeight}
           baselineWeight={metrics.baselineWeight}
@@ -857,10 +897,14 @@ export async function LiveStatus() {
           labelImport={t('metricImport')}
           labelStart={t('metricStart')}
           labelProgress={t('metricProgress')}
+          labelAvg7d={t('metricAvg7d')}
+          labelToday={t('metricToday')}
           labelNoData={t('metricNoData')}
         />
         <BodyFatTile
           bodyFat={metrics.latestBodyFat}
+          bodyFatAvg7d={metrics.bodyFatAvg7d}
+          bodyFatAvg7dPrev={metrics.bodyFatAvg7dPrev}
           baselineBodyFat={metrics.baselineBodyFat}
           importedAt={metrics.bodyFatImportedAt}
           labelBodyFat={t('metricBodyFat')}
@@ -868,6 +912,8 @@ export async function LiveStatus() {
           labelImport={t('metricImport')}
           labelStart={t('metricStart')}
           labelProgress={t('metricProgress')}
+          labelAvg7d={t('metricAvg7d')}
+          labelToday={t('metricToday')}
           labelNoData={t('metricNoData')}
         />
 
