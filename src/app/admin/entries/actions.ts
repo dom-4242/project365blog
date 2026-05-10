@@ -4,6 +4,9 @@ import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
 import { translateEntry as translateEntryViaAI } from '@/lib/translate'
+import { generateDailyQuote as generateDailyQuoteAI, type DailyQuoteContext } from '@/lib/daily-quote'
+import { getDayNumber } from '@/lib/journal'
+import { getProjectStartDate } from '@/lib/project-config'
 import { MovementLevel, NutritionLevel, SmokingStatus, EntryType } from '@prisma/client'
 
 export interface EntryFormData {
@@ -20,6 +23,7 @@ export interface EntryFormData {
   tags: string[]
   published: boolean
   privateNotes?: string
+  dailyQuote?: string
 }
 
 export interface ActionResult {
@@ -68,6 +72,7 @@ export async function createEntry(data: EntryFormData): Promise<ActionResult> {
         tags: data.tags,
         published: data.published,
         privateNotes: data.privateNotes?.trim() || null,
+        dailyQuote: data.dailyQuote?.trim() || null,
       },
     })
 
@@ -110,6 +115,7 @@ export async function updateEntry(id: string, data: EntryFormData): Promise<Acti
         tags: data.tags,
         published: data.published,
         privateNotes: data.privateNotes?.trim() || null,
+        dailyQuote: data.dailyQuote?.trim() || null,
       },
     })
 
@@ -138,6 +144,78 @@ export async function deleteEntry(id: string): Promise<ActionResult> {
   } catch (e) {
     console.error('deleteEntry:', e)
     return { error: 'Fehler beim Löschen' }
+  }
+}
+
+export interface QuoteContextInput {
+  date: string // YYYY-MM-DD
+  movement: MovementLevel
+  nutrition: NutritionLevel
+  smoking: SmokingStatus
+}
+
+export interface QuoteResult {
+  quote?: string
+  error?: string
+}
+
+const MOVEMENT_LABELS: Record<MovementLevel, string> = {
+  MINIMAL: 'unter 10k Schritten, kein Training',
+  STEPS_ONLY: '10k+ Schritte, kein Training',
+  TRAINED_ONLY: 'Training absolviert, unter 10k Schritte',
+  STEPS_TRAINED: '10k+ Schritte und Training',
+}
+
+const NUTRITION_LABELS: Record<NutritionLevel, string> = {
+  NONE: 'keine Mahlzeit erfasst',
+  ONE_MEAL: '1 Mahlzeit',
+  TWO_MEALS: '2 Mahlzeiten',
+  THREE_MEALS: '3 Mahlzeiten',
+}
+
+const SMOKING_LABELS: Record<SmokingStatus, string> = {
+  SMOKED: 'geraucht',
+  NICOTINE_REPLACEMENT: 'Nikotinersatz statt Zigarette',
+  SMOKE_FREE: 'rauchfrei ohne Hilfsmittel',
+}
+
+export async function generateQuoteForEntry(input: QuoteContextInput): Promise<QuoteResult> {
+  const session = await requireAdmin()
+  if (!session) return { error: 'Nicht autorisiert' }
+
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return { error: 'ANTHROPIC_API_KEY nicht konfiguriert' }
+  }
+
+  try {
+    const date = new Date(input.date)
+    const [metrics, mealLog, startDate] = await Promise.all([
+      prisma.dailyMetrics.findUnique({
+        where: { date },
+        select: { steps: true, weight: true, bodyFat: true },
+      }),
+      prisma.mealLog.findUnique({ where: { date }, select: { score: true } }),
+      getProjectStartDate(),
+    ])
+
+    const ctx: DailyQuoteContext = {
+      date: input.date,
+      dayNumber: getDayNumber(input.date, startDate),
+      movement: MOVEMENT_LABELS[input.movement],
+      nutrition: NUTRITION_LABELS[input.nutrition],
+      smoking: SMOKING_LABELS[input.smoking],
+      steps: metrics?.steps,
+      weightKg: metrics?.weight,
+      bodyFatPct: metrics?.bodyFat,
+      mealScore: mealLog?.score,
+    }
+
+    const quote = await generateDailyQuoteAI(ctx)
+    return { quote }
+  } catch (e) {
+    console.error('generateQuoteForEntry:', e)
+    const message = e instanceof Error ? e.message : 'Generierung fehlgeschlagen'
+    return { error: message }
   }
 }
 

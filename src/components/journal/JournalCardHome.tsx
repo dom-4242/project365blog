@@ -58,7 +58,13 @@ export async function JournalCardHome({ entry }: JournalCardHomeProps) {
             {entry.title}
           </h2>
 
-          <div className="flex-1" />
+          {entry.dailyQuote ? (
+            <blockquote className="flex-1 border-l-2 border-primary/40 pl-3 py-1 text-sm font-headline italic text-on-surface-variant leading-relaxed line-clamp-4">
+              {entry.dailyQuote}
+            </blockquote>
+          ) : (
+            <div className="flex-1" />
+          )}
         </div>
 
         <div className="px-5 pb-4 pt-3 border-t border-outline-variant/10">
