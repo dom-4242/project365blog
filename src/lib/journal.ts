@@ -169,6 +169,7 @@ export async function getAllEntriesForLocale(locale: string): Promise<JournalEnt
     if (translation) {
       meta.title = translation.title
       if (translation.excerpt) meta.excerpt = translation.excerpt
+      if (translation.dailyQuote) meta.dailyQuote = translation.dailyQuote
     }
     return meta
   })
