@@ -9,7 +9,7 @@ import { TiptapEditor } from './TiptapEditor'
 import { HabitsPicker } from './HabitsPicker'
 import { BannerUpload } from './BannerUpload'
 import { EntryPreview } from './EntryPreview'
-import { createEntry, updateEntry, type EntryFormData } from '@/app/admin/entries/actions'
+import { createEntry, updateEntry, generateQuoteForEntry, type EntryFormData } from '@/app/admin/entries/actions'
 
 // =============================================
 // Helper
@@ -65,8 +65,23 @@ export function EntryForm({ mode, entryId, initial, mealLog }: EntryFormProps) {
   const [tags, setTags] = useState<string>(initial?.tags?.join(', ') ?? '')
   const [published, setPublished] = useState(initial?.published ?? true)
   const [privateNotes, setPrivateNotes] = useState(initial?.privateNotes ?? '')
+  const [dailyQuote, setDailyQuote] = useState(initial?.dailyQuote ?? '')
+  const [quoteLoading, setQuoteLoading] = useState(false)
+  const [quoteError, setQuoteError] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isPreview, setIsPreview] = useState(false)
+
+  async function handleGenerateQuote() {
+    setQuoteLoading(true)
+    setQuoteError(null)
+    const result = await generateQuoteForEntry({ date, movement, nutrition, smoking })
+    setQuoteLoading(false)
+    if (result.error) {
+      setQuoteError(result.error)
+      return
+    }
+    if (result.quote) setDailyQuote(result.quote)
+  }
 
   // Auto-generate slug from date when creating
   function handleDateChange(value: string) {
@@ -94,6 +109,7 @@ export function EntryForm({ mode, entryId, initial, mealLog }: EntryFormProps) {
       tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
       published,
       privateNotes,
+      dailyQuote,
     }
 
     startTransition(async () => {
@@ -280,6 +296,35 @@ export function EntryForm({ mode, entryId, initial, mealLog }: EntryFormProps) {
 
       {/* Banner-Bild */}
       <BannerUpload value={bannerUrl} onChange={setBannerUrl} slug={slug} title={title} excerpt={excerpt} />
+
+      {/* Tageszitat */}
+      <div className="rounded-xl border border-outline-variant/30 bg-surface-container-low p-4 space-y-2">
+        <div className="flex items-center justify-between gap-3">
+          <label className="flex items-center gap-1.5 text-xs font-medium text-on-surface-variant">
+            <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 0" }}>format_quote</span>
+            Tageszitat
+            <span className="font-normal ml-1">— optional, bei Tagesnotizen prominent angezeigt</span>
+          </label>
+          <button
+            type="button"
+            onClick={handleGenerateQuote}
+            disabled={quoteLoading}
+            className="text-xs px-3 py-1.5 border border-outline-variant/40 rounded-lg text-on-surface-variant hover:border-on-surface-variant hover:text-on-surface disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {quoteLoading ? 'Generiere…' : (dailyQuote ? 'Neu generieren' : 'Mit AI generieren')}
+          </button>
+        </div>
+        <textarea
+          value={dailyQuote}
+          onChange={(e) => setDailyQuote(e.target.value)}
+          rows={2}
+          placeholder="Ein kurzer Satz — frei formulierbar oder per AI generieren …"
+          className="w-full border border-outline-variant/30 rounded-lg px-3 py-2 text-sm text-on-surface focus:outline-none focus:border-outline-variant bg-surface-container resize-none"
+        />
+        {quoteError && (
+          <p className="text-xs text-error">{quoteError}</p>
+        )}
+      </div>
 
       {!isFiller && (
         <>

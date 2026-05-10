@@ -29,6 +29,7 @@ export default async function EditEntryPage({ params }: EditEntryPageProps) {
     tags: entry.tags,
     published: entry.published,
     privateNotes: entry.privateNotes ?? '',
+    dailyQuote: entry.dailyQuote ?? '',
   }
 
   return (

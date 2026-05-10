@@ -32,6 +32,7 @@ export interface JournalEntry {
   content: string
   excerpt?: string
   entryType: EntryTypeValue
+  dailyQuote?: string | null
   sweetsConsumed?: boolean | null
   /**
    * Nutrition score (0–10) from the day's MealLog, when one exists. The enum
@@ -98,6 +99,7 @@ function toMeta(entry: PrismaJournalEntry): JournalEntryMeta {
     tags: entry.tags.length > 0 ? entry.tags : undefined,
     excerpt: entry.excerpt ?? undefined,
     entryType: ENTRY_TYPE_TO_VALUE[entry.entryType],
+    dailyQuote: entry.dailyQuote ?? null,
     habits: {
       movement: MOVEMENT_TO_VALUE[entry.movement],
       nutrition: NUTRITION_TO_VALUE[entry.nutrition],

@@ -84,6 +84,12 @@ export async function JournalCard({ entry }: JournalCardProps) {
             {entry.title}
           </h2>
 
+          {entry.dailyQuote && (
+            <blockquote className="border-l-2 border-primary/40 pl-3 py-1 text-sm font-headline italic text-on-surface-variant leading-relaxed">
+              {entry.dailyQuote}
+            </blockquote>
+          )}
+
           <div className="pt-2 border-t border-outline-variant/10">
             <HabitBadges habits={entry.habits} mealScore={entry.mealScore} />
           </div>

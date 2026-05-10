@@ -30,6 +30,10 @@ model JournalEntry {
   // im Feed kompakter dargestellt, Detailview ist nicht erreichbar.
   entryType EntryType @default(FULL)
 
+  // Optionales AI-generiertes Tageszitat. Wird primär auf Filler-Karten
+  // prominent angezeigt; bei vollständigen Einträgen rein dekorativ.
+  dailyQuote String? @db.Text
+
   // Die drei Säulen — direkt eingebettet
   movement  MovementLevel
   nutrition NutritionLevel
