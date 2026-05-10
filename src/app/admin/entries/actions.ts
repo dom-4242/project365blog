@@ -238,36 +238,51 @@ export async function translateEntry(id: string, locale: 'en' | 'pt' = 'en'): Pr
 
   const entry = await prisma.journalEntry.findUnique({ where: { id } })
   if (!entry) return { error: 'Eintrag nicht gefunden' }
-  if (entry.entryType === 'FILLER') {
-    return { error: 'Tagesnotizen werden nicht übersetzt' }
+
+  const isFiller = entry.entryType === 'FILLER'
+  if (isFiller && !entry.dailyQuote) {
+    return { error: 'Tagesnotiz hat kein Zitat zum Übersetzen' }
   }
 
   try {
-    const translated = await translateEntryViaAI({
-      title: entry.title,
-      content: entry.content,
-      excerpt: entry.excerpt,
-    }, locale)
+    const translated = await translateEntryViaAI(
+      isFiller
+        ? { dailyQuote: entry.dailyQuote }
+        : {
+            title: entry.title,
+            content: entry.content,
+            excerpt: entry.excerpt,
+            dailyQuote: entry.dailyQuote,
+          },
+      locale,
+    )
 
+    // Translation rows require title + content (NOT NULL). For fillers we
+    // persist the German auto-title and an empty content body — neither is
+    // ever surfaced because filler detail pages 404.
     await prisma.translation.upsert({
       where: { entryId_locale: { entryId: id, locale } },
       create: {
         entryId: id,
         locale,
-        title: translated.title,
-        content: translated.content,
-        excerpt: translated.excerpt,
+        title: translated.title ?? entry.title,
+        content: translated.content ?? '',
+        excerpt: translated.excerpt ?? null,
+        dailyQuote: translated.dailyQuote ?? null,
       },
       update: {
-        title: translated.title,
-        content: translated.content,
-        excerpt: translated.excerpt,
+        title: translated.title ?? entry.title,
+        content: translated.content ?? '',
+        excerpt: translated.excerpt ?? null,
+        dailyQuote: translated.dailyQuote ?? null,
         updatedAt: new Date(),
       },
     })
 
     revalidatePath('/admin/entries')
     revalidatePath(`/${locale}/journal/${entry.slug}`)
+    revalidatePath(`/${locale}`)
+    revalidatePath(`/${locale}/journal`)
 
     return {}
   } catch (e) {

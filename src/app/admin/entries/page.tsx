@@ -27,6 +27,7 @@ export default async function EntriesPage({ searchParams }: EntriesPageProps) {
         date: true,
         published: true,
         entryType: true,
+        dailyQuote: true,
         updatedAt: true,
         movement: true,
         nutrition: true,
@@ -98,22 +99,22 @@ export default async function EntriesPage({ searchParams }: EntriesPageProps) {
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
+                  {(entry.entryType !== 'FILLER' || entry.dailyQuote) && (
+                    <TranslateButton
+                      id={entry.id}
+                      entryUpdatedAt={entry.updatedAt}
+                      enTranslation={enTranslation}
+                      ptTranslation={ptTranslation}
+                    />
+                  )}
                   {entry.entryType !== 'FILLER' && (
-                    <>
-                      <TranslateButton
-                        id={entry.id}
-                        entryUpdatedAt={entry.updatedAt}
-                        enTranslation={enTranslation}
-                        ptTranslation={ptTranslation}
-                      />
-                      <Link
-                        href={`/journal/${entry.slug}`}
-                        target="_blank"
-                        className="text-xs text-on-surface-variant hover:text-on-surface transition-colors"
-                      >
-                        Ansehen ↗
-                      </Link>
-                    </>
+                    <Link
+                      href={`/journal/${entry.slug}`}
+                      target="_blank"
+                      className="text-xs text-on-surface-variant hover:text-on-surface transition-colors"
+                    >
+                      Ansehen ↗
+                    </Link>
                   )}
                   <Link
                     href={`/admin/entries/${entry.id}/edit`}
