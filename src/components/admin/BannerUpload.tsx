@@ -2,15 +2,27 @@
 
 import { useRef, useState } from 'react'
 
+export interface BannerMetricsContext {
+  date: string
+  movement: 'MINIMAL' | 'STEPS_ONLY' | 'TRAINED_ONLY' | 'STEPS_TRAINED'
+  nutrition: 'NONE' | 'ONE_MEAL' | 'TWO_MEALS' | 'THREE_MEALS'
+  smoking: 'SMOKED' | 'NICOTINE_REPLACEMENT' | 'SMOKE_FREE'
+}
+
 interface BannerUploadProps {
   value: string | undefined
   onChange: (url: string | undefined) => void
   slug: string
   title?: string
   excerpt?: string
+  /**
+   * When set, AI generation uses habits + metrics for that date instead of
+   * the title/excerpt. Used for filler entries where there is no body text.
+   */
+  metricsContext?: BannerMetricsContext
 }
 
-export function BannerUpload({ value, onChange, slug, title, excerpt }: BannerUploadProps) {
+export function BannerUpload({ value, onChange, slug, title, excerpt, metricsContext }: BannerUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [generating, setGenerating] = useState(false)
@@ -55,11 +67,22 @@ export function BannerUpload({ value, onChange, slug, title, excerpt }: BannerUp
     setError(null)
     setGenerating(true)
 
+    const payload = metricsContext
+      ? {
+          mode: 'metrics' as const,
+          slug,
+          date: metricsContext.date,
+          movement: metricsContext.movement,
+          nutrition: metricsContext.nutrition,
+          smoking: metricsContext.smoking,
+        }
+      : { title, excerpt, slug }
+
     try {
       const res = await fetch('/api/admin/generate-banner', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, excerpt, slug }),
+        body: JSON.stringify(payload),
       })
 
       const data = (await res.json()) as { url?: string; error?: string }
@@ -188,7 +211,9 @@ export function BannerUpload({ value, onChange, slug, title, excerpt }: BannerUp
                   />
                 </svg>
                 <span className="text-sm text-tertiary/80 font-medium">AI generieren</span>
-                <span className="text-xs text-on-surface-variant">aus Titel &amp; Inhalt</span>
+                <span className="text-xs text-on-surface-variant">
+                  {metricsContext ? 'aus Säulen & Metriken' : 'aus Titel & Inhalt'}
+                </span>
               </>
             )}
           </button>

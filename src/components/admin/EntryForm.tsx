@@ -294,8 +294,15 @@ export function EntryForm({ mode, entryId, initial, mealLog }: EntryFormProps) {
         )}
       </div>
 
-      {/* Banner-Bild */}
-      <BannerUpload value={bannerUrl} onChange={setBannerUrl} slug={slug} title={title} excerpt={excerpt} />
+      {/* Banner-Bild — Filler nutzt Säulen + Metriken statt Titel/Inhalt für AI */}
+      <BannerUpload
+        value={bannerUrl}
+        onChange={setBannerUrl}
+        slug={slug}
+        title={title}
+        excerpt={excerpt}
+        metricsContext={isFiller ? { date, movement, nutrition, smoking } : undefined}
+      />
 
       {/* Tageszitat */}
       <div className="rounded-xl border border-outline-variant/30 bg-surface-container-low p-4 space-y-2">
