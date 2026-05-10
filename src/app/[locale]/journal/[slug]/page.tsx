@@ -16,7 +16,7 @@ interface JournalPostPageProps {
 
 export async function generateMetadata({ params }: JournalPostPageProps): Promise<Metadata> {
   const result = await getEntryBySlugWithTranslation(params.slug, params.locale)
-  if (!result) return {}
+  if (!result || result.entry.entryType === 'filler') return {}
 
   const { entry, translation } = result
   const useTranslation = params.locale !== 'de' && translation !== null
@@ -45,6 +45,7 @@ export default async function JournalPostPage({ params }: JournalPostPageProps) 
     headers(),
   ])
   if (!result) notFound()
+  if (result.entry.entryType === 'filler') notFound()
 
   const nonce = headersList.get('x-nonce') ?? undefined
   const { entry, translation } = result

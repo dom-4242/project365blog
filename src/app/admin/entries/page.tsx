@@ -26,6 +26,7 @@ export default async function EntriesPage({ searchParams }: EntriesPageProps) {
         title: true,
         date: true,
         published: true,
+        entryType: true,
         updatedAt: true,
         movement: true,
         nutrition: true,
@@ -82,6 +83,11 @@ export default async function EntriesPage({ searchParams }: EntriesPageProps) {
                     <span className="font-headline font-semibold text-on-surface truncate">
                       {entry.title}
                     </span>
+                    {entry.entryType === 'FILLER' && (
+                      <span className="text-xs px-1.5 py-0.5 bg-surface-container-high text-on-surface-variant rounded shrink-0">
+                        Tagesnotiz
+                      </span>
+                    )}
                     {!entry.published && (
                       <span className="text-xs px-1.5 py-0.5 bg-surface-container text-on-surface-variant rounded shrink-0">
                         Entwurf
@@ -92,19 +98,23 @@ export default async function EntriesPage({ searchParams }: EntriesPageProps) {
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
-                  <TranslateButton
-                    id={entry.id}
-                    entryUpdatedAt={entry.updatedAt}
-                    enTranslation={enTranslation}
-                    ptTranslation={ptTranslation}
-                  />
-                  <Link
-                    href={`/journal/${entry.slug}`}
-                    target="_blank"
-                    className="text-xs text-on-surface-variant hover:text-on-surface transition-colors"
-                  >
-                    Ansehen ↗
-                  </Link>
+                  {entry.entryType !== 'FILLER' && (
+                    <>
+                      <TranslateButton
+                        id={entry.id}
+                        entryUpdatedAt={entry.updatedAt}
+                        enTranslation={enTranslation}
+                        ptTranslation={ptTranslation}
+                      />
+                      <Link
+                        href={`/journal/${entry.slug}`}
+                        target="_blank"
+                        className="text-xs text-on-surface-variant hover:text-on-surface transition-colors"
+                      >
+                        Ansehen ↗
+                      </Link>
+                    </>
+                  )}
                   <Link
                     href={`/admin/entries/${entry.id}/edit`}
                     className="text-xs px-3 py-1.5 border border-surface-container-high rounded-lg text-on-surface-variant text-on-surface-variant hover:border-outline hover:border-on-surface-variant hover:text-on-surface transition-colors"

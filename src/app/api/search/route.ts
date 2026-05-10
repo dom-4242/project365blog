@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
     prisma.journalEntry.findMany({
       where: {
         published: true,
+        entryType: 'FULL',
         OR: [
           { title: { contains: q, mode: 'insensitive' } },
           { excerpt: { contains: q, mode: 'insensitive' } },

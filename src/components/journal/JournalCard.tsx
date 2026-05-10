@@ -21,6 +21,7 @@ export async function JournalCard({ entry }: JournalCardProps) {
   const excerpt = entry.excerpt ?? ''
   const dayNumber = getDayNumber(entry.date, startDate)
   const perfect = isPerfectDay(entry.habits, entry.mealScore)
+  const isFiller = entry.entryType === 'filler'
 
   function formatDate(dateStr: string): string {
     return new Date(dateStr).toLocaleDateString(locale, {
@@ -30,12 +31,69 @@ export async function JournalCard({ entry }: JournalCardProps) {
     })
   }
 
+  const articleClass = `group backdrop-blur-xl rounded-xl overflow-hidden transition-colors duration-150 ${
+    perfect
+      ? 'bg-primary/5 border border-primary/40 hover:bg-primary/10 shadow-[0_0_24px_rgba(255,143,112,0.08)]'
+      : 'bg-surface-variant/40 border border-outline-variant/15 hover:bg-surface-variant/60'
+  }`
+
+  if (isFiller) {
+    return (
+      <article className={articleClass}>
+        {entry.banner ? (
+          <div className="relative w-full aspect-[16/7] bg-surface-container overflow-hidden">
+            <BannerImage
+              src={entry.banner}
+              alt={entry.title}
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 800px"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-background/70 to-transparent" />
+          </div>
+        ) : (
+          <div className="relative px-6 pt-5 pb-0 overflow-hidden select-none bg-surface-container-low" aria-hidden="true">
+            <span
+              className="block font-headline font-bold leading-none text-surface-container-highest"
+              style={{ fontSize: 'clamp(4.5rem, 18vw, 7.5rem)' }}
+            >
+              {String(dayNumber).padStart(2, '0')}
+            </span>
+          </div>
+        )}
+
+        <div className="px-5 py-4 space-y-3">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <span className="font-label font-bold text-xs tracking-widest uppercase text-primary bg-primary/10 border border-primary/20 rounded px-2.5 py-0.5">
+              {t('day', { number: dayNumber })}
+            </span>
+            <span className="inline-flex items-center gap-1 text-[10px] font-label font-bold tracking-widest uppercase text-on-surface-variant bg-surface-container-high border border-outline-variant/20 rounded px-2 py-0.5">
+              {t('fillerBadge')}
+            </span>
+            {perfect && (
+              <span className="inline-flex items-center gap-1 text-[10px] font-label font-bold tracking-widest uppercase text-primary bg-primary/10 border border-primary/20 rounded px-2 py-0.5">
+                ✦ {t('perfectDay')}
+              </span>
+            )}
+            <span className="text-outline-variant/60 select-none" aria-hidden="true">·</span>
+            <time className="text-xs font-label text-on-surface-variant" dateTime={entry.date}>
+              {formatDate(entry.date)}
+            </time>
+          </div>
+
+          <h2 className="font-headline text-xl sm:text-2xl font-bold leading-snug text-on-surface">
+            {entry.title}
+          </h2>
+
+          <div className="pt-2 border-t border-outline-variant/10">
+            <HabitBadges habits={entry.habits} mealScore={entry.mealScore} />
+          </div>
+        </div>
+      </article>
+    )
+  }
+
   return (
-    <article className={`group backdrop-blur-xl rounded-xl overflow-hidden transition-colors duration-150 ${
-      perfect
-        ? 'bg-primary/5 border border-primary/40 hover:bg-primary/10 shadow-[0_0_24px_rgba(255,143,112,0.08)]'
-        : 'bg-surface-variant/40 border border-outline-variant/15 hover:bg-surface-variant/60'
-    }`}>
+    <article className={articleClass}>
       <Link href={`/journal/${entry.slug}`} className="block">
 
         {entry.banner ? (

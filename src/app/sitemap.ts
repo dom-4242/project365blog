@@ -6,7 +6,7 @@ import { SITE_URL } from '@/lib/site'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries = await prisma.journalEntry.findMany({
-    where: { published: true },
+    where: { published: true, entryType: 'FULL' },
     orderBy: { date: 'desc' },
     select: {
       slug: true,

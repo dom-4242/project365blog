@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
 import { translateEntry as translateEntryViaAI } from '@/lib/translate'
-import { MovementLevel, NutritionLevel, SmokingStatus } from '@prisma/client'
+import { MovementLevel, NutritionLevel, SmokingStatus, EntryType } from '@prisma/client'
 
 export interface EntryFormData {
   title: string
@@ -13,6 +13,7 @@ export interface EntryFormData {
   content: string
   excerpt: string
   bannerUrl?: string
+  entryType: EntryType
   movement: MovementLevel
   nutrition: NutritionLevel
   smoking: SmokingStatus
@@ -41,7 +42,10 @@ export async function createEntry(data: EntryFormData): Promise<ActionResult> {
   if (!data.title.trim()) return { error: 'Titel ist erforderlich' }
   if (!data.slug.trim()) return { error: 'Slug ist erforderlich' }
   if (!data.date) return { error: 'Datum ist erforderlich' }
-  if (!data.content || data.content === '<p></p>') return { error: 'Inhalt ist erforderlich' }
+  const isFiller = data.entryType === 'FILLER'
+  if (!isFiller && (!data.content || data.content === '<p></p>')) {
+    return { error: 'Inhalt ist erforderlich' }
+  }
 
   const existing = await prisma.journalEntry.findUnique({ where: { slug: data.slug } })
   if (existing) return { error: `Slug „${data.slug}" ist bereits vergeben` }
@@ -52,9 +56,12 @@ export async function createEntry(data: EntryFormData): Promise<ActionResult> {
         title: data.title.trim(),
         slug: data.slug.trim(),
         date: new Date(data.date),
-        content: data.content,
-        excerpt: data.excerpt.trim() || extractExcerpt(data.content),
+        content: isFiller ? '' : data.content,
+        excerpt: isFiller
+          ? data.excerpt.trim() || null
+          : data.excerpt.trim() || extractExcerpt(data.content),
         bannerUrl: data.bannerUrl ?? null,
+        entryType: data.entryType,
         movement: data.movement,
         nutrition: data.nutrition,
         smoking: data.smoking,
@@ -80,7 +87,10 @@ export async function updateEntry(id: string, data: EntryFormData): Promise<Acti
   if (!session) return { error: 'Nicht autorisiert' }
 
   if (!data.title.trim()) return { error: 'Titel ist erforderlich' }
-  if (!data.content || data.content === '<p></p>') return { error: 'Inhalt ist erforderlich' }
+  const isFiller = data.entryType === 'FILLER'
+  if (!isFiller && (!data.content || data.content === '<p></p>')) {
+    return { error: 'Inhalt ist erforderlich' }
+  }
 
   try {
     const entry = await prisma.journalEntry.update({
@@ -88,9 +98,12 @@ export async function updateEntry(id: string, data: EntryFormData): Promise<Acti
       data: {
         title: data.title.trim(),
         date: new Date(data.date),
-        content: data.content,
-        excerpt: data.excerpt.trim() || extractExcerpt(data.content),
+        content: isFiller ? '' : data.content,
+        excerpt: isFiller
+          ? data.excerpt.trim() || null
+          : data.excerpt.trim() || extractExcerpt(data.content),
         bannerUrl: data.bannerUrl ?? null,
+        entryType: data.entryType,
         movement: data.movement,
         nutrition: data.nutrition,
         smoking: data.smoking,
@@ -138,6 +151,9 @@ export async function translateEntry(id: string, locale: 'en' | 'pt' = 'en'): Pr
 
   const entry = await prisma.journalEntry.findUnique({ where: { id } })
   if (!entry) return { error: 'Eintrag nicht gefunden' }
+  if (entry.entryType === 'FILLER') {
+    return { error: 'Tagesnotizen werden nicht übersetzt' }
+  }
 
   try {
     const translated = await translateEntryViaAI({

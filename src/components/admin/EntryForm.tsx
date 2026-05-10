@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { MovementLevel, NutritionLevel, SmokingStatus } from '@prisma/client'
+import { MovementLevel, NutritionLevel, SmokingStatus, EntryType } from '@prisma/client'
 import { scoreToNutritionLevel, type MealLogData } from '@/lib/meal-log'
 import { clsx } from 'clsx'
 import { TiptapEditor } from './TiptapEditor'
@@ -47,8 +47,10 @@ export function EntryForm({ mode, entryId, initial, mealLog }: EntryFormProps) {
   const [title, setTitle] = useState(initial?.title ?? '')
   const [date, setDate] = useState(initial?.date ?? today)
   const [slug, setSlug] = useState(initial?.slug ?? slugFromDate(today))
+  const [entryType, setEntryType] = useState<EntryType>(initial?.entryType ?? 'FULL')
   const [content, setContent] = useState(initial?.content ?? '')
   const [excerpt, setExcerpt] = useState(initial?.excerpt ?? '')
+  const isFiller = entryType === 'FILLER'
   const [movement, setMovement] = useState<MovementLevel>(initial?.movement ?? 'STEPS_ONLY')
   // If the meal log has a score (saved before the entry was created), derive
   // the initial enum value from it instead of falling back to the TWO_MEALS
@@ -82,9 +84,10 @@ export function EntryForm({ mode, entryId, initial, mealLog }: EntryFormProps) {
       title,
       slug,
       date,
-      content,
+      content: isFiller ? '' : content,
       excerpt,
       bannerUrl,
+      entryType,
       movement,
       nutrition,
       smoking,
@@ -102,41 +105,43 @@ export function EntryForm({ mode, entryId, initial, mealLog }: EntryFormProps) {
         return
       }
 
-      router.push(result.slug ? `/journal/${result.slug}` : '/admin/entries')
+      router.push(result.slug && !isFiller ? `/journal/${result.slug}` : '/admin/entries')
     })
   }
 
   return (
     <div className="space-y-4">
-      {/* Editor / Vorschau Toggle */}
-      <div className="flex items-center gap-1 bg-surface-container-low rounded-lg p-1 w-fit">
-        <button
-          type="button"
-          onClick={() => setIsPreview(false)}
-          className={clsx(
-            'px-3 py-1 rounded-md text-sm font-medium transition-colors',
-            !isPreview
-              ? 'bg-surface-container text-on-surface shadow-sm'
-              : 'text-on-surface-variant hover:text-on-surface'
-          )}
-        >
-          Bearbeiten
-        </button>
-        <button
-          type="button"
-          onClick={() => setIsPreview(true)}
-          className={clsx(
-            'px-3 py-1 rounded-md text-sm font-medium transition-colors',
-            isPreview
-              ? 'bg-surface-container text-on-surface shadow-sm'
-              : 'text-on-surface-variant hover:text-on-surface'
-          )}
-        >
-          Vorschau
-        </button>
-      </div>
+      {/* Editor / Vorschau Toggle — nur für vollständige Einträge sinnvoll */}
+      {!isFiller && (
+        <div className="flex items-center gap-1 bg-surface-container-low rounded-lg p-1 w-fit">
+          <button
+            type="button"
+            onClick={() => setIsPreview(false)}
+            className={clsx(
+              'px-3 py-1 rounded-md text-sm font-medium transition-colors',
+              !isPreview
+                ? 'bg-surface-container text-on-surface shadow-sm'
+                : 'text-on-surface-variant hover:text-on-surface'
+            )}
+          >
+            Bearbeiten
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsPreview(true)}
+            className={clsx(
+              'px-3 py-1 rounded-md text-sm font-medium transition-colors',
+              isPreview
+                ? 'bg-surface-container text-on-surface shadow-sm'
+                : 'text-on-surface-variant hover:text-on-surface'
+            )}
+          >
+            Vorschau
+          </button>
+        </div>
+      )}
 
-      {isPreview ? (
+      {isPreview && !isFiller ? (
         <EntryPreview
           title={title}
           date={date}
@@ -237,33 +242,73 @@ export function EntryForm({ mode, entryId, initial, mealLog }: EntryFormProps) {
         />
       </div>
 
+      {/* Eintrag-Typ */}
+      <div>
+        <label className="block text-xs font-medium text-on-surface-variant mb-1.5">Eintrag-Typ</label>
+        <div className="inline-flex items-center gap-1 bg-surface-container-low rounded-lg p-1">
+          <button
+            type="button"
+            onClick={() => setEntryType('FULL')}
+            className={clsx(
+              'px-3 py-1.5 rounded-md text-sm font-medium transition-colors',
+              !isFiller
+                ? 'bg-surface-container text-on-surface shadow-sm'
+                : 'text-on-surface-variant hover:text-on-surface'
+            )}
+          >
+            Vollständiger Eintrag
+          </button>
+          <button
+            type="button"
+            onClick={() => setEntryType('FILLER')}
+            className={clsx(
+              'px-3 py-1.5 rounded-md text-sm font-medium transition-colors',
+              isFiller
+                ? 'bg-surface-container text-on-surface shadow-sm'
+                : 'text-on-surface-variant hover:text-on-surface'
+            )}
+          >
+            Tagesnotiz
+          </button>
+        </div>
+        {isFiller && (
+          <p className="text-xs text-on-surface-variant mt-1.5">
+            Tagesnotiz: kein Blogtext, kein Detailview, nicht übersetzt. Nur Banner, Säulen und Metadaten.
+          </p>
+        )}
+      </div>
+
       {/* Banner-Bild */}
       <BannerUpload value={bannerUrl} onChange={setBannerUrl} slug={slug} title={title} excerpt={excerpt} />
 
-      {/* Tiptap Editor */}
-      <div>
-        <label className="block text-xs font-medium text-on-surface-variant mb-1">Inhalt</label>
-        <TiptapEditor
-          content={content}
-          onChange={setContent}
-          placeholder="Schreibe deinen heutigen Eintrag..."
-        />
-      </div>
+      {!isFiller && (
+        <>
+          {/* Tiptap Editor */}
+          <div>
+            <label className="block text-xs font-medium text-on-surface-variant mb-1">Inhalt</label>
+            <TiptapEditor
+              content={content}
+              onChange={setContent}
+              placeholder="Schreibe deinen heutigen Eintrag..."
+            />
+          </div>
 
-      {/* Excerpt */}
-      <div>
-        <label className="block text-xs font-medium text-on-surface-variant mb-1">
-          Kurzbeschreibung{' '}
-          <span className="text-on-surface-variant font-normal">(optional — für SEO, RSS, Suche &amp; Feed-Vorschau; wird sonst automatisch generiert)</span>
-        </label>
-        <textarea
-          value={excerpt}
-          onChange={(e) => setExcerpt(e.target.value)}
-          rows={2}
-          placeholder="1–2 Sätze, die den Eintrag zusammenfassen..."
-          className="w-full border border-surface-container-high rounded-lg px-3 py-2 text-sm text-on-surface focus:outline-none focus:border-on-surface-variant bg-surface-container resize-none"
-        />
-      </div>
+          {/* Excerpt */}
+          <div>
+            <label className="block text-xs font-medium text-on-surface-variant mb-1">
+              Kurzbeschreibung{' '}
+              <span className="text-on-surface-variant font-normal">(optional — für SEO, RSS, Suche &amp; Feed-Vorschau; wird sonst automatisch generiert)</span>
+            </label>
+            <textarea
+              value={excerpt}
+              onChange={(e) => setExcerpt(e.target.value)}
+              rows={2}
+              placeholder="1–2 Sätze, die den Eintrag zusammenfassen..."
+              className="w-full border border-surface-container-high rounded-lg px-3 py-2 text-sm text-on-surface focus:outline-none focus:border-on-surface-variant bg-surface-container resize-none"
+            />
+          </div>
+        </>
+      )}
 
       {/* Private Notizen */}
       <div className="rounded-xl border border-dashed border-outline-variant bg-surface-container-low p-4 space-y-2">

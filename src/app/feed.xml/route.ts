@@ -16,6 +16,7 @@ export async function GET() {
   const entries = await getAllEntries()
 
   const items = entries
+    .filter((entry) => entry.entryType !== 'filler')
     .map((entry) => {
       const url = `${SITE_URL}/journal/${entry.slug}`
       const pubDate = new Date(entry.date).toUTCString()
