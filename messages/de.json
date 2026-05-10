@@ -49,6 +49,8 @@
     "metricStart": "Start",
     "metricProgress": "vom Weg geschafft",
     "metricImport": "Import",
+    "metricAvg7d": "Ø 7 Tage",
+    "metricToday": "Heute",
     "metricSweets": "Süssigkeiten-Freie-Serie",
     "metricNutritionScore": "Ernährungs-Score",
     "metricMealAverages": "Ø Score pro Mahlzeit (30T)",

@@ -4,6 +4,10 @@ export interface MetricsSummary {
   latestWeight?: number
   latestBodyFat?: number
   latestBmi?: number
+  weightAvg7d?: number
+  weightAvg7dPrev?: number
+  bodyFatAvg7d?: number
+  bodyFatAvg7dPrev?: number
   avgSteps30d?: number
   lastSyncDate?: Date
   weightImportedAt?: Date
@@ -13,11 +17,29 @@ export interface MetricsSummary {
   baselineBodyFat?: number
 }
 
+function average(values: number[]): number | undefined {
+  if (values.length === 0) return undefined
+  return values.reduce((s, v) => s + v, 0) / values.length
+}
+
+function startOfDayUTC(d: Date): Date {
+  const x = new Date(d)
+  x.setUTCHours(0, 0, 0, 0)
+  return x
+}
+
 export async function getLatestMetrics(projectStartDate?: string): Promise<MetricsSummary> {
   const startDate = projectStartDate ? new Date(projectStartDate) : new Date('2020-01-01')
 
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+  // 14-day window for rolling weight/body-fat averages (current 7d + prior 7d)
+  const today = startOfDayUTC(new Date())
+  const fourteenDaysAgo = new Date(today)
+  fourteenDaysAgo.setUTCDate(fourteenDaysAgo.getUTCDate() - 13)
+  const sevenDaysAgo = new Date(today)
+  sevenDaysAgo.setUTCDate(sevenDaysAgo.getUTCDate() - 6)
 
   const [
     latestWeightRow,
@@ -26,6 +48,8 @@ export async function getLatestMetrics(projectStartDate?: string): Promise<Metri
     baselineWeightRow,
     baselineBodyFatRow,
     stepsData,
+    recentWeightRows,
+    recentBodyFatRows,
   ] = await Promise.all([
     prisma.dailyMetrics.findFirst({
       orderBy: { date: 'desc' },
@@ -56,6 +80,14 @@ export async function getLatestMetrics(projectStartDate?: string): Promise<Metri
       where: { date: { gte: thirtyDaysAgo }, steps: { not: null } },
       select: { steps: true },
     }),
+    prisma.dailyMetrics.findMany({
+      where: { date: { gte: fourteenDaysAgo }, weight: { not: null } },
+      select: { date: true, weight: true },
+    }),
+    prisma.dailyMetrics.findMany({
+      where: { date: { gte: fourteenDaysAgo }, bodyFat: { not: null } },
+      select: { date: true, bodyFat: true },
+    }),
   ])
 
   // Fall back to absolute first record when projectStartDate is set to a future
@@ -82,10 +114,27 @@ export async function getLatestMetrics(projectStartDate?: string): Promise<Metri
       ? Math.round(stepsData.reduce((s, d) => s + (d.steps ?? 0), 0) / stepsData.length)
       : undefined
 
+  const weightCurrent = recentWeightRows
+    .filter((r) => r.date >= sevenDaysAgo)
+    .map((r) => r.weight as number)
+  const weightPrior = recentWeightRows
+    .filter((r) => r.date < sevenDaysAgo)
+    .map((r) => r.weight as number)
+  const bodyFatCurrent = recentBodyFatRows
+    .filter((r) => r.date >= sevenDaysAgo)
+    .map((r) => r.bodyFat as number)
+  const bodyFatPrior = recentBodyFatRows
+    .filter((r) => r.date < sevenDaysAgo)
+    .map((r) => r.bodyFat as number)
+
   return {
     latestWeight: latestWeightRow?.weight ?? undefined,
     latestBodyFat: latestBodyFatRow?.bodyFat ?? undefined,
     latestBmi: latestWeightRow?.bmi ?? undefined,
+    weightAvg7d: average(weightCurrent),
+    weightAvg7dPrev: average(weightPrior),
+    bodyFatAvg7d: average(bodyFatCurrent),
+    bodyFatAvg7dPrev: average(bodyFatPrior),
     avgSteps30d: avgSteps,
     lastSyncDate: latestStepsRow?.date ?? undefined,
     weightImportedAt: latestWeightRow?.updatedAt ?? undefined,
