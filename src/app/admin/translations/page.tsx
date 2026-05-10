@@ -54,6 +54,7 @@ function formatDate(date: Date): string {
 export default async function TranslationsPage() {
   const [entries, startDate] = await Promise.all([
     prisma.journalEntry.findMany({
+      where: { entryType: 'FULL' },
       orderBy: { date: 'desc' },
       select: {
         id: true,

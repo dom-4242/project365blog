@@ -181,7 +181,8 @@
   "JournalCard": {
     "day": "Tag {number}",
     "readMore": "Weiterlesen →",
-    "perfectDay": "Perfekter Tag"
+    "perfectDay": "Perfekter Tag",
+    "fillerBadge": "Tagesnotiz"
   },
   "SearchModal": {
     "ariaLabel": "Suchen",

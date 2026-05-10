@@ -22,6 +22,7 @@ export default async function EditEntryPage({ params }: EditEntryPageProps) {
     content: entry.content,
     excerpt: entry.excerpt ?? '',
     bannerUrl: entry.bannerUrl ?? undefined,
+    entryType: entry.entryType,
     movement: entry.movement,
     nutrition: entry.nutrition,
     smoking: entry.smoking,

@@ -178,7 +178,8 @@
   "JournalCard": {
     "day": "Dia {number}",
     "readMore": "Ler mais →",
-    "perfectDay": "Dia Perfeito"
+    "perfectDay": "Dia Perfeito",
+    "fillerBadge": "Nota do dia"
   },
   "SearchModal": {
     "ariaLabel": "Pesquisar",

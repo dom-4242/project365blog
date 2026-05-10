@@ -1,4 +1,4 @@
-import { MovementLevel, NutritionLevel, SmokingStatus } from '@prisma/client'
+import { MovementLevel, NutritionLevel, SmokingStatus, EntryType } from '@prisma/client'
 import type { JournalEntry as PrismaJournalEntry } from '@prisma/client'
 import { prisma } from './db'
 
@@ -13,6 +13,7 @@ const PROJECT_START = new Date('2026-03-26')
 export type MovementValue = 'minimal' | 'steps_only' | 'trained_only' | 'steps_trained'
 export type NutritionValue = 'none' | 'one_meal' | 'two_meals' | 'three_meals'
 export type SmokingValue = 'smoked' | 'nicotine_replacement' | 'smoke_free'
+export type EntryTypeValue = 'full' | 'filler'
 
 export interface HabitsFrontmatter {
   movement: MovementValue
@@ -30,6 +31,7 @@ export interface JournalEntry {
   habits: HabitsFrontmatter
   content: string
   excerpt?: string
+  entryType: EntryTypeValue
   sweetsConsumed?: boolean | null
   /**
    * Nutrition score (0–10) from the day's MealLog, when one exists. The enum
@@ -67,6 +69,11 @@ const SMOKING_TO_VALUE: Record<SmokingStatus, SmokingValue> = {
   SMOKE_FREE: 'smoke_free',
 }
 
+const ENTRY_TYPE_TO_VALUE: Record<EntryType, EntryTypeValue> = {
+  FULL: 'full',
+  FILLER: 'filler',
+}
+
 function toDateString(date: Date): string {
   return date.toISOString().slice(0, 10)
 }
@@ -90,6 +97,7 @@ function toMeta(entry: PrismaJournalEntry): JournalEntryMeta {
     banner: entry.bannerUrl ?? undefined,
     tags: entry.tags.length > 0 ? entry.tags : undefined,
     excerpt: entry.excerpt ?? undefined,
+    entryType: ENTRY_TYPE_TO_VALUE[entry.entryType],
     habits: {
       movement: MOVEMENT_TO_VALUE[entry.movement],
       nutrition: NUTRITION_TO_VALUE[entry.nutrition],

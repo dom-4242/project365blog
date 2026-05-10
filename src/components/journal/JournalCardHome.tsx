@@ -18,6 +18,7 @@ export async function JournalCardHome({ entry }: JournalCardHomeProps) {
 
   const dayNumber = getDayNumber(entry.date, startDate)
   const perfect = isPerfectDay(entry.habits, entry.mealScore)
+  const isFiller = entry.entryType === 'filler'
 
   const formattedDate = new Date(entry.date).toLocaleDateString(locale, {
     day: 'numeric',
@@ -25,12 +26,50 @@ export async function JournalCardHome({ entry }: JournalCardHomeProps) {
     year: 'numeric',
   })
 
+  const articleClass = `group flex flex-col backdrop-blur-xl rounded-xl overflow-hidden transition-colors duration-150 ${
+    perfect
+      ? 'bg-primary/5 border border-primary/40 hover:bg-primary/10 shadow-[0_0_24px_rgba(255,143,112,0.08)]'
+      : 'bg-surface-variant/40 border border-outline-variant/15 hover:bg-surface-variant/60'
+  }`
+
+  if (isFiller) {
+    return (
+      <article className={articleClass}>
+        <div className="flex flex-col flex-1 p-5 gap-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="inline-flex items-center gap-1 text-[10px] font-label font-bold tracking-widest uppercase text-on-surface-variant bg-surface-container-high border border-outline-variant/20 rounded px-2 py-0.5 mr-1">
+              {t('fillerBadge')}
+            </span>
+            {perfect && (
+              <span className="inline-flex items-center gap-1 text-[10px] font-label font-bold tracking-widest uppercase text-primary bg-primary/10 border border-primary/20 rounded px-2 py-0.5">
+                ✦ {t('perfectDay')}
+              </span>
+            )}
+            <span className="text-xs font-label font-bold tracking-widest uppercase text-outline">
+              {t('day', { number: dayNumber })}
+            </span>
+            <span className="text-outline-variant/60" aria-hidden="true">·</span>
+            <time className="text-xs font-label tracking-widest uppercase text-outline" dateTime={entry.date}>
+              {formattedDate}
+            </time>
+          </div>
+
+          <h2 className="text-2xl font-headline font-bold text-on-surface line-clamp-2">
+            {entry.title}
+          </h2>
+
+          <div className="flex-1" />
+        </div>
+
+        <div className="px-5 pb-4 pt-3 border-t border-outline-variant/10">
+          <ReactionBarCompact slug={entry.slug} />
+        </div>
+      </article>
+    )
+  }
+
   return (
-    <article className={`group flex flex-col backdrop-blur-xl rounded-xl overflow-hidden transition-colors duration-150 ${
-      perfect
-        ? 'bg-primary/5 border border-primary/40 hover:bg-primary/10 shadow-[0_0_24px_rgba(255,143,112,0.08)]'
-        : 'bg-surface-variant/40 border border-outline-variant/15 hover:bg-surface-variant/60'
-    }`}>
+    <article className={articleClass}>
       <Link href={`/journal/${entry.slug}`} className="flex flex-col flex-1 p-5 gap-3">
 
         {/* Date + Day number */}

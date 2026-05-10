@@ -26,6 +26,10 @@ model JournalEntry {
   date      DateTime @db.Date
   published Boolean  @default(true)
 
+  // FULL = klassischer Blog-Eintrag mit Text. FILLER = Tagesnotiz ohne Text;
+  // im Feed kompakter dargestellt, Detailview ist nicht erreichbar.
+  entryType EntryType @default(FULL)
+
   // Die drei Säulen — direkt eingebettet
   movement  MovementLevel
   nutrition NutritionLevel
@@ -84,6 +88,11 @@ enum SmokingStatus {
   SMOKED
   NICOTINE_REPLACEMENT
   SMOKE_FREE
+}
+
+enum EntryType {
+  FULL
+  FILLER
 }
 
 // =============================================
