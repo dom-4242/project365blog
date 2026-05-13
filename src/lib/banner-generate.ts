@@ -87,16 +87,15 @@ The image should feel personal, introspective, and visually match the emotional 
 
 async function generateFromPrompt(prompt: string): Promise<Buffer> {
   const response = await getClient().images.generate({
-    model: 'dall-e-3',
+    model: 'gpt-image-1-mini',
     prompt,
     n: 1,
-    size: '1792x1024',
-    quality: 'standard',
-    response_format: 'b64_json',
+    size: '1536x1024',
+    quality: 'medium',
   })
 
   const b64 = response.data?.[0]?.b64_json
-  if (!b64) throw new Error('DALL-E hat kein Bild zurückgegeben')
+  if (!b64) throw new Error('Image-Model hat kein Bild zurückgegeben')
 
   return Buffer.from(b64, 'base64')
 }
