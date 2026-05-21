@@ -1,12 +1,3 @@
-import OpenAI from 'openai'
-
-function getClient(): OpenAI {
-  if (!process.env.OPENAI_API_KEY) {
-    throw new Error('OPENAI_API_KEY nicht konfiguriert')
-  }
-  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-}
-
 export interface MetricsBannerContext {
   dayNumber?: number
   movement: 'MINIMAL' | 'STEPS_ONLY' | 'TRAINED_ONLY' | 'STEPS_TRAINED'
@@ -41,63 +32,101 @@ function moodForSmoking(level: MetricsBannerContext['smoking']): string {
   return 'gravity, return, lingering weight'
 }
 
+// Rotierende Stil-Modifikatoren — bringen Variation bei gleichem Grundstil.
+const STYLE_VARIATIONS = [
+  'caustic light filtering through haze, painterly impasto textures',
+  'volumetric fog, long-exposure motion blur, soft chromatic bleed',
+  'rim-lit silhouettes of abstract shapes, deep negative space',
+  'dust particles drifting in directional light, grainy film texture',
+  'liquid metal reflections, glassy refractions, prismatic edges',
+  'wind-swept smoke trails, dynamic diagonal composition',
+  'molten lava-like gradients, ember glow, charred edges',
+  'crystalline shard patterns, sharp specular highlights',
+  'oil-on-water iridescence, blooming light spills',
+  'wet ink bleeding on dark paper, organic flowing forms',
+  'soft focus bokeh orbs, dreamlike atmospheric depth',
+  'torn paper layers, collage texture, brutalist composition',
+]
+
+function pickStyle(seed: number): string {
+  return STYLE_VARIATIONS[seed % STYLE_VARIATIONS.length]
+}
+
 function buildMetricsPrompt(ctx: MetricsBannerContext): string {
   const moods = [
     moodForMovement(ctx.movement, ctx.steps),
     moodForNutrition(ctx.nutrition, ctx.mealScore),
     moodForSmoking(ctx.smoking),
   ]
+  const variation = pickStyle(ctx.dayNumber ?? Math.floor(Date.now() / 86_400_000))
 
-  return `Create a wide cinematic abstract banner image for ${
+  return `Wide cinematic abstract banner for ${
     ctx.dayNumber ? `day ${ctx.dayNumber} of ` : ''
   }a personal habit-tracking journey.
 
-Mood signals for today: ${moods.join('; ')}.
+Mood signals: ${moods.join('; ')}.
 
-Style requirements:
-- Dark, moody atmosphere with deep blacks and dark grays as the base
-- Warm accent lighting in orange (#ff8f70) and coral tones
-- Cinematic wide-format composition (horizontal, landscape orientation)
-- Pure abstract — no figures, no objects, no text, no letters, no symbols
-- Dramatic light, shadow, gradients, atmospheric haze, painterly textures
-- Minimal, introspective, reminiscent of dark editorial photography and abstract digital art
-- Inspired by: cinematic stills, light studies, atmospheric paintings
+Visual treatment: ${variation}.
 
-Translate the mood signals into pure atmosphere — let light, color and texture express the emotional weight of those signals without depicting anything literal.`
+Core style: dark moody atmosphere, deep blacks and dark grays base, warm accent lighting in orange (#ff8f70) and coral tones, cinematic horizontal landscape composition, dramatic light and shadow, painterly textures, atmospheric haze, editorial photography sensibility. Pure abstract — no figures, no objects, no text, no letters, no symbols. Translate the mood signals into pure atmosphere through light, color, and texture.`
 }
 
 function buildPrompt(title: string, excerpt: string): string {
-  return `Create a wide cinematic banner image for a personal journal entry.
+  const variation = pickStyle(hashString(title))
 
-Journal title: "${title}"
+  return `Wide cinematic banner image for a personal journal entry.
+
+Title: "${title}"
 ${excerpt ? `Summary: "${excerpt}"` : ''}
 
-Style requirements:
-- Dark, moody atmosphere with deep blacks and dark grays as the base
-- Warm accent lighting in orange (#ff8f70) and coral tones
-- Cinematic wide-format composition (horizontal, landscape orientation)
-- Abstract or semi-abstract — evoke the mood and theme of the text, NOT literal illustration
-- Dramatic use of light, shadow, and depth
-- Minimal, clean — no text, no words, no letters in the image
-- Subtle textures, gradients, atmospheric haze
-- Inspired by: dark editorial photography, abstract digital art, cinematic stills
+Visual treatment: ${variation}.
 
-The image should feel personal, introspective, and visually match the emotional tone of the journal entry.`
+Core style: dark moody atmosphere, deep blacks and dark grays base, warm accent lighting in orange (#ff8f70) and coral tones, cinematic horizontal landscape composition, abstract or semi-abstract (evoke mood, not literal illustration), dramatic light and shadow, painterly textures, atmospheric haze, editorial photography sensibility. No text, no letters, no words in the image. Should feel personal, introspective, and emotionally aligned with the entry.`
+}
+
+function hashString(s: string): number {
+  let h = 0
+  for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0
+  return Math.abs(h)
+}
+
+interface FalImageResult {
+  images?: Array<{ url: string }>
+  detail?: string
 }
 
 async function generateFromPrompt(prompt: string): Promise<Buffer> {
-  const response = await getClient().images.generate({
-    model: 'gpt-image-1-mini',
-    prompt,
-    n: 1,
-    size: '1536x1024',
-    quality: 'medium',
+  const key = process.env.FAL_KEY
+  if (!key) throw new Error('FAL_KEY nicht konfiguriert')
+
+  const res = await fetch('https://fal.run/fal-ai/flux-pro/v1.1', {
+    method: 'POST',
+    headers: {
+      Authorization: `Key ${key}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      prompt,
+      image_size: 'landscape_16_9',
+      num_images: 1,
+      enable_safety_checker: true,
+      output_format: 'jpeg',
+    }),
   })
 
-  const b64 = response.data?.[0]?.b64_json
-  if (!b64) throw new Error('Image-Model hat kein Bild zurückgegeben')
+  if (!res.ok) {
+    const text = await res.text().catch(() => '')
+    throw new Error(`fal.ai FLUX request failed: ${res.status} ${text.slice(0, 200)}`)
+  }
 
-  return Buffer.from(b64, 'base64')
+  const json = (await res.json()) as FalImageResult
+  const url = json.images?.[0]?.url
+  if (!url) throw new Error(`fal.ai response without image url: ${JSON.stringify(json).slice(0, 200)}`)
+
+  const imgRes = await fetch(url)
+  if (!imgRes.ok) throw new Error(`Fetching generated image failed: ${imgRes.status}`)
+  const arr = await imgRes.arrayBuffer()
+  return Buffer.from(arr)
 }
 
 export async function generateBannerImage(title: string, excerpt: string): Promise<Buffer> {
@@ -107,6 +136,3 @@ export async function generateBannerImage(title: string, excerpt: string): Promi
 export async function generateBannerFromMetrics(ctx: MetricsBannerContext): Promise<Buffer> {
   return generateFromPrompt(buildMetricsPrompt(ctx))
 }
-
-// Legacy SVG-Generator — wird nicht mehr verwendet, bleibt für Fallback
-export { generateBannerImage as generateBannerSvg }
