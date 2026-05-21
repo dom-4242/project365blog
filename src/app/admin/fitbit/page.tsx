@@ -20,6 +20,35 @@ function ConfigBadge({ ok, label }: { ok: boolean; label: string }) {
   )
 }
 
+type SyncLogRow = Awaited<ReturnType<typeof prisma.fitbitSyncLog.findMany>>[number]
+
+interface SyncRunGroup {
+  syncedAt: Date
+  triggeredBy: SyncLogRow['triggeredBy']
+  rows: SyncLogRow[]
+}
+
+// Fasse aufeinanderfolgende CRON-Logs innerhalb von 5 s zu einem Lauf zusammen
+// (der Cron triggert pro Ausführung Sync für gestern und heute → 2 Rows).
+function groupSyncRuns(rows: SyncLogRow[]): SyncRunGroup[] {
+  const groups: SyncRunGroup[] = []
+  for (const row of rows) {
+    const last = groups[groups.length - 1]
+    const sameRun =
+      last &&
+      last.triggeredBy === 'CRON' &&
+      row.triggeredBy === 'CRON' &&
+      Math.abs(last.syncedAt.getTime() - row.syncedAt.getTime()) <= 5000
+    if (sameRun) {
+      last.rows.push(row)
+      if (row.syncedAt < last.syncedAt) last.syncedAt = row.syncedAt
+    } else {
+      groups.push({ syncedAt: row.syncedAt, triggeredBy: row.triggeredBy, rows: [row] })
+    }
+  }
+  return groups
+}
+
 function buildFitbitAuthUrl(baseUrl: string): string {
   const clientId = process.env.FITBIT_CLIENT_ID ?? ''
   const redirectUri = `${baseUrl}/api/fitbit/callback`
@@ -60,9 +89,11 @@ export default async function FitbitPage({
     }),
     prisma.fitbitSyncLog.findMany({
       orderBy: { syncedAt: 'desc' },
-      take: 30,
+      take: 60,
     }),
   ])
+
+  const groupedSyncLog = groupSyncRuns(syncLog)
 
   return (
     <div className="space-y-8">
@@ -119,7 +150,7 @@ export default async function FitbitPage({
 
       <section>
         <h2 className="text-xs font-semibold text-on-surface-variant uppercase tracking-wide mb-3">Sync Log</h2>
-        {syncLog.length === 0 ? (
+        {groupedSyncLog.length === 0 ? (
           <p className="text-sm text-on-surface-variant">Noch keine Sync-Ausführungen protokolliert.</p>
         ) : (
           <div className="bg-surface-container rounded-2xl border border-surface-container-high overflow-hidden">
@@ -129,7 +160,7 @@ export default async function FitbitPage({
                   <tr className="border-b border-surface-container text-on-surface-variant text-left">
                     <th className="px-4 py-3 font-medium">Zeitpunkt</th>
                     <th className="px-4 py-3 font-medium">Trigger</th>
-                    <th className="px-4 py-3 font-medium">Tag</th>
+                    <th className="px-4 py-3 font-medium">Tage</th>
                     <th className="px-4 py-3 font-medium">Status</th>
                     <th className="px-4 py-3 font-medium">Gewicht</th>
                     <th className="px-4 py-3 font-medium">Körperfett</th>
@@ -139,42 +170,73 @@ export default async function FitbitPage({
                   </tr>
                 </thead>
                 <tbody>
-                  {syncLog.map((entry) => (
-                    <tr
-                      key={entry.id}
-                      className="border-b border-surface-container last:border-0 hover:bg-surface-container transition-colors"
-                    >
-                      <td className="px-4 py-3 font-mono text-on-surface-variant whitespace-nowrap">
-                        {entry.syncedAt.toLocaleString('de-CH', {
-                          day: '2-digit', month: '2-digit', year: 'numeric',
-                          hour: '2-digit', minute: '2-digit',
-                          timeZone: 'Europe/Zurich',
-                        })}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`font-label font-bold tracking-widest uppercase text-xs px-1.5 py-0.5 rounded ${
-                          entry.triggeredBy === 'CRON'
-                            ? 'bg-surface-container-high text-on-surface-variant'
-                            : 'bg-primary/10 text-primary'
-                        }`}>
-                          {entry.triggeredBy}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 font-mono text-on-surface">{entry.syncDate}</td>
-                      <td className="px-4 py-3">
-                        {entry.status === 'SUCCESS' ? (
-                          <span className="text-movement-400">✓ OK</span>
-                        ) : (
-                          <span className="text-error" title={entry.errorMessage ?? undefined}>✗ Fehler</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-on-surface">{entry.weight != null ? `${entry.weight} kg` : '—'}</td>
-                      <td className="px-4 py-3 text-on-surface">{entry.bodyFat != null ? `${entry.bodyFat}%` : '—'}</td>
-                      <td className="px-4 py-3 text-on-surface">{entry.activeMinutes != null ? `${entry.activeMinutes} min` : '—'}</td>
-                      <td className="px-4 py-3 text-on-surface">{entry.caloriesBurned != null ? entry.caloriesBurned : '—'}</td>
-                      <td className="px-4 py-3 text-on-surface-variant">{entry.tokensRefreshed ? '↺' : '—'}</td>
-                    </tr>
-                  ))}
+                  {groupedSyncLog.map((group) => {
+                    const sortedRows = [...group.rows].sort((a, b) => a.syncDate.localeCompare(b.syncDate))
+                    const successRows = sortedRows.filter((r) => r.status === 'SUCCESS')
+                    const errorRows = sortedRows.filter((r) => r.status !== 'SUCCESS')
+                    const displayRow = successRows[successRows.length - 1] ?? sortedRows[sortedRows.length - 1]
+                    const tokensRefreshed = sortedRows.some((r) => r.tokensRefreshed)
+                    const groupKey = sortedRows.map((r) => r.id).join('|')
+                    const statusOk = errorRows.length === 0
+                    const errorTitle = errorRows
+                      .map((r) => `${r.syncDate}: ${r.errorMessage ?? 'Fehler'}`)
+                      .join('\n')
+
+                    return (
+                      <tr
+                        key={groupKey}
+                        className="border-b border-surface-container last:border-0 hover:bg-surface-container transition-colors"
+                      >
+                        <td className="px-4 py-3 font-mono text-on-surface-variant whitespace-nowrap">
+                          {group.syncedAt.toLocaleString('de-CH', {
+                            day: '2-digit', month: '2-digit', year: 'numeric',
+                            hour: '2-digit', minute: '2-digit',
+                            timeZone: 'Europe/Zurich',
+                          })}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`font-label font-bold tracking-widest uppercase text-xs px-1.5 py-0.5 rounded ${
+                            group.triggeredBy === 'CRON'
+                              ? 'bg-surface-container-high text-on-surface-variant'
+                              : 'bg-primary/10 text-primary'
+                          }`}>
+                            {group.triggeredBy}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 font-mono text-on-surface">
+                          <div className="flex flex-wrap gap-1">
+                            {sortedRows.map((r) => (
+                              <span
+                                key={r.id}
+                                className={`px-1.5 py-0.5 rounded ${
+                                  r.status === 'SUCCESS'
+                                    ? 'bg-surface-container-high'
+                                    : 'bg-error/10 text-error'
+                                }`}
+                                title={r.status !== 'SUCCESS' ? r.errorMessage ?? undefined : undefined}
+                              >
+                                {r.syncDate}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          {statusOk ? (
+                            <span className="text-movement-400">✓ OK</span>
+                          ) : (
+                            <span className="text-error" title={errorTitle || undefined}>
+                              ✗ {errorRows.length}/{sortedRows.length}
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-on-surface">{displayRow.weight != null ? `${displayRow.weight} kg` : '—'}</td>
+                        <td className="px-4 py-3 text-on-surface">{displayRow.bodyFat != null ? `${displayRow.bodyFat}%` : '—'}</td>
+                        <td className="px-4 py-3 text-on-surface">{displayRow.activeMinutes != null ? `${displayRow.activeMinutes} min` : '—'}</td>
+                        <td className="px-4 py-3 text-on-surface">{displayRow.caloriesBurned != null ? displayRow.caloriesBurned : '—'}</td>
+                        <td className="px-4 py-3 text-on-surface-variant">{tokensRefreshed ? '↺' : '—'}</td>
+                      </tr>
+                    )
+                  })}
                 </tbody>
               </table>
             </div>
