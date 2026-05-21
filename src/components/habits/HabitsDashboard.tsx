@@ -2,7 +2,6 @@ import { getTranslations } from 'next-intl/server'
 import { getAllEntries } from '@/lib/journal'
 import { getProjectStartDate } from '@/lib/project-config'
 import {
-  calculateStreak,
   isMovementFulfilled,
   isNutritionFulfilled,
   isSmokingFulfilled,
@@ -51,13 +50,19 @@ export async function HabitsDashboard() {
     level: entryMap.has(date) ? getSmokingLevel(entryMap.get(date)!.habits.smoking) : -1,
   }))
 
-  const movementStreak = calculateStreak(entries.map((e) => isMovementFulfilled(e.habits.movement)))
-  const nutritionStreak = calculateStreak(entries.map((e) => isNutritionFulfilled(e.habits.nutrition, e.mealScore)))
-  const smokingStreak = calculateStreak(entries.map((e) => isSmokingFulfilled(e.habits.smoking)))
-
   const movementFulfilled = entries.filter((e) => isMovementFulfilled(e.habits.movement)).length
   const nutritionFulfilled = entries.filter((e) => isNutritionFulfilled(e.habits.nutrition, e.mealScore)).length
   const smokingFulfilled = entries.filter((e) => isSmokingFulfilled(e.habits.smoking)).length
+
+  // Letzte 30 Tage (Tage mit Eintrag, max 30 jüngste)
+  const cutoff = new Date()
+  cutoff.setDate(cutoff.getDate() - 29)
+  const cutoffISO = cutoff.toISOString().slice(0, 10)
+  const recent = entries.filter((e) => e.date >= cutoffISO)
+  const recentTotal = recent.length
+  const movementRecent = recent.filter((e) => isMovementFulfilled(e.habits.movement)).length
+  const nutritionRecent = recent.filter((e) => isNutritionFulfilled(e.habits.nutrition, e.mealScore)).length
+  const smokingRecent = recent.filter((e) => isSmokingFulfilled(e.habits.smoking)).length
 
   return (
     <section className="mb-14 space-y-6">
@@ -76,24 +81,24 @@ export async function HabitsDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <HabitPillar
           pillar="movement"
-          streak={movementStreak}
           totalFulfilled={movementFulfilled}
           totalEntries={entries.length}
-          days={movementDays}
+          recentFulfilled={movementRecent}
+          recentTotal={recentTotal}
         />
         <HabitPillar
           pillar="nutrition"
-          streak={nutritionStreak}
           totalFulfilled={nutritionFulfilled}
           totalEntries={entries.length}
-          days={nutritionDays}
+          recentFulfilled={nutritionRecent}
+          recentTotal={recentTotal}
         />
         <HabitPillar
           pillar="smoking"
-          streak={smokingStreak}
           totalFulfilled={smokingFulfilled}
           totalEntries={entries.length}
-          days={smokingDays}
+          recentFulfilled={smokingRecent}
+          recentTotal={recentTotal}
         />
       </div>
 

@@ -1,58 +1,66 @@
 import { useTranslations } from 'next-intl'
-import type { StreakResult } from '@/lib/habits'
 
 type Pillar = 'movement' | 'nutrition' | 'smoking'
 
 interface PillarConfig {
   emoji: string
   textColorClass: string
-  barColorClass: string
+  strokeColorClass: string
   bgBarClass: string
 }
 
 const PILLAR_CONFIG: Record<Pillar, PillarConfig> = {
   movement: {
     emoji: '🏃',
-    textColorClass: 'text-movement-400',
-    barColorClass:  'bg-movement-400',
-    bgBarClass:     'bg-movement-400',
+    textColorClass:   'text-movement-400',
+    strokeColorClass: 'stroke-movement-400',
+    bgBarClass:       'bg-movement-400',
   },
   nutrition: {
     emoji: '🥗',
-    textColorClass: 'text-nutrition-400',
-    barColorClass:  'bg-nutrition-400',
-    bgBarClass:     'bg-nutrition-400',
+    textColorClass:   'text-nutrition-400',
+    strokeColorClass: 'stroke-nutrition-400',
+    bgBarClass:       'bg-nutrition-400',
   },
   smoking: {
     emoji: '🚭',
-    textColorClass: 'text-smoking-400',
-    barColorClass:  'bg-smoking-400',
-    bgBarClass:     'bg-smoking-400',
+    textColorClass:   'text-smoking-400',
+    strokeColorClass: 'stroke-smoking-400',
+    bgBarClass:       'bg-smoking-400',
   },
 }
 
 interface HabitPillarProps {
   pillar: Pillar
-  streak: StreakResult
   totalFulfilled: number
   totalEntries: number
-  days: Array<{ date: string; level: number }>
+  recentFulfilled: number
+  recentTotal: number
 }
 
-export function HabitPillar({ pillar, streak, totalFulfilled, totalEntries }: HabitPillarProps) {
+export function HabitPillar({
+  pillar,
+  totalFulfilled,
+  totalEntries,
+  recentFulfilled,
+  recentTotal,
+}: HabitPillarProps) {
   const t = useTranslations('HabitPillar')
-  const tStreak = useTranslations('HabitStreak')
   const cfg = PILLAR_CONFIG[pillar]
 
   const title = t(`${pillar}.title` as `movement.title`)
-  const streakLabel = t(`${pillar}.streakLabel` as `movement.streakLabel`)
-
   const pct = totalEntries > 0 ? Math.round((totalFulfilled / totalEntries) * 100) : 0
-  const isRecord = streak.current > 0 && streak.current === streak.longest && streak.longest > 1
+  const recentPct = recentTotal > 0 ? Math.round((recentFulfilled / recentTotal) * 100) : 0
+
+  // Donut geometry
+  const size = 140
+  const stroke = 10
+  const r = (size - stroke) / 2
+  const c = 2 * Math.PI * r
+  const dash = (pct / 100) * c
 
   return (
     <div className="bg-surface-container border border-outline-variant/15 rounded-xl overflow-hidden flex flex-col">
-      {/* Colour accent — thin top bar */}
       <div className={`h-0.5 shrink-0 ${cfg.bgBarClass}`} />
 
       <div className="p-5 flex flex-col gap-4 flex-1">
@@ -65,44 +73,57 @@ export function HabitPillar({ pillar, streak, totalFulfilled, totalEntries }: Ha
           <span className="text-base leading-none" aria-hidden="true">{cfg.emoji}</span>
         </div>
 
-        {/* Big streak number */}
-        <div className="flex-1">
-          <div className="flex items-baseline gap-2">
-            <span className={`text-6xl font-headline font-bold tracking-tighter leading-none ${cfg.textColorClass}`}>
-              {streak.current}
-            </span>
-            <span className="text-xs text-on-surface-variant leading-tight">{streakLabel}</span>
-          </div>
-          <p className="text-xs text-on-surface-variant mt-1 h-4">
-            {isRecord
-              ? tStreak('record')
-              : streak.longest > streak.current && streak.longest > 0
-                ? tStreak('longestRecord', { days: streak.longest })
-                : ''}
-          </p>
-        </div>
-
-        {/* Progress bar */}
-        {totalEntries > 0 && (
-          <div className="space-y-1.5">
-            <div className="flex justify-between text-xs text-on-surface-variant">
-              <span>
-                {tStreak('outOf', {
-                  fulfilled: totalFulfilled,
-                  total: totalEntries,
-                  unit: totalEntries === 1 ? tStreak('day') : tStreak('days'),
-                })}
-              </span>
-              <span className={`font-bold ${cfg.textColorClass}`}>{pct}%</span>
-            </div>
-            <div className="h-1 bg-surface-container-high rounded-full overflow-hidden">
-              <div
-                className={`h-full rounded-full ${cfg.barColorClass} transition-all duration-500`}
-                style={{ width: `${pct}%` }}
+        {/* Donut */}
+        <div className="flex flex-col items-center gap-2 flex-1 justify-center">
+          <div className="relative" style={{ width: size, height: size }}>
+            <svg
+              width={size}
+              height={size}
+              viewBox={`0 0 ${size} ${size}`}
+              className="-rotate-90"
+              aria-hidden="true"
+            >
+              <circle
+                cx={size / 2}
+                cy={size / 2}
+                r={r}
+                fill="none"
+                strokeWidth={stroke}
+                className="stroke-surface-container-high"
               />
+              <circle
+                cx={size / 2}
+                cy={size / 2}
+                r={r}
+                fill="none"
+                strokeWidth={stroke}
+                strokeLinecap="round"
+                strokeDasharray={`${dash} ${c - dash}`}
+                className={`${cfg.strokeColorClass} transition-[stroke-dasharray] duration-700`}
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className={`text-4xl font-headline font-bold tracking-tighter leading-none ${cfg.textColorClass}`}>
+                {pct}%
+              </span>
+              <span className="text-[10px] font-label font-bold tracking-widest uppercase text-on-surface-variant mt-1">
+                {t('achievedLabel')}
+              </span>
             </div>
           </div>
-        )}
+
+          {/* Secondary */}
+          <div className="text-center space-y-0.5">
+            <p className="text-xs text-on-surface-variant">
+              {t('outOfDays', { fulfilled: totalFulfilled, total: totalEntries })}
+            </p>
+            {recentTotal > 0 && (
+              <p className="text-[11px] text-on-surface-variant/70">
+                {t('last30', { pct: recentPct })}
+              </p>
+            )}
+          </div>
+        </div>
 
       </div>
     </div>

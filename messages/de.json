@@ -105,6 +105,9 @@
     "yearOverview": "Jahresübersicht"
   },
   "HabitPillar": {
+    "achievedLabel": "erreicht",
+    "outOfDays": "{fulfilled} / {total} Tage",
+    "last30": "letzte 30 T: {pct}%",
     "movement": {
       "title": "Bewegung",
       "streakLabel": "Tage aktiv"
