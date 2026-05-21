@@ -4,7 +4,6 @@ import { getLatestMetrics, getStepsHistory } from '@/lib/metrics'
 import { getProfile } from '@/lib/profile'
 import { getPriorityPillar } from '@/lib/settings'
 import {
-  calculateStreak,
   calculateSweetsStreak,
   computeSweetsRate30d,
   isMovementFulfilled,
@@ -101,89 +100,35 @@ const PILLAR_GLOW: Record<string, { border: string; shadow: string }> = {
   nutrition: { border: 'border-nutrition-400/50', shadow: '0 0 20px rgba(253,139,80,0.28), 0 0 6px rgba(253,139,80,0.14)' },
 }
 
-// ─── Smoking Streak Hero Tile ──────────────────────────────────────────────
+// ─── Pillar Donut Tile (Rauchstopp / Bewegung / Ernährung) ────────────────
 
-interface SmokingHeroProps {
-  streak: number
-  longestStreak: number
-  pct: number
-  labelStreak: string
-  labelDays: string
-  labelLongest: string
-  labelRate: string
-  isPriority?: boolean
-}
-
-function SmokingHeroTile({ streak, longestStreak, pct, labelStreak, labelDays, labelLongest, labelRate, isPriority }: SmokingHeroProps) {
-  const glow = isPriority ? PILLAR_GLOW.smoking : null
-  return (
-    <div
-      className={`relative col-span-1 sm:col-span-1 lg:col-span-4 bg-surface-variant/40 backdrop-blur-xl rounded-xl p-5 overflow-hidden flex flex-col gap-4 transition-shadow ${glow ? `border ${glow.border}` : 'border border-outline-variant/15'}`}
-      style={glow ? { boxShadow: glow.shadow } : undefined}
-      role={isPriority ? 'region' : undefined}
-      aria-label={isPriority ? 'Priorität: Rauchstopp' : undefined}
-    >
-      {isPriority && <span className="sr-only">Aktueller Fokus</span>}
-      <span
-        className="pointer-events-none select-none absolute -right-4 -bottom-4 font-headline font-bold leading-none text-smoking-400/5"
-        style={{ fontSize: '10rem' }}
-        aria-hidden="true"
-      >
-        {streak}
-      </span>
-      <p className="text-xs font-label font-bold tracking-widest uppercase text-smoking-400">
-        {labelStreak}
-      </p>
-      <div className="flex items-baseline gap-2">
-        <span className="text-7xl font-headline font-bold tracking-tighter leading-none text-smoking-300">
-          {streak}
-        </span>
-        <span className="text-sm text-on-surface-variant">{labelDays}</span>
-      </div>
-      <div className="space-y-1.5">
-        <div className="h-1 bg-surface-container-high rounded-full overflow-hidden">
-          <div className="h-full rounded-full bg-smoking-400 transition-all duration-700" style={{ width: `${pct}%` }} />
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-xs text-on-surface-variant">
-            {labelRate}: <span className="text-smoking-300 font-semibold">{pct}%</span>
-          </span>
-          <span className="text-xs text-on-surface-variant">
-            {labelLongest}: <span className="text-on-surface font-semibold">{longestStreak}</span>
-          </span>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ─── Habit Streak Tile (Bewegung & Ernährung) ─────────────────────────────
-
-interface HabitStreakTileProps {
+interface PillarDonutTileProps {
   label: string
-  streak: number
-  longestStreak: number
-  pct7d: number
-  pct30d: number
-  colorClass: string
+  pct: number
   colorText: string
-  labelDays: string
-  labelRate: string
-  labelLongest: string
-  labelTrend: string
+  colorAccent: string
+  strokeClass: string
+  labelAchieved: string
+  outOfDaysText: string
+  last30Text?: string
   isPriority?: boolean
   pillarKey?: string
 }
 
-function HabitStreakTile({
-  label, streak, longestStreak, pct7d, pct30d,
-  colorClass, colorText, labelDays, labelRate, labelLongest, labelTrend,
+function PillarDonutTile({
+  label, pct,
+  colorText, colorAccent, strokeClass,
+  labelAchieved, outOfDaysText, last30Text,
   isPriority, pillarKey,
-}: HabitStreakTileProps) {
-  const trend = pct7d - pct30d
-  const trendSign = trend > 0 ? '+' : ''
-  const trendColor = trend >= 0 ? 'text-on-surface-variant' : 'text-error'
+}: PillarDonutTileProps) {
   const glow = isPriority && pillarKey ? PILLAR_GLOW[pillarKey] : null
+
+  // Donut geometry
+  const size = 132
+  const stroke = 10
+  const r = (size - stroke) / 2
+  const c = 2 * Math.PI * r
+  const dash = (pct / 100) * c
 
   return (
     <div
@@ -193,33 +138,39 @@ function HabitStreakTile({
       aria-label={isPriority && pillarKey ? `Priorität: ${label}` : undefined}
     >
       {isPriority && <span className="sr-only">Aktueller Fokus</span>}
-      <span
-        className={`pointer-events-none select-none absolute -right-4 -bottom-4 font-headline font-bold leading-none ${colorText} opacity-[0.05]`}
-        style={{ fontSize: '10rem' }}
-        aria-hidden="true"
-      >
-        {streak}
-      </span>
-      <p className={`text-xs font-label font-bold tracking-widest uppercase ${colorText}`}>{label}</p>
-      <div className="flex items-baseline gap-2">
-        <span className={`text-7xl font-headline font-bold tracking-tighter leading-none ${colorText}`}>
-          {streak}
-        </span>
-        <span className="text-sm text-on-surface-variant">{labelDays}</span>
+      <p className={`text-xs font-label font-bold tracking-widest uppercase ${colorAccent}`}>{label}</p>
+
+      <div className="flex items-center justify-center flex-1">
+        <div className="relative" style={{ width: size, height: size }}>
+          <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90" aria-hidden="true">
+            <circle cx={size / 2} cy={size / 2} r={r} fill="none" strokeWidth={stroke} className="stroke-surface-container-high" />
+            <circle
+              cx={size / 2}
+              cy={size / 2}
+              r={r}
+              fill="none"
+              strokeWidth={stroke}
+              strokeLinecap="round"
+              strokeDasharray={`${dash} ${c - dash}`}
+              className={`${strokeClass} transition-[stroke-dasharray] duration-700`}
+            />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className={`text-4xl font-headline font-bold tracking-tighter leading-none ${colorText}`}>
+              {pct}%
+            </span>
+            <span className="text-[10px] font-label font-bold tracking-widest uppercase text-on-surface-variant mt-1">
+              {labelAchieved}
+            </span>
+          </div>
+        </div>
       </div>
-      <div className="space-y-1.5">
-        <div className="h-1 bg-surface-container-high rounded-full overflow-hidden">
-          <div className={`h-full rounded-full ${colorClass} transition-all duration-700`} style={{ width: `${Math.min(100, pct30d)}%` }} />
-        </div>
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-xs text-on-surface-variant">
-            {labelRate}: <span className={`${colorText} font-semibold`}>{pct30d}%</span>
-            <span className={`ml-1.5 font-semibold ${trendColor}`}>({labelTrend}: {trendSign}{trend}%)</span>
-          </span>
-          <span className="text-xs text-on-surface-variant whitespace-nowrap">
-            {labelLongest}: <span className="text-on-surface font-semibold">{longestStreak}</span>
-          </span>
-        </div>
+
+      <div className="text-center space-y-0.5">
+        <p className="text-xs text-on-surface-variant">{outOfDaysText}</p>
+        {last30Text && (
+          <p className="text-[11px] text-on-surface-variant/70">{last30Text}</p>
+        )}
       </div>
     </div>
   )
@@ -792,17 +743,24 @@ export async function LiveStatus() {
     dinner:         t('mealDinner'),
   }
 
-  const movementBools = entries.map((e) => isMovementFulfilled(e.habits.movement))
+  const movementBools  = entries.map((e) => isMovementFulfilled(e.habits.movement))
   const nutritionBools = entries.map((e) => isNutritionFulfilled(e.habits.nutrition, e.mealScore))
   const smokingBools   = entries.map((e) => isSmokingFulfilled(e.habits.smoking))
 
-  const movementStreak = calculateStreak(movementBools)
-  const nutritionStreak = calculateStreak(nutritionBools)
-  const smokingStreak   = calculateStreak(smokingBools)
+  const totalEntries = entries.length
+  const movementFulfilled  = movementBools.filter(Boolean).length
+  const nutritionFulfilled = nutritionBools.filter(Boolean).length
+  const smokingFulfilled   = smokingBools.filter(Boolean).length
+
+  const movementOverallPct  = totalEntries > 0 ? Math.round(movementFulfilled  / totalEntries * 100) : 0
+  const nutritionOverallPct = totalEntries > 0 ? Math.round(nutritionFulfilled / totalEntries * 100) : 0
+  const smokingOverallPct   = totalEntries > 0 ? Math.round(smokingFulfilled   / totalEntries * 100) : 0
 
   const movementRates  = computeRates(movementBools)
   const nutritionRates = computeRates(nutritionBools)
   const smokingRates   = computeRates(smokingBools)
+
+  const recent30Total = Math.min(30, totalEntries)
 
   const sweetsStreak  = calculateSweetsStreak(sweetsHistory)
   const sweetsRate30d = computeSweetsRate30d(sweetsHistory)
@@ -824,44 +782,40 @@ export async function LiveStatus() {
       {/* Bento grid — 12-col on lg, 2-col on sm, 1-col on mobile */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3">
 
-        {/* Row A — Habit streaks */}
-        <SmokingHeroTile
-          streak={smokingStreak.current}
-          longestStreak={smokingStreak.longest}
-          pct={smokingRates.pct30d}
-          labelStreak={t('streakSmoking')}
-          labelDays={t('streakDays')}
-          labelLongest={t('streakLongest')}
-          labelRate={t('rate30d')}
+        {/* Row A — Pillar achievement donuts */}
+        <PillarDonutTile
+          label={t('streakSmoking')}
+          pct={smokingOverallPct}
+          colorText="text-smoking-300"
+          colorAccent="text-smoking-400"
+          strokeClass="stroke-smoking-400"
+          labelAchieved={t('pillarAchieved')}
+          outOfDaysText={t('pillarOutOfDays', { fulfilled: smokingFulfilled, total: totalEntries })}
+          last30Text={recent30Total > 0 ? t('pillarLast30', { pct: smokingRates.pct30d }) : undefined}
           isPriority={priorityPillar === 'smoking'}
+          pillarKey="smoking"
         />
-        <HabitStreakTile
+        <PillarDonutTile
           label={t('streakMovement')}
-          streak={movementStreak.current}
-          longestStreak={movementStreak.longest}
-          pct7d={movementRates.pct7d}
-          pct30d={movementRates.pct30d}
-          colorClass="bg-movement-400"
+          pct={movementOverallPct}
           colorText="text-movement-300"
-          labelDays={t('streakDays')}
-          labelRate={t('rate30d')}
-          labelLongest={t('streakLongest')}
-          labelTrend={t('trend7d')}
+          colorAccent="text-movement-400"
+          strokeClass="stroke-movement-400"
+          labelAchieved={t('pillarAchieved')}
+          outOfDaysText={t('pillarOutOfDays', { fulfilled: movementFulfilled, total: totalEntries })}
+          last30Text={recent30Total > 0 ? t('pillarLast30', { pct: movementRates.pct30d }) : undefined}
           isPriority={priorityPillar === 'movement'}
           pillarKey="movement"
         />
-        <HabitStreakTile
+        <PillarDonutTile
           label={t('streakNutrition')}
-          streak={nutritionStreak.current}
-          longestStreak={nutritionStreak.longest}
-          pct7d={nutritionRates.pct7d}
-          pct30d={nutritionRates.pct30d}
-          colorClass="bg-nutrition-400"
+          pct={nutritionOverallPct}
           colorText="text-nutrition-300"
-          labelDays={t('streakDays')}
-          labelRate={t('rate30d')}
-          labelLongest={t('streakLongest')}
-          labelTrend={t('trend7d')}
+          colorAccent="text-nutrition-400"
+          strokeClass="stroke-nutrition-400"
+          labelAchieved={t('pillarAchieved')}
+          outOfDaysText={t('pillarOutOfDays', { fulfilled: nutritionFulfilled, total: totalEntries })}
+          last30Text={recent30Total > 0 ? t('pillarLast30', { pct: nutritionRates.pct30d }) : undefined}
           isPriority={priorityPillar === 'nutrition'}
           pillarKey="nutrition"
         />
