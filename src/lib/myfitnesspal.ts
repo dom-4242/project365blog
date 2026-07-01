@@ -29,32 +29,53 @@ export interface NutritionRow {
 }
 
 // Normalized CSV header → canonical key. Headers are normalized first
-// (lowercased, units in parentheses stripped, whitespace collapsed).
+// (lowercased, diacritics/ß folded, units in parentheses stripped, whitespace
+// collapsed) so both the English and German MFP exports map to the same keys.
 const HEADER_MAP: Record<string, string> = {
+  // meta — EN + DE
   'date': 'date',
+  'datum': 'date',
   'meal': 'meal',
+  'mahlzeit': 'meal',
   'note': 'note',
   'notes': 'note',
-  // macros (typed columns)
+  'notiz': 'note',
+  'export_headers.note': 'note', // DE export ships this untranslated header
+  // macros (typed columns) — EN + DE
   'calories': 'calories',
+  'kalorien': 'calories',
   'protein': 'protein',
+  'eiweiss': 'protein',
   'carbohydrates': 'carbs',
   'carbs': 'carbs',
+  'kohlenhydrate': 'carbs',
   'fat': 'fat',
+  'fett': 'fat',
   'fiber': 'fiber',
+  'ballaststoffe': 'fiber',
   'sugar': 'sugar',
+  'zucker': 'sugar',
   'sodium': 'sodium',
-  // micros (go into the JSON map)
+  'natrium': 'sodium',
+  // micros (go into the JSON map) — EN + DE
   'saturated fat': 'satFat',
+  'gesattigte fettsauren': 'satFat',
   'polyunsaturated fat': 'polyFat',
+  'mehrfach ungesattigte fettsauren': 'polyFat',
   'monounsaturated fat': 'monoFat',
+  'einfach ungesattigte fettsauren': 'monoFat',
   'trans fat': 'transFat',
+  'transfettsauren': 'transFat',
   'cholesterol': 'cholesterol',
+  'cholesterin': 'cholesterol',
   'potassium': 'potassium',
+  'kalium': 'potassium',
   'vitamin a': 'vitaminA',
   'vitamin c': 'vitaminC',
   'calcium': 'calcium',
+  'kalzium': 'calcium',
   'iron': 'iron',
+  'eisen': 'iron',
 }
 
 /** Nutrient metadata for display (macros + known micros). */
@@ -82,17 +103,27 @@ export function nutrientLabel(key: string): string {
   return NUTRIENT_META[key]?.label ?? key
 }
 
-// Normalize a raw CSV header: lowercase, drop "(unit)", collapse whitespace.
+// Normalize a raw CSV header: lowercase, fold German diacritics/ß (ä→a, ü→u,
+// ß→ss) so DE and EN headers match the same keys, drop "(unit)", collapse space.
 function normalizeHeader(h: string): string {
-  return h.toLowerCase().replace(/\([^)]*\)/g, '').replace(/\s+/g, ' ').trim()
+  return h
+    .toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/ß/g, 'ss')
+    .replace(/\([^)]*\)/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
-// Parse a numeric cell; tolerates thousands separators and empty values.
+// Parse a numeric cell; tolerates German decimal commas, thousands separators
+// and empty values.
 function parseNumber(raw: string | undefined): number | null {
   if (raw == null) return null
-  const cleaned = raw.replace(/,/g, '').trim()
-  if (cleaned === '') return null
-  const n = Number(cleaned)
+  let s = raw.trim()
+  if (s === '') return null
+  // "1234,5" (German decimal) → "1234.5"; "1,234" (thousands) → "1234"
+  s = s.includes(',') && !s.includes('.') ? s.replace(',', '.') : s.replace(/,/g, '')
+  const n = Number(s)
   return Number.isFinite(n) ? n : null
 }
 

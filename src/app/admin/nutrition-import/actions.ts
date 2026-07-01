@@ -26,7 +26,7 @@ export async function importNutrition(formData: FormData): Promise<ImportResult>
   const text = await file.text()
   const rows = parseMfpNutritionCsv(text)
   if (rows.length === 0) {
-    return { error: 'Keine gültigen Nutrition-Zeilen gefunden. Ist das die MFP „Nutrition"-CSV (mit Date- und Meal-Spalte)?' }
+    return { error: 'Keine gültigen Nährwert-Zeilen gefunden. Ist das die MFP Nährwerte-/Nutrition-CSV (Spalten Datum/Mahlzeit bzw. Date/Meal)?' }
   }
 
   const summary = await importNutritionCsv(rows, prisma)

@@ -50,8 +50,8 @@ export default async function NutritionImportPage() {
         <p className="font-semibold text-on-surface">So exportierst du die MFP-Daten</p>
         <ol className="space-y-1 list-decimal list-inside">
           <li>MyFitnessPal Web → <span className="text-on-surface">Einstellungen → Daten exportieren</span> (Nutrition, Zeitraum wählen).</li>
-          <li>Der Export kommt per E-Mail als ZIP mit mehreren CSVs.</li>
-          <li>Hier die <code className="font-mono">Nutrition</code>-CSV hochladen (mit <code className="font-mono">Date</code>- und <code className="font-mono">Meal</code>-Spalte).</li>
+          <li>Der Export kommt als ZIP mit mehreren CSVs (Messwerte, Nährwerte, Training).</li>
+          <li>Hier die <code className="font-mono">Nährwerte</code>-CSV hochladen — Spalten <code className="font-mono">Datum/Mahlzeit</code> (DE) bzw. <code className="font-mono">Date/Meal</code> (EN).</li>
         </ol>
         <p className="mt-2 pt-2 border-t border-outline-variant/10">
           Nur Ernährungsdaten werden übernommen. Gewicht kommt aus Withings, Schritte/Aktivität aus Apple
