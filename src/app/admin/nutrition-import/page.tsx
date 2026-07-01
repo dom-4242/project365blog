@@ -56,7 +56,7 @@ export default async function NutritionImportPage() {
         <p className="mt-2 pt-2 border-t border-outline-variant/10">
           Nur Ernährungsdaten werden übernommen. Gewicht kommt aus Withings, Schritte/Aktivität aus Apple
           Health (siehe <code className="font-mono">lib/metric-sources.ts</code>). Importierte Nährstoffe
-          erscheinen im <span className="text-on-surface">Health Inventar</span> unter dem Tab „MyFitnessPal".
+          erscheinen im <span className="text-on-surface">Health Inventar</span> unter dem Tab „MyFitnessPal“.
         </p>
       </div>
     </div>
