@@ -163,7 +163,7 @@ export function parseHealthPayload(payload: HealthPayload): Map<string, DayHealt
     }
   }
 
-  // Weight (Fitbit takes priority in merge, but we parse it here)
+  // Weight (the body scale takes priority in merge, but we parse it here)
   const weightMetric = findMetric(metrics, 'body mass', 'weight')
   if (weightMetric) {
     for (const [date, weight] of lastByDate(weightMetric)) {
@@ -203,26 +203,29 @@ type MergeableMetrics = Pick<
  * Merges Apple Health data into an existing DailyMetrics record.
  *
  * Rules (from CLAUDE.md):
- * - Fitbit primary for weight/bodyFat/bmi (Aria scale)
+ * - Body scale primary for weight/bodyFat/bmi (Withings Body Scan;
+ *   legacy Fitbit Aria rows are respected the same way)
  * - Apple Watch primary for restingHR and sleep
  * - Steps: higher value wins
- * - Calories/distance: Apple fills gaps, doesn't overwrite Fitbit values
- * - source → MERGED if existing was FITBIT, stays APPLE_HEALTH otherwise
+ * - Calories/distance: Apple fills gaps, doesn't overwrite scale values
+ * - source → MERGED if existing came from a scale, stays APPLE_HEALTH otherwise
  */
 export function mergeWithExisting(
   existing: MergeableMetrics,
   incoming: DayHealthData,
 ): MergeableMetrics {
-  const hadFitbit =
-    existing.source === MetricSource.FITBIT || existing.source === MetricSource.MERGED
+  const hadScale =
+    existing.source === MetricSource.WITHINGS ||
+    existing.source === MetricSource.FITBIT ||
+    existing.source === MetricSource.MERGED
 
   return {
-    // Weight/BMI: keep Fitbit, only use Apple if no Fitbit data exists
-    weight: hadFitbit && existing.weight !== null ? existing.weight : (incoming.weight ?? existing.weight),
-    bodyFat: hadFitbit && existing.bodyFat !== null ? existing.bodyFat : (incoming.bodyFat ?? existing.bodyFat),
-    bmi: existing.bmi, // BMI is always derived from Fitbit scale
+    // Weight/BMI: keep scale value, only use Apple if no scale data exists
+    weight: hadScale && existing.weight !== null ? existing.weight : (incoming.weight ?? existing.weight),
+    bodyFat: hadScale && existing.bodyFat !== null ? existing.bodyFat : (incoming.bodyFat ?? existing.bodyFat),
+    bmi: existing.bmi, // BMI is always derived from the body scale
 
-    // Steps: Apple Health wins (only Apple Watch counts steps, Fitbit steps ignored)
+    // Steps: Apple Health wins (only Apple Watch counts steps, scale steps ignored)
     steps: incoming.steps ?? existing.steps,
 
     // Resting HR: Apple Watch wins (better sensor for continuous HR)
@@ -235,6 +238,6 @@ export function mergeWithExisting(
     caloriesBurned: existing.caloriesBurned ?? incoming.caloriesBurned ?? null,
     distance: existing.distance ?? incoming.distance ?? null,
 
-    source: hadFitbit ? MetricSource.MERGED : MetricSource.APPLE_HEALTH,
+    source: hadScale ? MetricSource.MERGED : MetricSource.APPLE_HEALTH,
   }
 }

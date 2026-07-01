@@ -5,7 +5,7 @@ name: project365blog
 #
 # Voraussetzungen:
 #   cp .env.example .env
-#   # .env befüllen (DB_PASSWORD, Fitbit-Keys, etc.)
+#   # .env befüllen (DB_PASSWORD, Withings-Keys, etc.)
 #
 # Starten:
 #   docker compose pull && docker compose up -d
@@ -60,8 +60,8 @@ services:
       retries: 6
       start_period: 30s
 
-  # --- Fitbit Cron ---
-  fitbit-cron:
+  # --- Withings Cron ---
+  withings-cron:
     image: alpine:3.19
     restart: unless-stopped
     environment:
@@ -78,7 +78,7 @@ services:
       - -c
       - |
         apk update -q; apk add --no-cache -q curl tzdata
-        printf 'CRON_SECRET=%s\nTZ=Europe/Zurich\n0 * * * * curl -s --fail-with-body --retry 2 --retry-delay 60 --connect-timeout 30 --max-time 60 -H "Authorization: Bearer $$CRON_SECRET" http://web:3000/api/cron/fitbit-sync\n' "$$CRON_SECRET" | crontab -
+        printf 'CRON_SECRET=%s\nTZ=Europe/Zurich\n0 * * * * curl -s --fail-with-body --retry 2 --retry-delay 60 --connect-timeout 30 --max-time 60 -H "Authorization: Bearer $$CRON_SECRET" http://web:3000/api/cron/withings-sync\n' "$$CRON_SECRET" | crontab -
         crond -f -d 6
 
 volumes:

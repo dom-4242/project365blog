@@ -52,10 +52,10 @@ const METRIC_MAP: Record<string, MetricMeta> = {
   'physical effort':                { displayName: 'Körperliche Anstrengung',       category: 'Aktivität' },
 
   // Body Measurements
-  'body mass':                      { displayName: 'Körpergewicht',                 category: 'Körper',             mappedToDb: 'weight',         usedInDashboard: true,  dashboardNote: 'Startseite – primär Fitbit' },
-  'weight':                         { displayName: 'Körpergewicht',                 category: 'Körper',             mappedToDb: 'weight',         usedInDashboard: true,  dashboardNote: 'Startseite – primär Fitbit' },
-  'body fat percentage':            { displayName: 'Körperfettanteil',              category: 'Körper',             mappedToDb: 'bodyFat',        usedInDashboard: true,  dashboardNote: 'Startseite – primär Fitbit' },
-  'body fat':                       { displayName: 'Körperfettanteil',              category: 'Körper',             mappedToDb: 'bodyFat',        usedInDashboard: true,  dashboardNote: 'Startseite – primär Fitbit' },
+  'body mass':                      { displayName: 'Körpergewicht',                 category: 'Körper',             mappedToDb: 'weight',         usedInDashboard: true,  dashboardNote: 'Startseite – primär Withings' },
+  'weight':                         { displayName: 'Körpergewicht',                 category: 'Körper',             mappedToDb: 'weight',         usedInDashboard: true,  dashboardNote: 'Startseite – primär Withings' },
+  'body fat percentage':            { displayName: 'Körperfettanteil',              category: 'Körper',             mappedToDb: 'bodyFat',        usedInDashboard: true,  dashboardNote: 'Startseite – primär Withings' },
+  'body fat':                       { displayName: 'Körperfettanteil',              category: 'Körper',             mappedToDb: 'bodyFat',        usedInDashboard: true,  dashboardNote: 'Startseite – primär Withings' },
   'body mass index':                { displayName: 'BMI',                           category: 'Körper' },
   'bmi':                            { displayName: 'BMI',                           category: 'Körper' },
   'lean body mass':                 { displayName: 'Magermasse',                    category: 'Körper' },
