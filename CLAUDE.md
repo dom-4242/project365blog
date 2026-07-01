@@ -193,6 +193,14 @@ project365blog/
 - ⚠️ `daysProcessed: 0` — Parser `parseHealthPayload()` matcht nicht mit v2 Export-Format
 - Fix ausstehend
 
+### MyFitnessPal (Ernährung)
+
+- Offizielle API privat/geschlossen → Zugriff via offiziellem **CSV-Export** (Nutrition-CSV, mahlzeiten-aggregiert)
+- Phase 1 (Datenerfassung): Upload unter `/admin/nutrition-import` → Parser `lib/myfitnesspal.ts` → Roh-Store `NutritionLog` (idempotent je `date+meal`); Makros als Spalten, restliche Nährstoffe in `micros`-JSON. Erscheint im Health-Inventar als Tab „MyFitnessPal"
+- Phase 2 (offen): Kaloriendefizit-Dashboard (`caloriesIn` MFP − TDEE = `bmr` Withings + `activeEnergy` Apple Health), löst den subjektiven Ernährungsscore ab
+- Phase 3 (offen): automatischer Daily-Sync (python-myfitnesspal oder Terra)
+- **Source of Truth** zentral in `lib/metric-sources.ts`: Schritte/Aktivität=Apple Health, Körper/Gewicht/BMR=Withings, Ernährung=MyFitnessPal
+
 ### Infrastruktur
 
 - Nginx Proxy Manager: Container `nginxproxy`, DNS fix applied (`dns: 192.168.1.11`)

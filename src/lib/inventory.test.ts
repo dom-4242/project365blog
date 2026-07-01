@@ -4,16 +4,26 @@ const { mockPrisma } = vi.hoisted(() => ({
   mockPrisma: {
     healthMetricInventory: { findMany: vi.fn() },
     withingsMeasurement: { groupBy: vi.fn() },
+    nutritionLog: { findMany: vi.fn() },
     $queryRaw: vi.fn(),
   },
 }))
 
 vi.mock('@/lib/db', () => ({ prisma: mockPrisma }))
 
-import { getAppleHealthInventory, getWithingsInventory, getAllInventory } from './inventory'
+import {
+  getAppleHealthInventory,
+  getWithingsInventory,
+  getMyFitnessPalInventory,
+  getAllInventory,
+} from './inventory'
 
 beforeEach(() => {
   vi.clearAllMocks()
+  // Safe defaults so providers not under test contribute nothing.
+  mockPrisma.healthMetricInventory.findMany.mockResolvedValue([])
+  mockPrisma.withingsMeasurement.groupBy.mockResolvedValue([])
+  mockPrisma.nutritionLog.findMany.mockResolvedValue([])
 })
 
 // =============================================
@@ -96,6 +106,46 @@ describe('getWithingsInventory', () => {
 })
 
 // =============================================
+// MyFitnessPal provider
+// =============================================
+
+describe('getMyFitnessPalInventory', () => {
+  it('aggregates daily totals per nutrient (macros + micros)', async () => {
+    mockPrisma.nutritionLog.findMany.mockResolvedValue([
+      // day 1: two meals
+      { date: new Date('2026-07-01'), createdAt: new Date('2026-07-01'), calories: 450, protein: 25, carbs: 40, fat: 20, fiber: 6, sugar: 10, sodium: 300, micros: { satFat: 5 } },
+      { date: new Date('2026-07-01'), createdAt: new Date('2026-07-01'), calories: 700, protein: 40, carbs: 60, fat: 30, fiber: 8, sugar: 12, sodium: 600, micros: { satFat: 8 } },
+      // day 2: one meal
+      { date: new Date('2026-07-02'), createdAt: new Date('2026-07-02'), calories: 400, protein: 30, carbs: null, fat: null, fiber: null, sugar: null, sodium: null, micros: {} },
+    ])
+
+    const rows = await getMyFitnessPalInventory()
+    const byKey = Object.fromEntries(rows.map((r) => [r.key, r]))
+
+    // calories present on both days → count 2, last day's total = 400
+    expect(byKey['calories'].sampleCount).toBe(2)
+    expect(byKey['calories'].lastValue).toBe(400)
+    expect(byKey['calories'].lastValueDate).toBe('2026-07-02')
+    expect(byKey['calories'].displayName).toBe('Kalorien')
+    expect(byKey['calories'].unit).toBe('kcal')
+    expect(byKey['calories'].source).toBe('MYFITNESSPAL')
+    expect(byKey['calories'].status).toBe('STORED')
+
+    // micro summed across meals of day 1 → satFat total 13 on 2026-07-01
+    expect(byKey['satFat'].lastValueDate).toBe('2026-07-01')
+    expect(byKey['satFat'].lastValue).toBe(13)
+
+    // carbs only present on day 1 (day 2 null) → count 1
+    expect(byKey['carbs'].sampleCount).toBe(1)
+  })
+
+  it('returns empty array when no nutrition logs exist', async () => {
+    mockPrisma.nutritionLog.findMany.mockResolvedValue([])
+    expect(await getMyFitnessPalInventory()).toEqual([])
+  })
+})
+
+// =============================================
 // Registry
 // =============================================
 
@@ -108,10 +158,12 @@ describe('getAllInventory', () => {
       { type: 1, _count: 1, _max: { date: new Date('2026-07-01'), createdAt: new Date('2026-07-01') } },
     ])
     mockPrisma.$queryRaw.mockResolvedValue([{ type: 1, value: 96.1 }])
+    mockPrisma.nutritionLog.findMany.mockResolvedValue([
+      { date: new Date('2026-07-01'), createdAt: new Date('2026-07-01'), calories: 450, protein: 25, carbs: null, fat: null, fiber: null, sugar: null, sodium: null, micros: {} },
+    ])
 
     const rows = await getAllInventory()
     const sources = new Set(rows.map((r) => r.source))
-    expect(sources).toEqual(new Set(['APPLE_HEALTH', 'WITHINGS']))
-    expect(rows).toHaveLength(2)
+    expect(sources).toEqual(new Set(['APPLE_HEALTH', 'WITHINGS', 'MYFITNESSPAL']))
   })
 })

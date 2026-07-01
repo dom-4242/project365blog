@@ -252,6 +252,34 @@ model MealPlan {
 }
 
 // =============================================
+// ERNÄHRUNG (MyFitnessPal) — Roh-Store pro Mahlzeit
+// Import aus dem offiziellen MFP-CSV-Export (mahlzeiten-aggregiert).
+// Tages-Totals werden abgeleitet (Summe je date). Source of Truth für
+// Kalorienzufuhr + Makro-/Mikronährstoffe (siehe lib/metric-sources.ts).
+// =============================================
+
+model NutritionLog {
+  id        String   @id @default(cuid())
+  date      DateTime @db.Date
+  meal      String                     // 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks' (MFP-Meal)
+  calories  Float?
+  protein   Float?                     // g
+  carbs     Float?                     // g
+  fat       Float?                     // g
+  fiber     Float?                     // g
+  sugar     Float?                     // g
+  sodium    Float?                     // mg
+  micros    Json?                      // restliche Nährstoffe (satFat, cholesterol, potassium, vitA/C, calcium, iron, …)
+  note      String?
+  source    String   @default("MYFITNESSPAL")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([date, meal, source])       // idempotenter Re-Import
+  @@index([date])
+}
+
+// =============================================
 // LESEN — Bücher und tägliche Seiten
 // =============================================
 

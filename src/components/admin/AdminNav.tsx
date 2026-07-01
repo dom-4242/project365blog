@@ -28,6 +28,7 @@ const NAV_GROUPS = [
       { href: '/admin/reading',            label: 'Lesen',         exact: false },
       { href: '/admin/body-photos',       label: 'Foto-Galerie',  exact: false },
       { href: '/admin/withings',           label: 'Withings',        exact: false },
+      { href: '/admin/nutrition-import',   label: 'Ernährung (MFP)', exact: false },
       { href: '/admin/health-inventory', label: 'Health Inventar', exact: false },
     ],
   },

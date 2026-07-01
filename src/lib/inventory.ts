@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db'
 import { lookupMeta } from '@/lib/health-inventory'
 import { WITHINGS_MEASURE_TYPES, WITHINGS_DASHBOARD_TYPES, measureTypeLabel } from '@/lib/withings'
+import { NUTRIENT_META, nutrientLabel } from '@/lib/myfitnesspal'
 
 // =============================================
 // Generic, source-agnostic health-data inventory
@@ -47,7 +48,10 @@ export const CATEGORY_ORDER = [
 export const INVENTORY_SOURCES: InventorySource[] = [
   { id: 'APPLE_HEALTH', label: 'Apple Health' },
   { id: 'WITHINGS', label: 'Withings' },
+  { id: 'MYFITNESSPAL', label: 'MyFitnessPal' },
 ]
+
+const NUTRITION_MACRO_KEYS = ['calories', 'protein', 'carbs', 'fat', 'fiber', 'sugar', 'sodium'] as const
 
 // =============================================
 // Provider: Apple Health (HealthMetricInventory table)
@@ -123,12 +127,81 @@ export async function getWithingsInventory(): Promise<InventoryRow[]> {
 }
 
 // =============================================
+// Provider: MyFitnessPal (derived from the NutritionLog store)
+// Aggregates per nutrient over daily totals (sum of meals per day).
+// =============================================
+
+export async function getMyFitnessPalInventory(): Promise<InventoryRow[]> {
+  const rows = await prisma.nutritionLog.findMany({
+    select: {
+      date: true, createdAt: true,
+      calories: true, protein: true, carbs: true, fat: true, fiber: true, sugar: true, sodium: true,
+      micros: true,
+    },
+  })
+  if (rows.length === 0) return []
+
+  // Daily totals per nutrient: date → (nutrientKey → summed value)
+  const dailyTotals = new Map<string, Map<string, number>>()
+  let lastReceivedAt = new Date(0)
+
+  for (const row of rows) {
+    const dateStr = row.date.toISOString().slice(0, 10)
+    const day = dailyTotals.get(dateStr) ?? new Map<string, number>()
+    if (row.createdAt > lastReceivedAt) lastReceivedAt = row.createdAt
+
+    for (const k of NUTRITION_MACRO_KEYS) {
+      const v = row[k]
+      if (v != null) day.set(k, (day.get(k) ?? 0) + v)
+    }
+    if (row.micros && typeof row.micros === 'object' && !Array.isArray(row.micros)) {
+      for (const [mk, mv] of Object.entries(row.micros)) {
+        if (typeof mv === 'number') day.set(mk, (day.get(mk) ?? 0) + mv)
+      }
+    }
+    dailyTotals.set(dateStr, day)
+  }
+
+  // Per nutrient: count of days, last day's total.
+  const perNutrient = new Map<string, { count: number; lastDate: string; lastValue: number }>()
+  for (const [dateStr, day] of dailyTotals) {
+    for (const [key, value] of day) {
+      const acc = perNutrient.get(key)
+      if (!acc) {
+        perNutrient.set(key, { count: 1, lastDate: dateStr, lastValue: value })
+      } else {
+        acc.count++
+        if (dateStr > acc.lastDate) {
+          acc.lastDate = dateStr
+          acc.lastValue = value
+        }
+      }
+    }
+  }
+
+  return [...perNutrient.entries()].map(([key, agg]) => ({
+    source: 'MYFITNESSPAL',
+    key,
+    displayName: nutrientLabel(key),
+    category: 'Ernährung',
+    unit: NUTRIENT_META[key]?.unit ?? '',
+    sampleCount: agg.count,
+    lastValue: agg.lastValue,
+    lastValueDate: agg.lastDate,
+    lastReceivedAt,
+    // Raw nutrition store keeps everything; dashboard usage follows in phase 2.
+    status: 'STORED' as const,
+  }))
+}
+
+// =============================================
 // Registry
 // =============================================
 
 const PROVIDERS: Array<() => Promise<InventoryRow[]>> = [
   getAppleHealthInventory,
   getWithingsInventory,
+  getMyFitnessPalInventory,
 ]
 
 /** Runs every source provider and returns the combined inventory. */
