@@ -48,6 +48,9 @@ export interface WithingsSyncResult {
 export const MEASURE_WEIGHT = 1
 export const MEASURE_FAT_RATIO = 6
 
+/** Measure types that are mirrored into DailyMetrics and shown on the public dashboard. */
+export const WITHINGS_DASHBOARD_TYPES = new Set<number>([MEASURE_WEIGHT, MEASURE_FAT_RATIO])
+
 export interface MeasureTypeMeta {
   label: string
   unit: string
@@ -67,15 +70,15 @@ export const WITHINGS_MEASURE_TYPES: Record<number, MeasureTypeMeta> = {
   169: { label: 'Intrazellularwasser',        unit: 'kg',    category: 'Körper' },
   174: { label: 'Fettmasse (segmental)',      unit: 'kg',    category: 'Körper' },
   175: { label: 'Muskelmasse (segmental)',    unit: 'kg',    category: 'Körper' },
-  11:  { label: 'Herzfrequenz',               unit: 'bpm',   category: 'Herz & Gefässe' },
-  91:  { label: 'Pulswellengeschwindigkeit',  unit: 'm/s',   category: 'Herz & Gefässe' },
-  155: { label: 'Gefässalter',                unit: 'Jahre', category: 'Herz & Gefässe' },
-  123: { label: 'VO₂ Max',                    unit: 'ml/min/kg', category: 'Herz & Gefässe' },
+  11:  { label: 'Herzfrequenz',               unit: 'bpm',   category: 'Herz & Vitalwerte' },
+  91:  { label: 'Pulswellengeschwindigkeit',  unit: 'm/s',   category: 'Herz & Vitalwerte' },
+  155: { label: 'Gefässalter',                unit: 'Jahre', category: 'Herz & Vitalwerte' },
+  123: { label: 'VO₂ Max',                    unit: 'ml/min/kg', category: 'Herz & Vitalwerte' },
   196: { label: 'Elektrodermale Aktivität (Füsse)', unit: '', category: 'Nerven' },
   4:   { label: 'Körpergrösse',               unit: 'm',     category: 'Körper' },
-  9:   { label: 'Blutdruck diastolisch',      unit: 'mmHg',  category: 'Herz & Gefässe' },
-  10:  { label: 'Blutdruck systolisch',       unit: 'mmHg',  category: 'Herz & Gefässe' },
-  54:  { label: 'SpO₂',                        unit: '%',     category: 'Herz & Gefässe' },
+  9:   { label: 'Blutdruck diastolisch',      unit: 'mmHg',  category: 'Herz & Vitalwerte' },
+  10:  { label: 'Blutdruck systolisch',       unit: 'mmHg',  category: 'Herz & Vitalwerte' },
+  54:  { label: 'SpO₂',                        unit: '%',     category: 'Herz & Vitalwerte' },
   71:  { label: 'Körpertemperatur',           unit: '°C',    category: 'Körper' },
   73:  { label: 'Hauttemperatur',             unit: '°C',    category: 'Körper' },
 }

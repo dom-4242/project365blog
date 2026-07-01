@@ -1,10 +1,8 @@
-import { prisma } from '@/lib/db'
-
 // ── Static mapping: Apple Health metric name → display info ──────────────────
 // Key = lowercase normalized metric name (spaces, case-insensitive match)
 // Covers common HealthKit identifiers sent by Health Auto Export app.
 
-interface MetricMeta {
+export interface MetricMeta {
   displayName: string
   category: string
   mappedToDb?: string  // DailyMetrics field name if actively stored
@@ -122,7 +120,7 @@ const METRIC_MAP: Record<string, MetricMeta> = {
   'uv exposure':                    { displayName: 'UV-Exposition',                 category: 'Mind & Sonstiges' },
 }
 
-function lookupMeta(rawName: string): MetricMeta {
+export function lookupMeta(rawName: string): MetricMeta {
   const key = normalizeMetricName(rawName)
   return (
     METRIC_MAP[key] ?? {
@@ -131,50 +129,3 @@ function lookupMeta(rawName: string): MetricMeta {
     }
   )
 }
-
-export interface InventoryRow {
-  metricName: string
-  displayName: string
-  category: string
-  unit: string
-  sampleCount: number
-  lastValue: number | null
-  lastValueDate: string | null
-  lastReceivedAt: Date
-  mappedToDb: string | undefined
-  usedInDashboard: boolean
-  dashboardNote: string | undefined
-}
-
-export async function getHealthInventory(): Promise<InventoryRow[]> {
-  const rows = await prisma.healthMetricInventory.findMany({
-    orderBy: { metricName: 'asc' },
-  })
-
-  return rows.map((row) => {
-    const meta = lookupMeta(row.metricName)
-    return {
-      metricName: row.metricName,
-      displayName: meta.displayName,
-      category: meta.category,
-      unit: row.unit,
-      sampleCount: row.sampleCount,
-      lastValue: row.lastValue,
-      lastValueDate: row.lastValueDate,
-      lastReceivedAt: row.lastReceivedAt,
-      mappedToDb: meta.mappedToDb,
-      usedInDashboard: meta.usedInDashboard ?? false,
-      dashboardNote: meta.dashboardNote,
-    }
-  })
-}
-
-export const CATEGORY_ORDER = [
-  'Aktivität',
-  'Körper',
-  'Herz & Vitalwerte',
-  'Schlaf',
-  'Ernährung',
-  'Mind & Sonstiges',
-  'Sonstiges',
-]
