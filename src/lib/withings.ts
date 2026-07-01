@@ -13,6 +13,8 @@ export interface WithingsTokens {
 /** A single resolved measure (realwert = value * 10^unit already applied). */
 export interface WithingsMeasure {
   type: number
+  /** Body zone for segmental measures; 0 for whole-body / measures without a position. */
+  position: number
   value: number
 }
 
@@ -200,7 +202,7 @@ export function buildWithingsAuthUrl(redirectUri: string, state: string): string
 interface RawMeasureGroup {
   grpid: number
   date: number
-  measures: Array<{ value: number; type: number; unit: number }>
+  measures: Array<{ value: number; type: number; unit: number; position?: number }>
 }
 
 /**
@@ -237,6 +239,9 @@ export async function fetchMeasures(
     measuredAt: new Date(grp.date * 1000),
     measures: grp.measures.map((m) => ({
       type: m.type,
+      // Segmental measures (e.g. fat/muscle per body zone) share a type and are
+      // distinguished by `position`; whole-body measures have no position → 0.
+      position: m.position ?? 0,
       // Withings encodes the real value as value * 10^unit (unit is usually negative)
       value: m.value * 10 ** m.unit,
     })),
@@ -297,11 +302,12 @@ export async function syncWithingsRange(
 
     for (const m of grp.measures) {
       await prisma.withingsMeasurement.upsert({
-        where: { grpid_type: { grpid: grp.grpid, type: m.type } },
+        where: { grpid_type_position: { grpid: grp.grpid, type: m.type, position: m.position } },
         update: { value: m.value, measuredAt: grp.measuredAt, date: dateOnly },
         create: {
           grpid: grp.grpid,
           type: m.type,
+          position: m.position,
           value: m.value,
           measuredAt: grp.measuredAt,
           date: dateOnly,
@@ -309,6 +315,8 @@ export async function syncWithingsRange(
       })
       measureCount++
 
+      // Whole-body weight/body-fat only (position 0); segmental values share these
+      // types only for other measures, so no ambiguity here.
       if (m.type === MEASURE_WEIGHT || m.type === MEASURE_FAT_RATIO) {
         const day = perDay.get(dateStr) ?? {}
         if (m.type === MEASURE_WEIGHT) day.weight = m.value
