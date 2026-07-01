@@ -51,6 +51,32 @@ describe('parseMfpNutritionCsv', () => {
     const rows = parseMfpNutritionCsv(CSV)
     expect(rows.some((r) => r.meal === 'Snacks')).toBe(false)
   })
+
+  // Real-world: the German MFP export localizes headers (Datum, Mahlzeit, Eiweiß …).
+  it('parses the German (localized) export headers', () => {
+    const deCsv =
+      'Datum,Mahlzeit,Kalorien,Fett (g),Gesättigte Fettsäuren,Mehrfach ungesättigte Fettsäuren,Einfach ungesättigte Fettsäuren,Transfettsäuren,Cholesterin,Natrium (mg),Kalium,Kohlenhydrate (g),Ballaststoffe,Zucker,Eiweiß (g),Vitamin A,Vitamin C,Kalzium,Eisen,export_headers.note\n' +
+      '2026-07-01,Snacks,257.6,6.8,3.9,0.2,0.1,0.0,0.0,0.0,313.6,36.9,4.3,14.5,17.9,10.4,14.0,0.9,2.4,\n'
+
+    const rows = parseMfpNutritionCsv(deCsv)
+    expect(rows).toHaveLength(1)
+    const r = rows[0]
+    expect(r.date).toBe('2026-07-01')
+    expect(r.meal).toBe('Snacks')
+    expect(r.calories).toBeCloseTo(257.6)
+    expect(r.fat).toBeCloseTo(6.8)
+    expect(r.carbs).toBeCloseTo(36.9)
+    expect(r.fiber).toBeCloseTo(4.3)
+    expect(r.sugar).toBeCloseTo(14.5)
+    expect(r.protein).toBeCloseTo(17.9)   // Eiweiß
+    expect(r.sodium).toBe(0)              // Natrium
+    // micros: DE nutrient names folded to canonical keys
+    expect(r.micros.satFat).toBeCloseTo(3.9)
+    expect(r.micros.potassium).toBeCloseTo(313.6) // Kalium
+    expect(r.micros.calcium).toBeCloseTo(0.9)     // Kalzium
+    expect(r.micros.iron).toBeCloseTo(2.4)        // Eisen
+    expect(r.micros.vitaminA).toBeCloseTo(10.4)
+  })
 })
 
 // =============================================
