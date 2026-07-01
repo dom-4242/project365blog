@@ -36,9 +36,11 @@ const MEASURE_BODY = {
       grpid: 987654,
       date: MEASURE_UNIX,
       measures: [
-        { value: 85200, type: 1, unit: -3 }, // 85.2 kg
-        { value: 223, type: 6, unit: -1 },   // 22.3 %
-        { value: 34500, type: 76, unit: -3 }, // 34.5 kg muscle mass
+        { value: 85200, type: 1, unit: -3 },                 // 85.2 kg (whole body, no position)
+        { value: 223, type: 6, unit: -1 },                   // 22.3 % body fat
+        { value: 34500, type: 76, unit: -3, position: 7 },   // 34.5 kg muscle (whole body)
+        { value: 4470, type: 175, unit: -2, position: 11 },  // 44.7 kg segmental muscle (arm)
+        { value: 4460, type: 175, unit: -2, position: 2 },   // 44.6 kg segmental muscle (leg)
       ],
     },
   ],
@@ -109,10 +111,20 @@ describe('fetchMeasures', () => {
     const groups = await fetchMeasures(0, 1, 'token')
     expect(groups).toHaveLength(1)
     expect(groups[0].grpid).toBe(BigInt(987654))
-    const byType = Object.fromEntries(groups[0].measures.map((m) => [m.type, m.value]))
-    expect(byType[1]).toBeCloseTo(85.2)
-    expect(byType[6]).toBeCloseTo(22.3)
-    expect(byType[76]).toBeCloseTo(34.5)
+    expect(groups[0].measures).toHaveLength(5)
+    const weight = groups[0].measures.find((m) => m.type === 1)!
+    expect(weight.value).toBeCloseTo(85.2)
+    expect(groups[0].measures.find((m) => m.type === 6)!.value).toBeCloseTo(22.3)
+  })
+
+  it('defaults position to 0 when absent and preserves segmental positions', async () => {
+    vi.stubGlobal('fetch', mockEnvelope(0, MEASURE_BODY))
+    const groups = await fetchMeasures(0, 1, 'token')
+    // whole-body weight has no position field → 0
+    expect(groups[0].measures.find((m) => m.type === 1)!.position).toBe(0)
+    // segmental muscle mass keeps its distinct positions
+    const segments = groups[0].measures.filter((m) => m.type === 175).map((m) => m.position).sort((a, b) => a - b)
+    expect(segments).toEqual([2, 11])
   })
 
   it('returns empty array when no measure groups', async () => {
@@ -166,9 +178,17 @@ describe('syncWithingsRange', () => {
 
     const result = await syncWithingsRange('2026-06-30', '2026-06-30', TOKENS, prisma)
 
-    // 3 raw measures stored
-    expect(measurementUpsert).toHaveBeenCalledTimes(3)
-    expect(result.measureCount).toBe(3)
+    // 5 raw measures stored — segmental values are NOT collapsed
+    expect(measurementUpsert).toHaveBeenCalledTimes(5)
+    expect(result.measureCount).toBe(5)
+
+    // The two type-175 segments use distinct (grpid, type, position) keys
+    const seg175 = measurementUpsert.mock.calls
+      .map((c) => c[0].where.grpid_type_position)
+      .filter((k: { type: number }) => k.type === 175)
+      .map((k: { position: number }) => k.position)
+      .sort((a: number, b: number) => a - b)
+    expect(seg175).toEqual([2, 11])
 
     // DailyMetrics mirrored once for the day
     expect(dailyUpsert).toHaveBeenCalledOnce()
