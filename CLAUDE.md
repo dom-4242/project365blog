@@ -128,9 +128,10 @@ NEXTAUTH_URL=...
 GOOGLE_CLIENT_ID=...
 GOOGLE_CLIENT_SECRET=...
 ADMIN_EMAIL=...
-FITBIT_CLIENT_ID=23VD2F
-FITBIT_CLIENT_SECRET=... (Rotation ausstehend!)
-FITBIT_USER_ID=6RWGGH
+WITHINGS_CLIENT_ID=...
+WITHINGS_CLIENT_SECRET=...
+WITHINGS_ACCESS_TOKEN=...
+WITHINGS_REFRESH_TOKEN=...
 HEALTH_IMPORT_TOKEN=...
 ANTHROPIC_API_KEY=...
 ```
@@ -175,12 +176,15 @@ project365blog/
 
 ## Integrations-Status
 
-### Fitbit API
+### Withings API (Body Scan)
 
-- OAuth 2.0, Client ID `23VD2F`, User `6RWGGH`
-- Access/Refresh Tokens vorhanden
-- ⚠️ Client Secret Rotation ausstehend
-- Cron-Container für automatischen Sync
+- OAuth 2.0 (`user.metrics` Scope), App registriert unter developer.withings.com
+- Callback: `/api/withings/callback` — Tokens landen via `AppSetting` in der DB (Keys `withings.accessToken`/`withings.refreshToken`), Refresh-Tokens sind single-use (rotieren)
+- Sync: `/api/cron/withings-sync` (stündlich, `withings-cron` Container) → `syncWithingsRange()` in `src/lib/withings.ts`
+- **Alle** Messwerte der Waage werden generisch in `WithingsMeasurement` (grpid+type) gespeichert; Gewicht (type 1) + Körperfett (type 6) zusätzlich in `DailyMetrics` gespiegelt (source `WITHINGS`) für die bestehenden Dashboards
+- Weitere Datenpunkte (Muskelmasse, Wasser, viszerales Fett, PWV, Gefässalter, segmentale Werte …) für späteres Teacher-Dashboard vorgehalten
+- Admin: `/admin/withings` (Konfig, manueller Sync, Backfill, Sync-Log)
+- Fitbit-Integration vollständig entfernt; `MetricSource.FITBIT` bleibt nur für historische Zeilen erhalten
 
 ### Apple Health Auto Export
 

@@ -1,25 +1,19 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { syncDay, syncRange, type SyncActionResult } from '@/app/admin/fitbit/actions'
-import type { FitbitSyncResult } from '@/lib/fitbit'
+import { syncDay, syncRange, type SyncActionResult } from '@/app/admin/withings/actions'
+import type { WithingsDayResult } from '@/lib/withings'
 
 // =============================================
 // Result row
 // =============================================
 
-function ResultRow({ r }: { r: FitbitSyncResult }) {
+function ResultRow({ r }: { r: WithingsDayResult }) {
   return (
     <tr className="border-b border-surface-container last:border-0 text-xs">
       <td className="px-4 py-2.5 font-mono text-on-surface-variant">{r.date}</td>
       <td className="px-4 py-2.5 text-on-surface">{r.weight != null ? `${r.weight} kg` : '—'}</td>
       <td className="px-4 py-2.5 text-on-surface">{r.bodyFat != null ? `${r.bodyFat}%` : '—'}</td>
-      <td className="px-4 py-2.5 text-on-surface">
-        {r.activeMinutes != null ? `${r.activeMinutes} min` : '—'}
-      </td>
-      <td className="px-4 py-2.5 text-on-surface">
-        {r.restingHR != null ? `${r.restingHR} bpm` : '—'}
-      </td>
     </tr>
   )
 }
@@ -39,17 +33,18 @@ function SyncResultDisplay({ outcome }: { outcome: SyncActionResult }) {
       )}
       {outcome.tokensRefreshed && (
         <div className="p-3 bg-amber-50 bg-amber-900/20 border border-amber-200 border-amber-800/40 rounded-lg text-sm text-amber-700 text-amber-400">
-          Tokens wurden erneuert — bitte <code>FITBIT_ACCESS_TOKEN</code> und{' '}
-          <code>FITBIT_REFRESH_TOKEN</code> im Server-Log ablesen und in <code>.env</code>{' '}
-          aktualisieren.
+          Tokens wurden erneuert und automatisch in der Datenbank gespeichert.
         </div>
       )}
-      {outcome.results && outcome.results.length > 0 && !outcome.error && (
+      {outcome.days && !outcome.error && (
         <div className="p-3 bg-movement-100 bg-movement-600/10 border border-movement-200 border-movement-600/20 rounded-lg text-sm text-movement-700 text-movement-400">
-          {outcome.results.length === 1 ? 'Sync erfolgreich.' : `${outcome.results.length} Tage synchronisiert.`}
+          {outcome.days.length === 0
+            ? 'Keine neuen Messungen im Zeitraum.'
+            : `${outcome.days.length} Tag(e) synchronisiert`}
+          {outcome.measureCount != null && ` — ${outcome.measureCount} Roh-Messwerte gespeichert.`}
         </div>
       )}
-      {outcome.results && outcome.results.length > 0 && (
+      {outcome.days && outcome.days.length > 0 && (
         <div className="bg-surface-container rounded-xl border border-surface-container-high overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
@@ -57,12 +52,10 @@ function SyncResultDisplay({ outcome }: { outcome: SyncActionResult }) {
                 <th className="px-4 py-2.5 font-medium">Datum</th>
                 <th className="px-4 py-2.5 font-medium">Gewicht</th>
                 <th className="px-4 py-2.5 font-medium">Körperfett</th>
-                <th className="px-4 py-2.5 font-medium">Aktiv</th>
-                <th className="px-4 py-2.5 font-medium">HR</th>
               </tr>
             </thead>
             <tbody>
-              {outcome.results.map((r) => (
+              {outcome.days.map((r) => (
                 <ResultRow key={r.date} r={r} />
               ))}
             </tbody>
@@ -74,7 +67,7 @@ function SyncResultDisplay({ outcome }: { outcome: SyncActionResult }) {
 }
 
 // =============================================
-// Single day sync panel
+// Sync panel
 // =============================================
 
 function todayString() {
@@ -87,7 +80,7 @@ function yesterdayString() {
   return d.toISOString().slice(0, 10)
 }
 
-export function FitbitSyncPanel() {
+export function WithingsSyncPanel() {
   const [isPending, startTransition] = useTransition()
   const [singleDate, setSingleDate] = useState(yesterdayString())
   const [singleOutcome, setSingleOutcome] = useState<SyncActionResult | null>(null)
@@ -147,7 +140,7 @@ export function FitbitSyncPanel() {
         <h3 className="font-headline text-sm font-semibold text-on-surface mb-1">
           Zeitraum nachfüllen (Backfill)
         </h3>
-        <p className="text-xs text-on-surface-variant mb-4">Maximal 30 Tage auf einmal.</p>
+        <p className="text-xs text-on-surface-variant mb-4">Maximal 90 Tage auf einmal.</p>
         <div className="flex flex-wrap items-end gap-3">
           <div>
             <label className="block text-xs font-medium text-on-surface-variant mb-1">Von</label>

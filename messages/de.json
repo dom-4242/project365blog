@@ -154,7 +154,7 @@
   "MetricsDashboard": {
     "heading": "Metriken",
     "noData": "Noch keine Metriken",
-    "noDataHint": "Daten werden täglich via Fitbit automatisch importiert."
+    "noDataHint": "Daten werden täglich via Withings automatisch importiert."
   },
   "JournalPage": {
     "title": "Journal",

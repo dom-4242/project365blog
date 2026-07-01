@@ -102,7 +102,7 @@ enum EntryType {
 
 // =============================================
 // METRIKEN — Objektive Messwerte
-// Quelle: Automatisch (Fitbit/Apple Health) + Manuell
+// Quelle: Automatisch (Withings/Apple Health) + Manuell
 // =============================================
 
 model DailyMetrics {
@@ -127,6 +127,7 @@ model DailyMetrics {
 enum MetricSource {
   MANUAL
   FITBIT
+  WITHINGS
   APPLE_HEALTH
   MERGED
 }
@@ -348,7 +349,7 @@ model SweetsLog {
 
 // =============================================
 // APP SETTINGS — generischer Key-Value Store
-// Wird u.a. für Fitbit OAuth Tokens genutzt
+// Wird u.a. für Withings OAuth Tokens genutzt
 // =============================================
 
 model AppSetting {
@@ -385,11 +386,34 @@ model PageView {
 }
 
 // =============================================
-// FITBIT SYNC LOG — Protokoll jeder Sync-Ausführung
+// WITHINGS MEASUREMENT — generischer Roh-Store
+// Ein Row pro Messwert-Typ einer Withings-Messgruppe.
+// Speichert ALLE von der Body Scan gelieferten Datenpunkte
+// (Gewicht, Muskelmasse, Wasser, viszerales Fett, PWV, Gefässalter,
+// segmentale Werte …). Gewicht + Körperfett werden zusätzlich in
+// DailyMetrics gespiegelt (für die bestehenden Dashboards).
+// =============================================
+
+model WithingsMeasurement {
+  id         String   @id @default(cuid())
+  grpid      BigInt                        // Withings measure-group id
+  measuredAt DateTime                      // voller Zeitstempel der Messung
+  date       DateTime @db.Date             // Messtag (Europe/Zurich) — für Tages-Joins
+  type       Int                           // Withings meastype (1, 6, 76, …)
+  value      Float                         // aufgelöster Realwert (value * 10^unit)
+  createdAt  DateTime @default(now())
+
+  @@unique([grpid, type])
+  @@index([date])
+  @@index([type])
+}
+
+// =============================================
+// WITHINGS SYNC LOG — Protokoll jeder Sync-Ausführung
 // Wird von Cron und manuellem Sync befüllt.
 // =============================================
 
-model FitbitSyncLog {
+model WithingsSyncLog {
   id              String   @id @default(cuid())
   syncedAt        DateTime @default(now())
   triggeredBy     String   @default("CRON")   // CRON | MANUAL
@@ -397,11 +421,7 @@ model FitbitSyncLog {
   status          String                       // SUCCESS | ERROR
   weight          Float?
   bodyFat         Float?
-  bmi             Float?
-  activeMinutes   Int?
-  caloriesBurned  Int?
-  distance        Float?
-  restingHR       Int?
+  measureCount    Int?                         // Anzahl gespeicherter Roh-Messwerte
   tokensRefreshed Boolean  @default(false)
   errorMessage    String?
 

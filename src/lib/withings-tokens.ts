@@ -1,16 +1,17 @@
 /**
- * Fitbit token persistence via AppSetting table.
- * Tokens survive redeployments and are updated automatically after each refresh.
+ * Withings token persistence via AppSetting table.
+ * Tokens survive redeployments and are updated automatically after each refresh
+ * (Withings refresh tokens are single-use and rotate on every refresh).
  */
 
 import { prisma } from '@/lib/db'
-import type { FitbitTokens } from '@/lib/fitbit'
+import type { WithingsTokens } from '@/lib/withings'
 
-const KEY_ACCESS = 'fitbit.accessToken'
-const KEY_REFRESH = 'fitbit.refreshToken'
+const KEY_ACCESS = 'withings.accessToken'
+const KEY_REFRESH = 'withings.refreshToken'
 
 /** Load tokens from DB, falling back to env vars (initial setup). */
-export async function loadFitbitTokens(): Promise<FitbitTokens | null> {
+export async function loadWithingsTokens(): Promise<WithingsTokens | null> {
   const [accessRow, refreshRow] = await Promise.all([
     prisma.appSetting.findUnique({ where: { key: KEY_ACCESS } }),
     prisma.appSetting.findUnique({ where: { key: KEY_REFRESH } }),
@@ -21,8 +22,8 @@ export async function loadFitbitTokens(): Promise<FitbitTokens | null> {
   }
 
   // Fall back to env vars (first run before any OAuth)
-  const accessToken = process.env.FITBIT_ACCESS_TOKEN
-  const refreshToken = process.env.FITBIT_REFRESH_TOKEN
+  const accessToken = process.env.WITHINGS_ACCESS_TOKEN
+  const refreshToken = process.env.WITHINGS_REFRESH_TOKEN
   if (accessToken && refreshToken) {
     return { accessToken, refreshToken }
   }
@@ -30,8 +31,8 @@ export async function loadFitbitTokens(): Promise<FitbitTokens | null> {
   return null
 }
 
-/** Persist tokens to DB after a successful refresh. */
-export async function saveFitbitTokens(tokens: FitbitTokens): Promise<void> {
+/** Persist tokens to DB after a successful refresh or OAuth exchange. */
+export async function saveWithingsTokens(tokens: WithingsTokens): Promise<void> {
   await Promise.all([
     prisma.appSetting.upsert({
       where: { key: KEY_ACCESS },
