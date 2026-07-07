@@ -20,6 +20,7 @@ export interface EntryFormData {
   movement: MovementLevel
   nutrition: NutritionLevel
   smoking: SmokingStatus
+  sickDay: boolean
   tags: string[]
   published: boolean
   privateNotes?: string
@@ -78,6 +79,7 @@ export async function createEntry(data: EntryFormData): Promise<ActionResult> {
         movement: data.movement,
         nutrition: data.nutrition,
         smoking: data.smoking,
+        sickDay: data.sickDay,
         tags: isFiller ? [] : data.tags,
         published: data.published,
         privateNotes: data.privateNotes?.trim() || null,
@@ -121,6 +123,7 @@ export async function updateEntry(id: string, data: EntryFormData): Promise<Acti
         movement: data.movement,
         nutrition: data.nutrition,
         smoking: data.smoking,
+        sickDay: data.sickDay,
         tags: isFiller ? [] : data.tags,
         published: data.published,
         privateNotes: data.privateNotes?.trim() || null,

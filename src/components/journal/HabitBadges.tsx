@@ -9,6 +9,9 @@ interface HabitBadgesProps {
    * the nutrition badge shows the score (e.g. `9.6 / 10`) instead of the
    * meal-count label, and fulfillment is computed from the score. */
   mealScore?: number | null
+  /** Sick day: replaces the three pillar badges with a single neutral
+   * "sick day" badge — habits are recorded but statistically paused. */
+  sickDay?: boolean
 }
 
 interface BadgeProps {
@@ -35,8 +38,23 @@ function HabitBadge({ label, fulfilled, colorClass, dimClass, icon, title }: Bad
   )
 }
 
-export function HabitBadges({ habits, mealScore }: HabitBadgesProps) {
+export function HabitBadges({ habits, mealScore, sickDay = false }: HabitBadgesProps) {
   const t = useTranslations('HabitBadges')
+
+  if (sickDay) {
+    return (
+      <div className="flex flex-wrap gap-2">
+        <span
+          className="inline-flex items-center gap-1.5 text-xs font-label font-bold tracking-widest uppercase px-2.5 py-1 rounded-full border bg-tertiary/10 text-tertiary border-tertiary/30"
+          title={t('sickDayTitle')}
+        >
+          <Icon name="sick" size={14} fill />
+          {t('sickDay')}
+        </span>
+      </div>
+    )
+  }
+
   const hasScore = mealScore !== null && mealScore !== undefined
   const nutritionLabel = hasScore
     ? `${mealScore.toFixed(1)} / 10`

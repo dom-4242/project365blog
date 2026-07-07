@@ -114,6 +114,7 @@ Journal-Einträge werden in PostgreSQL gespeichert (JournalEntry Model), nicht a
 
 - Feld `bannerUrl` (nicht `bannerImage` oder `imageUrl`)
 - Felder `movement`, `nutrition`, `smoking` (nicht `habitMovement` etc.)
+- Feld `sickDay` (Boolean, Default `false`): Krankheitstag — Habits bleiben erfasst, zählen aber statistisch neutral. Streaks pausieren (`calculateStreak` mit `null`), Tag fliegt aus Zähler+Nenner der Erfüllungsquoten, Heatmap-Level `-2` (`SICK_LEVEL`), öffentliches Badge „Krank", kein Perfect Day
 - `published` Default: `true`
 - Übersetzungen: separates `Translation` Model
 - Prisma Client Singleton: `lib/db.ts`

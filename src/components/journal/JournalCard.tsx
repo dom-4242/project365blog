@@ -20,8 +20,16 @@ export async function JournalCard({ entry }: JournalCardProps) {
 
   const excerpt = entry.excerpt ?? ''
   const dayNumber = getDayNumber(entry.date, startDate)
-  const perfect = isPerfectDay(entry.habits, entry.mealScore)
+  const sick = entry.sickDay
+  const perfect = !sick && isPerfectDay(entry.habits, entry.mealScore)
   const isFiller = entry.entryType === 'filler'
+
+  const sickBadge = sick ? (
+    <span className="inline-flex items-center gap-1 text-[10px] font-label font-bold tracking-widest uppercase text-tertiary bg-tertiary/10 border border-tertiary/20 rounded px-2 py-0.5">
+      <Icon name="sick" size={12} fill />
+      {t('sickBadge')}
+    </span>
+  ) : null
 
   function formatDate(dateStr: string): string {
     return new Date(dateStr).toLocaleDateString(locale, {
@@ -69,6 +77,7 @@ export async function JournalCard({ entry }: JournalCardProps) {
             <span className="inline-flex items-center gap-1 text-[10px] font-label font-bold tracking-widest uppercase text-on-surface-variant bg-surface-container-high border border-outline-variant/20 rounded px-2 py-0.5">
               {t('fillerBadge')}
             </span>
+            {sickBadge}
             {perfect && (
               <span className="inline-flex items-center gap-1 text-[10px] font-label font-bold tracking-widest uppercase text-primary bg-primary/10 border border-primary/20 rounded px-2 py-0.5">
                 ✦ {t('perfectDay')}
@@ -87,7 +96,7 @@ export async function JournalCard({ entry }: JournalCardProps) {
           )}
 
           <div className="pt-2 border-t border-outline-variant/10">
-            <HabitBadges habits={entry.habits} mealScore={entry.mealScore} />
+            <HabitBadges habits={entry.habits} mealScore={entry.mealScore} sickDay={sick} />
           </div>
         </div>
       </article>
@@ -124,6 +133,7 @@ export async function JournalCard({ entry }: JournalCardProps) {
             <span className="font-label font-bold text-xs tracking-widest uppercase text-primary bg-primary/10 border border-primary/20 rounded px-2.5 py-0.5">
               {t('day', { number: dayNumber })}
             </span>
+            {sickBadge}
             {perfect && (
               <span className="inline-flex items-center gap-1 text-[10px] font-label font-bold tracking-widest uppercase text-primary bg-primary/10 border border-primary/20 rounded px-2 py-0.5">
                 ✦ {t('perfectDay')}
@@ -146,7 +156,7 @@ export async function JournalCard({ entry }: JournalCardProps) {
           )}
 
           <div className="flex items-center justify-between gap-4 pt-2 border-t border-outline-variant/10">
-            <HabitBadges habits={entry.habits} mealScore={entry.mealScore} />
+            <HabitBadges habits={entry.habits} mealScore={entry.mealScore} sickDay={sick} />
             <span className="inline-flex items-center gap-1 text-xs font-label font-bold tracking-widest uppercase text-primary shrink-0 group-hover:gap-1.5 transition-all duration-150">
               {t('readMore')}
               <Icon name="arrow_forward" size={12} />

@@ -4,6 +4,12 @@ import { useTranslations, useLocale } from 'next-intl'
 
 type Pillar = 'movement' | 'nutrition' | 'smoking'
 
+// Krankheitstag — neutraler Sonderzustand. Muss mit SICK_LEVEL in
+// `lib/habits.ts` übereinstimmen (dort dupliziert, weil dieses Client-Modul
+// lib/habits nicht importieren darf — es zieht Prisma in den Bundle).
+const SICK_LEVEL = -2
+const SICK_COLOR = 'bg-tertiary/25'
+
 // All class names must be static strings for Tailwind to include them
 const COLOR_BY_LEVEL: Record<Pillar, readonly string[]> = {
   movement: [
@@ -126,6 +132,7 @@ export function HabitYearGrid({ movementDays, nutritionDays, smokingDays }: Habi
   }
 
   function getLabel(pillar: Pillar, level: number): string {
+    if (level === SICK_LEVEL) return t('sickDay')
     if (level === -1) return t('noEntry')
     const key = LEVEL_KEYS[pillar][level]
     return key ? t(key as Parameters<typeof t>[0]) : t('noEntry')
@@ -186,7 +193,10 @@ export function HabitYearGrid({ movementDays, nutritionDays, smokingDays }: Habi
                           }
 
                           const level = levelMap.get(dateStr) ?? -1
-                          const colorClass = colors[level + 1] ?? 'bg-surface-container-low'
+                          const colorClass =
+                            level === SICK_LEVEL
+                              ? SICK_COLOR
+                              : colors[level + 1] ?? 'bg-surface-container-low'
 
                           return (
                             <div

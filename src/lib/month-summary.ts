@@ -87,6 +87,7 @@ interface EntryContext {
   movement: MovementLevel
   nutrition: NutritionLevel
   smoking: SmokingStatus
+  sickDay: boolean
 }
 
 interface MetricsContext {
@@ -130,6 +131,7 @@ interface SummaryContext {
     nutritionGood: string
     smokingClean: string
     smokingSmoked: string
+    sickDays: number
   }
   metrics: MetricsContext
   drinks: DrinksContext
@@ -140,7 +142,11 @@ interface SummaryContext {
 
 function buildPrompt(ctx: SummaryContext): string {
   const entriesText = ctx.entries
-    .map((e) => `- ${e.date} "${e.title}" | Bewegung: ${e.movement} | Ernährung: ${e.nutrition} | Rauchen: ${e.smoking}${e.excerpt ? ` | "${e.excerpt}"` : ''}`)
+    .map((e) =>
+      e.sickDay
+        ? `- ${e.date} "${e.title}" | KRANKHEITSTAG (Habits pausiert)${e.excerpt ? ` | "${e.excerpt}"` : ''}`
+        : `- ${e.date} "${e.title}" | Bewegung: ${e.movement} | Ernährung: ${e.nutrition} | Rauchen: ${e.smoking}${e.excerpt ? ` | "${e.excerpt}"` : ''}`,
+    )
     .join('\n')
 
   const booksCompletedText = ctx.books.booksCompleted.length > 0
@@ -158,6 +164,7 @@ HABITS-STATISTIK (die drei Säulen):
 - Ernährung gut (mind. 2 Mahlzeiten): ${ctx.habitStats.nutritionGood}
 - Nicht geraucht (NICOTINE_REPLACEMENT oder SMOKE_FREE): ${ctx.habitStats.smokingClean}
 - Geraucht (SMOKED): ${ctx.habitStats.smokingSmoked}
+- Krankheitstage (zählen nicht in die Quoten): ${ctx.habitStats.sickDays}
 
 METRIKEN (Monatsdurchschnitt):
 - Gewicht: ${fmt(ctx.metrics.avgWeight, 1, ' kg')}
@@ -227,7 +234,7 @@ export async function generateAndSaveMonthSummary(year: number, month: number): 
     prisma.journalEntry.findMany({
       where: { date: { gte: start, lte: end }, published: true },
       orderBy: { date: 'asc' },
-      select: { date: true, title: true, excerpt: true, movement: true, nutrition: true, smoking: true },
+      select: { date: true, title: true, excerpt: true, movement: true, nutrition: true, smoking: true, sickDay: true },
     }),
     prisma.dailyMetrics.findMany({
       where: { date: { gte: start, lte: end } },
@@ -251,9 +258,11 @@ export async function generateAndSaveMonthSummary(year: number, month: number): 
     }),
   ])
 
-  const movements = entries.map((e) => e.movement)
-  const nutritions = entries.map((e) => e.nutrition)
-  const smokings = entries.map((e) => e.smoking)
+  // Krankheitstage zählen nicht in die Habit-Quoten (neutral)
+  const activeEntries = entries.filter((e) => !e.sickDay)
+  const movements = activeEntries.map((e) => e.movement)
+  const nutritions = activeEntries.map((e) => e.nutrition)
+  const smokings = activeEntries.map((e) => e.smoking)
 
   // Drinks: group by day to compute daily averages
   const drinkDays = new Map<string, { water: number; cola: number }>()
@@ -296,12 +305,14 @@ export async function generateAndSaveMonthSummary(year: number, month: number): 
       movement: e.movement,
       nutrition: e.nutrition,
       smoking: e.smoking,
+      sickDay: e.sickDay,
     })),
     habitStats: {
       movementGood: habitRate(movements, [MovementLevel.STEPS_ONLY, MovementLevel.TRAINED_ONLY, MovementLevel.STEPS_TRAINED]),
       nutritionGood: habitRate(nutritions, [NutritionLevel.TWO_MEALS, NutritionLevel.THREE_MEALS]),
       smokingClean: habitRate(smokings, [SmokingStatus.NICOTINE_REPLACEMENT, SmokingStatus.SMOKE_FREE]),
       smokingSmoked: habitRate(smokings, [SmokingStatus.SMOKED]),
+      sickDays: entries.length - activeEntries.length,
     },
     metrics: {
       avgWeight: avg(metricsRows.map((m) => m.weight)),

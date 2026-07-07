@@ -26,6 +26,7 @@ export default async function EditEntryPage({ params }: EditEntryPageProps) {
     movement: entry.movement,
     nutrition: entry.nutrition,
     smoking: entry.smoking,
+    sickDay: entry.sickDay,
     tags: entry.tags,
     published: entry.published,
     privateNotes: entry.privateNotes ?? '',

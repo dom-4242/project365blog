@@ -149,7 +149,8 @@
       "replacement": "Nikotinersatz",
       "smokeFree": "Rauchfrei"
     },
-    "dayCount": "{count, plural, one {# Tag} other {# Tage}} seit Projektstart"
+    "dayCount": "{count, plural, one {# Tag} other {# Tage}} seit Projektstart",
+    "sickDay": "Krank — zählt nicht"
   },
   "MetricsDashboard": {
     "heading": "Metriken",
@@ -188,7 +189,8 @@
     "day": "Tag {number}",
     "readMore": "Weiterlesen →",
     "perfectDay": "Perfekter Tag",
-    "fillerBadge": "Tagesnotiz"
+    "fillerBadge": "Tagesnotiz",
+    "sickBadge": "Krank"
   },
   "SearchModal": {
     "ariaLabel": "Suchen",
@@ -224,6 +226,8 @@
       "smoked": "Geraucht",
       "nicotine_replacement": "Nikotinersatz",
       "smoke_free": "Rauchfrei"
-    }
+    },
+    "sickDay": "Krankheitstag",
+    "sickDayTitle": "Krankheitstag — Habits pausiert"
   }
 }

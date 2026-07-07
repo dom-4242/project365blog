@@ -69,26 +69,29 @@ export interface StreakResult {
 
 /**
  * Berechnet den aktuellen und längsten Streak aus einer Boolean-Liste.
- * @param values - sortiert neueste zuerst
+ * @param values - sortiert neueste zuerst. `null` = neutraler Tag
+ *   (Krankheitstag): pausiert den Streak — weder unterbrochen noch gezählt.
  */
-export function calculateStreak(values: boolean[]): StreakResult {
+export function calculateStreak(values: (boolean | null)[]): StreakResult {
   // Aktueller Streak: konsekutive `true`-Werte ab dem neuesten Eintrag
   let current = 0
   for (const v of values) {
-    if (v) current++
-    else break
+    if (v === true) current++
+    else if (v === false) break
+    // null → skip, Streak läuft weiter
   }
 
   // Längster Streak: längste konsekutive `true`-Sequenz
   let longest = 0
   let run = 0
   for (const v of values) {
-    if (v) {
+    if (v === true) {
       run++
       if (run > longest) longest = run
-    } else {
+    } else if (v === false) {
       run = 0
     }
+    // null → run bleibt
   }
 
   return { current, longest }
@@ -96,8 +99,16 @@ export function calculateStreak(values: boolean[]): StreakResult {
 
 // =============================================
 // Erfüllungsgrad-Level (für Heatmap)
-//   -1 = kein Eintrag, 0 = niedrigster, max = bester
+//   -2 = Krankheitstag (neutral), -1 = kein Eintrag, 0 = niedrigster, max = bester
 // =============================================
+
+/**
+ * Heatmap-Level für Krankheitstage — neutraler Sonderzustand, weder Erfolg
+ * noch Misserfolg. Muss mit der lokalen Konstante in `HabitYearGrid.tsx`
+ * übereinstimmen (dort dupliziert, weil Client-Komponenten dieses Modul
+ * nicht importieren dürfen — es zieht Prisma in den Bundle).
+ */
+export const SICK_LEVEL = -2
 
 export function getMovementLevel(m: MovementValue): number {
   if (m === 'steps_trained') return 3
@@ -127,17 +138,23 @@ export function getSmokingLevel(s: SmokingValue): number {
 
 export async function getMovementStreak(): Promise<StreakResult> {
   const entries = await getAllEntries()
-  return calculateStreak(entries.map((e) => isMovementFulfilled(e.habits.movement)))
+  return calculateStreak(
+    entries.map((e) => (e.sickDay ? null : isMovementFulfilled(e.habits.movement))),
+  )
 }
 
 export async function getNutritionStreak(): Promise<StreakResult> {
   const entries = await getAllEntries()
-  return calculateStreak(entries.map((e) => isNutritionFulfilled(e.habits.nutrition, e.mealScore)))
+  return calculateStreak(
+    entries.map((e) => (e.sickDay ? null : isNutritionFulfilled(e.habits.nutrition, e.mealScore))),
+  )
 }
 
 export async function getSmokingStreak(): Promise<StreakResult> {
   const entries = await getAllEntries()
-  return calculateStreak(entries.map((e) => isSmokingFulfilled(e.habits.smoking)))
+  return calculateStreak(
+    entries.map((e) => (e.sickDay ? null : isSmokingFulfilled(e.habits.smoking))),
+  )
 }
 
 /**

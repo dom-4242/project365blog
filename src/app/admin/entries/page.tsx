@@ -32,6 +32,7 @@ export default async function EntriesPage({ searchParams }: EntriesPageProps) {
         movement: true,
         nutrition: true,
         smoking: true,
+        sickDay: true,
         translations: { select: { locale: true, updatedAt: true } },
       },
     }),
@@ -87,6 +88,11 @@ export default async function EntriesPage({ searchParams }: EntriesPageProps) {
                     {entry.entryType === 'FILLER' && (
                       <span className="text-xs px-1.5 py-0.5 bg-surface-container-high text-on-surface-variant rounded shrink-0">
                         Tagesnotiz
+                      </span>
+                    )}
+                    {entry.sickDay && (
+                      <span className="text-xs px-1.5 py-0.5 bg-tertiary/15 text-tertiary rounded shrink-0">
+                        Krank
                       </span>
                     )}
                     {!entry.published && (
