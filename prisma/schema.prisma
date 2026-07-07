@@ -42,6 +42,10 @@ model JournalEntry {
   // Süssigkeiten: null = nicht erfasst, false = keine, true = konsumiert
   sweetsConsumed Boolean?
 
+  // Krankheitstag: Habits bleiben erfasst, zählen aber statistisch neutral
+  // (Streaks pausieren, Tag fliegt aus den Erfüllungsquoten)
+  sickDay Boolean @default(false)
+
   // Privates Notizfeld — niemals in öffentlichen Queries zurückgeben
   privateNotes String? @db.Text
 

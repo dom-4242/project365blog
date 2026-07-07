@@ -199,4 +199,36 @@ describe('calculateStreak', () => {
       longest: 4,
     })
   })
+
+  // Krankheitstage (null) pausieren den Streak: weder unterbrochen noch gezählt.
+  it('null pauses the current streak instead of breaking it', () => {
+    // newest first: [true, null, true, true]
+    expect(calculateStreak([true, null, true, true])).toEqual({ current: 3, longest: 3 })
+  })
+
+  it('current streak continues past leading nulls', () => {
+    // newest entries are sick days, streak from before continues
+    expect(calculateStreak([null, null, true, true])).toEqual({ current: 2, longest: 2 })
+  })
+
+  it('null does not count toward the streak length', () => {
+    expect(calculateStreak([true, null, null, true])).toEqual({ current: 2, longest: 2 })
+  })
+
+  it('false after null still breaks the current streak', () => {
+    // newest first: [true, null, false, true]
+    expect(calculateStreak([true, null, false, true])).toEqual({ current: 1, longest: 1 })
+  })
+
+  it('longest streak spans a null gap', () => {
+    // [false, true, null, true, true, false]
+    expect(calculateStreak([false, true, null, true, true, false])).toEqual({
+      current: 0,
+      longest: 3,
+    })
+  })
+
+  it('all null returns 0/0', () => {
+    expect(calculateStreak([null, null, null])).toEqual({ current: 0, longest: 0 })
+  })
 })

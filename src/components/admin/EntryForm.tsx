@@ -63,6 +63,7 @@ export function EntryForm({ mode, entryId, initial, mealLog }: EntryFormProps) {
     (mealLog?.score != null ? scoreToNutritionLevel(mealLog.score) : 'TWO_MEALS')
   const [nutrition, setNutrition] = useState<NutritionLevel>(defaultNutrition)
   const [smoking, setSmoking] = useState<SmokingStatus>(initial?.smoking ?? 'SMOKE_FREE')
+  const [sickDay, setSickDay] = useState(initial?.sickDay ?? false)
   const [bannerUrl, setBannerUrl] = useState<string | undefined>(initial?.bannerUrl)
   const [tags, setTags] = useState<string>(initial?.tags?.join(', ') ?? '')
   const [published, setPublished] = useState(initial?.published ?? true)
@@ -109,6 +110,7 @@ export function EntryForm({ mode, entryId, initial, mealLog }: EntryFormProps) {
       movement,
       nutrition,
       smoking,
+      sickDay,
       tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
       published,
       privateNotes,
@@ -168,6 +170,7 @@ export function EntryForm({ mode, entryId, initial, mealLog }: EntryFormProps) {
           movement={movement}
           nutrition={nutrition}
           smoking={smoking}
+          sickDay={sickDay}
           tags={tags}
           bannerUrl={bannerUrl}
           mealScore={mealLog?.score}
@@ -385,17 +388,50 @@ export function EntryForm({ mode, entryId, initial, mealLog }: EntryFormProps) {
         />
       </div>
 
-      {/* Die drei Säulen */}
-      <HabitsPicker
-        movement={movement}
-        nutrition={nutrition}
-        smoking={smoking}
-        onMovementChange={setMovement}
-        onNutritionChange={setNutrition}
-        onSmokingChange={setSmoking}
-        nutritionLocked={!!mealLog?.score}
-        mealScore={mealLog?.score}
-      />
+      {/* Krankheitstag */}
+      <div className="rounded-xl border border-outline-variant/30 bg-surface-container-low p-4 space-y-1.5">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setSickDay((s) => !s)}
+            className={clsx(
+              'relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none',
+              sickDay ? 'bg-tertiary' : 'bg-outline'
+            )}
+          >
+            <span
+              className={clsx(
+                'inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform',
+                sickDay ? 'translate-x-4.5' : 'translate-x-0.5'
+              )}
+            />
+          </button>
+          <span className="flex items-center gap-1.5 text-sm text-on-surface-variant">
+            <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 0" }}>sick</span>
+            Krankheitstag
+          </span>
+        </div>
+        {sickDay && (
+          <p className="text-xs text-on-surface-variant">
+            Der Tag wird öffentlich als Kranktag markiert. Die Säulen zählen nicht in Statistik und
+            Erfüllungsquoten, Streaks pausieren (weder unterbrochen noch erhöht).
+          </p>
+        )}
+      </div>
+
+      {/* Die drei Säulen — auf Kranktagen statistisch irrelevant, daher gedimmt */}
+      <div className={clsx(sickDay && 'opacity-40 pointer-events-none select-none')} aria-disabled={sickDay}>
+        <HabitsPicker
+          movement={movement}
+          nutrition={nutrition}
+          smoking={smoking}
+          onMovementChange={setMovement}
+          onNutritionChange={setNutrition}
+          onSmokingChange={setSmoking}
+          nutritionLocked={!!mealLog?.score}
+          mealScore={mealLog?.score}
+        />
+      </div>
 
       {/* Submit */}
       <div className="flex items-center justify-between pt-2">

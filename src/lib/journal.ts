@@ -35,6 +35,12 @@ export interface JournalEntry {
   dailyQuote?: string | null
   sweetsConsumed?: boolean | null
   /**
+   * Krankheitstag: Habits bleiben erfasst, werden aber statistisch neutral
+   * behandelt — Streaks pausieren, der Tag zählt nicht in die Erfüllungsquoten
+   * und wird öffentlich als Kranktag markiert.
+   */
+  sickDay: boolean
+  /**
    * Nutrition score (0–10) from the day's MealLog, when one exists. The enum
    * `habits.nutrition` mirrors this via `scoreToNutritionLevel` (auto-synced
    * by `saveMealLogAction`), but the raw score is the canonical fulfillment
@@ -106,6 +112,7 @@ function toMeta(entry: PrismaJournalEntry): JournalEntryMeta {
       smoking: SMOKING_TO_VALUE[entry.smoking],
     },
     sweetsConsumed: entry.sweetsConsumed,
+    sickDay: entry.sickDay,
   }
 }
 

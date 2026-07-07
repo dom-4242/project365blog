@@ -74,6 +74,8 @@ export interface EntryPreviewProps {
   movement: MovementLevel
   nutrition: NutritionLevel
   smoking: SmokingStatus
+  /** Krankheitstag — ersetzt die drei Säulen-Badges durch ein neutrales Badge. */
+  sickDay?: boolean
   tags: string
   bannerUrl?: string
   /** When a meal-log score is present, the nutrition badge shows the score (e.g. `9.6 / 10`)
@@ -92,6 +94,7 @@ export function EntryPreview({
   movement,
   nutrition,
   smoking,
+  sickDay = false,
   tags,
   bannerUrl,
   mealScore,
@@ -162,21 +165,31 @@ export function EntryPreview({
 
           {/* Habit badges */}
           <div className="flex flex-wrap gap-1.5">
-            <HabitBadge
-              label={MOVEMENT_LABELS[movement]}
-              fulfilled={isMovementOk(movement)}
-              colorClass="bg-movement-100 bg-movement-600/20 text-movement-700 text-movement-400"
-            />
-            <HabitBadge
-              label={nutritionLabel}
-              fulfilled={isNutritionOk(nutrition, mealScore)}
-              colorClass="bg-nutrition-100 bg-nutrition-600/20 text-nutrition-700 text-nutrition-400"
-            />
-            <HabitBadge
-              label={SMOKING_LABELS[smoking]}
-              fulfilled={isSmokingOk(smoking)}
-              colorClass="bg-smoking-100 bg-smoking-600/20 text-smoking-700 text-smoking-400"
-            />
+            {sickDay ? (
+              <HabitBadge
+                label="Krankheitstag"
+                fulfilled
+                colorClass="bg-tertiary/20 text-tertiary"
+              />
+            ) : (
+              <>
+                <HabitBadge
+                  label={MOVEMENT_LABELS[movement]}
+                  fulfilled={isMovementOk(movement)}
+                  colorClass="bg-movement-100 bg-movement-600/20 text-movement-700 text-movement-400"
+                />
+                <HabitBadge
+                  label={nutritionLabel}
+                  fulfilled={isNutritionOk(nutrition, mealScore)}
+                  colorClass="bg-nutrition-100 bg-nutrition-600/20 text-nutrition-700 text-nutrition-400"
+                />
+                <HabitBadge
+                  label={SMOKING_LABELS[smoking]}
+                  fulfilled={isSmokingOk(smoking)}
+                  colorClass="bg-smoking-100 bg-smoking-600/20 text-smoking-700 text-smoking-400"
+                />
+              </>
+            )}
           </div>
 
           {/* Tags */}

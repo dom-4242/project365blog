@@ -8,6 +8,7 @@ import {
   getMovementLevel,
   getNutritionLevel,
   getSmokingLevel,
+  SICK_LEVEL,
 } from '@/lib/habits'
 import { HabitPillar } from './HabitPillar'
 import { HabitYearGrid } from './HabitYearGrid'
@@ -34,31 +35,39 @@ export async function HabitsDashboard() {
   const today = new Date().toISOString().slice(0, 10)
   const allDates = generateDateRange(startDate, today)
 
-  const movementDays = allDates.map((date) => ({
-    date,
-    level: entryMap.has(date) ? getMovementLevel(entryMap.get(date)!.habits.movement) : -1,
-  }))
+  const movementDays = allDates.map((date) => {
+    const e = entryMap.get(date)
+    return {
+      date,
+      level: e ? (e.sickDay ? SICK_LEVEL : getMovementLevel(e.habits.movement)) : -1,
+    }
+  })
   const nutritionDays = allDates.map((date) => {
     const e = entryMap.get(date)
     return {
       date,
-      level: e ? getNutritionLevel(e.habits.nutrition, e.mealScore) : -1,
+      level: e ? (e.sickDay ? SICK_LEVEL : getNutritionLevel(e.habits.nutrition, e.mealScore)) : -1,
     }
   })
-  const smokingDays = allDates.map((date) => ({
-    date,
-    level: entryMap.has(date) ? getSmokingLevel(entryMap.get(date)!.habits.smoking) : -1,
-  }))
+  const smokingDays = allDates.map((date) => {
+    const e = entryMap.get(date)
+    return {
+      date,
+      level: e ? (e.sickDay ? SICK_LEVEL : getSmokingLevel(e.habits.smoking)) : -1,
+    }
+  })
 
-  const movementFulfilled = entries.filter((e) => isMovementFulfilled(e.habits.movement)).length
-  const nutritionFulfilled = entries.filter((e) => isNutritionFulfilled(e.habits.nutrition, e.mealScore)).length
-  const smokingFulfilled = entries.filter((e) => isSmokingFulfilled(e.habits.smoking)).length
+  // Krankheitstage zählen weder in Zähler noch Nenner der Erfüllungsquoten
+  const activeEntries = entries.filter((e) => !e.sickDay)
+  const movementFulfilled = activeEntries.filter((e) => isMovementFulfilled(e.habits.movement)).length
+  const nutritionFulfilled = activeEntries.filter((e) => isNutritionFulfilled(e.habits.nutrition, e.mealScore)).length
+  const smokingFulfilled = activeEntries.filter((e) => isSmokingFulfilled(e.habits.smoking)).length
 
   // Letzte 30 Tage (Tage mit Eintrag, max 30 jüngste)
   const cutoff = new Date()
   cutoff.setDate(cutoff.getDate() - 29)
   const cutoffISO = cutoff.toISOString().slice(0, 10)
-  const recent = entries.filter((e) => e.date >= cutoffISO)
+  const recent = activeEntries.filter((e) => e.date >= cutoffISO)
   const recentTotal = recent.length
   const movementRecent = recent.filter((e) => isMovementFulfilled(e.habits.movement)).length
   const nutritionRecent = recent.filter((e) => isNutritionFulfilled(e.habits.nutrition, e.mealScore)).length
@@ -82,21 +91,21 @@ export async function HabitsDashboard() {
         <HabitPillar
           pillar="movement"
           totalFulfilled={movementFulfilled}
-          totalEntries={entries.length}
+          totalEntries={activeEntries.length}
           recentFulfilled={movementRecent}
           recentTotal={recentTotal}
         />
         <HabitPillar
           pillar="nutrition"
           totalFulfilled={nutritionFulfilled}
-          totalEntries={entries.length}
+          totalEntries={activeEntries.length}
           recentFulfilled={nutritionRecent}
           recentTotal={recentTotal}
         />
         <HabitPillar
           pillar="smoking"
           totalFulfilled={smokingFulfilled}
-          totalEntries={entries.length}
+          totalEntries={activeEntries.length}
           recentFulfilled={smokingRecent}
           recentTotal={recentTotal}
         />

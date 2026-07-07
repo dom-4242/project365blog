@@ -146,7 +146,8 @@
       "replacement": "Substituto de nicotina",
       "smokeFree": "Sem fumar"
     },
-    "dayCount": "{count, plural, one {# dia} other {# dias}} desde o início do projeto"
+    "dayCount": "{count, plural, one {# dia} other {# dias}} desde o início do projeto",
+    "sickDay": "Doente — não conta"
   },
   "MetricsDashboard": {
     "heading": "Métricas",
@@ -185,7 +186,8 @@
     "day": "Dia {number}",
     "readMore": "Ler mais →",
     "perfectDay": "Dia Perfeito",
-    "fillerBadge": "Nota do dia"
+    "fillerBadge": "Nota do dia",
+    "sickBadge": "Doente"
   },
   "SearchModal": {
     "ariaLabel": "Pesquisar",
@@ -221,6 +223,8 @@
       "smoked": "Fumou",
       "nicotine_replacement": "Substituto de nicotina",
       "smoke_free": "Sem fumar"
-    }
+    },
+    "sickDay": "Dia de doença",
+    "sickDayTitle": "Dia de doença — hábitos pausados"
   }
 }

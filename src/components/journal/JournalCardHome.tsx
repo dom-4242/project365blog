@@ -4,6 +4,7 @@ import type { JournalEntryMeta } from '@/lib/journal'
 import { getDayNumber, isPerfectDay } from '@/lib/journal'
 import { getProjectStartDate } from '@/lib/project-config'
 import { ReactionBarCompact } from '@/components/reactions/ReactionBarCompact'
+import { Icon } from '@/components/ui/Icon'
 
 interface JournalCardHomeProps {
   entry: JournalEntryMeta
@@ -17,8 +18,16 @@ export async function JournalCardHome({ entry }: JournalCardHomeProps) {
   ])
 
   const dayNumber = getDayNumber(entry.date, startDate)
-  const perfect = isPerfectDay(entry.habits, entry.mealScore)
+  const sick = entry.sickDay
+  const perfect = !sick && isPerfectDay(entry.habits, entry.mealScore)
   const isFiller = entry.entryType === 'filler'
+
+  const sickBadge = sick ? (
+    <span className="inline-flex items-center gap-1 text-[10px] font-label font-bold tracking-widest uppercase text-tertiary bg-tertiary/10 border border-tertiary/20 rounded px-2 py-0.5 mr-1">
+      <Icon name="sick" size={12} fill />
+      {t('sickBadge')}
+    </span>
+  ) : null
 
   const formattedDate = new Date(entry.date).toLocaleDateString(locale, {
     day: 'numeric',
@@ -40,6 +49,7 @@ export async function JournalCardHome({ entry }: JournalCardHomeProps) {
             <span className="inline-flex items-center gap-1 text-[10px] font-label font-bold tracking-widest uppercase text-on-surface-variant bg-surface-container-high border border-outline-variant/20 rounded px-2 py-0.5 mr-1">
               {t('fillerBadge')}
             </span>
+            {sickBadge}
             {perfect && (
               <span className="inline-flex items-center gap-1 text-[10px] font-label font-bold tracking-widest uppercase text-primary bg-primary/10 border border-primary/20 rounded px-2 py-0.5">
                 ✦ {t('perfectDay')}
@@ -76,6 +86,7 @@ export async function JournalCardHome({ entry }: JournalCardHomeProps) {
 
         {/* Date + Day number */}
         <div className="flex items-center gap-2">
+          {sickBadge}
           {perfect && (
             <span className="inline-flex items-center gap-1 text-[10px] font-label font-bold tracking-widest uppercase text-primary bg-primary/10 border border-primary/20 rounded px-2 py-0.5 mr-1">
               ✦ {t('perfectDay')}
