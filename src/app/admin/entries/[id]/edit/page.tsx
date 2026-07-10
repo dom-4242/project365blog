@@ -2,7 +2,6 @@ import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { EntryForm } from '@/components/admin/EntryForm'
 import type { EntryFormData } from '@/app/admin/entries/actions'
-import { getMealLog } from '@/lib/meal-log'
 
 interface EditEntryPageProps {
   params: { id: string }
@@ -11,9 +10,6 @@ interface EditEntryPageProps {
 export default async function EditEntryPage({ params }: EditEntryPageProps) {
   const entry = await prisma.journalEntry.findUnique({ where: { id: params.id } })
   if (!entry) notFound()
-
-  const dateStr = entry.date.toISOString().slice(0, 10)
-  const mealLog = await getMealLog(dateStr)
 
   const initial: EntryFormData = {
     title: entry.title,
@@ -24,7 +20,6 @@ export default async function EditEntryPage({ params }: EditEntryPageProps) {
     bannerUrl: entry.bannerUrl ?? undefined,
     entryType: entry.entryType,
     movement: entry.movement,
-    nutrition: entry.nutrition,
     smoking: entry.smoking,
     sickDay: entry.sickDay,
     tags: entry.tags,
@@ -36,7 +31,7 @@ export default async function EditEntryPage({ params }: EditEntryPageProps) {
   return (
     <div className="max-w-3xl">
       <h1 className="font-headline text-2xl font-bold text-on-surface mb-8">Eintrag bearbeiten</h1>
-      <EntryForm mode="edit" entryId={entry.id} initial={initial} mealLog={mealLog} />
+      <EntryForm mode="edit" entryId={entry.id} initial={initial} />
     </div>
   )
 }

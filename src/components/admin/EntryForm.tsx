@@ -2,8 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { MovementLevel, NutritionLevel, SmokingStatus, EntryType } from '@prisma/client'
-import { scoreToNutritionLevel, type MealLogData } from '@/lib/meal-log'
+import { MovementLevel, SmokingStatus, EntryType } from '@prisma/client'
 import { clsx } from 'clsx'
 import { TiptapEditor } from './TiptapEditor'
 import { HabitsPicker } from './HabitsPicker'
@@ -33,14 +32,13 @@ interface EntryFormProps {
   mode: 'create' | 'edit'
   entryId?: string
   initial?: Partial<EntryFormData>
-  mealLog?: MealLogData | null
 }
 
 // =============================================
 // Component
 // =============================================
 
-export function EntryForm({ mode, entryId, initial, mealLog }: EntryFormProps) {
+export function EntryForm({ mode, entryId, initial }: EntryFormProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
@@ -54,14 +52,8 @@ export function EntryForm({ mode, entryId, initial, mealLog }: EntryFormProps) {
   const [excerpt, setExcerpt] = useState(initial?.excerpt ?? '')
   const isFiller = entryType === 'FILLER'
   const [movement, setMovement] = useState<MovementLevel>(initial?.movement ?? 'STEPS_ONLY')
-  // If the meal log has a score (saved before the entry was created), derive
-  // the initial enum value from it instead of falling back to the TWO_MEALS
-  // default — otherwise the user has to manually fix the picker every time.
-  // For existing entries we always trust the persisted enum value.
-  const defaultNutrition: NutritionLevel =
-    initial?.nutrition ??
-    (mealLog?.score != null ? scoreToNutritionLevel(mealLog.score) : 'TWO_MEALS')
-  const [nutrition, setNutrition] = useState<NutritionLevel>(defaultNutrition)
+  // Ernährung wird seit N-09 aus dem Food-Logging (Day.fulfillmentStatus) abgeleitet,
+  // nicht mehr hier gepflegt.
   const [smoking, setSmoking] = useState<SmokingStatus>(initial?.smoking ?? 'SMOKE_FREE')
   const [sickDay, setSickDay] = useState(initial?.sickDay ?? false)
   const [bannerUrl, setBannerUrl] = useState<string | undefined>(initial?.bannerUrl)
@@ -78,7 +70,7 @@ export function EntryForm({ mode, entryId, initial, mealLog }: EntryFormProps) {
   async function handleGenerateQuote() {
     setQuoteLoading(true)
     setQuoteError(null)
-    const result = await generateQuoteForEntry({ date, movement, nutrition, smoking })
+    const result = await generateQuoteForEntry({ date, movement, smoking })
     setQuoteLoading(false)
     if (result.error) {
       setQuoteError(result.error)
@@ -108,7 +100,6 @@ export function EntryForm({ mode, entryId, initial, mealLog }: EntryFormProps) {
       bannerUrl,
       entryType,
       movement,
-      nutrition,
       smoking,
       sickDay,
       tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
@@ -168,12 +159,10 @@ export function EntryForm({ mode, entryId, initial, mealLog }: EntryFormProps) {
           date={date}
           content={content}
           movement={movement}
-          nutrition={nutrition}
           smoking={smoking}
           sickDay={sickDay}
           tags={tags}
           bannerUrl={bannerUrl}
-          mealScore={mealLog?.score}
         />
       ) : (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -311,7 +300,7 @@ export function EntryForm({ mode, entryId, initial, mealLog }: EntryFormProps) {
         slug={slug}
         title={title}
         excerpt={excerpt}
-        metricsContext={isFiller ? { date, movement, nutrition, smoking } : undefined}
+        metricsContext={isFiller ? { date, movement, nutrition: 'OPEN', smoking } : undefined}
       />
 
       {/* Tageszitat */}
@@ -423,13 +412,9 @@ export function EntryForm({ mode, entryId, initial, mealLog }: EntryFormProps) {
       <div className={clsx(sickDay && 'opacity-40 pointer-events-none select-none')} aria-disabled={sickDay}>
         <HabitsPicker
           movement={movement}
-          nutrition={nutrition}
           smoking={smoking}
           onMovementChange={setMovement}
-          onNutritionChange={setNutrition}
           onSmokingChange={setSmoking}
-          nutritionLocked={!!mealLog?.score}
-          mealScore={mealLog?.score}
         />
       </div>
 

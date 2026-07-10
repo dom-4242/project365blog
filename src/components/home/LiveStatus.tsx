@@ -17,13 +17,6 @@ import {
   COLA_ZERO_DAILY_LIMIT_ML,
   type DrinkDayData,
 } from '@/lib/drinks'
-import {
-  getMealScoreHistory,
-  getMealAverages,
-  type MealScoreDay,
-  type MealAverage,
-  type MealSlotKey,
-} from '@/lib/meal-log'
 import { StepsSparkline } from './StepsSparkline'
 import { DrinkSparkline } from './DrinkSparkline'
 
@@ -534,178 +527,6 @@ function DrinkMetricTile({ label, avgMl, targetMl, moreIsBetter, labelGoal, hist
   )
 }
 
-// ─── NutritionScoreTile ────────────────────────────────────────────────────
-
-interface NutritionScoreTileProps {
-  history: MealScoreDay[]
-  labelNutrition: string
-  labelNoData: string
-}
-
-function NutritionScoreTile({ history, labelNutrition, labelNoData }: NutritionScoreTileProps) {
-  const withScore = history.filter((d) => d.score !== null)
-  const latest = withScore.at(-1)
-  const score = latest?.score ?? null
-
-  const avg30 = withScore.length > 0
-    ? withScore.reduce((s, d) => s + (d.score ?? 0), 0) / withScore.length
-    : null
-
-  function barColor(s: number) {
-    if (s >= 8.0) return 'bg-green-500'
-    if (s >= 5.0) return 'bg-yellow-500'
-    return 'bg-red-500'
-  }
-  function textColor(s: number) {
-    if (s >= 8.0) return 'text-green-400'
-    if (s >= 5.0) return 'text-yellow-400'
-    return 'text-red-400'
-  }
-
-  const BAR_COUNT = 30
-  const recent = history.slice(-BAR_COUNT)
-
-  return (
-    <div className="col-span-1 sm:col-span-2 lg:col-span-6 bg-surface-container border border-outline-variant/10 rounded-xl p-5 flex flex-col gap-4">
-      {/* Header row */}
-      <div className="flex items-center justify-between gap-4">
-        <span className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">
-          {labelNutrition}
-        </span>
-        {score === null && <span className="text-xs text-on-surface-variant">{labelNoData}</span>}
-      </div>
-
-      {score !== null && (
-        <div className="flex items-center gap-6">
-          {/* Big score */}
-          <div className="shrink-0">
-            <div className={`text-6xl font-headline font-bold tracking-tighter leading-none ${textColor(score)}`}>
-              {score.toFixed(1)}
-            </div>
-            <div className="text-xs text-on-surface-variant mt-1">/ 10.0</div>
-          </div>
-
-          {/* Score bar + 30d average */}
-          <div className="flex-1 flex flex-col gap-3">
-            <div className="h-3 bg-surface-container-high rounded-full overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all duration-700 ${barColor(score)}`}
-                style={{ width: `${(score / 10) * 100}%` }}
-              />
-            </div>
-            {avg30 !== null && (
-              <p className="text-xs text-on-surface-variant">
-                Ø 30 Tage:{' '}
-                <span className={`font-bold ${textColor(avg30)}`}>{avg30.toFixed(1)}</span>
-                <span className="text-on-surface-variant"> / 10.0</span>
-              </p>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* 30-day bar chart */}
-      {recent.length > 0 && (
-        <div className="flex items-end gap-0.5 h-10">
-          {recent.map((d, i) => {
-            const s = d.score
-            const color = s === null ? 'bg-surface-container-highest'
-              : s >= 8.0 ? 'bg-green-500'
-              : s >= 5.0 ? 'bg-yellow-500'
-              : 'bg-red-500'
-            return (
-              <div
-                key={i}
-                title={s !== null ? `${d.date}: ${s.toFixed(1)}` : d.date}
-                className={`flex-1 rounded-sm ${color} transition-all duration-300`}
-                style={{ height: s === null ? '3px' : `${Math.round((s / 10) * 36) + 4}px` }}
-              />
-            )
-          })}
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ─── MealAveragesTile ──────────────────────────────────────────────────────
-
-interface MealAveragesTileProps {
-  averages: MealAverage[]
-  labelTitle: string
-  labelTrend: string
-  labelNoData: string
-  mealLabels: Record<MealSlotKey, string>
-}
-
-function MealAveragesTile({
-  averages, labelTitle, labelTrend, labelNoData, mealLabels,
-}: MealAveragesTileProps) {
-  const hasAny = averages.some((a) => a.avg30 !== null)
-
-  function barColor(s: number) {
-    if (s >= 8.0) return 'bg-green-500'
-    if (s >= 5.0) return 'bg-yellow-500'
-    return 'bg-red-500'
-  }
-  function textColor(s: number) {
-    if (s >= 8.0) return 'text-green-400'
-    if (s >= 5.0) return 'text-yellow-400'
-    return 'text-red-400'
-  }
-
-  return (
-    <div className="col-span-1 sm:col-span-2 lg:col-span-6 bg-surface-container border border-outline-variant/10 rounded-xl p-5 flex flex-col gap-4">
-      <div className="flex items-center justify-between gap-4">
-        <span className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">
-          {labelTitle}
-        </span>
-        {!hasAny && <span className="text-xs text-on-surface-variant">{labelNoData}</span>}
-      </div>
-
-      {hasAny && (
-        <div className="flex flex-col gap-2.5">
-          {averages.map((m) => {
-            const avg = m.avg30
-            const trend = m.trend
-            const trendAbs = trend !== null ? Math.abs(trend) : 0
-            const showTrend = trend !== null && trendAbs >= 0.05
-            const trendArrow = trend === null ? '' : trend > 0 ? '↑' : trend < 0 ? '↓' : '→'
-            const trendSign = trend !== null && trend > 0 ? '+' : ''
-            const trendColor = trend === null
-              ? 'text-on-surface-variant'
-              : trend > 0 ? 'text-movement-400' : 'text-error'
-            return (
-              <div key={m.key} className="flex items-center gap-3">
-                <span className="w-32 shrink-0 text-xs font-label font-semibold uppercase tracking-wider text-on-surface-variant truncate">
-                  {mealLabels[m.key]}
-                </span>
-                <div className="flex-1 h-2 bg-surface-container-high rounded-full overflow-hidden">
-                  {avg !== null && (
-                    <div
-                      className={`h-full rounded-full transition-all duration-700 ${barColor(avg)}`}
-                      style={{ width: `${(avg / 10) * 100}%` }}
-                    />
-                  )}
-                </div>
-                <span className={`w-10 shrink-0 text-right text-sm font-headline font-bold tabular-nums ${avg !== null ? textColor(avg) : 'text-on-surface-variant'}`}>
-                  {avg !== null ? avg.toFixed(1) : '—'}
-                </span>
-                <span
-                  className={`w-14 shrink-0 text-right text-xs font-semibold tabular-nums ${trendColor}`}
-                  title={labelTrend}
-                >
-                  {showTrend ? `${trendArrow} ${trendSign}${trend!.toFixed(1)}` : ''}
-                </span>
-              </div>
-            )
-          })}
-        </div>
-      )}
-    </div>
-  )
-}
-
 // ─── Helper: 7-day vs 30-day success rate ─────────────────────────────────
 
 function computeRates(booleans: boolean[]): { pct30d: number; pct7d: number } {
@@ -724,27 +545,17 @@ export async function LiveStatus() {
     getTranslations('HomePage'),
   ])
 
-  const [entries, metrics, drinkAnalytics, priorityPillar, stepsHistoryRaw, sweetsHistory, mealScoreHistory, mealAverages] = await Promise.all([
+  const [entries, metrics, drinkAnalytics, priorityPillar, stepsHistoryRaw, sweetsHistory] = await Promise.all([
     getAllEntries(),
     getLatestMetrics(profile.projectStartDate ?? undefined),
     getDrinkAnalytics(7),
     getPriorityPillar(),
     getStepsHistory(30),
     getSweetsHistory(90),
-    getMealScoreHistory(30),
-    getMealAverages(30),
   ])
 
-  const mealLabels: Record<MealSlotKey, string> = {
-    breakfast:      t('mealBreakfast'),
-    snackMorning:   t('mealSnackMorning'),
-    lunch:          t('mealLunch'),
-    snackAfternoon: t('mealSnackAfternoon'),
-    dinner:         t('mealDinner'),
-  }
-
   const movementBools  = entries.map((e) => isMovementFulfilled(e.habits.movement))
-  const nutritionBools = entries.map((e) => isNutritionFulfilled(e.habits.nutrition, e.mealScore, e.nutritionStatus))
+  const nutritionBools = entries.map((e) => isNutritionFulfilled(e.habits.nutrition, e.nutritionStatus))
   const smokingBools   = entries.map((e) => isSmokingFulfilled(e.habits.smoking))
 
   const totalEntries = entries.length
@@ -818,20 +629,6 @@ export async function LiveStatus() {
           last30Text={recent30Total > 0 ? t('pillarLast30', { pct: nutritionRates.pct30d }) : undefined}
           isPriority={priorityPillar === 'nutrition'}
           pillarKey="nutrition"
-        />
-
-        {/* Row B — Nutrition score + per-meal averages (each half width) */}
-        <NutritionScoreTile
-          history={mealScoreHistory}
-          labelNutrition={t('metricNutritionScore')}
-          labelNoData={t('metricNoData')}
-        />
-        <MealAveragesTile
-          averages={mealAverages}
-          labelTitle={t('metricMealAverages')}
-          labelTrend={t('trend7d')}
-          labelNoData={t('metricNoData')}
-          mealLabels={mealLabels}
         />
 
         {/* Row C — Weight & Body Fat */}
