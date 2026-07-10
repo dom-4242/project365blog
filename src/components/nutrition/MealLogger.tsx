@@ -4,9 +4,10 @@ import { useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import type { FoodItem } from '@prisma/client'
 import { MEAL_SLOTS, type MealSlot } from '@/lib/nutrition/constants'
-import type { MealEntryResolved, DayTotals } from '@/lib/nutrition/meals'
+import type { MealEntryResolved } from '@/lib/nutrition/meals'
 import type { FavoriteResolved } from '@/lib/nutrition/favorites'
 import type { DishWithItems } from '@/lib/nutrition/dishes'
+import type { DaySummary } from '@/lib/nutrition/day-aggregate'
 import { BarcodeScanner } from '@/components/nutrition/BarcodeScanner'
 import { PhotoEstimator } from '@/components/nutrition/PhotoEstimator'
 import {
@@ -15,6 +16,7 @@ import {
   quickLogFavorite,
   logScannedBarcode,
   removeEntry,
+  toggleRefeedDay,
 } from '@/app/admin/log/actions'
 
 interface Props {
@@ -22,8 +24,13 @@ interface Props {
   entries: MealEntryResolved[]
   favorites: FavoriteResolved[]
   dishes: DishWithItems[]
-  totals: DayTotals
-  targetKcal: number | null
+  summary: DaySummary
+}
+
+const STATUS_LABEL: Record<string, { text: string; cls: string }> = {
+  FULFILLED: { text: 'Erfüllt', cls: 'bg-primary/15 text-primary border-primary/30' },
+  NOT_FULFILLED: { text: 'Nicht erfüllt', cls: 'bg-error/15 text-error border-error/30' },
+  OPEN: { text: 'Offen', cls: 'bg-surface-container-high text-on-surface-variant border-outline-variant/30' },
 }
 
 const inputCls =
@@ -39,7 +46,7 @@ function defaultSlot(): MealSlot {
 
 type Tab = 'katalog' | 'gericht' | 'scan' | 'foto'
 
-export function MealLogger({ date, entries, favorites, dishes, totals, targetKcal }: Props) {
+export function MealLogger({ date, entries, favorites, dishes, summary }: Props) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [msg, setMsg] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null)
@@ -107,7 +114,9 @@ export function MealLogger({ date, entries, favorites, dishes, totals, targetKca
     return { map, other }
   }, [entries])
 
-  const remaining = targetKcal != null ? Math.round((targetKcal - totals.kcal) * 10) / 10 : null
+  const { soll, ist } = summary
+  const remaining = soll ? Math.round((soll.kcal - ist.kcal) * 10) / 10 : null
+  const status = STATUS_LABEL[summary.fulfillmentStatus] ?? STATUS_LABEL.OPEN
 
   return (
     <div className="space-y-6">
@@ -331,19 +340,47 @@ export function MealLogger({ date, entries, favorites, dishes, totals, targetKca
         )}
       </section>
 
-      {/* Tagesbilanz */}
+      {/* Tagesbilanz: SOLL / IST + Erfüllung */}
       <section className="bg-surface-container rounded-2xl border border-surface-container-high p-5">
-        <div className="flex flex-wrap items-baseline justify-between gap-3 mb-1">
-          <h3 className="font-headline text-sm font-semibold text-on-surface">Tagesbilanz (IST)</h3>
-          <div className="text-sm text-on-surface tabular-nums">
-            <span className="font-bold text-primary">{totals.kcal}</span>
-            {targetKcal != null && <span className="text-on-surface-variant"> / {targetKcal} kcal</span>}
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+          <h3 className="font-headline text-sm font-semibold text-on-surface">
+            Tagesbilanz
+            {summary.isRefeed && (
+              <span className="ml-2 text-[10px] uppercase tracking-widest text-tertiary">Refeed</span>
+            )}
+          </h3>
+          <div className="flex items-center gap-2">
+            <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${status.cls}`}>
+              {status.text}
+            </span>
+            <button
+              type="button"
+              disabled={isPending}
+              onClick={() => go(() => toggleRefeedDay(date, !summary.isRefeed), summary.isRefeed ? 'Als Normaltag gesetzt.' : 'Als Refeed-Tag gesetzt.')}
+              className="text-xs text-on-surface-variant hover:text-on-surface disabled:opacity-50"
+            >
+              {summary.isRefeed ? '→ Normaltag' : '→ Refeed-Tag'}
+            </button>
           </div>
         </div>
-        <p className="text-xs text-on-surface-variant">
-          P {totals.proteinG} g · KH {totals.carbsG} g · F {totals.fatG} g
-          {remaining != null && <> · Rest {remaining} kcal</>}
-        </p>
+
+        {soll ? (
+          <div className="grid grid-cols-4 gap-2 text-center">
+            <Macro label="kcal" ist={ist.kcal} soll={soll.kcal} accent />
+            <Macro label="Protein" ist={ist.proteinG} soll={soll.proteinG} unit="g" />
+            <Macro label="KH" ist={ist.carbsG} soll={soll.carbsG} unit="g" />
+            <Macro label="Fett" ist={ist.fatG} soll={soll.fatG} unit="g" />
+          </div>
+        ) : (
+          <p className="text-sm text-on-surface-variant">
+            Kein SOLL — für diesen Tag sind keine Eckdaten hinterlegt (Phase anlegen).
+          </p>
+        )}
+        {remaining != null && (
+          <p className="text-xs text-on-surface-variant mt-2">
+            {remaining >= 0 ? `Noch ${remaining} kcal bis SOLL.` : `${Math.abs(remaining)} kcal über SOLL.`}
+          </p>
+        )}
       </section>
 
       {/* Einträge gruppiert */}
@@ -358,6 +395,20 @@ export function MealLogger({ date, entries, favorites, dishes, totals, targetKca
           <SlotGroup title="Ohne Slot" rows={grouped.other} isPending={isPending} onDelete={(id) => go(() => removeEntry(id), 'Entfernt.')} />
         )}
       </section>
+    </div>
+  )
+}
+
+function Macro({
+  label, ist, soll, unit = '', accent,
+}: {
+  label: string; ist: number; soll: number; unit?: string; accent?: boolean
+}) {
+  return (
+    <div className="rounded-xl bg-surface-container-high py-2">
+      <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">{label}</p>
+      <p className={`text-sm font-bold tabular-nums ${accent ? 'text-primary' : 'text-on-surface'}`}>{ist}</p>
+      <p className="text-[10px] text-on-surface-variant tabular-nums">/ {soll}{unit}</p>
     </div>
   )
 }

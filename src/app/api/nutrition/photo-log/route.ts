@@ -3,6 +3,7 @@ import { requireAdmin } from '@/lib/auth'
 import { saveMealPhoto } from '@/lib/nutrition/meal-photos'
 import { logPhotoMeal, type PhotoInput } from '@/lib/nutrition/meals'
 import { dateOnly } from '@/lib/nutrition/day'
+import { recomputeDay } from '@/lib/nutrition/day-aggregate'
 
 function num(form: FormData, key: string): number {
   const v = parseFloat(String(form.get(key) ?? '').replace(',', '.'))
@@ -65,6 +66,7 @@ export async function POST(request: NextRequest) {
       fatG: num(form, 'fatG'),
       photos,
     })
+    await recomputeDay(dateOnly(dateStr))
     return NextResponse.json({ ok: true, id: entry.id })
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Loggen fehlgeschlagen'

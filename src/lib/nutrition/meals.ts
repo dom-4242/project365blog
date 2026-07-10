@@ -158,8 +158,12 @@ export async function logPhotoMeal(args: LogPhotoMealArgs): Promise<MealEntry> {
   })
 }
 
-export async function deleteMealEntry(id: string): Promise<void> {
+/** Löscht einen Eintrag und gibt das Datum seines Tages zurück (für Recompute). */
+export async function deleteMealEntry(id: string): Promise<Date | null> {
+  const entry = await prisma.mealEntry.findUnique({ where: { id }, include: { day: true } })
+  if (!entry) return null
   await prisma.mealEntry.delete({ where: { id } })
+  return entry.day.date
 }
 
 export function listDayEntries(date: Date): Promise<MealEntryResolved[]> {

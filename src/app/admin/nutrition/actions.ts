@@ -4,6 +4,8 @@ import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
 import { computeEckdaten, type EckdatenInput } from '@/lib/nutrition/calc'
+import { getActivePhase, resolveTargetsForDate } from '@/lib/nutrition/targets'
+import { deriveRefeedSoll, saveRefeedRule } from '@/lib/nutrition/refeed'
 
 // -----------------------------------------------------------------------------
 // Formular-Datentyp (Strings — wie in den übrigen Admin-Actions)
@@ -228,6 +230,33 @@ export async function addTargetsVersion(data: EckdatenFormData): Promise<ActionR
 // -----------------------------------------------------------------------------
 // Aktive Phase beenden (ohne Nachfolger)
 // -----------------------------------------------------------------------------
+
+/**
+ * Setzt die wiederkehrenden Refeed-Wochentage der aktiven Phase. Das Refeed-SOLL
+ * wird aus den aktuell gültigen Eckdaten abgeleitet (Erhaltungskalorien, 1,6 g/kg
+ * Protein, 0,5 g/kg Fett, KH Rest).
+ */
+export async function saveRefeedRuleAction(weekdays: number[]): Promise<ActionResult> {
+  const session = await requireAdmin()
+  if (!session) return { error: 'Nicht autorisiert' }
+
+  const active = await getActivePhase()
+  if (!active) return { error: 'Keine aktive Phase — bitte zuerst eine Phase anlegen.' }
+  const targets = active.targets ?? (await resolveTargetsForDate())
+  if (!targets) return { error: 'Keine gültigen Eckdaten für die Refeed-Berechnung.' }
+
+  const cleaned = [...new Set(weekdays.filter((d) => Number.isInteger(d) && d >= 1 && d <= 7))].sort()
+
+  try {
+    await saveRefeedRule({ phaseId: active.id, recurringWeekdays: cleaned, soll: deriveRefeedSoll(targets) })
+    revalidatePath('/admin/nutrition')
+    revalidatePath('/admin/log')
+    return { success: true }
+  } catch (e) {
+    console.error('saveRefeedRuleAction:', e)
+    return { error: 'Refeed-Regel speichern fehlgeschlagen.' }
+  }
+}
 
 export async function endActivePhase(endDateStr: string): Promise<ActionResult> {
   const session = await requireAdmin()

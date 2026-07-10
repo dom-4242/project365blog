@@ -6,11 +6,13 @@ import {
   listTargetVersions,
   resolveTargetsForDate,
 } from '@/lib/nutrition/targets'
+import { getActiveRefeedRule, deriveRefeedSoll } from '@/lib/nutrition/refeed'
 import { zurichDateStr } from '@/lib/timezone'
 import {
   NutritionPhaseForm,
   type NutritionPhaseFormInitial,
 } from '@/components/admin/NutritionPhaseForm'
+import { RefeedRuleForm } from '@/components/admin/RefeedRuleForm'
 import type { NutritionTargets } from '@prisma/client'
 
 export const dynamic = 'force-dynamic'
@@ -73,6 +75,10 @@ export default async function NutritionPage() {
 
   const initial = initialFromTargets(active?.targets ?? todayTargets)
 
+  const refeedRule = active ? await getActiveRefeedRule(active.id) : null
+  const refeedBaseTargets = active?.targets ?? todayTargets
+  const derivedRefeedSoll = refeedBaseTargets ? deriveRefeedSoll(refeedBaseTargets) : null
+
   return (
     <div>
       <div className="mb-6">
@@ -115,6 +121,19 @@ export default async function NutritionPage() {
           Phase anlegen / Eckdaten berechnen
         </h2>
         <NutritionPhaseForm initial={initial} />
+      </section>
+
+      {/* Refeed-Regel */}
+      <section className="mb-10">
+        <h2 className="font-headline text-base font-semibold text-on-surface mb-3">Refeed-Tage</h2>
+        {active ? (
+          <RefeedRuleForm
+            initialWeekdays={refeedRule?.recurringWeekdays ?? []}
+            derivedSoll={derivedRefeedSoll}
+          />
+        ) : (
+          <p className="text-sm text-on-surface-variant">Erst eine aktive Phase anlegen.</p>
+        )}
       </section>
 
       {/* Phasen-Verlauf */}

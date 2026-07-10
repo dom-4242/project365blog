@@ -6,6 +6,7 @@ import { dateOnly } from '@/lib/nutrition/day'
 import { logFood, logDish, logFavorite, deleteMealEntry } from '@/lib/nutrition/meals'
 import { findByBarcode, importFood } from '@/lib/nutrition/food'
 import { openFoodFacts } from '@/lib/nutrition/providers/open-food-facts'
+import { recomputeDay, setDayRefeed } from '@/lib/nutrition/day-aggregate'
 
 export interface ActionResult {
   error?: string
@@ -31,6 +32,7 @@ export async function logFoodEntry(args: {
   if (!(args.amount > 0)) return { error: 'Menge muss > 0 sein' }
   try {
     await logFood({ date: d, foodItemId: args.foodItemId, amount: args.amount, mealSlot: args.mealSlot })
+    await recomputeDay(d)
     revalidatePath('/admin/log')
     return { success: true }
   } catch (e) {
@@ -52,6 +54,7 @@ export async function logDishEntry(args: {
   if (!args.dishId) return { error: 'Kein Gericht gewählt' }
   try {
     await logDish({ date: d, dishId: args.dishId, multiplier: args.multiplier, mealSlot: args.mealSlot })
+    await recomputeDay(d)
     revalidatePath('/admin/log')
     return { success: true }
   } catch (e) {
@@ -71,6 +74,7 @@ export async function quickLogFavorite(args: {
   if (!d) return { error: 'Datum ungültig' }
   try {
     await logFavorite({ favoriteId: args.favoriteId, date: d, mealSlot: args.mealSlot })
+    await recomputeDay(d)
     revalidatePath('/admin/log')
     return { success: true }
   } catch (e) {
@@ -109,6 +113,7 @@ export async function logScannedBarcode(args: {
       foodId = item.id
     }
     await logFood({ date: d, foodItemId: foodId, amount: args.amount, mealSlot: args.mealSlot, sourceType: 'BARCODE' })
+    await recomputeDay(d)
     revalidatePath('/admin/log')
     return { success: true }
   } catch (e) {
@@ -121,11 +126,28 @@ export async function removeEntry(id: string): Promise<ActionResult> {
   const session = await requireAdmin()
   if (!session) return { error: 'Nicht autorisiert' }
   try {
-    await deleteMealEntry(id)
+    const date = await deleteMealEntry(id)
+    if (date) await recomputeDay(date)
     revalidatePath('/admin/log')
     return { success: true }
   } catch (e) {
     console.error('removeEntry:', e)
     return { error: 'Löschen fehlgeschlagen' }
+  }
+}
+
+/** Ad-hoc: Tag als Refeed markieren (oder zurück auf Normal). */
+export async function toggleRefeedDay(date: string, refeed: boolean): Promise<ActionResult> {
+  const session = await requireAdmin()
+  if (!session) return { error: 'Nicht autorisiert' }
+  const d = guardDate(date)
+  if (!d) return { error: 'Datum ungültig' }
+  try {
+    await setDayRefeed(d, refeed)
+    revalidatePath('/admin/log')
+    return { success: true }
+  } catch (e) {
+    console.error('toggleRefeedDay:', e)
+    return { error: 'Umschalten fehlgeschlagen' }
   }
 }
