@@ -1,13 +1,13 @@
 'use client'
 
 import { clsx } from 'clsx'
-import { MovementLevel, NutritionLevel, SmokingStatus } from '@prisma/client'
+import { MovementLevel, SmokingStatus } from '@prisma/client'
 
 // =============================================
 // Typen
 // =============================================
 
-type HabitValue = MovementLevel | NutritionLevel | SmokingStatus
+type HabitValue = MovementLevel | SmokingStatus
 
 type FulfillmentState = 'fulfilled' | 'partial' | 'unfulfilled'
 
@@ -89,33 +89,6 @@ export const MOVEMENT_OPTIONS: HabitOption<MovementLevel>[] = [
     value: 'STEPS_TRAINED',
     label: '10k+ & Training',
     description: 'Über 10k Schritte + Training',
-    fulfillment: 'fulfilled',
-  },
-]
-
-export const NUTRITION_OPTIONS: HabitOption<NutritionLevel>[] = [
-  {
-    value: 'NONE',
-    label: '0 Mahlzeiten',
-    description: 'Keine gesunde Mahlzeit',
-    fulfillment: 'unfulfilled',
-  },
-  {
-    value: 'ONE_MEAL',
-    label: '1 Mahlzeit',
-    description: 'Eine gesunde Mahlzeit',
-    fulfillment: 'unfulfilled',
-  },
-  {
-    value: 'TWO_MEALS',
-    label: '2 Mahlzeiten',
-    description: 'Zwei gesunde Mahlzeiten',
-    fulfillment: 'fulfilled',
-  },
-  {
-    value: 'THREE_MEALS',
-    label: '3 Mahlzeiten',
-    description: 'Drei gesunde Mahlzeiten',
     fulfillment: 'fulfilled',
   },
 ]

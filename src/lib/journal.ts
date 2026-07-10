@@ -1,4 +1,4 @@
-import { MovementLevel, NutritionLevel, SmokingStatus, EntryType } from '@prisma/client'
+import { MovementLevel, SmokingStatus, EntryType } from '@prisma/client'
 import type { JournalEntry as PrismaJournalEntry, FulfillmentStatus } from '@prisma/client'
 import { prisma } from './db'
 
@@ -11,7 +11,9 @@ const PROJECT_START = new Date('2026-03-26')
 // =============================================
 
 export type MovementValue = 'minimal' | 'steps_only' | 'trained_only' | 'steps_trained'
-export type NutritionValue = 'none' | 'one_meal' | 'two_meals' | 'three_meals'
+// Nutrition-Umbau (N-09): die Ernährungs-Säule ist jetzt ein Erfüllungsstatus
+// (aus Day.fulfillmentStatus abgeleitet), kein 4-stufiges Mahlzeiten-Enum mehr.
+export type NutritionValue = 'fulfilled' | 'not_fulfilled' | 'open'
 export type SmokingValue = 'smoked' | 'nicotine_replacement' | 'smoke_free'
 export type EntryTypeValue = 'full' | 'filler'
 
@@ -41,18 +43,10 @@ export interface JournalEntry {
    */
   sickDay: boolean
   /**
-   * Nutrition score (0–10) from the day's MealLog, when one exists. The enum
-   * `habits.nutrition` mirrors this via `scoreToNutritionLevel` (auto-synced
-   * by `saveMealLogAction`), but the raw score is the canonical fulfillment
-   * input — score ≥ 8.0 counts as the nutrition goal met. Falls back to the
-   * enum threshold (`three_meals`) only for entries without a meal log.
-   */
-  mealScore?: number | null
-  /**
    * Erfüllungsstatus aus dem neuen Nutrition-System (Day.fulfillmentStatus),
    * sofern für den Tag ein Log existiert. Hat in der öffentlichen Anzeige
-   * Vorrang vor `mealScore`/Enum (N-08). Nur FULFILLED/NOT_FULFILLED wird
-   * gesetzt; OPEN/kein Log bleibt `null` → Legacy-Fallback greift.
+   * Vorrang vor dem gespeicherten `habits.nutrition` (N-08). Nur
+   * FULFILLED/NOT_FULFILLED; OPEN/kein Log bleibt `null` → gespeicherter Wert.
    */
   nutritionStatus?: FulfillmentStatus | null
 }
@@ -70,11 +64,10 @@ const MOVEMENT_TO_VALUE: Record<MovementLevel, MovementValue> = {
   STEPS_TRAINED: 'steps_trained',
 }
 
-const NUTRITION_TO_VALUE: Record<NutritionLevel, NutritionValue> = {
-  NONE: 'none',
-  ONE_MEAL: 'one_meal',
-  TWO_MEALS: 'two_meals',
-  THREE_MEALS: 'three_meals',
+const NUTRITION_TO_VALUE: Record<FulfillmentStatus, NutritionValue> = {
+  FULFILLED: 'fulfilled',
+  NOT_FULFILLED: 'not_fulfilled',
+  OPEN: 'open',
 }
 
 const SMOKING_TO_VALUE: Record<SmokingStatus, SmokingValue> = {
@@ -94,7 +87,6 @@ function toDateString(date: Date): string {
 
 export function isPerfectDay(
   habits: HabitsFrontmatter,
-  mealScore?: number | null,
   nutritionStatus?: FulfillmentStatus | null,
 ): boolean {
   const movementGood = habits.movement === 'steps_only' || habits.movement === 'trained_only' || habits.movement === 'steps_trained'
@@ -103,9 +95,7 @@ export function isPerfectDay(
       ? true
       : nutritionStatus === 'NOT_FULFILLED'
         ? false
-        : mealScore !== null && mealScore !== undefined
-          ? mealScore >= 8.0
-          : habits.nutrition === 'three_meals'
+        : habits.nutrition === 'fulfilled'
   const smokingGood = habits.smoking === 'nicotine_replacement' || habits.smoking === 'smoke_free'
   return movementGood && nutritionGood && smokingGood
 }
@@ -143,24 +133,6 @@ function toFull(entry: PrismaJournalEntry): JournalEntry {
 // =============================================
 
 /**
- * Fetch meal-log scores for a list of entry dates and return a `date → score`
- * lookup map (date string `YYYY-MM-DD`). Entries without a logged meal map
- * to nothing — callers should treat absence as "no score, fall back to enum".
- */
-async function getMealScoreMapForDates(dates: Date[]): Promise<Map<string, number>> {
-  if (dates.length === 0) return new Map()
-  const rows = await prisma.mealLog.findMany({
-    where: { date: { in: dates }, score: { not: null } },
-    select: { date: true, score: true },
-  })
-  return new Map(
-    rows
-      .filter((r): r is { date: Date; score: number } => r.score !== null)
-      .map((r) => [toDateString(r.date), r.score]),
-  )
-}
-
-/**
  * Nutrition-Umbau (N-08): `date → Day.fulfillmentStatus` für die neue Erfüllung.
  * Nur FULFILLED/NOT_FULFILLED wird zurückgegeben (OPEN → Legacy-Fallback).
  * Liest ausschliesslich date + Status — keine Detail-/Privatdaten.
@@ -182,13 +154,9 @@ export async function getAllEntries(): Promise<JournalEntryMeta[]> {
     orderBy: { date: 'desc' },
   })
   const dates = entries.map((e) => e.date)
-  const [scores, nutritionStatuses] = await Promise.all([
-    getMealScoreMapForDates(dates),
-    getNutritionStatusMapForDates(dates),
-  ])
+  const nutritionStatuses = await getNutritionStatusMapForDates(dates)
   return entries.map((entry) => ({
     ...toMeta(entry),
-    mealScore: scores.get(toDateString(entry.date)) ?? null,
     nutritionStatus: nutritionStatuses.get(toDateString(entry.date)) ?? null,
   }))
 }
@@ -202,15 +170,11 @@ export async function getAllEntriesForLocale(locale: string): Promise<JournalEnt
     include: { translations: { where: { locale } } },
   })
   const dates = entries.map((e) => e.date)
-  const [scores, nutritionStatuses] = await Promise.all([
-    getMealScoreMapForDates(dates),
-    getNutritionStatusMapForDates(dates),
-  ])
+  const nutritionStatuses = await getNutritionStatusMapForDates(dates)
 
   return entries.map((entry) => {
     const meta: JournalEntryMeta = {
       ...toMeta(entry),
-      mealScore: scores.get(toDateString(entry.date)) ?? null,
       nutritionStatus: nutritionStatuses.get(toDateString(entry.date)) ?? null,
     }
     const translation = entry.translations[0] ?? null
@@ -226,13 +190,9 @@ export async function getAllEntriesForLocale(locale: string): Promise<JournalEnt
 export async function getEntryBySlug(slug: string): Promise<JournalEntry | null> {
   const entry = await prisma.journalEntry.findUnique({ where: { slug } })
   if (!entry || !entry.published) return null
-  const [scores, nutritionStatuses] = await Promise.all([
-    getMealScoreMapForDates([entry.date]),
-    getNutritionStatusMapForDates([entry.date]),
-  ])
+  const nutritionStatuses = await getNutritionStatusMapForDates([entry.date])
   return {
     ...toFull(entry),
-    mealScore: scores.get(toDateString(entry.date)) ?? null,
     nutritionStatus: nutritionStatuses.get(toDateString(entry.date)) ?? null,
   }
 }
@@ -247,13 +207,9 @@ export async function getEntryBySlugWithTranslation(
   })
   if (!row || !row.published) return null
 
-  const [scores, nutritionStatuses] = await Promise.all([
-    getMealScoreMapForDates([row.date]),
-    getNutritionStatusMapForDates([row.date]),
-  ])
+  const nutritionStatuses = await getNutritionStatusMapForDates([row.date])
   const entry: JournalEntry = {
     ...toFull(row),
-    mealScore: scores.get(toDateString(row.date)) ?? null,
     nutritionStatus: nutritionStatuses.get(toDateString(row.date)) ?? null,
   }
   const t = row.translations[0] ?? null

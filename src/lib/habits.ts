@@ -1,39 +1,29 @@
-import { MovementLevel, NutritionLevel, SmokingStatus, type FulfillmentStatus } from '@prisma/client'
+import { MovementLevel, SmokingStatus, type FulfillmentStatus } from '@prisma/client'
 import { getAllEntries, type MovementValue, type NutritionValue, type SmokingValue } from './journal'
 
 // =============================================
-// Streak-Definitionen (Issue #87, score-aware):
-//   Bewegung  ≥ STEPS_ONLY oder TRAINED_ONLY → steps_only | trained_only | steps_trained
-//   Ernährung   mealScore ≥ 8.0  (sonst Enum-Fallback: three_meals)
-//   Rauchstopp ≠ SMOKED                      → nicotine_replacement | smoke_free
+// Streak-Definitionen:
+//   Bewegung   ≥ STEPS_ONLY oder TRAINED_ONLY → steps_only | trained_only | steps_trained
+//   Ernährung  erfüllt (Kaloriendefizit erreicht, aus Day.fulfillmentStatus)
+//   Rauchstopp ≠ SMOKED                       → nicotine_replacement | smoke_free
 // =============================================
-
-/** Score threshold for "nutrition goal met" — kept in sync with `scoreToNutritionLevel` (THREE_MEALS). */
-export const NUTRITION_SCORE_THRESHOLD = 8.0
 
 export function isMovementFulfilled(movement: MovementValue): boolean {
   return movement === 'steps_only' || movement === 'trained_only' || movement === 'steps_trained'
 }
 
 /**
- * Nutrition goal met for the day. Precedence (Nutrition-Umbau, N-08):
- *  1. `nutritionStatus` aus dem neuen System (Day.fulfillmentStatus) —
- *     FULFILLED/NOT_FULFILLED gewinnt (greift ab Cut-over pro Tag mit Log).
- *  2. Legacy meal-log score ≥ 8.0.
- *  3. Enum-Fallback (`three_meals`) für Alt-Einträge ohne Score.
- * OPEN/undefined fällt durch auf die Legacy-Logik.
+ * Ernährungsziel erfüllt (Nutrition-Umbau, N-09): Kaloriendefizit erreicht.
+ * `nutritionStatus` aus dem neuen System (Day.fulfillmentStatus) hat Vorrang;
+ * ohne Tages-Log greift der am Eintrag gespeicherte Status (`fulfilled`).
  */
 export function isNutritionFulfilled(
   nutrition: NutritionValue,
-  mealScore?: number | null,
   nutritionStatus?: FulfillmentStatus | null,
 ): boolean {
   if (nutritionStatus === 'FULFILLED') return true
   if (nutritionStatus === 'NOT_FULFILLED') return false
-  if (mealScore !== null && mealScore !== undefined) {
-    return mealScore >= NUTRITION_SCORE_THRESHOLD
-  }
-  return nutrition === 'three_meals'
+  return nutrition === 'fulfilled'
 }
 
 export function isSmokingFulfilled(smoking: SmokingValue): boolean {
@@ -49,13 +39,6 @@ export const MOVEMENT_ENUM_MAP: Record<MovementValue, MovementLevel> = {
   steps_only: MovementLevel.STEPS_ONLY,
   trained_only: MovementLevel.TRAINED_ONLY,
   steps_trained: MovementLevel.STEPS_TRAINED,
-}
-
-export const NUTRITION_ENUM_MAP: Record<NutritionValue, NutritionLevel> = {
-  none: NutritionLevel.NONE,
-  one_meal: NutritionLevel.ONE_MEAL,
-  two_meals: NutritionLevel.TWO_MEALS,
-  three_meals: NutritionLevel.THREE_MEALS,
 }
 
 export const SMOKING_ENUM_MAP: Record<SmokingValue, SmokingStatus> = {
@@ -125,22 +108,13 @@ export function getMovementLevel(m: MovementValue): number {
 
 export function getNutritionLevel(
   n: NutritionValue,
-  mealScore?: number | null,
   nutritionStatus?: FulfillmentStatus | null,
 ): number {
-  // Neues System (Day.fulfillmentStatus) hat Vorrang: binär erfüllt/nicht.
+  // Binär seit N-09: erfüllt (Kaloriendefizit erreicht) = 3, sonst 0.
+  // Day-Status hat Vorrang vor dem gespeicherten Wert.
   if (nutritionStatus === 'FULFILLED') return 3
   if (nutritionStatus === 'NOT_FULFILLED') return 0
-  if (mealScore !== null && mealScore !== undefined) {
-    if (mealScore >= 8.0) return 3
-    if (mealScore >= 5.0) return 2
-    if (mealScore >= 2.0) return 1
-    return 0
-  }
-  if (n === 'three_meals') return 3
-  if (n === 'two_meals') return 2
-  if (n === 'one_meal') return 1
-  return 0
+  return n === 'fulfilled' ? 3 : 0
 }
 
 export function getSmokingLevel(s: SmokingValue): number {
@@ -159,7 +133,7 @@ export async function getMovementStreak(): Promise<StreakResult> {
 export async function getNutritionStreak(): Promise<StreakResult> {
   const entries = await getAllEntries()
   return calculateStreak(
-    entries.map((e) => (e.sickDay ? null : isNutritionFulfilled(e.habits.nutrition, e.mealScore, e.nutritionStatus))),
+    entries.map((e) => (e.sickDay ? null : isNutritionFulfilled(e.habits.nutrition, e.nutritionStatus))),
   )
 }
 

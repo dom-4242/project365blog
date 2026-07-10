@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import type { MovementLevel, NutritionLevel, SmokingStatus } from '@prisma/client'
+import type { MovementLevel, SmokingStatus } from '@prisma/client'
 import { getDayNumber } from '@/lib/journal'
 
 // =============================================
@@ -14,12 +14,6 @@ const MOVEMENT_LABELS: Record<MovementLevel, string> = {
   TRAINED_ONLY: 'Training',
   STEPS_TRAINED: '10k+ & Training',
 }
-const NUTRITION_LABELS: Record<NutritionLevel, string> = {
-  NONE: 'Keine ges. Mahlzeit',
-  ONE_MEAL: '1 ges. Mahlzeit',
-  TWO_MEALS: '2 ges. Mahlzeiten',
-  THREE_MEALS: '3 ges. Mahlzeiten',
-}
 const SMOKING_LABELS: Record<SmokingStatus, string> = {
   SMOKED: 'Geraucht',
   NICOTINE_REPLACEMENT: 'Nikotinersatz',
@@ -28,13 +22,6 @@ const SMOKING_LABELS: Record<SmokingStatus, string> = {
 
 function isMovementOk(m: MovementLevel) {
   return m === 'STEPS_ONLY' || m === 'TRAINED_ONLY' || m === 'STEPS_TRAINED'
-}
-/** Mirrors `lib/habits.ts:isNutritionFulfilled` on the UPPERCASE enum side. */
-function isNutritionOk(n: NutritionLevel, mealScore?: number | null) {
-  if (mealScore !== null && mealScore !== undefined) {
-    return mealScore >= 8.0
-  }
-  return n === 'THREE_MEALS'
 }
 function isSmokingOk(s: SmokingStatus) {
   return s === 'NICOTINE_REPLACEMENT' || s === 'SMOKE_FREE'
@@ -72,15 +59,11 @@ export interface EntryPreviewProps {
   date: string
   content: string
   movement: MovementLevel
-  nutrition: NutritionLevel
   smoking: SmokingStatus
-  /** Krankheitstag — ersetzt die drei Säulen-Badges durch ein neutrales Badge. */
+  /** Krankheitstag — ersetzt die Säulen-Badges durch ein neutrales Badge. */
   sickDay?: boolean
   tags: string
   bannerUrl?: string
-  /** When a meal-log score is present, the nutrition badge shows the score (e.g. `9.6 / 10`)
-   * and fulfillment is computed from the score. */
-  mealScore?: number | null
 }
 
 // =============================================
@@ -92,17 +75,11 @@ export function EntryPreview({
   date,
   content,
   movement,
-  nutrition,
   smoking,
   sickDay = false,
   tags,
   bannerUrl,
-  mealScore,
 }: EntryPreviewProps) {
-  const hasMealScore = mealScore !== null && mealScore !== undefined
-  const nutritionLabel = hasMealScore
-    ? `${mealScore.toFixed(1)} / 10`
-    : NUTRITION_LABELS[nutrition]
   const dayNumber = date ? getDayNumber(date) : 1
 
   const formattedDate = date
@@ -177,11 +154,6 @@ export function EntryPreview({
                   label={MOVEMENT_LABELS[movement]}
                   fulfilled={isMovementOk(movement)}
                   colorClass="bg-movement-100 bg-movement-600/20 text-movement-700 text-movement-400"
-                />
-                <HabitBadge
-                  label={nutritionLabel}
-                  fulfilled={isNutritionOk(nutrition, mealScore)}
-                  colorClass="bg-nutrition-100 bg-nutrition-600/20 text-nutrition-700 text-nutrition-400"
                 />
                 <HabitBadge
                   label={SMOKING_LABELS[smoking]}

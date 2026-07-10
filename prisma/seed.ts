@@ -1,7 +1,7 @@
 import {
   PrismaClient,
   MovementLevel,
-  NutritionLevel,
+  FulfillmentStatus,
   SmokingStatus,
   MetricSource,
   Sex,
@@ -34,7 +34,7 @@ async function main() {
       content: `<p>Heute beginnt das Projekt. Der erste Tag von 365.</p><h2>Was ich heute gelernt habe</h2><p>Der erste Schritt ist oft der schwerste. Aber er ist gemacht.</p><h2>Wie ich mich fühle</h2><p>Motiviert und ein bisschen nervös — aber bereit.</p>`,
       date: new Date('2026-03-26'),
       movement: MovementLevel.STEPS_ONLY,
-      nutrition: NutritionLevel.TWO_MEALS,
+      nutrition: FulfillmentStatus.FULFILLED,
       smoking: SmokingStatus.SMOKE_FREE,
       tags: ['motivation', 'start'],
       published: true,

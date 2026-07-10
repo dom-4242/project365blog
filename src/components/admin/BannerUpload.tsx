@@ -5,7 +5,7 @@ import { useRef, useState } from 'react'
 export interface BannerMetricsContext {
   date: string
   movement: 'MINIMAL' | 'STEPS_ONLY' | 'TRAINED_ONLY' | 'STEPS_TRAINED'
-  nutrition: 'NONE' | 'ONE_MEAL' | 'TWO_MEALS' | 'THREE_MEALS'
+  nutrition: 'FULFILLED' | 'NOT_FULFILLED' | 'OPEN'
   smoking: 'SMOKED' | 'NICOTINE_REPLACEMENT' | 'SMOKE_FREE'
 }
 

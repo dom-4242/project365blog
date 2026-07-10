@@ -1,9 +1,8 @@
 export interface MetricsBannerContext {
   dayNumber?: number
   movement: 'MINIMAL' | 'STEPS_ONLY' | 'TRAINED_ONLY' | 'STEPS_TRAINED'
-  nutrition: 'NONE' | 'ONE_MEAL' | 'TWO_MEALS' | 'THREE_MEALS'
+  nutrition: 'FULFILLED' | 'NOT_FULFILLED' | 'OPEN'
   smoking: 'SMOKED' | 'NICOTINE_REPLACEMENT' | 'SMOKE_FREE'
-  mealScore?: number | null
   steps?: number | null
 }
 
@@ -14,16 +13,10 @@ function moodForMovement(level: MetricsBannerContext['movement'], steps?: number
   return steps != null && steps > 5000 ? 'low movement, drag, weight' : 'stillness, dormancy, quiet'
 }
 
-function moodForNutrition(level: MetricsBannerContext['nutrition'], score?: number | null): string {
-  if (score != null) {
-    if (score >= 8) return 'nourished warmth, balance, fullness'
-    if (score >= 5) return 'mixed signals, partial nourishment'
-    return 'depletion, scarcity, hollow'
-  }
-  if (level === 'THREE_MEALS') return 'nourished warmth, balance'
-  if (level === 'TWO_MEALS') return 'measured sustenance'
-  if (level === 'ONE_MEAL') return 'sparse nourishment'
-  return 'hunger, void, scarcity'
+function moodForNutrition(level: MetricsBannerContext['nutrition']): string {
+  if (level === 'FULFILLED') return 'nourished warmth, balance, fullness'
+  if (level === 'NOT_FULFILLED') return 'depletion, scarcity, hollow'
+  return 'quiet neutrality, undetermined'
 }
 
 function moodForSmoking(level: MetricsBannerContext['smoking']): string {
@@ -55,7 +48,7 @@ function pickStyle(seed: number): string {
 function buildMetricsPrompt(ctx: MetricsBannerContext): string {
   const moods = [
     moodForMovement(ctx.movement, ctx.steps),
-    moodForNutrition(ctx.nutrition, ctx.mealScore),
+    moodForNutrition(ctx.nutrition),
     moodForSmoking(ctx.smoking),
   ]
   const variation = pickStyle(ctx.dayNumber ?? Math.floor(Date.now() / 86_400_000))

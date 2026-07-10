@@ -6,12 +6,8 @@ import { Icon } from '@/components/ui/Icon'
 
 interface HabitBadgesProps {
   habits: HabitsFrontmatter
-  /** Nutrition score from the day's MealLog (0–10), if logged. When present,
-   * the nutrition badge shows the score (e.g. `9.6 / 10`) instead of the
-   * meal-count label, and fulfillment is computed from the score. */
-  mealScore?: number | null
-  /** Erfüllungsstatus aus dem neuen Nutrition-System (N-08) — hat Vorrang
-   * vor mealScore/Enum bei der Erfüllung. */
+  /** Erfüllungsstatus aus dem neuen Nutrition-System (Day.fulfillmentStatus) —
+   * hat Vorrang vor dem gespeicherten `habits.nutrition`. */
   nutritionStatus?: FulfillmentStatus | null
   /** Sick day: replaces the three pillar badges with a single neutral
    * "sick day" badge — habits are recorded but statistically paused. */
@@ -42,7 +38,7 @@ function HabitBadge({ label, fulfilled, colorClass, dimClass, icon, title }: Bad
   )
 }
 
-export function HabitBadges({ habits, mealScore, nutritionStatus, sickDay = false }: HabitBadgesProps) {
+export function HabitBadges({ habits, nutritionStatus, sickDay = false }: HabitBadgesProps) {
   const t = useTranslations('HabitBadges')
 
   if (sickDay) {
@@ -59,13 +55,14 @@ export function HabitBadges({ habits, mealScore, nutritionStatus, sickDay = fals
     )
   }
 
-  const hasScore = mealScore !== null && mealScore !== undefined
-  const nutritionLabel = hasScore
-    ? `${mealScore.toFixed(1)} / 10`
-    : t(`nutrition.${habits.nutrition}` as 'nutrition.none')
-  const nutritionTitle = hasScore
-    ? `${t('nutrition.scoreTitle' as 'nutrition.scoreTitle')}: ${mealScore.toFixed(1)} / 10`
-    : nutritionLabel
+  // Effektiver Ernährungsstatus: Day-Status hat Vorrang vor dem gespeicherten Wert.
+  const effectiveNutrition =
+    nutritionStatus === 'FULFILLED'
+      ? 'fulfilled'
+      : nutritionStatus === 'NOT_FULFILLED'
+        ? 'not_fulfilled'
+        : habits.nutrition
+  const nutritionLabel = t(`nutrition.${effectiveNutrition}` as 'nutrition.fulfilled')
 
   return (
     <div className="flex flex-wrap gap-2">
@@ -78,8 +75,7 @@ export function HabitBadges({ habits, mealScore, nutritionStatus, sickDay = fals
       />
       <HabitBadge
         label={nutritionLabel}
-        title={nutritionTitle}
-        fulfilled={isNutritionFulfilled(habits.nutrition, mealScore, nutritionStatus)}
+        fulfilled={isNutritionFulfilled(habits.nutrition, nutritionStatus)}
         icon="restaurant"
         colorClass="bg-nutrition-600/20 text-nutrition-400 border-nutrition-600/30"
         dimClass="bg-surface-container border-outline-variant/20 text-on-surface-variant"

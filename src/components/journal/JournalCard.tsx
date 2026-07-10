@@ -21,7 +21,7 @@ export async function JournalCard({ entry }: JournalCardProps) {
   const excerpt = entry.excerpt ?? ''
   const dayNumber = getDayNumber(entry.date, startDate)
   const sick = entry.sickDay
-  const perfect = !sick && isPerfectDay(entry.habits, entry.mealScore, entry.nutritionStatus)
+  const perfect = !sick && isPerfectDay(entry.habits, entry.nutritionStatus)
   const isFiller = entry.entryType === 'filler'
 
   const sickBadge = sick ? (
@@ -96,7 +96,7 @@ export async function JournalCard({ entry }: JournalCardProps) {
           )}
 
           <div className="pt-2 border-t border-outline-variant/10">
-            <HabitBadges habits={entry.habits} mealScore={entry.mealScore} nutritionStatus={entry.nutritionStatus} sickDay={sick} />
+            <HabitBadges habits={entry.habits} nutritionStatus={entry.nutritionStatus} sickDay={sick} />
           </div>
         </div>
       </article>
@@ -156,7 +156,7 @@ export async function JournalCard({ entry }: JournalCardProps) {
           )}
 
           <div className="flex items-center justify-between gap-4 pt-2 border-t border-outline-variant/10">
-            <HabitBadges habits={entry.habits} mealScore={entry.mealScore} nutritionStatus={entry.nutritionStatus} sickDay={sick} />
+            <HabitBadges habits={entry.habits} nutritionStatus={entry.nutritionStatus} sickDay={sick} />
             <span className="inline-flex items-center gap-1 text-xs font-label font-bold tracking-widest uppercase text-primary shrink-0 group-hover:gap-1.5 transition-all duration-150">
               {t('readMore')}
               <Icon name="arrow_forward" size={12} />
