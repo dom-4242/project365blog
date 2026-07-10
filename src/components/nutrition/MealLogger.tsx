@@ -8,6 +8,7 @@ import type { MealEntryResolved, DayTotals } from '@/lib/nutrition/meals'
 import type { FavoriteResolved } from '@/lib/nutrition/favorites'
 import type { DishWithItems } from '@/lib/nutrition/dishes'
 import { BarcodeScanner } from '@/components/nutrition/BarcodeScanner'
+import { PhotoEstimator } from '@/components/nutrition/PhotoEstimator'
 import {
   logFoodEntry,
   logDishEntry,
@@ -36,7 +37,7 @@ function defaultSlot(): MealSlot {
   return 'Snack'
 }
 
-type Tab = 'katalog' | 'gericht' | 'scan'
+type Tab = 'katalog' | 'gericht' | 'scan' | 'foto'
 
 export function MealLogger({ date, entries, favorites, dishes, totals, targetKcal }: Props) {
   const router = useRouter()
@@ -184,7 +185,7 @@ export function MealLogger({ date, entries, favorites, dishes, totals, targetKca
       {/* Hinzufügen */}
       <section className="bg-surface-container rounded-2xl border border-surface-container-high p-5">
         <div className="flex gap-1 mb-4">
-          {(['katalog', 'gericht', 'scan'] as Tab[]).map((t) => (
+          {(['katalog', 'gericht', 'scan', 'foto'] as Tab[]).map((t) => (
             <button
               key={t}
               type="button"
@@ -193,7 +194,7 @@ export function MealLogger({ date, entries, favorites, dishes, totals, targetKca
                 tab === t ? 'bg-surface-container-high text-on-surface' : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
-              {t === 'katalog' ? 'Katalog' : t === 'gericht' ? 'Gericht' : 'Scan'}
+              {t === 'katalog' ? 'Katalog' : t === 'gericht' ? 'Gericht' : t === 'scan' ? 'Scan' : 'Foto'}
             </button>
           ))}
         </div>
@@ -316,6 +317,17 @@ export function MealLogger({ date, entries, favorites, dishes, totals, targetKca
               </div>
             )}
           </div>
+        )}
+
+        {tab === 'foto' && (
+          <PhotoEstimator
+            date={date}
+            mealSlot={slot}
+            onLogged={(name) => {
+              setMsg({ kind: 'ok', text: `„${name}" geloggt.` })
+              router.refresh()
+            }}
+          />
         )}
       </section>
 

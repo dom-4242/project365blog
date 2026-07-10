@@ -6,7 +6,7 @@
 // Einträge nicht (Snapshot-Prinzip, Notion-Spec Teil 3).
 // =============================================================================
 
-import type { MealEntry, FoodItem, Dish, MealSource } from '@prisma/client'
+import type { MealEntry, FoodItem, Dish, MealSource, PhotoType, Prisma } from '@prisma/client'
 import { prisma } from '@/lib/db'
 import { getOrCreateDay } from './day'
 import { scaleNutrients } from './snapshot'
@@ -107,6 +107,55 @@ export async function logFavorite(args: {
     })
   }
   throw new Error('Favorit ohne Ziel')
+}
+
+export interface PhotoInput {
+  filename: string
+  photoType: PhotoType
+  aiAnalysis?: unknown
+  aiConfidence?: number | null
+}
+
+export interface LogPhotoMealArgs {
+  date: Date
+  mealSlot?: string | null
+  externalName: string
+  kcal: number
+  proteinG: number
+  carbsG: number
+  fatG: number
+  photos: PhotoInput[]
+}
+
+/**
+ * Loggt eine per Foto→AI geschätzte Mahlzeit. Der (ggf. korrigierte) Snapshot
+ * bezieht sich auf die ganze Portion (amount 1). Fotos werden als MealPhoto
+ * mit roher AI-Analyse verknüpft.
+ */
+export async function logPhotoMeal(args: LogPhotoMealArgs): Promise<MealEntry> {
+  const day = await getOrCreateDay(args.date)
+  return prisma.mealEntry.create({
+    data: {
+      dayId: day.id,
+      sourceType: 'PHOTO_AI',
+      externalName: args.externalName,
+      amount: 1,
+      unit: 'Portion',
+      mealSlot: args.mealSlot ?? null,
+      kcal: args.kcal,
+      proteinG: args.proteinG,
+      carbsG: args.carbsG,
+      fatG: args.fatG,
+      photos: {
+        create: args.photos.map((p) => ({
+          imagePath: p.filename,
+          photoType: p.photoType,
+          aiAnalysis: (p.aiAnalysis ?? undefined) as Prisma.InputJsonValue | undefined,
+          aiConfidence: p.aiConfidence ?? null,
+        })),
+      },
+    },
+  })
 }
 
 export async function deleteMealEntry(id: string): Promise<void> {

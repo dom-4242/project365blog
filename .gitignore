@@ -2,6 +2,9 @@
 node_modules/
 .pnpm-store/
 
+# Private uploads (body photos, meal photos) — created at runtime, never commit
+private/
+
 # Next.js
 .next/
 out/
