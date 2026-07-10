@@ -216,11 +216,9 @@
       "steps_trained": "10k+ & workout"
     },
     "nutrition": {
-      "scoreTitle": "Nutrition score",
-      "none": "No healthy meal",
-      "one_meal": "1 healthy meal",
-      "two_meals": "2 healthy meals",
-      "three_meals": "3 healthy meals"
+      "fulfilled": "Nutrition met",
+      "not_fulfilled": "Nutrition not met",
+      "open": "Nutrition open"
     },
     "smoking": {
       "smoked": "Smoked",

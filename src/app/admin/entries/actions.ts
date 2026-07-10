@@ -7,7 +7,7 @@ import { translateEntry as translateEntryViaAI } from '@/lib/translate'
 import { generateDailyQuote as generateDailyQuoteAI, type DailyQuoteContext } from '@/lib/daily-quote'
 import { getDayNumber } from '@/lib/journal'
 import { getProjectStartDate } from '@/lib/project-config'
-import { MovementLevel, NutritionLevel, SmokingStatus, EntryType } from '@prisma/client'
+import { MovementLevel, FulfillmentStatus, SmokingStatus, EntryType } from '@prisma/client'
 
 export interface EntryFormData {
   title: string
@@ -18,13 +18,22 @@ export interface EntryFormData {
   bannerUrl?: string
   entryType: EntryType
   movement: MovementLevel
-  nutrition: NutritionLevel
+  // nutrition: seit N-09 nicht mehr manuell — wird aus Day.fulfillmentStatus abgeleitet.
   smoking: SmokingStatus
   sickDay: boolean
   tags: string[]
   published: boolean
   privateNotes?: string
   dailyQuote?: string
+}
+
+/** Ernährungs-Erfüllung eines Tages aus dem neuen System (Default OPEN). */
+async function resolveNutritionStatus(dateStr: string): Promise<FulfillmentStatus> {
+  const day = await prisma.day.findUnique({
+    where: { date: new Date(dateStr) },
+    select: { fulfillmentStatus: true },
+  })
+  return day?.fulfillmentStatus ?? 'OPEN'
 }
 
 export interface ActionResult {
@@ -77,7 +86,7 @@ export async function createEntry(data: EntryFormData): Promise<ActionResult> {
         bannerUrl: data.bannerUrl ?? null,
         entryType: data.entryType,
         movement: data.movement,
-        nutrition: data.nutrition,
+        nutrition: await resolveNutritionStatus(data.date),
         smoking: data.smoking,
         sickDay: data.sickDay,
         tags: isFiller ? [] : data.tags,
@@ -121,7 +130,7 @@ export async function updateEntry(id: string, data: EntryFormData): Promise<Acti
         bannerUrl: data.bannerUrl ?? null,
         entryType: data.entryType,
         movement: data.movement,
-        nutrition: data.nutrition,
+        nutrition: await resolveNutritionStatus(data.date),
         smoking: data.smoking,
         sickDay: data.sickDay,
         tags: isFiller ? [] : data.tags,
@@ -162,7 +171,6 @@ export async function deleteEntry(id: string): Promise<ActionResult> {
 export interface QuoteContextInput {
   date: string // YYYY-MM-DD
   movement: MovementLevel
-  nutrition: NutritionLevel
   smoking: SmokingStatus
 }
 
@@ -178,11 +186,10 @@ const MOVEMENT_LABELS: Record<MovementLevel, string> = {
   STEPS_TRAINED: '10k+ Schritte und Training',
 }
 
-const NUTRITION_LABELS: Record<NutritionLevel, string> = {
-  NONE: 'keine Mahlzeit erfasst',
-  ONE_MEAL: '1 Mahlzeit',
-  TWO_MEALS: '2 Mahlzeiten',
-  THREE_MEALS: '3 Mahlzeiten',
+const NUTRITION_LABELS: Record<FulfillmentStatus, string> = {
+  FULFILLED: 'Ernährungsziel erreicht (Kaloriendefizit)',
+  NOT_FULFILLED: 'Ernährungsziel nicht erreicht',
+  OPEN: 'Ernährung offen',
 }
 
 const SMOKING_LABELS: Record<SmokingStatus, string> = {
@@ -201,12 +208,12 @@ export async function generateQuoteForEntry(input: QuoteContextInput): Promise<Q
 
   try {
     const date = new Date(input.date)
-    const [metrics, mealLog, startDate] = await Promise.all([
+    const [metrics, nutritionStatus, startDate] = await Promise.all([
       prisma.dailyMetrics.findUnique({
         where: { date },
         select: { steps: true, weight: true, bodyFat: true },
       }),
-      prisma.mealLog.findUnique({ where: { date }, select: { score: true } }),
+      resolveNutritionStatus(input.date),
       getProjectStartDate(),
     ])
 
@@ -214,12 +221,11 @@ export async function generateQuoteForEntry(input: QuoteContextInput): Promise<Q
       date: input.date,
       dayNumber: getDayNumber(input.date, startDate),
       movement: MOVEMENT_LABELS[input.movement],
-      nutrition: NUTRITION_LABELS[input.nutrition],
+      nutrition: NUTRITION_LABELS[nutritionStatus],
       smoking: SMOKING_LABELS[input.smoking],
       steps: metrics?.steps,
       weightKg: metrics?.weight,
       bodyFatPct: metrics?.bodyFat,
-      mealScore: mealLog?.score,
     }
 
     const quote = await generateDailyQuoteAI(ctx)

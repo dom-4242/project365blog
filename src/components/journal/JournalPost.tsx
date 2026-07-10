@@ -85,7 +85,7 @@ export async function JournalPost({ entry, isTranslated = false }: JournalPostPr
       )}
 
       <div className="flex flex-col gap-3 mb-8">
-        <HabitBadges habits={entry.habits} mealScore={entry.mealScore} nutritionStatus={entry.nutritionStatus} sickDay={entry.sickDay} />
+        <HabitBadges habits={entry.habits} nutritionStatus={entry.nutritionStatus} sickDay={entry.sickDay} />
         {entry.tags && entry.tags.length > 0 && (
           <ul className="flex flex-wrap gap-2">
             {entry.tags.map((tag) => (

@@ -34,9 +34,11 @@ model JournalEntry {
   // prominent angezeigt; bei vollständigen Einträgen rein dekorativ.
   dailyQuote String? @db.Text
 
-  // Die drei Säulen — direkt eingebettet
+  // Die drei Säulen — direkt eingebettet.
+  // nutrition: seit dem Nutrition-Umbau (N-09) ein FulfillmentStatus, abgeleitet
+  // aus Day.fulfillmentStatus (Kaloriendefizit erreicht = erfüllt) statt manuell.
   movement  MovementLevel
-  nutrition NutritionLevel
+  nutrition FulfillmentStatus @default(OPEN)
   smoking   SmokingStatus
 
   // Süssigkeiten: null = nicht erfasst, false = keine, true = konsumiert
@@ -84,13 +86,6 @@ enum MovementLevel {
   STEPS_ONLY
   TRAINED_ONLY
   STEPS_TRAINED
-}
-
-enum NutritionLevel {
-  NONE
-  ONE_MEAL
-  TWO_MEALS
-  THREE_MEALS
 }
 
 enum SmokingStatus {
@@ -214,45 +209,6 @@ enum PhotoCategory {
   FRONT
   SIDE
   BACK
-}
-
-// =============================================
-// MAHLZEITEN-LOG — tägliche Erfassung mit Bewertung
-// =============================================
-
-model MealLog {
-  id             String   @id @default(cuid())
-  date           DateTime @unique @db.Date
-  breakfast      Float? // null = nicht eingenommen, 1.0–10.0
-  snackMorning   Float? // Zwischenmahlzeit Morgen
-  lunch          Float? // Mittagessen
-  snackAfternoon Float? // Zwischenmahlzeit Nachmittag
-  dinner         Float? // Abendessen
-  snack          Float? // Tages-Snack optional (Nüsse etc.) — Bonus
-  score          Float? // berechneter Tages-Score 0.0–5.0
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  @@index([date])
-}
-
-// =============================================
-// MAHLZEITEN-PLANUNG — Planung für den nächsten Tag
-// =============================================
-
-model MealPlan {
-  id             String   @id @default(cuid())
-  date           DateTime @unique @db.Date
-  breakfast      String?
-  snackMorning   String?
-  lunch          String?
-  snackAfternoon String?
-  dinner         String?
-  snack          String? // optionaler Bonus-Snack
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  @@index([date])
 }
 
 // =============================================
