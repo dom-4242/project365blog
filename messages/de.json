@@ -216,11 +216,9 @@
       "steps_trained": "10k+ & Training"
     },
     "nutrition": {
-      "scoreTitle": "Ernährungs-Score",
-      "none": "Keine ges. Mahlzeit",
-      "one_meal": "1 ges. Mahlzeit",
-      "two_meals": "2 ges. Mahlzeiten",
-      "three_meals": "3 ges. Mahlzeiten"
+      "fulfilled": "Ernährung erfüllt",
+      "not_fulfilled": "Ernährung nicht erfüllt",
+      "open": "Ernährung offen"
     },
     "smoking": {
       "smoked": "Geraucht",

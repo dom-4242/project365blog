@@ -54,9 +54,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Datum fehlt' }, { status: 400 })
       }
       const date = new Date(body.date)
-      const [metrics, mealLog, startDate] = await Promise.all([
+      const [metrics, startDate] = await Promise.all([
         prisma.dailyMetrics.findUnique({ where: { date }, select: { steps: true } }),
-        prisma.mealLog.findUnique({ where: { date }, select: { score: true } }),
         getProjectStartDate(),
       ])
 
@@ -66,7 +65,6 @@ export async function POST(request: NextRequest) {
         nutrition: body.nutrition,
         smoking: body.smoking,
         steps: metrics?.steps,
-        mealScore: mealLog?.score,
       })
     } else {
       if (!body.title?.trim()) {

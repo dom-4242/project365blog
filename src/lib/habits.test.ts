@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { MovementLevel, NutritionLevel, SmokingStatus } from '@prisma/client'
+import { MovementLevel, SmokingStatus } from '@prisma/client'
 import {
   isMovementFulfilled,
   isNutritionFulfilled,
@@ -7,7 +7,6 @@ import {
   getNutritionLevel,
   calculateStreak,
   MOVEMENT_ENUM_MAP,
-  NUTRITION_ENUM_MAP,
   SMOKING_ENUM_MAP,
 } from './habits'
 
@@ -30,45 +29,16 @@ describe('isMovementFulfilled', () => {
   })
 })
 
-describe('isNutritionFulfilled', () => {
-  // Without meal score → enum fallback (only three_meals counts).
-  it('returns false for none (no score)', () => {
-    expect(isNutritionFulfilled('none')).toBe(false)
+describe('isNutritionFulfilled (N-09: FulfillmentStatus)', () => {
+  // Ohne Day-Status → gespeicherter Wert (nur 'fulfilled' zählt).
+  it('returns true for fulfilled', () => {
+    expect(isNutritionFulfilled('fulfilled')).toBe(true)
   })
-  it('returns false for one_meal (no score)', () => {
-    expect(isNutritionFulfilled('one_meal')).toBe(false)
+  it('returns false for not_fulfilled', () => {
+    expect(isNutritionFulfilled('not_fulfilled')).toBe(false)
   })
-  it('returns false for two_meals (no score)', () => {
-    expect(isNutritionFulfilled('two_meals')).toBe(false)
-  })
-  it('returns true for three_meals (no score)', () => {
-    expect(isNutritionFulfilled('three_meals')).toBe(true)
-  })
-  it('treats null mealScore as "no score" (enum fallback)', () => {
-    expect(isNutritionFulfilled('three_meals', null)).toBe(true)
-    expect(isNutritionFulfilled('two_meals', null)).toBe(false)
-  })
-
-  // With meal score → score takes priority over the enum.
-  it('returns true when mealScore ≥ 8.0 (boundary)', () => {
-    expect(isNutritionFulfilled('none', 8.0)).toBe(true)
-  })
-  it('returns true when mealScore is well above threshold', () => {
-    expect(isNutritionFulfilled('none', 9.6)).toBe(true)
-  })
-  it('returns false when mealScore is just below threshold', () => {
-    expect(isNutritionFulfilled('three_meals', 7.9)).toBe(false)
-  })
-  it('returns false when mealScore is 0', () => {
-    expect(isNutritionFulfilled('three_meals', 0)).toBe(false)
-  })
-  it('score overrides enum (high enum, low score)', () => {
-    // Stale enum should not save a low-score day.
-    expect(isNutritionFulfilled('three_meals', 5.5)).toBe(false)
-  })
-  it('score overrides enum (low enum, high score)', () => {
-    // Stale enum should not block a high-score day.
-    expect(isNutritionFulfilled('two_meals', 9.0)).toBe(true)
+  it('returns false for open', () => {
+    expect(isNutritionFulfilled('open')).toBe(false)
   })
 })
 
@@ -103,24 +73,6 @@ describe('MOVEMENT_ENUM_MAP', () => {
   })
   it('covers all MovementValue variants', () => {
     expect(Object.keys(MOVEMENT_ENUM_MAP)).toHaveLength(4)
-  })
-})
-
-describe('NUTRITION_ENUM_MAP', () => {
-  it('maps none → NONE', () => {
-    expect(NUTRITION_ENUM_MAP.none).toBe(NutritionLevel.NONE)
-  })
-  it('maps one_meal → ONE_MEAL', () => {
-    expect(NUTRITION_ENUM_MAP.one_meal).toBe(NutritionLevel.ONE_MEAL)
-  })
-  it('maps two_meals → TWO_MEALS', () => {
-    expect(NUTRITION_ENUM_MAP.two_meals).toBe(NutritionLevel.TWO_MEALS)
-  })
-  it('maps three_meals → THREE_MEALS', () => {
-    expect(NUTRITION_ENUM_MAP.three_meals).toBe(NutritionLevel.THREE_MEALS)
-  })
-  it('covers all NutritionValue variants', () => {
-    expect(Object.keys(NUTRITION_ENUM_MAP)).toHaveLength(4)
   })
 })
 
@@ -235,31 +187,31 @@ describe('calculateStreak', () => {
 })
 
 // =============================================
-// N-08: Vorrang von Day.fulfillmentStatus (neues Nutrition-System)
+// N-08/N-09: Vorrang von Day.fulfillmentStatus (neues Nutrition-System)
 // =============================================
-describe('isNutritionFulfilled — nutritionStatus-Vorrang (N-08)', () => {
-  it('FULFILLED gewinnt über Enum/Score', () => {
-    expect(isNutritionFulfilled('none', 0, 'FULFILLED')).toBe(true)
-    expect(isNutritionFulfilled('none', null, 'FULFILLED')).toBe(true)
+describe('isNutritionFulfilled — nutritionStatus-Vorrang', () => {
+  it('FULFILLED gewinnt über den gespeicherten Wert', () => {
+    expect(isNutritionFulfilled('not_fulfilled', 'FULFILLED')).toBe(true)
+    expect(isNutritionFulfilled('open', 'FULFILLED')).toBe(true)
   })
-  it('NOT_FULFILLED gewinnt über Enum/Score', () => {
-    expect(isNutritionFulfilled('three_meals', 10, 'NOT_FULFILLED')).toBe(false)
+  it('NOT_FULFILLED gewinnt über den gespeicherten Wert', () => {
+    expect(isNutritionFulfilled('fulfilled', 'NOT_FULFILLED')).toBe(false)
   })
-  it('OPEN/null fällt auf Legacy zurück (Score, dann Enum)', () => {
-    expect(isNutritionFulfilled('three_meals', null, 'OPEN')).toBe(true)
-    expect(isNutritionFulfilled('none', 8.0, 'OPEN')).toBe(true)
-    expect(isNutritionFulfilled('none', null, null)).toBe(false)
+  it('OPEN/null fällt auf den gespeicherten Wert zurück', () => {
+    expect(isNutritionFulfilled('fulfilled', 'OPEN')).toBe(true)
+    expect(isNutritionFulfilled('fulfilled', null)).toBe(true)
+    expect(isNutritionFulfilled('not_fulfilled', null)).toBe(false)
   })
 })
 
-describe('getNutritionLevel — nutritionStatus-Vorrang (N-08)', () => {
-  it('FULFILLED → 3, NOT_FULFILLED → 0', () => {
-    expect(getNutritionLevel('none', null, 'FULFILLED')).toBe(3)
-    expect(getNutritionLevel('three_meals', 9, 'NOT_FULFILLED')).toBe(0)
+describe('getNutritionLevel — binär (N-09)', () => {
+  it('FULFILLED → 3, NOT_FULFILLED → 0 (Day-Status hat Vorrang)', () => {
+    expect(getNutritionLevel('not_fulfilled', 'FULFILLED')).toBe(3)
+    expect(getNutritionLevel('fulfilled', 'NOT_FULFILLED')).toBe(0)
   })
-  it('ohne Status: Legacy-Verhalten (Score/Enum)', () => {
-    expect(getNutritionLevel('three_meals')).toBe(3)
-    expect(getNutritionLevel('one_meal')).toBe(1)
-    expect(getNutritionLevel('none', 5.0)).toBe(2)
+  it('ohne Status: aus gespeichertem Wert', () => {
+    expect(getNutritionLevel('fulfilled')).toBe(3)
+    expect(getNutritionLevel('not_fulfilled')).toBe(0)
+    expect(getNutritionLevel('open')).toBe(0)
   })
 })

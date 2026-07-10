@@ -13,7 +13,6 @@ export interface DailyQuoteContext {
   steps?: number | null
   weightKg?: number | null
   bodyFatPct?: number | null
-  mealScore?: number | null
   movementStreak?: number
   smokingStreak?: number
   nutritionStreak?: number
@@ -38,7 +37,6 @@ function buildUserMessage(ctx: DailyQuoteContext): string {
   if (ctx.steps != null) lines.push(`Schritte: ${ctx.steps.toLocaleString('de-CH')}`)
   if (ctx.weightKg != null) lines.push(`Gewicht: ${ctx.weightKg.toFixed(1)} kg`)
   if (ctx.bodyFatPct != null) lines.push(`Körperfett: ${ctx.bodyFatPct.toFixed(1)} %`)
-  if (ctx.mealScore != null) lines.push(`Ernährungs-Score: ${ctx.mealScore.toFixed(1)} / 10`)
   if (ctx.movementStreak != null) lines.push(`Bewegungs-Streak: ${ctx.movementStreak} Tage`)
   if (ctx.smokingStreak != null) lines.push(`Rauchstopp-Streak: ${ctx.smokingStreak} Tage`)
   if (ctx.nutritionStreak != null) lines.push(`Ernährungs-Streak: ${ctx.nutritionStreak} Tage`)

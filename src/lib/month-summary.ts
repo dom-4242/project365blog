@@ -1,6 +1,6 @@
 import Anthropic, { APIError } from '@anthropic-ai/sdk'
 import { prisma } from './db'
-import { MovementLevel, NutritionLevel, SmokingStatus } from '@prisma/client'
+import { MovementLevel, FulfillmentStatus, SmokingStatus } from '@prisma/client'
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -85,7 +85,7 @@ interface EntryContext {
   title: string
   excerpt: string
   movement: MovementLevel
-  nutrition: NutritionLevel
+  nutrition: FulfillmentStatus
   smoking: SmokingStatus
   sickDay: boolean
 }
@@ -113,13 +113,6 @@ interface BooksContext {
   booksInProgress: { title: string; author: string | null; pagesRead: number }[]
 }
 
-interface MealScoreContext {
-  daysLogged: number
-  avgScore: number | null     // 0–10
-  daysFullfilled: number      // score ≥ 8.0
-  bestScore: number | null
-}
-
 interface SummaryContext {
   year: number
   month: number
@@ -137,7 +130,6 @@ interface SummaryContext {
   drinks: DrinksContext
   sweets: SweetsContext
   books: BooksContext
-  mealScore: MealScoreContext
 }
 
 function buildPrompt(ctx: SummaryContext): string {
@@ -161,7 +153,7 @@ Einträge: ${ctx.entryCount} von ~${new Date(ctx.year, ctx.month, 0).getDate()} 
 
 HABITS-STATISTIK (die drei Säulen):
 - Bewegung gut (STEPS_ONLY, TRAINED_ONLY oder STEPS_TRAINED): ${ctx.habitStats.movementGood}
-- Ernährung gut (mind. 2 Mahlzeiten): ${ctx.habitStats.nutritionGood}
+- Ernährung erfüllt (Kaloriendefizit erreicht): ${ctx.habitStats.nutritionGood}
 - Nicht geraucht (NICOTINE_REPLACEMENT oder SMOKE_FREE): ${ctx.habitStats.smokingClean}
 - Geraucht (SMOKED): ${ctx.habitStats.smokingSmoked}
 - Krankheitstage (zählen nicht in die Quoten): ${ctx.habitStats.sickDays}
@@ -175,12 +167,6 @@ KONSUM:
 - Wasser (Ø/Tag): ${ctx.drinks.avgWaterMl !== null ? Math.round(ctx.drinks.avgWaterMl) + ' ml' : '—'}
 - Cola Zero (Ø/Tag): ${ctx.drinks.avgColaZeroMl !== null ? Math.round(ctx.drinks.avgColaZeroMl) + ' ml' : '—'}
 - Süssigkeiten: ${ctx.sweets.totalDays > 0 ? `${ctx.sweets.daysConsumed} von ${ctx.sweets.totalDays} Tagen mit Süssigkeiten (${ctx.sweets.daysClean} Tage clean)` : '—'}
-
-ERNÄHRUNGS-SCORE (Mahlzeiten-Bewertung, Skala 0–10):
-- Tage mit erfasstem Score: ${ctx.mealScore.daysLogged > 0 ? ctx.mealScore.daysLogged : '—'}
-- Durchschnittlicher Score: ${ctx.mealScore.avgScore !== null ? ctx.mealScore.avgScore.toFixed(1) + ' / 10' : '—'}
-- Tage mit erfülltem Ernährungs-Ziel (Score ≥ 8.0): ${ctx.mealScore.daysLogged > 0 ? ctx.mealScore.daysFullfilled : '—'}
-- Bester Tages-Score: ${ctx.mealScore.bestScore !== null ? ctx.mealScore.bestScore.toFixed(1) + ' / 10' : '—'}
 
 LESEN:
 - Seiten gelesen: ${ctx.books.pagesRead > 0 ? ctx.books.pagesRead : '—'}
@@ -230,7 +216,7 @@ export async function generateAndSaveMonthSummary(year: number, month: number): 
   const drinkStart = new Date(year, month - 1, 1)
   const drinkEnd = new Date(year, month, 1)
 
-  const [entries, metricsRows, drinkRows, sweetsRows, readingRows, mealLogRows] = await Promise.all([
+  const [entries, metricsRows, drinkRows, sweetsRows, readingRows] = await Promise.all([
     prisma.journalEntry.findMany({
       where: { date: { gte: start, lte: end }, published: true },
       orderBy: { date: 'asc' },
@@ -251,10 +237,6 @@ export async function generateAndSaveMonthSummary(year: number, month: number): 
     prisma.readingLog.findMany({
       where: { date: { gte: start, lte: end } },
       select: { pagesRead: true, book: { select: { id: true, title: true, author: true, completed: true, endDate: true } } },
-    }),
-    prisma.mealLog.findMany({
-      where: { date: { gte: start, lte: end } },
-      select: { score: true },
     }),
   ])
 
@@ -309,7 +291,7 @@ export async function generateAndSaveMonthSummary(year: number, month: number): 
     })),
     habitStats: {
       movementGood: habitRate(movements, [MovementLevel.STEPS_ONLY, MovementLevel.TRAINED_ONLY, MovementLevel.STEPS_TRAINED]),
-      nutritionGood: habitRate(nutritions, [NutritionLevel.TWO_MEALS, NutritionLevel.THREE_MEALS]),
+      nutritionGood: habitRate(nutritions, [FulfillmentStatus.FULFILLED]),
       smokingClean: habitRate(smokings, [SmokingStatus.NICOTINE_REPLACEMENT, SmokingStatus.SMOKE_FREE]),
       smokingSmoked: habitRate(smokings, [SmokingStatus.SMOKED]),
       sickDays: entries.length - activeEntries.length,
@@ -333,15 +315,6 @@ export async function generateAndSaveMonthSummary(year: number, month: number): 
       booksCompleted,
       booksInProgress,
     },
-    mealScore: (() => {
-      const scores = mealLogRows.map((r) => r.score).filter((s): s is number => s !== null)
-      return {
-        daysLogged: scores.length,
-        avgScore: scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : null,
-        daysFullfilled: scores.filter((s) => s >= 8.0).length,
-        bestScore: scores.length > 0 ? Math.max(...scores) : null,
-      }
-    })(),
   }
 
   try {
