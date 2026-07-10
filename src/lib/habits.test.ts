@@ -4,6 +4,7 @@ import {
   isMovementFulfilled,
   isNutritionFulfilled,
   isSmokingFulfilled,
+  getNutritionLevel,
   calculateStreak,
   MOVEMENT_ENUM_MAP,
   NUTRITION_ENUM_MAP,
@@ -230,5 +231,35 @@ describe('calculateStreak', () => {
 
   it('all null returns 0/0', () => {
     expect(calculateStreak([null, null, null])).toEqual({ current: 0, longest: 0 })
+  })
+})
+
+// =============================================
+// N-08: Vorrang von Day.fulfillmentStatus (neues Nutrition-System)
+// =============================================
+describe('isNutritionFulfilled — nutritionStatus-Vorrang (N-08)', () => {
+  it('FULFILLED gewinnt über Enum/Score', () => {
+    expect(isNutritionFulfilled('none', 0, 'FULFILLED')).toBe(true)
+    expect(isNutritionFulfilled('none', null, 'FULFILLED')).toBe(true)
+  })
+  it('NOT_FULFILLED gewinnt über Enum/Score', () => {
+    expect(isNutritionFulfilled('three_meals', 10, 'NOT_FULFILLED')).toBe(false)
+  })
+  it('OPEN/null fällt auf Legacy zurück (Score, dann Enum)', () => {
+    expect(isNutritionFulfilled('three_meals', null, 'OPEN')).toBe(true)
+    expect(isNutritionFulfilled('none', 8.0, 'OPEN')).toBe(true)
+    expect(isNutritionFulfilled('none', null, null)).toBe(false)
+  })
+})
+
+describe('getNutritionLevel — nutritionStatus-Vorrang (N-08)', () => {
+  it('FULFILLED → 3, NOT_FULFILLED → 0', () => {
+    expect(getNutritionLevel('none', null, 'FULFILLED')).toBe(3)
+    expect(getNutritionLevel('three_meals', 9, 'NOT_FULFILLED')).toBe(0)
+  })
+  it('ohne Status: Legacy-Verhalten (Score/Enum)', () => {
+    expect(getNutritionLevel('three_meals')).toBe(3)
+    expect(getNutritionLevel('one_meal')).toBe(1)
+    expect(getNutritionLevel('none', 5.0)).toBe(2)
   })
 })

@@ -143,10 +143,10 @@ enum MetricSource {
 
 model UserProfile {
   id               String   @id @default("singleton")
-  heightCm         Float?   // Körpergrösse in cm
-  targetWeight     Float?   // Zielgewicht in kg
-  targetSteps      Int?     // Tagesziel Schritte
-  projectStartDate String?  // Projekt-Startdatum YYYY-MM-DD (Default: 2026-03-26)
+  heightCm         Float? // Körpergrösse in cm
+  targetWeight     Float? // Zielgewicht in kg
+  targetSteps      Int? // Tagesziel Schritte
+  projectStartDate String? // Projekt-Startdatum YYYY-MM-DD (Default: 2026-03-26)
   updatedAt        DateTime @updatedAt
 }
 
@@ -182,7 +182,7 @@ enum ReactionType {
 model MonthSummary {
   id          String   @id @default(cuid())
   year        Int
-  month       Int      // 1–12
+  month       Int // 1–12
   contentDe   String   @db.Text
   contentEn   String?  @db.Text
   contentPt   String?  @db.Text
@@ -200,7 +200,7 @@ model MonthSummary {
 
 model BodyPhoto {
   id        String        @id @default(cuid())
-  filename  String        // gespeicherter Dateiname auf Disk
+  filename  String // gespeicherter Dateiname auf Disk
   date      DateTime      @db.Date
   category  PhotoCategory @default(FRONT)
   notes     String?
@@ -223,13 +223,13 @@ enum PhotoCategory {
 model MealLog {
   id             String   @id @default(cuid())
   date           DateTime @unique @db.Date
-  breakfast      Float?   // null = nicht eingenommen, 1.0–10.0
-  snackMorning   Float?   // Zwischenmahlzeit Morgen
-  lunch          Float?   // Mittagessen
-  snackAfternoon Float?   // Zwischenmahlzeit Nachmittag
-  dinner         Float?   // Abendessen
-  snack          Float?   // Tages-Snack optional (Nüsse etc.) — Bonus
-  score          Float?   // berechneter Tages-Score 0.0–5.0
+  breakfast      Float? // null = nicht eingenommen, 1.0–10.0
+  snackMorning   Float? // Zwischenmahlzeit Morgen
+  lunch          Float? // Mittagessen
+  snackAfternoon Float? // Zwischenmahlzeit Nachmittag
+  dinner         Float? // Abendessen
+  snack          Float? // Tages-Snack optional (Nüsse etc.) — Bonus
+  score          Float? // berechneter Tages-Score 0.0–5.0
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -248,7 +248,7 @@ model MealPlan {
   lunch          String?
   snackAfternoon String?
   dinner         String?
-  snack          String?  // optionaler Bonus-Snack
+  snack          String? // optionaler Bonus-Snack
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -265,21 +265,21 @@ model MealPlan {
 model NutritionLog {
   id        String   @id @default(cuid())
   date      DateTime @db.Date
-  meal      String                     // 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks' (MFP-Meal)
+  meal      String // 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks' (MFP-Meal)
   calories  Float?
-  protein   Float?                     // g
-  carbs     Float?                     // g
-  fat       Float?                     // g
-  fiber     Float?                     // g
-  sugar     Float?                     // g
-  sodium    Float?                     // mg
-  micros    Json?                      // restliche Nährstoffe (satFat, cholesterol, potassium, vitA/C, calcium, iron, …)
+  protein   Float? // g
+  carbs     Float? // g
+  fat       Float? // g
+  fiber     Float? // g
+  sugar     Float? // g
+  sodium    Float? // mg
+  micros    Json? // restliche Nährstoffe (satFat, cholesterol, potassium, vitA/C, calcium, iron, …)
   note      String?
   source    String   @default("MYFITNESSPAL")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([date, meal, source])       // idempotenter Re-Import
+  @@unique([date, meal, source]) // idempotenter Re-Import
   @@index([date])
 }
 
@@ -288,15 +288,15 @@ model NutritionLog {
 // =============================================
 
 model Book {
-  id          String      @id @default(cuid())
-  title       String
-  author      String?
-  totalPages  Int?
-  startDate   DateTime?   @db.Date
-  endDate     DateTime?   @db.Date
-  completed   Boolean     @default(false)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  id         String    @id @default(cuid())
+  title      String
+  author     String?
+  totalPages Int?
+  startDate  DateTime? @db.Date
+  endDate    DateTime? @db.Date
+  completed  Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   readingLogs ReadingLog[]
 
@@ -304,12 +304,12 @@ model Book {
 }
 
 model ReadingLog {
-  id         String   @id @default(cuid())
-  date       DateTime @db.Date
-  pagesRead  Int
-  bookId     String
-  book       Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  date      DateTime @db.Date
+  pagesRead Int
+  bookId    String
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 
   @@unique([date, bookId])
   @@index([date])
@@ -329,16 +329,16 @@ model ReadingLog {
 model BodyMeasurement {
   id            String   @id @default(cuid())
   date          DateTime @unique @db.Date
-  chest         Float?   // Brustumfang cm
-  waist         Float?   // Taillenumfang cm
-  hip           Float?   // Hüftumfang cm
-  upperArmLeft  Float?   // Oberarm links cm
-  upperArmRight Float?   // Oberarm rechts cm
-  thighLeft     Float?   // Oberschenkel links cm
-  thighRight    Float?   // Oberschenkel rechts cm
-  calfLeft      Float?   // Wade links cm
-  calfRight     Float?   // Wade rechts cm
-  neck          Float?   // Halsumfang cm (optional)
+  chest         Float? // Brustumfang cm
+  waist         Float? // Taillenumfang cm
+  hip           Float? // Hüftumfang cm
+  upperArmLeft  Float? // Oberarm links cm
+  upperArmRight Float? // Oberarm rechts cm
+  thighLeft     Float? // Oberschenkel links cm
+  thighRight    Float? // Oberschenkel rechts cm
+  calfLeft      Float? // Wade links cm
+  calfRight     Float? // Wade rechts cm
+  neck          Float? // Halsumfang cm (optional)
   notes         String?  @db.Text
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -353,7 +353,7 @@ model BodyMeasurement {
 model DrinkLog {
   id        String    @id @default(cuid())
   type      DrinkType
-  volume    Int       // ml
+  volume    Int // ml
   timestamp DateTime  @default(now())
 
   @@index([timestamp])
@@ -397,20 +397,20 @@ model AppSetting {
 // =============================================
 
 model HealthMetricInventory {
-  metricName     String   @id                // z.B. "Stand Time", "Step Count"
-  unit           String   @default("")       // z.B. "count", "hr", "kcal"
-  sampleCount    Int      @default(0)        // Anzahl Datenpunkte im letzten Import
-  lastValue      Float?                      // letzter qty/avg/asleep Wert
-  lastValueDate  String?                     // YYYY-MM-DD des letzten Datenpunkts
-  lastReceivedAt DateTime @default(now())    // Zeitpunkt des letzten Imports
+  metricName     String   @id // z.B. "Stand Time", "Step Count"
+  unit           String   @default("") // z.B. "count", "hr", "kcal"
+  sampleCount    Int      @default(0) // Anzahl Datenpunkte im letzten Import
+  lastValue      Float? // letzter qty/avg/asleep Wert
+  lastValueDate  String? // YYYY-MM-DD des letzten Datenpunkts
+  lastReceivedAt DateTime @default(now()) // Zeitpunkt des letzten Imports
   createdAt      DateTime @default(now())
 }
 
 model PageView {
   id          String   @id @default(cuid())
-  path        String                          // Normalisierter Pfad ohne Locale (/journal/slug)
-  referrer    String?                         // Nur Hostname des Referrers
-  sessionHash String                          // Tagesbezogener Hash — nie auf Person zurückführbar
+  path        String // Normalisierter Pfad ohne Locale (/journal/slug)
+  referrer    String? // Nur Hostname des Referrers
+  sessionHash String // Tagesbezogener Hash — nie auf Person zurückführbar
   timestamp   DateTime @default(now())
 
   @@index([timestamp])
@@ -428,12 +428,12 @@ model PageView {
 
 model WithingsMeasurement {
   id         String   @id @default(cuid())
-  grpid      BigInt                        // Withings measure-group id
-  measuredAt DateTime                      // voller Zeitstempel der Messung
-  date       DateTime @db.Date             // Messtag (Europe/Zurich) — für Tages-Joins
-  type       Int                           // Withings meastype (1, 6, 76, …)
-  position   Int      @default(0)          // Körperzone bei segmentalen Werten (0 = ganzkörper/ohne Position)
-  value      Float                         // aufgelöster Realwert (value * 10^unit)
+  grpid      BigInt // Withings measure-group id
+  measuredAt DateTime // voller Zeitstempel der Messung
+  date       DateTime @db.Date // Messtag (Europe/Zurich) — für Tages-Joins
+  type       Int // Withings meastype (1, 6, 76, …)
+  position   Int      @default(0) // Körperzone bei segmentalen Werten (0 = ganzkörper/ohne Position)
+  value      Float // aufgelöster Realwert (value * 10^unit)
   createdAt  DateTime @default(now())
 
   @@unique([grpid, type, position])
@@ -449,14 +449,340 @@ model WithingsMeasurement {
 model WithingsSyncLog {
   id              String   @id @default(cuid())
   syncedAt        DateTime @default(now())
-  triggeredBy     String   @default("CRON")   // CRON | MANUAL
-  syncDate        String                       // YYYY-MM-DD — der synchronisierte Tag
-  status          String                       // SUCCESS | ERROR
+  triggeredBy     String   @default("CRON") // CRON | MANUAL
+  syncDate        String // YYYY-MM-DD — der synchronisierte Tag
+  status          String // SUCCESS | ERROR
   weight          Float?
   bodyFat         Float?
-  measureCount    Int?                         // Anzahl gespeicherter Roh-Messwerte
+  measureCount    Int? // Anzahl gespeicherter Roh-Messwerte
   tokensRefreshed Boolean  @default(false)
   errorMessage    String?
 
   @@index([syncedAt(sort: Desc)])
+}
+
+// =============================================================================
+// NUTRITION TRACKING (Phase 7 — Nutrition-Umbau, MVP-1)
+// Ersetzt das Score-System (MealLog/MealPlan) durch natives Ernährungs-Tracking:
+// Kaloriendefizit erreicht = Tag erfüllt. Additiv angelegt (N-01); die Kopplung
+// an JournalEntry.nutrition und der Score-Rückbau folgen in N-08/N-09.
+//
+// Prinzipien (Notion-Spec, Teil 3):
+//  • Snapshots sind immutable: MealEntry speichert Nährwerte als Snapshot +
+//    Referenz aufs FoodItem; Day speichert den SOLL-Snapshot. Katalog-
+//    Korrekturen wirken nur auf zukünftige Logs.
+//  • NutritionTargets sind versioniert (validFrom); der je Tag geltende Satz
+//    ergibt sich aus dem letzten validFrom ≤ Tagesdatum.
+//  • Alle Nährwerte am FoodItem beziehen sich auf 100 Basiseinheiten (g/ml).
+// =============================================================================
+
+// --- Einzel-Lebensmittel: Nährwerte je 100 g/ml -----------------------------
+
+model FoodItem {
+  id       String     @id @default(cuid())
+  name     String
+  brand    String?
+  barcode  String?    @unique // eindeutig, wenn vorhanden (Dedup, N-03)
+  source   FoodSource @default(MANUAL)
+  baseUnit String     @default("g") // g | ml | stück
+
+  // Pflicht-Nährwerte je 100 Basiseinheiten
+  kcal     Float
+  proteinG Float
+  carbsG   Float
+  fatG     Float
+
+  // Fokussierter Mikro-Satz (best-effort, nullable) — je 100 Basiseinheiten
+  fiberG        Float? // Ballaststoffe (g)
+  sugarG        Float? // Zucker (g)
+  saturatedFatG Float? // gesättigte Fettsäuren (g)
+  sodiumMg      Float? // Natrium (mg)
+  potassiumMg   Float? // Kalium (mg)
+  ironMg        Float? // Eisen (mg)
+  magnesiumMg   Float? // Magnesium (mg)
+  calciumMg     Float? // Calcium (mg)
+  zincMg        Float? // Zink (mg)
+  vitaminDUg    Float? // Vitamin D (µg)
+  vitaminB12Ug  Float? // Vitamin B12 (µg)
+  vitaminCMg    Float? // Vitamin C (mg)
+
+  isActive     Boolean @default(true) // false = archiviert (nie hart löschen wenn referenziert)
+  externalDbId String? // z.B. Open-Food-Facts-Code
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  dishItems   DishItem[]
+  mealEntries MealEntry[]
+  favorites   Favorite[]
+
+  @@index([barcode])
+  @@index([isActive])
+}
+
+// --- Gericht: benannte Kombination mehrerer FoodItems -----------------------
+
+model Dish {
+  id        String   @id @default(cuid())
+  name      String
+  note      String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items       DishItem[]
+  mealEntries MealEntry[]
+  favorites   Favorite[]
+
+  @@index([isActive])
+}
+
+model DishItem {
+  id         String   @id @default(cuid())
+  dishId     String
+  dish       Dish     @relation(fields: [dishId], references: [id], onDelete: Cascade)
+  foodItemId String
+  foodItem   FoodItem @relation(fields: [foodItemId], references: [id])
+  amount     Float // in `unit`
+  unit       String // g | ml | stück
+
+  @@index([dishId])
+  @@index([foodItemId])
+}
+
+// --- Favorit: Schnellzugriff auf FoodItem ODER Dish -------------------------
+
+model Favorite {
+  id         String    @id @default(cuid())
+  targetType String // food | dish (App-seitig: genau eine Referenz gesetzt)
+  foodItemId String?
+  foodItem   FoodItem? @relation(fields: [foodItemId], references: [id], onDelete: Cascade)
+  dishId     String?
+  dish       Dish?     @relation(fields: [dishId], references: [id], onDelete: Cascade)
+  sortOrder  Int       @default(0)
+  createdAt  DateTime  @default(now())
+
+  @@index([foodItemId])
+  @@index([dishId])
+  @@index([sortOrder])
+}
+
+// --- Geloggte Mahlzeit: Referenz + immutable Nährwert-Snapshot --------------
+
+model MealEntry {
+  id         String     @id @default(cuid())
+  dayId      String
+  day        Day        @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  loggedAt   DateTime   @default(now())
+  mealSlot   String? // Frühstück | Mittag | Abend | Snack
+  sourceType MealSource
+
+  // Referenz auf genau eines von FoodItem/Dish (App-seitig erzwungen)
+  foodItemId String?
+  foodItem   FoodItem? @relation(fields: [foodItemId], references: [id])
+  dishId     String?
+  dish       Dish?     @relation(fields: [dishId], references: [id])
+
+  amount Float
+  unit   String
+
+  // Immutable Nährwert-Snapshot (aus FoodItem/Dish × Menge zum Log-Zeitpunkt)
+  kcal          Float
+  proteinG      Float
+  carbsG        Float
+  fatG          Float
+  // Mikro-Snapshot (nullable, best-effort)
+  fiberG        Float?
+  sugarG        Float?
+  saturatedFatG Float?
+  sodiumMg      Float?
+  potassiumMg   Float?
+  ironMg        Float?
+  magnesiumMg   Float?
+  calciumMg     Float?
+  zincMg        Float?
+  vitaminDUg    Float?
+  vitaminB12Ug  Float?
+  vitaminCMg    Float?
+
+  externalName String? // Gerichtstitel von Speisekarte (Foto→AI)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  photos MealPhoto[]
+
+  @@index([dayId])
+  @@index([foodItemId])
+  @@index([dishId])
+}
+
+// --- Foto(s) + AI-Analyse je MealEntry (Teller/Speisekarte) -----------------
+
+model MealPhoto {
+  id           String    @id @default(cuid())
+  mealEntryId  String
+  mealEntry    MealEntry @relation(fields: [mealEntryId], references: [id], onDelete: Cascade)
+  imagePath    String
+  photoType    PhotoType
+  aiAnalysis   Json? // rohes JSON der Vision-Antwort
+  aiConfidence Float?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([mealEntryId])
+}
+
+// --- Kalendertag: Tag-Typ, SOLL-Snapshot, IST-Aggregat, Erfüllung ----------
+
+model Day {
+  id      String   @id @default(cuid())
+  date    DateTime @unique @db.Date
+  dayType DayType  @default(NORMAL)
+  phaseId String?
+  phase   Phase?   @relation(fields: [phaseId], references: [id])
+
+  // SOLL-Snapshot (aus Phase/Targets + Tag-Typ; von N-07 gesetzt)
+  targetKcal     Float?
+  targetProteinG Float?
+  targetFatG     Float?
+  targetCarbsG   Float?
+
+  // IST-Aggregat (Cache, aus MealEntries berechnet; von N-07 gepflegt)
+  actualKcal     Float?
+  actualProteinG Float?
+  actualFatG     Float?
+  actualCarbsG   Float?
+
+  fulfillmentStatus FulfillmentStatus @default(OPEN)
+  note              String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  mealEntries MealEntry[]
+
+  @@index([phaseId])
+  @@index([fulfillmentStatus])
+}
+
+// --- Phase: Zeitraum mit Modus (Defizit/Erhalt/Überschuss) ------------------
+
+model Phase {
+  id        String            @id @default(cuid())
+  mode      PhaseMode
+  startDate DateTime          @db.Date
+  endDate   DateTime?         @db.Date
+  targetsId String?
+  targets   NutritionTargets? @relation(fields: [targetsId], references: [id])
+  status    String            @default("ACTIVE") // ACTIVE | COMPLETED | PAUSED
+  note      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  days        Day[]
+  refeedRules RefeedRule[]
+
+  @@index([status])
+  @@index([startDate])
+}
+
+// --- NutritionTargets: versionierte Eckdaten (gültig-ab) --------------------
+
+model NutritionTargets {
+  id             String        @id @default(cuid())
+  validFrom      DateTime      @unique @db.Date
+  baseWeightKg   Float
+  sex            Sex
+  heightCm       Float
+  age            Int
+  bodyFatPct     Float?
+  activityFactor Float
+  deficitMode    DeficitMethod
+
+  // Errechnete Ziel-Eckdaten
+  targetKcal  Float
+  proteinG    Float
+  fatG        Float
+  carbsG      Float
+  mealsPerDay Int
+  calcNote    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  phases Phase[]
+
+  @@index([validFrom])
+}
+
+// --- RefeedRule: Refeed-Planung einer Phase (Wochentage + Refeed-SOLL) ------
+
+model RefeedRule {
+  id                String @id @default(cuid())
+  phaseId           String
+  phase             Phase  @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+  recurringWeekdays Int[] // ISO-Wochentage 1=Mo … 7=So (z.B. [3,7] = Mi+So)
+
+  // Refeed-SOLL: kcal = Erhaltungskalorien, hohe KH, niedriges Fett, reduziertes Protein
+  refeedKcal     Float
+  refeedProteinG Float
+  refeedFatG     Float
+  refeedCarbsG   Float
+  active         Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([phaseId])
+}
+
+// --- Nutrition-Enums --------------------------------------------------------
+
+enum FulfillmentStatus {
+  FULFILLED
+  NOT_FULFILLED
+  OPEN
+}
+
+enum DayType {
+  NORMAL
+  REFEED
+}
+
+enum PhaseMode {
+  DEFICIT
+  MAINTENANCE
+  SURPLUS
+}
+
+enum FoodSource {
+  EXTERNAL_DB
+  MANUAL
+  AI
+}
+
+enum MealSource {
+  BARCODE
+  PHOTO_AI
+  MANUAL
+  FAVORITE
+  DISH
+}
+
+enum PhotoType {
+  PLATE
+  MENU
+}
+
+enum Sex {
+  MALE
+  FEMALE
+}
+
+enum DeficitMethod {
+  MODERATE // TDEE × 0,8
+  AGGRESSIVE // TDEE × 0,7
+  SIMPLE // TDEE − 500
 }

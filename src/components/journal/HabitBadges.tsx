@@ -1,4 +1,5 @@
 import { useTranslations } from 'next-intl'
+import type { FulfillmentStatus } from '@prisma/client'
 import type { HabitsFrontmatter } from '@/lib/journal'
 import { isMovementFulfilled, isNutritionFulfilled, isSmokingFulfilled } from '@/lib/habits'
 import { Icon } from '@/components/ui/Icon'
@@ -9,6 +10,9 @@ interface HabitBadgesProps {
    * the nutrition badge shows the score (e.g. `9.6 / 10`) instead of the
    * meal-count label, and fulfillment is computed from the score. */
   mealScore?: number | null
+  /** Erfüllungsstatus aus dem neuen Nutrition-System (N-08) — hat Vorrang
+   * vor mealScore/Enum bei der Erfüllung. */
+  nutritionStatus?: FulfillmentStatus | null
   /** Sick day: replaces the three pillar badges with a single neutral
    * "sick day" badge — habits are recorded but statistically paused. */
   sickDay?: boolean
@@ -38,7 +42,7 @@ function HabitBadge({ label, fulfilled, colorClass, dimClass, icon, title }: Bad
   )
 }
 
-export function HabitBadges({ habits, mealScore, sickDay = false }: HabitBadgesProps) {
+export function HabitBadges({ habits, mealScore, nutritionStatus, sickDay = false }: HabitBadgesProps) {
   const t = useTranslations('HabitBadges')
 
   if (sickDay) {
@@ -75,7 +79,7 @@ export function HabitBadges({ habits, mealScore, sickDay = false }: HabitBadgesP
       <HabitBadge
         label={nutritionLabel}
         title={nutritionTitle}
-        fulfilled={isNutritionFulfilled(habits.nutrition, mealScore)}
+        fulfilled={isNutritionFulfilled(habits.nutrition, mealScore, nutritionStatus)}
         icon="restaurant"
         colorClass="bg-nutrition-600/20 text-nutrition-400 border-nutrition-600/30"
         dimClass="bg-surface-container border-outline-variant/20 text-on-surface-variant"
