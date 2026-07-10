@@ -1,6 +1,7 @@
 import { requireAdmin } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { listFoodItems } from '@/lib/nutrition/food'
+import { favoriteIdSets } from '@/lib/nutrition/favorites'
 import { FoodCatalog } from '@/components/admin/FoodCatalog'
 
 export const dynamic = 'force-dynamic'
@@ -9,7 +10,10 @@ export default async function FoodPage() {
   const session = await requireAdmin()
   if (!session) redirect('/admin/login')
 
-  const catalog = await listFoodItems(true) // inkl. archivierter Einträge
+  const [catalog, favs] = await Promise.all([
+    listFoodItems(true), // inkl. archivierter Einträge
+    favoriteIdSets(),
+  ])
 
   return (
     <div>
@@ -19,7 +23,7 @@ export default async function FoodPage() {
           Produkte aus Open Food Facts übernehmen oder manuell anlegen. Nährwerte je 100 g/ml.
         </p>
       </div>
-      <FoodCatalog catalog={catalog} />
+      <FoodCatalog catalog={catalog} favoriteFoodIds={[...favs.foods]} />
     </div>
   )
 }

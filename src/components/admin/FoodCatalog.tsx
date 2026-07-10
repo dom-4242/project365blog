@@ -10,6 +10,7 @@ import {
   importFoodItem,
   deleteFoodItem,
   restoreFoodItem,
+  toggleFoodFavorite,
   type FoodFormData,
 } from '@/app/admin/food/actions'
 
@@ -58,10 +59,17 @@ interface SearchResponse {
   off: NormalizedFood[]
 }
 
-export function FoodCatalog({ catalog }: { catalog: FoodItem[] }) {
+export function FoodCatalog({
+  catalog,
+  favoriteFoodIds,
+}: {
+  catalog: FoodItem[]
+  favoriteFoodIds: string[]
+}) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [msg, setMsg] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null)
+  const favSet = new Set(favoriteFoodIds)
 
   // --- Suche ----------------------------------------------------------------
   const [query, setQuery] = useState('')
@@ -170,6 +178,14 @@ export function FoodCatalog({ catalog }: { catalog: FoodItem[] }) {
     startTransition(async () => {
       await restoreFoodItem(id)
       router.refresh()
+    })
+  }
+
+  function toggleFav(id: string, on: boolean) {
+    startTransition(async () => {
+      const r = await toggleFoodFavorite(id, on)
+      if (r.error) setMsg({ kind: 'err', text: r.error })
+      else router.refresh()
     })
   }
 
@@ -410,6 +426,16 @@ export function FoodCatalog({ catalog }: { catalog: FoodItem[] }) {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-right whitespace-nowrap">
+                        <button
+                          type="button"
+                          onClick={() => toggleFav(f.id, !favSet.has(f.id))}
+                          disabled={isPending}
+                          className={`mr-3 ${favSet.has(f.id) ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'} disabled:opacity-50`}
+                          title="Favorit"
+                          aria-label="Favorit"
+                        >
+                          {favSet.has(f.id) ? '★' : '☆'}
+                        </button>
                         <button
                           type="button"
                           onClick={() => setForm(itemToForm(f))}

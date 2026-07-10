@@ -10,6 +10,7 @@ import {
   importFood,
   type FoodItemInput,
 } from '@/lib/nutrition/food'
+import { addFoodFavorite, removeFoodFavorite } from '@/lib/nutrition/favorites'
 import type { NormalizedFood } from '@/lib/nutrition/food-provider'
 
 export interface ActionResult {
@@ -163,5 +164,20 @@ export async function restoreFoodItem(id: string): Promise<ActionResult> {
   } catch (e) {
     console.error('restoreFoodItem:', e)
     return { error: 'Reaktivieren fehlgeschlagen.' }
+  }
+}
+
+export async function toggleFoodFavorite(foodItemId: string, on: boolean): Promise<ActionResult> {
+  const session = await requireAdmin()
+  if (!session) return { error: 'Nicht autorisiert' }
+  try {
+    if (on) await addFoodFavorite(foodItemId)
+    else await removeFoodFavorite(foodItemId)
+    revalidatePath('/admin/food')
+    revalidatePath('/admin/log')
+    return { success: true }
+  } catch (e) {
+    console.error('toggleFoodFavorite:', e)
+    return { error: 'Favorit fehlgeschlagen.' }
   }
 }
