@@ -21,7 +21,7 @@ export async function JournalCardCompact({ entry }: JournalCardCompactProps) {
   const dayNumber = getDayNumber(entry.date, startDate)
 
   const movementOk = isMovementFulfilled(entry.habits.movement)
-  const nutritionOk = isNutritionFulfilled(entry.habits.nutrition, entry.mealScore)
+  const nutritionOk = isNutritionFulfilled(entry.habits.nutrition, entry.mealScore, entry.nutritionStatus)
   const smokingOk = isSmokingFulfilled(entry.habits.smoking)
   const allOk = movementOk && nutritionOk && smokingOk
 

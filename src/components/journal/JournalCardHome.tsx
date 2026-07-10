@@ -19,7 +19,7 @@ export async function JournalCardHome({ entry }: JournalCardHomeProps) {
 
   const dayNumber = getDayNumber(entry.date, startDate)
   const sick = entry.sickDay
-  const perfect = !sick && isPerfectDay(entry.habits, entry.mealScore)
+  const perfect = !sick && isPerfectDay(entry.habits, entry.mealScore, entry.nutritionStatus)
   const isFiller = entry.entryType === 'filler'
 
   const sickBadge = sick ? (

@@ -1,4 +1,4 @@
-import { MovementLevel, NutritionLevel, SmokingStatus } from '@prisma/client'
+import { MovementLevel, NutritionLevel, SmokingStatus, type FulfillmentStatus } from '@prisma/client'
 import { getAllEntries, type MovementValue, type NutritionValue, type SmokingValue } from './journal'
 
 // =============================================
@@ -16,14 +16,20 @@ export function isMovementFulfilled(movement: MovementValue): boolean {
 }
 
 /**
- * Nutrition goal met for the day. When a meal-log score is present (preferred,
- * authoritative), score ≥ 8.0 = fulfilled. Without a score we fall back to the
- * enum threshold so historical entries that pre-date the meal-log still count.
+ * Nutrition goal met for the day. Precedence (Nutrition-Umbau, N-08):
+ *  1. `nutritionStatus` aus dem neuen System (Day.fulfillmentStatus) —
+ *     FULFILLED/NOT_FULFILLED gewinnt (greift ab Cut-over pro Tag mit Log).
+ *  2. Legacy meal-log score ≥ 8.0.
+ *  3. Enum-Fallback (`three_meals`) für Alt-Einträge ohne Score.
+ * OPEN/undefined fällt durch auf die Legacy-Logik.
  */
 export function isNutritionFulfilled(
   nutrition: NutritionValue,
   mealScore?: number | null,
+  nutritionStatus?: FulfillmentStatus | null,
 ): boolean {
+  if (nutritionStatus === 'FULFILLED') return true
+  if (nutritionStatus === 'NOT_FULFILLED') return false
   if (mealScore !== null && mealScore !== undefined) {
     return mealScore >= NUTRITION_SCORE_THRESHOLD
   }
@@ -117,7 +123,14 @@ export function getMovementLevel(m: MovementValue): number {
   return 0
 }
 
-export function getNutritionLevel(n: NutritionValue, mealScore?: number | null): number {
+export function getNutritionLevel(
+  n: NutritionValue,
+  mealScore?: number | null,
+  nutritionStatus?: FulfillmentStatus | null,
+): number {
+  // Neues System (Day.fulfillmentStatus) hat Vorrang: binär erfüllt/nicht.
+  if (nutritionStatus === 'FULFILLED') return 3
+  if (nutritionStatus === 'NOT_FULFILLED') return 0
   if (mealScore !== null && mealScore !== undefined) {
     if (mealScore >= 8.0) return 3
     if (mealScore >= 5.0) return 2
@@ -146,7 +159,7 @@ export async function getMovementStreak(): Promise<StreakResult> {
 export async function getNutritionStreak(): Promise<StreakResult> {
   const entries = await getAllEntries()
   return calculateStreak(
-    entries.map((e) => (e.sickDay ? null : isNutritionFulfilled(e.habits.nutrition, e.mealScore))),
+    entries.map((e) => (e.sickDay ? null : isNutritionFulfilled(e.habits.nutrition, e.mealScore, e.nutritionStatus))),
   )
 }
 

@@ -1,5 +1,5 @@
 import { MovementLevel, NutritionLevel, SmokingStatus, EntryType } from '@prisma/client'
-import type { JournalEntry as PrismaJournalEntry } from '@prisma/client'
+import type { JournalEntry as PrismaJournalEntry, FulfillmentStatus } from '@prisma/client'
 import { prisma } from './db'
 
 /** @deprecated Use getProjectStartDate() from lib/project-config instead */
@@ -48,6 +48,13 @@ export interface JournalEntry {
    * enum threshold (`three_meals`) only for entries without a meal log.
    */
   mealScore?: number | null
+  /**
+   * Erfüllungsstatus aus dem neuen Nutrition-System (Day.fulfillmentStatus),
+   * sofern für den Tag ein Log existiert. Hat in der öffentlichen Anzeige
+   * Vorrang vor `mealScore`/Enum (N-08). Nur FULFILLED/NOT_FULFILLED wird
+   * gesetzt; OPEN/kein Log bleibt `null` → Legacy-Fallback greift.
+   */
+  nutritionStatus?: FulfillmentStatus | null
 }
 
 export type JournalEntryMeta = Omit<JournalEntry, 'content'>
@@ -85,12 +92,20 @@ function toDateString(date: Date): string {
   return date.toISOString().slice(0, 10)
 }
 
-export function isPerfectDay(habits: HabitsFrontmatter, mealScore?: number | null): boolean {
+export function isPerfectDay(
+  habits: HabitsFrontmatter,
+  mealScore?: number | null,
+  nutritionStatus?: FulfillmentStatus | null,
+): boolean {
   const movementGood = habits.movement === 'steps_only' || habits.movement === 'trained_only' || habits.movement === 'steps_trained'
   const nutritionGood =
-    mealScore !== null && mealScore !== undefined
-      ? mealScore >= 8.0
-      : habits.nutrition === 'three_meals'
+    nutritionStatus === 'FULFILLED'
+      ? true
+      : nutritionStatus === 'NOT_FULFILLED'
+        ? false
+        : mealScore !== null && mealScore !== undefined
+          ? mealScore >= 8.0
+          : habits.nutrition === 'three_meals'
   const smokingGood = habits.smoking === 'nicotine_replacement' || habits.smoking === 'smoke_free'
   return movementGood && nutritionGood && smokingGood
 }
@@ -145,15 +160,36 @@ async function getMealScoreMapForDates(dates: Date[]): Promise<Map<string, numbe
   )
 }
 
+/**
+ * Nutrition-Umbau (N-08): `date → Day.fulfillmentStatus` für die neue Erfüllung.
+ * Nur FULFILLED/NOT_FULFILLED wird zurückgegeben (OPEN → Legacy-Fallback).
+ * Liest ausschliesslich date + Status — keine Detail-/Privatdaten.
+ */
+async function getNutritionStatusMapForDates(
+  dates: Date[],
+): Promise<Map<string, FulfillmentStatus>> {
+  if (dates.length === 0) return new Map()
+  const rows = await prisma.day.findMany({
+    where: { date: { in: dates }, fulfillmentStatus: { in: ['FULFILLED', 'NOT_FULFILLED'] } },
+    select: { date: true, fulfillmentStatus: true },
+  })
+  return new Map(rows.map((r) => [toDateString(r.date), r.fulfillmentStatus]))
+}
+
 export async function getAllEntries(): Promise<JournalEntryMeta[]> {
   const entries = await prisma.journalEntry.findMany({
     where: { published: true },
     orderBy: { date: 'desc' },
   })
-  const scores = await getMealScoreMapForDates(entries.map((e) => e.date))
+  const dates = entries.map((e) => e.date)
+  const [scores, nutritionStatuses] = await Promise.all([
+    getMealScoreMapForDates(dates),
+    getNutritionStatusMapForDates(dates),
+  ])
   return entries.map((entry) => ({
     ...toMeta(entry),
     mealScore: scores.get(toDateString(entry.date)) ?? null,
+    nutritionStatus: nutritionStatuses.get(toDateString(entry.date)) ?? null,
   }))
 }
 
@@ -165,12 +201,17 @@ export async function getAllEntriesForLocale(locale: string): Promise<JournalEnt
     orderBy: { date: 'desc' },
     include: { translations: { where: { locale } } },
   })
-  const scores = await getMealScoreMapForDates(entries.map((e) => e.date))
+  const dates = entries.map((e) => e.date)
+  const [scores, nutritionStatuses] = await Promise.all([
+    getMealScoreMapForDates(dates),
+    getNutritionStatusMapForDates(dates),
+  ])
 
   return entries.map((entry) => {
     const meta: JournalEntryMeta = {
       ...toMeta(entry),
       mealScore: scores.get(toDateString(entry.date)) ?? null,
+      nutritionStatus: nutritionStatuses.get(toDateString(entry.date)) ?? null,
     }
     const translation = entry.translations[0] ?? null
     if (translation) {
@@ -185,8 +226,15 @@ export async function getAllEntriesForLocale(locale: string): Promise<JournalEnt
 export async function getEntryBySlug(slug: string): Promise<JournalEntry | null> {
   const entry = await prisma.journalEntry.findUnique({ where: { slug } })
   if (!entry || !entry.published) return null
-  const scores = await getMealScoreMapForDates([entry.date])
-  return { ...toFull(entry), mealScore: scores.get(toDateString(entry.date)) ?? null }
+  const [scores, nutritionStatuses] = await Promise.all([
+    getMealScoreMapForDates([entry.date]),
+    getNutritionStatusMapForDates([entry.date]),
+  ])
+  return {
+    ...toFull(entry),
+    mealScore: scores.get(toDateString(entry.date)) ?? null,
+    nutritionStatus: nutritionStatuses.get(toDateString(entry.date)) ?? null,
+  }
 }
 
 export async function getEntryBySlugWithTranslation(
@@ -199,10 +247,14 @@ export async function getEntryBySlugWithTranslation(
   })
   if (!row || !row.published) return null
 
-  const scores = await getMealScoreMapForDates([row.date])
+  const [scores, nutritionStatuses] = await Promise.all([
+    getMealScoreMapForDates([row.date]),
+    getNutritionStatusMapForDates([row.date]),
+  ])
   const entry: JournalEntry = {
     ...toFull(row),
     mealScore: scores.get(toDateString(row.date)) ?? null,
+    nutritionStatus: nutritionStatuses.get(toDateString(row.date)) ?? null,
   }
   const t = row.translations[0] ?? null
   const translation = t
