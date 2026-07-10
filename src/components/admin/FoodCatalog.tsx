@@ -4,6 +4,7 @@ import { useState, useTransition, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import type { FoodItem } from '@prisma/client'
 import type { NormalizedFood } from '@/lib/nutrition/food-provider'
+import { BarcodeScanner } from '@/components/nutrition/BarcodeScanner'
 import {
   saveFoodItem,
   importFoodItem,
@@ -66,6 +67,34 @@ export function FoodCatalog({ catalog }: { catalog: FoodItem[] }) {
   const [query, setQuery] = useState('')
   const [searching, setSearching] = useState(false)
   const [results, setResults] = useState<SearchResponse | null>(null)
+  const [showScanner, setShowScanner] = useState(false)
+
+  // Barcode-Scan → Lookup (lokal, dann OFF)
+  async function onBarcodeDetected(code: string) {
+    setShowScanner(false)
+    setMsg(null)
+    try {
+      const res = await fetch(`/api/nutrition/food/barcode/${encodeURIComponent(code)}`)
+      if (res.status === 404) {
+        setForm({ ...EMPTY, barcode: code })
+        setMsg({ kind: 'err', text: `Barcode ${code} nicht gefunden — bitte manuell anlegen.` })
+        return
+      }
+      if (!res.ok) throw new Error()
+      const data = (await res.json()) as
+        | { source: 'local'; item: FoodItem }
+        | { source: 'off'; food: NormalizedFood }
+      if (data.source === 'local') {
+        setForm(itemToForm(data.item))
+        setMsg({ kind: 'ok', text: `„${data.item.name}" ist bereits im Katalog (zum Bearbeiten geladen).` })
+      } else {
+        loadOff(data.food)
+        setMsg({ kind: 'ok', text: `„${data.food.name}" gefunden — prüfen und übernehmen.` })
+      }
+    } catch {
+      setMsg({ kind: 'err', text: 'Barcode-Lookup fehlgeschlagen.' })
+    }
+  }
 
   const runSearch = useCallback(async () => {
     if (query.trim().length < 2) return
@@ -179,7 +208,20 @@ export function FoodCatalog({ catalog }: { catalog: FoodItem[] }) {
           >
             {searching ? '…' : 'Suchen'}
           </button>
+          <button
+            type="button"
+            onClick={() => setShowScanner((v) => !v)}
+            className="flex-none px-4 py-1.5 border border-surface-container-high text-on-surface rounded-lg text-sm font-medium hover:border-outline transition-colors"
+          >
+            {showScanner ? 'Scanner aus' : 'Scannen'}
+          </button>
         </div>
+
+        {showScanner && (
+          <div className="mt-4">
+            <BarcodeScanner onDetected={onBarcodeDetected} onClose={() => setShowScanner(false)} />
+          </div>
+        )}
 
         {results && (
           <div className="mt-4 space-y-4">
