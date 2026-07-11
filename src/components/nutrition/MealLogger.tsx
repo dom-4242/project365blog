@@ -9,6 +9,20 @@ import type { FavoriteResolved } from '@/lib/nutrition/favorites'
 import type { DishWithItems } from '@/lib/nutrition/dishes'
 import type { DaySummary } from '@/lib/nutrition/day-aggregate'
 import { aggregateMicros, microCoverage, MICRO_META } from '@/lib/nutrition/micros'
+import { kcalTone, proteinTone, budgetTone, type Tone } from '@/lib/nutrition/traffic-light'
+
+// Tailwind-Klassen je Ampel-Tone — hier (im gescannten Component-Ordner) statt
+// in lib/, damit der Tailwind-Content-Scan sie nicht wegpurged.
+const TONE_TEXT: Record<Tone, string> = {
+  good: 'text-movement-400',
+  warn: 'text-amber-400',
+  bad: 'text-error',
+}
+const TONE_DOT: Record<Tone, string> = {
+  good: 'bg-movement-400',
+  warn: 'bg-amber-400',
+  bad: 'bg-error',
+}
 import { BarcodeScanner } from '@/components/nutrition/BarcodeScanner'
 import { PhotoEstimator } from '@/components/nutrition/PhotoEstimator'
 import {
@@ -371,10 +385,18 @@ export function MealLogger({ date, entries, favorites, dishes, summary }: Props)
 
         {soll ? (
           <div className="grid grid-cols-4 gap-2 text-center">
-            <Macro label="kcal" ist={ist.kcal} soll={soll.kcal} accent />
-            <Macro label="Protein" ist={ist.proteinG} soll={soll.proteinG} unit="g" />
-            <Macro label="KH" ist={ist.carbsG} soll={soll.carbsG} unit="g" />
-            <Macro label="Fett" ist={ist.fatG} soll={soll.fatG} unit="g" />
+            {(() => {
+              const isDeficitDay = summary.phaseMode === 'DEFICIT' && !summary.isRefeed
+              const hasEntries = ist.count > 0
+              return (
+                <>
+                  <Macro label="kcal" ist={ist.kcal} soll={soll.kcal} tone={hasEntries ? kcalTone(ist.kcal, soll.kcal, isDeficitDay) : undefined} />
+                  <Macro label="Protein" ist={ist.proteinG} soll={soll.proteinG} unit="g" tone={hasEntries ? proteinTone(ist.proteinG, soll.proteinG) : undefined} />
+                  <Macro label="KH" ist={ist.carbsG} soll={soll.carbsG} unit="g" tone={hasEntries ? budgetTone(ist.carbsG, soll.carbsG, isDeficitDay) : undefined} />
+                  <Macro label="Fett" ist={ist.fatG} soll={soll.fatG} unit="g" tone={hasEntries ? budgetTone(ist.fatG, soll.fatG, isDeficitDay) : undefined} />
+                </>
+              )
+            })()}
           </div>
         ) : (
           <p className="text-sm text-on-surface-variant">
@@ -408,14 +430,18 @@ export function MealLogger({ date, entries, favorites, dishes, summary }: Props)
 }
 
 function Macro({
-  label, ist, soll, unit = '', accent,
+  label, ist, soll, unit = '', tone,
 }: {
-  label: string; ist: number; soll: number; unit?: string; accent?: boolean
+  label: string; ist: number; soll: number; unit?: string; tone?: Tone
 }) {
+  const valueColor = tone ? TONE_TEXT[tone] : 'text-on-surface'
   return (
     <div className="rounded-xl bg-surface-container-high py-2">
-      <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">{label}</p>
-      <p className={`text-sm font-bold tabular-nums ${accent ? 'text-primary' : 'text-on-surface'}`}>{ist}</p>
+      <div className="flex items-center justify-center gap-1">
+        <span className={`inline-block w-1.5 h-1.5 rounded-full ${tone ? TONE_DOT[tone] : 'bg-outline-variant/40'}`} aria-hidden="true" />
+        <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">{label}</p>
+      </div>
+      <p className={`text-sm font-bold tabular-nums ${valueColor}`}>{ist}</p>
       <p className="text-[10px] text-on-surface-variant tabular-nums">/ {soll}{unit}</p>
     </div>
   )
