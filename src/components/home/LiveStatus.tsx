@@ -1,8 +1,9 @@
-import { getTranslations } from 'next-intl/server'
+import { getTranslations, getLocale } from 'next-intl/server'
 import { getAllEntries } from '@/lib/journal'
 import { getLatestMetrics, getStepsHistory } from '@/lib/metrics'
 import { getProfile } from '@/lib/profile'
-import { getPriorityPillar } from '@/lib/settings'
+import { getPriorityPillar, getPublicSollIst } from '@/lib/settings'
+import { getPublicKcalWeek } from '@/lib/nutrition/public-week'
 import {
   calculateSweetsStreak,
   computeSweetsRate30d,
@@ -19,6 +20,7 @@ import {
 } from '@/lib/drinks'
 import { StepsSparkline } from './StepsSparkline'
 import { DrinkSparkline } from './DrinkSparkline'
+import { CaloriesWeekTile } from './CaloriesWeekTile'
 
 // ─── Constants ────────────────────────────────────────────────────────────
 const TARGET_BODY_FAT_PCT = 15
@@ -396,14 +398,16 @@ interface StepsTileProps {
   labelAvg30d: string
   labelImport: string
   labelNoData: string
+  /** Grid-Breite: volle Breite, oder halb wenn die Kalorien-Kachel daneben steht. */
+  spanClass?: string
 }
 
-function StepsTile({ avgSteps, stepsGoal, stepsHistory, importedAt, labelSteps, labelAvg30d, labelImport, labelNoData }: StepsTileProps) {
+function StepsTile({ avgSteps, stepsGoal, stepsHistory, importedAt, labelSteps, labelAvg30d, labelImport, labelNoData, spanClass = 'sm:col-span-2 lg:col-span-12' }: StepsTileProps) {
   const stepsPct = avgSteps ? Math.min(100, Math.round((avgSteps / stepsGoal) * 100)) : 0
   const syncStr = importedAt ? formatSyncTimestamp(importedAt) : null
 
   return (
-    <div className="col-span-1 sm:col-span-2 lg:col-span-12 bg-surface-container border border-outline-variant/10 rounded-xl p-5 flex flex-col gap-4">
+    <div className={`col-span-1 ${spanClass} bg-surface-container border border-outline-variant/10 rounded-xl p-5 flex flex-col gap-4`}>
       <div className="flex items-start justify-between gap-4">
         <p className="text-xs font-label font-bold tracking-widest uppercase text-on-surface-variant">{labelSteps}</p>
         {syncStr && (
@@ -545,14 +549,19 @@ export async function LiveStatus() {
     getTranslations('HomePage'),
   ])
 
-  const [entries, metrics, drinkAnalytics, priorityPillar, stepsHistoryRaw, sweetsHistory] = await Promise.all([
+  const [entries, metrics, drinkAnalytics, priorityPillar, stepsHistoryRaw, sweetsHistory, showKcal, locale] = await Promise.all([
     getAllEntries(),
     getLatestMetrics(profile.projectStartDate ?? undefined),
     getDrinkAnalytics(7),
     getPriorityPillar(),
     getStepsHistory(30),
     getSweetsHistory(90),
+    getPublicSollIst(),
+    getLocale(),
   ])
+
+  // Öffentliche kcal-Woche nur laden, wenn der N-11-Schalter aktiv ist (Privacy).
+  const kcalWeek = showKcal ? await getPublicKcalWeek() : null
 
   const movementBools  = entries.map((e) => isMovementFulfilled(e.habits.movement))
   const smokingBools   = entries.map((e) => isSmokingFulfilled(e.habits.smoking))
@@ -671,7 +680,7 @@ export async function LiveStatus() {
           labelNoData={t('metricNoData')}
         />
 
-        {/* Row D — Steps with sparkline */}
+        {/* Row D — Steps with sparkline (half width when the calories tile is shown) */}
         <StepsTile
           avgSteps={metrics.avgSteps30d}
           stepsGoal={stepsGoal}
@@ -681,7 +690,24 @@ export async function LiveStatus() {
           labelAvg30d={t('metricAvg30d')}
           labelImport={t('metricImport')}
           labelNoData={t('metricNoData')}
+          spanClass={kcalWeek ? 'sm:col-span-1 lg:col-span-6' : 'sm:col-span-2 lg:col-span-12'}
         />
+
+        {/* Row D — Calories 7-day (public, gated by the N-11 toggle) */}
+        {kcalWeek && (
+          <CaloriesWeekTile
+            data={kcalWeek}
+            locale={locale}
+            labels={{
+              title: t('metricCalories7d'),
+              target: t('metricTarget'),
+              noData: t('metricNoData'),
+              phaseDeficit: t('phaseDeficit'),
+              phaseMaintenance: t('phaseMaintenance'),
+              phaseSurplus: t('phaseSurplus'),
+            }}
+          />
+        )}
 
         {/* Row E — Sweets + Drink metrics */}
         <SweetsTile
