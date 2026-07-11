@@ -7,7 +7,7 @@ import {
   calculateSweetsStreak,
   computeSweetsRate30d,
   isMovementFulfilled,
-  isNutritionFulfilled,
+  nutritionOutcome,
   isSmokingFulfilled,
 } from '@/lib/habits'
 import {
@@ -555,16 +555,20 @@ export async function LiveStatus() {
   ])
 
   const movementBools  = entries.map((e) => isMovementFulfilled(e.habits.movement))
-  const nutritionBools = entries.map((e) => isNutritionFulfilled(e.habits.nutrition, e.nutritionStatus))
   const smokingBools   = entries.map((e) => isSmokingFulfilled(e.habits.smoking))
+  // Ernährung: neutrale/offene Tage (kein Food-Logging) fliegen ganz raus.
+  const nutritionBools = entries
+    .map((e) => nutritionOutcome(e.habits.nutrition, e.nutritionStatus))
+    .filter((v): v is boolean => v !== null)
 
   const totalEntries = entries.length
+  const nutritionTotal = nutritionBools.length
   const movementFulfilled  = movementBools.filter(Boolean).length
   const nutritionFulfilled = nutritionBools.filter(Boolean).length
   const smokingFulfilled   = smokingBools.filter(Boolean).length
 
   const movementOverallPct  = totalEntries > 0 ? Math.round(movementFulfilled  / totalEntries * 100) : 0
-  const nutritionOverallPct = totalEntries > 0 ? Math.round(nutritionFulfilled / totalEntries * 100) : 0
+  const nutritionOverallPct = nutritionTotal > 0 ? Math.round(nutritionFulfilled / nutritionTotal * 100) : 0
   const smokingOverallPct   = totalEntries > 0 ? Math.round(smokingFulfilled   / totalEntries * 100) : 0
 
   const movementRates  = computeRates(movementBools)
@@ -572,6 +576,7 @@ export async function LiveStatus() {
   const smokingRates   = computeRates(smokingBools)
 
   const recent30Total = Math.min(30, totalEntries)
+  const nutritionRecent30Total = Math.min(30, nutritionTotal)
 
   const sweetsStreak  = calculateSweetsStreak(sweetsHistory)
   const sweetsRate30d = computeSweetsRate30d(sweetsHistory)
@@ -625,8 +630,8 @@ export async function LiveStatus() {
           colorAccent="text-nutrition-400"
           strokeClass="stroke-nutrition-400"
           labelAchieved={t('pillarAchieved')}
-          outOfDaysText={t('pillarOutOfDays', { fulfilled: nutritionFulfilled, total: totalEntries })}
-          last30Text={recent30Total > 0 ? t('pillarLast30', { pct: nutritionRates.pct30d }) : undefined}
+          outOfDaysText={t('pillarOutOfDays', { fulfilled: nutritionFulfilled, total: nutritionTotal })}
+          last30Text={nutritionRecent30Total > 0 ? t('pillarLast30', { pct: nutritionRates.pct30d }) : undefined}
           isPriority={priorityPillar === 'nutrition'}
           pillarKey="nutrition"
         />

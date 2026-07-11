@@ -3,7 +3,7 @@ import { getAllEntries } from '@/lib/journal'
 import { getProjectStartDate } from '@/lib/project-config'
 import {
   isMovementFulfilled,
-  isNutritionFulfilled,
+  nutritionOutcome,
   isSmokingFulfilled,
   getMovementLevel,
   getNutritionLevel,
@@ -46,7 +46,13 @@ export async function HabitsDashboard() {
     const e = entryMap.get(date)
     return {
       date,
-      level: e ? (e.sickDay ? SICK_LEVEL : getNutritionLevel(e.habits.nutrition, e.nutritionStatus)) : -1,
+      level: e
+        ? (e.sickDay
+            ? SICK_LEVEL
+            : nutritionOutcome(e.habits.nutrition, e.nutritionStatus) === null
+              ? -1 // neutral/offen — kein Food-Logging → leere Zelle
+              : getNutritionLevel(e.habits.nutrition, e.nutritionStatus))
+        : -1,
     }
   })
   const smokingDays = allDates.map((date) => {
@@ -60,8 +66,15 @@ export async function HabitsDashboard() {
   // Krankheitstage zählen weder in Zähler noch Nenner der Erfüllungsquoten
   const activeEntries = entries.filter((e) => !e.sickDay)
   const movementFulfilled = activeEntries.filter((e) => isMovementFulfilled(e.habits.movement)).length
-  const nutritionFulfilled = activeEntries.filter((e) => isNutritionFulfilled(e.habits.nutrition, e.nutritionStatus)).length
   const smokingFulfilled = activeEntries.filter((e) => isSmokingFulfilled(e.habits.smoking)).length
+  // Ernährung: neutrale/offene Tage (kein Food-Logging) zählen weder in Zähler
+  // noch Nenner — daher eigener Nenner.
+  const nutritionActive = activeEntries.filter(
+    (e) => nutritionOutcome(e.habits.nutrition, e.nutritionStatus) !== null,
+  )
+  const nutritionFulfilled = nutritionActive.filter(
+    (e) => nutritionOutcome(e.habits.nutrition, e.nutritionStatus) === true,
+  ).length
 
   // Letzte 30 Tage (Tage mit Eintrag, max 30 jüngste)
   const cutoff = new Date()
@@ -70,8 +83,14 @@ export async function HabitsDashboard() {
   const recent = activeEntries.filter((e) => e.date >= cutoffISO)
   const recentTotal = recent.length
   const movementRecent = recent.filter((e) => isMovementFulfilled(e.habits.movement)).length
-  const nutritionRecent = recent.filter((e) => isNutritionFulfilled(e.habits.nutrition, e.nutritionStatus)).length
   const smokingRecent = recent.filter((e) => isSmokingFulfilled(e.habits.smoking)).length
+  // Ernährung 30 T: eigener Nenner (neutrale Tage raus)
+  const nutritionRecentActive = recent.filter(
+    (e) => nutritionOutcome(e.habits.nutrition, e.nutritionStatus) !== null,
+  )
+  const nutritionRecent = nutritionRecentActive.filter(
+    (e) => nutritionOutcome(e.habits.nutrition, e.nutritionStatus) === true,
+  ).length
 
   return (
     <section className="mb-14 space-y-6">
@@ -98,9 +117,9 @@ export async function HabitsDashboard() {
         <HabitPillar
           pillar="nutrition"
           totalFulfilled={nutritionFulfilled}
-          totalEntries={activeEntries.length}
+          totalEntries={nutritionActive.length}
           recentFulfilled={nutritionRecent}
-          recentTotal={recentTotal}
+          recentTotal={nutritionRecentActive.length}
         />
         <HabitPillar
           pillar="smoking"

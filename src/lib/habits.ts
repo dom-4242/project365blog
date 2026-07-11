@@ -13,17 +13,32 @@ export function isMovementFulfilled(movement: MovementValue): boolean {
 }
 
 /**
- * Ernährungsziel erfüllt (Nutrition-Umbau, N-09): Kaloriendefizit erreicht.
+ * Ernährungs-Ergebnis eines Tages als Drei-Zustand (Nutrition-Umbau):
+ *   true  = erfüllt (Kaloriendefizit erreicht)
+ *   false = nicht erfüllt
+ *   null  = neutral/offen — kein Food-Logging vorhanden (zählt weder in Zähler
+ *           noch Nenner der Quoten, pausiert Streaks, wie ein Kranktag)
  * `nutritionStatus` aus dem neuen System (Day.fulfillmentStatus) hat Vorrang;
- * ohne Tages-Log greift der am Eintrag gespeicherte Status (`fulfilled`).
+ * ohne Tages-Log greift der gespeicherte Status (`fulfilled`/`not_fulfilled`/`open`).
  */
+export function nutritionOutcome(
+  nutrition: NutritionValue,
+  nutritionStatus?: FulfillmentStatus | null,
+): boolean | null {
+  if (nutritionStatus === 'FULFILLED') return true
+  if (nutritionStatus === 'NOT_FULFILLED') return false
+  if (nutritionStatus === 'OPEN') return null
+  if (nutrition === 'fulfilled') return true
+  if (nutrition === 'not_fulfilled') return false
+  return null // 'open' → neutral
+}
+
+/** Erfüllt-Prädikat für Einzelanzeigen (neutral zählt als „nicht erfüllt"-Badge). */
 export function isNutritionFulfilled(
   nutrition: NutritionValue,
   nutritionStatus?: FulfillmentStatus | null,
 ): boolean {
-  if (nutritionStatus === 'FULFILLED') return true
-  if (nutritionStatus === 'NOT_FULFILLED') return false
-  return nutrition === 'fulfilled'
+  return nutritionOutcome(nutrition, nutritionStatus) === true
 }
 
 export function isSmokingFulfilled(smoking: SmokingValue): boolean {
@@ -133,7 +148,7 @@ export async function getMovementStreak(): Promise<StreakResult> {
 export async function getNutritionStreak(): Promise<StreakResult> {
   const entries = await getAllEntries()
   return calculateStreak(
-    entries.map((e) => (e.sickDay ? null : isNutritionFulfilled(e.habits.nutrition, e.nutritionStatus))),
+    entries.map((e) => (e.sickDay ? null : nutritionOutcome(e.habits.nutrition, e.nutritionStatus))),
   )
 }
 

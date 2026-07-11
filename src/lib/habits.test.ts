@@ -3,6 +3,7 @@ import { MovementLevel, SmokingStatus } from '@prisma/client'
 import {
   isMovementFulfilled,
   isNutritionFulfilled,
+  nutritionOutcome,
   isSmokingFulfilled,
   getNutritionLevel,
   calculateStreak,
@@ -197,8 +198,8 @@ describe('isNutritionFulfilled — nutritionStatus-Vorrang', () => {
   it('NOT_FULFILLED gewinnt über den gespeicherten Wert', () => {
     expect(isNutritionFulfilled('fulfilled', 'NOT_FULFILLED')).toBe(false)
   })
-  it('OPEN/null fällt auf den gespeicherten Wert zurück', () => {
-    expect(isNutritionFulfilled('fulfilled', 'OPEN')).toBe(true)
+  it('expliziter OPEN-Status = neutral → nicht erfüllt; null fällt auf gespeicherten Wert zurück', () => {
+    expect(isNutritionFulfilled('fulfilled', 'OPEN')).toBe(false) // OPEN = neutral (Option C)
     expect(isNutritionFulfilled('fulfilled', null)).toBe(true)
     expect(isNutritionFulfilled('not_fulfilled', null)).toBe(false)
   })
@@ -213,5 +214,25 @@ describe('getNutritionLevel — binär (N-09)', () => {
     expect(getNutritionLevel('fulfilled')).toBe(3)
     expect(getNutritionLevel('not_fulfilled')).toBe(0)
     expect(getNutritionLevel('open')).toBe(0)
+  })
+})
+
+// =============================================
+// nutritionOutcome — Drei-Zustand (Option C: OPEN = neutral)
+// =============================================
+describe('nutritionOutcome', () => {
+  it('Day-Status hat Vorrang: FULFILLED→true, NOT_FULFILLED→false, OPEN→null', () => {
+    expect(nutritionOutcome('not_fulfilled', 'FULFILLED')).toBe(true)
+    expect(nutritionOutcome('fulfilled', 'NOT_FULFILLED')).toBe(false)
+    expect(nutritionOutcome('fulfilled', 'OPEN')).toBeNull()
+  })
+  it('ohne Day-Status: gespeicherter Wert (open → neutral null)', () => {
+    expect(nutritionOutcome('fulfilled')).toBe(true)
+    expect(nutritionOutcome('not_fulfilled')).toBe(false)
+    expect(nutritionOutcome('open')).toBeNull()
+  })
+  it('isNutritionFulfilled = outcome===true (neutral zählt als false)', () => {
+    expect(isNutritionFulfilled('open')).toBe(false)
+    expect(isNutritionFulfilled('fulfilled')).toBe(true)
   })
 })
