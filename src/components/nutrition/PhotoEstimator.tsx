@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import { MenuCropModal } from './MenuCropModal'
 
 interface AiEstimate {
   dishName: string
@@ -30,6 +31,11 @@ export function PhotoEstimator({ date, mealSlot, onLogged }: Props) {
   const plateRef = useRef<HTMLInputElement>(null)
   const menuRef = useRef<HTMLInputElement>(null)
 
+  // Menü-Foto liegt im State, damit ein zugeschnittenes Bild es ersetzen kann.
+  const [menuFile, setMenuFile] = useState<File | null>(null)
+  const [menuCropped, setMenuCropped] = useState(false)
+  const [cropOpen, setCropOpen] = useState(false)
+
   const [title, setTitle] = useState('')
   const [busy, setBusy] = useState<null | 'estimate' | 'log'>(null)
   const [error, setError] = useState<string | null>(null)
@@ -45,7 +51,7 @@ export function PhotoEstimator({ date, mealSlot, onLogged }: Props) {
   function currentFiles(): { plate: File | null; menu: File | null } {
     return {
       plate: plateRef.current?.files?.[0] ?? null,
-      menu: menuRef.current?.files?.[0] ?? null,
+      menu: menuFile, // State: ggf. zugeschnittene Version
     }
   }
 
@@ -112,6 +118,8 @@ export function PhotoEstimator({ date, mealSlot, onLogged }: Props) {
       setTitle('')
       if (plateRef.current) plateRef.current.value = ''
       if (menuRef.current) menuRef.current.value = ''
+      setMenuFile(null)
+      setMenuCropped(false)
       onLogged(dishName)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Loggen fehlgeschlagen')
@@ -135,7 +143,17 @@ export function PhotoEstimator({ date, mealSlot, onLogged }: Props) {
             Speisekarte (optional)
           </label>
           <input ref={menuRef} type="file" accept="image/jpeg,image/png,image/webp"
+            onChange={(e) => { setMenuFile(e.target.files?.[0] ?? null); setMenuCropped(false) }}
             className="block w-full text-xs text-on-surface-variant file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:bg-surface-container-high file:text-on-surface" />
+          {menuFile && (
+            <div className="flex items-center gap-2 mt-1.5">
+              <button type="button" onClick={() => setCropOpen(true)}
+                className="text-xs px-2.5 py-1 rounded-lg border border-surface-container-high text-on-surface-variant hover:text-on-surface hover:border-primary transition-colors">
+                ✂︎ {menuCropped ? 'Erneut zuschneiden' : 'Zuschneiden'}
+              </button>
+              {menuCropped && <span className="text-xs text-primary">✓ zugeschnitten</span>}
+            </div>
+          )}
         </div>
       </div>
 
@@ -183,6 +201,18 @@ export function PhotoEstimator({ date, mealSlot, onLogged }: Props) {
             {busy === 'log' ? 'Logge…' : `In ${mealSlot} loggen`}
           </button>
         </div>
+      )}
+
+      {cropOpen && menuFile && (
+        <MenuCropModal
+          file={menuFile}
+          onCancel={() => setCropOpen(false)}
+          onCropped={(f) => {
+            setMenuFile(f)
+            setMenuCropped(true)
+            setCropOpen(false)
+          }}
+        />
       )}
     </div>
   )
