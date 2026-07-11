@@ -34,6 +34,9 @@ export interface FoodItemInput {
   vitaminDUg: number | null
   vitaminB12Ug: number | null
   vitaminCMg: number | null
+  // Punkt 4: Daten-Qualität. Optional — Default: nicht geprüft.
+  verified?: boolean
+  labelImagePath?: string | null
 }
 
 function toData(input: FoodItemInput): Prisma.FoodItemCreateInput {
@@ -60,6 +63,9 @@ function toData(input: FoodItemInput): Prisma.FoodItemCreateInput {
     vitaminDUg: input.vitaminDUg,
     vitaminB12Ug: input.vitaminB12Ug,
     vitaminCMg: input.vitaminCMg,
+    verified: input.verified ?? false,
+    verifiedAt: input.verified ? new Date() : null,
+    labelImagePath: input.labelImagePath ?? null,
   }
 }
 

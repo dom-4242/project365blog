@@ -113,3 +113,124 @@ export async function estimateFromPhotos({ plate, menu, title }: EstimateArgs): 
     throw e
   }
 }
+
+// =============================================================================
+// Nährwerttabelle → AI-Anreicherung eines FoodItems (Punkt 4)
+//
+// Liest eine Verpackung/Nährwerttabelle und liefert die Werte JE 100 g/ml inkl.
+// des fokussierten 12er-Mikro-Satzes als strukturiertes JSON. Der Owner prüft
+// die Werte anschliessend im Katalog-Formular, bevor gespeichert wird.
+// =============================================================================
+
+export interface LabelNutrients {
+  name: string | null
+  brand: string | null
+  baseUnit: 'g' | 'ml'
+  kcal: number
+  proteinG: number
+  carbsG: number
+  fatG: number
+  fiberG: number | null
+  sugarG: number | null
+  saturatedFatG: number | null
+  sodiumMg: number | null
+  potassiumMg: number | null
+  ironMg: number | null
+  magnesiumMg: number | null
+  calciumMg: number | null
+  zincMg: number | null
+  vitaminDUg: number | null
+  vitaminB12Ug: number | null
+  vitaminCMg: number | null
+  confidence: number
+  note: string
+  raw: unknown
+}
+
+const LABEL_SYSTEM_PROMPT = `Du liest eine Nährwerttabelle bzw. Produktverpackung und gibst die Nährwerte JE 100 g (feste Lebensmittel) bzw. JE 100 ml (Getränke) zurück.
+
+Regeln:
+- Werte IMMER pro 100 g/ml, nicht pro Portion. Zeigt die Tabelle nur "pro Portion", rechne mit der angegebenen Portionsgrösse auf 100 um.
+- baseUnit: "g" für feste, "ml" für flüssige Produkte.
+- Ist nur Salz angegeben, rechne Natrium = Salz(g) / 2,5 und gib es in mg an.
+- Einheiten: g für Makros/Ballaststoffe/Zucker/gesättigte Fettsäuren; mg für Natrium/Kalium/Eisen/Magnesium/Calcium/Zink/Vitamin C; µg für Vitamin D/B12.
+- Fülle nur klar ablesbare Werte. Nicht vorhandene Mikros = null (nicht raten).
+- Produktname/Marke von der Verpackung, wenn erkennbar, sonst null.
+- Ehrliche Konfidenz (0.0–1.0).
+- Antworte AUSSCHLIESSLICH mit einem einzigen minifizierten JSON-Objekt, ohne Markdown, ohne Erklärtext.
+
+JSON-Schema:
+{"name": string|null, "brand": string|null, "baseUnit": "g"|"ml", "kcal": number, "proteinG": number, "carbsG": number, "fatG": number, "fiberG": number|null, "sugarG": number|null, "saturatedFatG": number|null, "sodiumMg": number|null, "potassiumMg": number|null, "ironMg": number|null, "magnesiumMg": number|null, "calciumMg": number|null, "zincMg": number|null, "vitaminDUg": number|null, "vitaminB12Ug": number|null, "vitaminCMg": number|null, "confidence": number, "note": string}`
+
+function numOrNull(v: unknown): number | null {
+  if (v == null || v === '') return null
+  const n = typeof v === 'number' ? v : parseFloat(String(v))
+  if (isNaN(n)) return null
+  return Math.max(0, Math.round(n * 100) / 100)
+}
+
+function strOrNull(v: unknown): string | null {
+  return typeof v === 'string' && v.trim() ? v.trim() : null
+}
+
+/** Robustes Parsen der Label-Antwort (erstes {...}-Objekt). */
+export function parseLabelNutrients(text: string): LabelNutrients {
+  const start = text.indexOf('{')
+  const end = text.lastIndexOf('}')
+  if (start === -1 || end === -1 || end <= start) {
+    throw new Error('Keine JSON-Antwort vom Modell erhalten')
+  }
+  const raw = JSON.parse(text.slice(start, end + 1)) as Record<string, unknown>
+  return {
+    name: strOrNull(raw.name),
+    brand: strOrNull(raw.brand),
+    baseUnit: raw.baseUnit === 'ml' ? 'ml' : 'g',
+    kcal: num(raw.kcal),
+    proteinG: num(raw.proteinG),
+    carbsG: num(raw.carbsG),
+    fatG: num(raw.fatG),
+    fiberG: numOrNull(raw.fiberG),
+    sugarG: numOrNull(raw.sugarG),
+    saturatedFatG: numOrNull(raw.saturatedFatG),
+    sodiumMg: numOrNull(raw.sodiumMg),
+    potassiumMg: numOrNull(raw.potassiumMg),
+    ironMg: numOrNull(raw.ironMg),
+    magnesiumMg: numOrNull(raw.magnesiumMg),
+    calciumMg: numOrNull(raw.calciumMg),
+    zincMg: numOrNull(raw.zincMg),
+    vitaminDUg: numOrNull(raw.vitaminDUg),
+    vitaminB12Ug: numOrNull(raw.vitaminB12Ug),
+    vitaminCMg: numOrNull(raw.vitaminCMg),
+    confidence: clamp01(raw.confidence),
+    note: typeof raw.note === 'string' ? raw.note.trim() : '',
+    raw,
+  }
+}
+
+export async function extractLabelNutrients(label: VisionImage): Promise<LabelNutrients> {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    throw new Error('ANTHROPIC_API_KEY nicht konfiguriert')
+  }
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+
+  const content: Anthropic.MessageParam['content'] = [
+    { type: 'text', text: 'Foto der Nährwerttabelle / Produktverpackung:' },
+    { type: 'image', source: { type: 'base64', media_type: label.mediaType, data: label.data } },
+    { type: 'text', text: 'Antworte nur mit dem JSON-Objekt.' },
+  ]
+
+  try {
+    const message = await client.messages.create({
+      model: MODEL,
+      max_tokens: 700,
+      system: LABEL_SYSTEM_PROMPT,
+      messages: [{ role: 'user', content }],
+    })
+    const block = message.content[0]
+    if (!block || block.type !== 'text') throw new Error('Unerwartete API-Antwort')
+    return parseLabelNutrients(block.text)
+  } catch (e) {
+    if (e instanceof APIError) throw new Error(`Claude API Fehler: ${e.message}`)
+    throw e
+  }
+}

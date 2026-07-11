@@ -275,6 +275,7 @@ export function MealLogger({ date, entries, favorites, dishes, summary }: Props)
                         <button type="button" onClick={() => { setSelected(r); setAmount('100') }}
                           className="w-full text-left rounded-lg px-3 py-2 hover:bg-surface-container-high transition-colors">
                           <span className="text-sm text-on-surface">{r.name}</span>
+                          {r.verified && <span className="text-[10px] text-primary ml-1" title="geprüft">✓</span>}
                           {r.brand && <span className="text-xs text-on-surface-variant"> · {r.brand}</span>}
                           <span className="text-xs text-on-surface-variant"> — {r.kcal} kcal</span>
                         </button>

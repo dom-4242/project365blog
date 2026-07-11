@@ -42,6 +42,9 @@ export interface FoodFormData {
   vitaminDUg: string
   vitaminB12Ug: string
   vitaminCMg: string
+  // Punkt 4: Daten-Qualität (aus der AI-Anreicherung bzw. am Item gespeichert).
+  verified?: boolean
+  labelImagePath?: string | null
 }
 
 function req(val: string): number | null {
@@ -89,6 +92,8 @@ function parseForm(data: FoodFormData): { input: FoodItemInput } | { error: stri
       vitaminDUg: req(data.vitaminDUg),
       vitaminB12Ug: req(data.vitaminB12Ug),
       vitaminCMg: req(data.vitaminCMg),
+      verified: data.verified ?? false,
+      labelImagePath: data.labelImagePath ?? null,
     },
   }
 }

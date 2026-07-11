@@ -465,6 +465,11 @@ model FoodItem {
   isActive     Boolean @default(true) // false = archiviert (nie hart löschen wenn referenziert)
   externalDbId String? // z.B. Open-Food-Facts-Code
 
+  // Daten-Qualität (Punkt 4): via Nährwerttabellen-Foto + AI geprüft/angereichert.
+  verified       Boolean   @default(false) // true = Werte gegen Label bestätigt
+  verifiedAt     DateTime?
+  labelImagePath String? // privat gespeichertes Verpackungs-/Nährwerttabellen-Foto
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -474,6 +479,7 @@ model FoodItem {
 
   @@index([barcode])
   @@index([isActive])
+  @@index([verified])
 }
 
 // --- Gericht: benannte Kombination mehrerer FoodItems -----------------------
