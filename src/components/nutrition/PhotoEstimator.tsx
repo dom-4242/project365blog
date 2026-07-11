@@ -127,14 +127,14 @@ export function PhotoEstimator({ date, mealSlot, onLogged }: Props) {
           <label className="block text-xs font-medium text-on-surface-variant mb-1">
             Teller-Foto *
           </label>
-          <input ref={plateRef} type="file" accept="image/jpeg,image/png,image/webp" capture="environment"
+          <input ref={plateRef} type="file" accept="image/jpeg,image/png,image/webp"
             className="block w-full text-xs text-on-surface-variant file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:bg-surface-container-high file:text-on-surface" />
         </div>
         <div>
           <label className="block text-xs font-medium text-on-surface-variant mb-1">
             Speisekarte (optional)
           </label>
-          <input ref={menuRef} type="file" accept="image/jpeg,image/png,image/webp" capture="environment"
+          <input ref={menuRef} type="file" accept="image/jpeg,image/png,image/webp"
             className="block w-full text-xs text-on-surface-variant file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:bg-surface-container-high file:text-on-surface" />
         </div>
       </div>
