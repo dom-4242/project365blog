@@ -4,6 +4,7 @@ import { useState, useTransition, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import type { FoodItem } from '@prisma/client'
 import type { NormalizedFood } from '@/lib/nutrition/food-provider'
+import type { LabelNutrients } from '@/lib/nutrition/vision'
 import { BarcodeScanner } from '@/components/nutrition/BarcodeScanner'
 import {
   saveFoodItem,
@@ -20,6 +21,7 @@ const EMPTY: FoodFormData = {
   fiberG: '', sugarG: '', saturatedFatG: '', sodiumMg: '', potassiumMg: '',
   ironMg: '', magnesiumMg: '', calciumMg: '', zincMg: '',
   vitaminDUg: '', vitaminB12Ug: '', vitaminCMg: '',
+  verified: false, labelImagePath: null,
 }
 
 const s = (n: number | null | undefined) => (n === null || n === undefined ? '' : String(n))
@@ -32,6 +34,7 @@ function itemToForm(f: FoodItem): FoodFormData {
     sodiumMg: s(f.sodiumMg), potassiumMg: s(f.potassiumMg), ironMg: s(f.ironMg),
     magnesiumMg: s(f.magnesiumMg), calciumMg: s(f.calciumMg), zincMg: s(f.zincMg),
     vitaminDUg: s(f.vitaminDUg), vitaminB12Ug: s(f.vitaminB12Ug), vitaminCMg: s(f.vitaminCMg),
+    verified: f.verified, labelImagePath: f.labelImagePath,
   }
 }
 
@@ -136,6 +139,44 @@ export function FoodCatalog({
   const set = (k: keyof FoodFormData) => (v: string) => setForm((f) => ({ ...f, [k]: v }))
   const editing = Boolean(form.id)
 
+  // --- AI-Anreicherung aus Nährwerttabelle (Punkt 4) ------------------------
+  const [enriching, setEnriching] = useState(false)
+
+  async function enrich(file: File) {
+    setMsg(null)
+    setEnriching(true)
+    try {
+      const fd = new FormData()
+      fd.append('label', file)
+      const res = await fetch('/api/nutrition/food/enrich', { method: 'POST', body: fd })
+      const data = (await res.json()) as { labelImagePath: string; nutrients: LabelNutrients; error?: string }
+      if (!res.ok) throw new Error(data.error ?? 'Analyse fehlgeschlagen')
+      const n = data.nutrients
+      setForm((f) => ({
+        ...f,
+        name: f.name || n.name || '',
+        brand: f.brand || n.brand || '',
+        baseUnit: n.baseUnit,
+        kcal: s(n.kcal), proteinG: s(n.proteinG), carbsG: s(n.carbsG), fatG: s(n.fatG),
+        fiberG: s(n.fiberG), sugarG: s(n.sugarG), saturatedFatG: s(n.saturatedFatG),
+        sodiumMg: s(n.sodiumMg), potassiumMg: s(n.potassiumMg), ironMg: s(n.ironMg),
+        magnesiumMg: s(n.magnesiumMg), calciumMg: s(n.calciumMg), zincMg: s(n.zincMg),
+        vitaminDUg: s(n.vitaminDUg), vitaminB12Ug: s(n.vitaminB12Ug), vitaminCMg: s(n.vitaminCMg),
+        labelImagePath: data.labelImagePath,
+        verified: true, // wird beim Speichern persistiert
+      }))
+      setMsg({
+        kind: 'ok',
+        text: `Werte übernommen (Konfidenz ${Math.round(n.confidence * 100)} %)${n.note ? ` · ${n.note}` : ''}. Bitte prüfen und speichern.`,
+      })
+      if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
+    } catch (e) {
+      setMsg({ kind: 'err', text: e instanceof Error ? e.message : 'Analyse fehlgeschlagen' })
+    } finally {
+      setEnriching(false)
+    }
+  }
+
   function loadOff(food: NormalizedFood) {
     setForm({
       id: undefined, name: food.name, brand: food.brand ?? '', barcode: food.barcode ?? '',
@@ -145,6 +186,7 @@ export function FoodCatalog({
       ironMg: s(food.ironMg), magnesiumMg: s(food.magnesiumMg), calciumMg: s(food.calciumMg),
       zincMg: s(food.zincMg), vitaminDUg: s(food.vitaminDUg), vitaminB12Ug: s(food.vitaminB12Ug),
       vitaminCMg: s(food.vitaminCMg),
+      verified: false, labelImagePath: null,
     })
     setMsg(null)
     if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -322,6 +364,43 @@ export function FoodCatalog({
           )}
         </div>
 
+        {/* AI-Anreicherung aus Nährwerttabelle (Punkt 4) */}
+        <div className="rounded-xl bg-surface-container-high p-3 space-y-2">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold text-on-surface">AI-Anreicherung aus Nährwerttabelle</p>
+              <p className="text-[11px] text-on-surface-variant">
+                Verpackung/Tabelle fotografieren — Werte je 100 {form.baseUnit} inkl. Mikros werden übernommen (danach prüfen &amp; speichern).
+              </p>
+            </div>
+            {form.verified && (
+              <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-label font-bold tracking-widest uppercase px-2 py-0.5 rounded-full border bg-primary/15 text-primary border-primary/30">
+                ✓ geprüft
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              disabled={enriching}
+              onChange={(e) => { const file = e.target.files?.[0]; if (file) enrich(file); e.target.value = '' }}
+              className="block w-full text-xs text-on-surface-variant file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:bg-surface-container file:text-on-surface disabled:opacity-50"
+            />
+            {enriching && <span className="shrink-0 text-xs text-on-surface-variant">Analysiere…</span>}
+          </div>
+          {form.labelImagePath && (
+            <a
+              href={`/api/nutrition/food/label/${form.labelImagePath}`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-block text-[11px] text-primary hover:underline"
+            >
+              Label-Foto ansehen
+            </a>
+          )}
+        </div>
+
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div className="col-span-2">
             <label className="block text-xs font-medium text-on-surface-variant mb-1">Name</label>
@@ -414,6 +493,11 @@ export function FoodCatalog({
                       <td className="px-4 py-3 text-on-surface">
                         {f.name}
                         {f.brand ? <span className="text-on-surface-variant"> · {f.brand}</span> : ''}
+                        {f.verified && (
+                          <span className="ml-2 text-[10px] font-label font-bold tracking-widest uppercase text-primary" title="Werte gegen Nährwerttabelle geprüft">
+                            ✓ geprüft
+                          </span>
+                        )}
                         {!f.isActive && <span className="ml-2 text-[10px] uppercase text-on-surface-variant">archiviert</span>}
                       </td>
                       <td className="px-4 py-3 text-on-surface tabular-nums">{f.kcal}</td>
