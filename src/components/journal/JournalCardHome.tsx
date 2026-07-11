@@ -4,6 +4,7 @@ import type { JournalEntryMeta } from '@/lib/journal'
 import { getDayNumber, isPerfectDay } from '@/lib/journal'
 import { getProjectStartDate } from '@/lib/project-config'
 import { ReactionBarCompact } from '@/components/reactions/ReactionBarCompact'
+import { NutritionKcal } from './NutritionKcal'
 import { Icon } from '@/components/ui/Icon'
 
 interface JournalCardHomeProps {
@@ -114,6 +115,8 @@ export async function JournalCardHome({ entry }: JournalCardHomeProps) {
         ) : (
           <div className="flex-1" />
         )}
+
+        {entry.publicKcal && <NutritionKcal kcal={entry.publicKcal} />}
 
       </Link>
 

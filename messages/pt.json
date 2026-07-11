@@ -182,6 +182,11 @@
     "weight": "Peso",
     "bodyFat": "Gordura corporal"
   },
+  "NutritionKcal": {
+    "title": "Calorias meta / real",
+    "soll": "Meta",
+    "ist": "Real"
+  },
   "JournalCard": {
     "day": "Dia {number}",
     "readMore": "Ler mais →",

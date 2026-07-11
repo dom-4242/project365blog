@@ -1,12 +1,14 @@
 import { getProfile } from '@/lib/profile'
-import { getPriorityPillar } from '@/lib/settings'
+import { getPriorityPillar, getPublicSollIst } from '@/lib/settings'
 import { SettingsForm } from '@/components/admin/SettingsForm'
 import { PriorityPillarForm } from '@/components/admin/PriorityPillarForm'
+import { PublicSollIstForm } from '@/components/admin/PublicSollIstForm'
 
 export default async function SettingsPage() {
-  const [profile, priorityPillar] = await Promise.all([
+  const [profile, priorityPillar, publicSollIst] = await Promise.all([
     getProfile(),
     getPriorityPillar(),
+    getPublicSollIst(),
   ])
 
   const initial = {
@@ -32,6 +34,18 @@ export default async function SettingsPage() {
           Die gewählte Säule wird auf der öffentlichen Startseite visuell hervorgehoben.
         </p>
         <PriorityPillarForm current={priorityPillar} />
+      </div>
+
+      {/* Öffentliche kcal SOLL/IST (N-11) */}
+      <div className="mt-6 bg-surface-container rounded-2xl border border-surface-container-high p-5">
+        <h3 className="font-headline text-sm font-semibold text-on-surface mb-1">
+          Öffentliche kcal-Anzeige
+        </h3>
+        <p className="text-xs text-on-surface-variant mb-4">
+          Zeigt in der öffentlichen Journal-Ansicht je Tag das Kalorien-SOLL und -IST an. Nur die
+          kcal-Ebene — Makros, Mikros und Mahlzeit-Details bleiben immer privat.
+        </p>
+        <PublicSollIstForm current={publicSollIst} />
       </div>
     </div>
   )
