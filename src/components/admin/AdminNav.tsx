@@ -22,7 +22,8 @@ const NAV_GROUPS = [
     items: [
       { href: '/admin/quick-log',   label: 'Quick Log',      exact: false },
       { href: '/admin/log',         label: 'Loggen',         exact: false },
-      { href: '/admin/nutrition',   label: 'Ziele & Phasen', exact: false },
+      { href: '/admin/nutrition',   label: 'Ziele & Phasen', exact: true },
+      { href: '/admin/nutrition/history', label: 'Verlauf',   exact: false },
       { href: '/admin/food',        label: 'Lebensmittel',   exact: false },
       { href: '/admin/dishes',      label: 'Gerichte',       exact: false },
       { href: '/admin/drinks',     label: 'Getränke',   exact: false },
