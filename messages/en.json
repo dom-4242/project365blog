@@ -185,6 +185,11 @@
     "weight": "Weight",
     "bodyFat": "Body fat"
   },
+  "NutritionKcal": {
+    "title": "Calories target / actual",
+    "soll": "Target",
+    "ist": "Actual"
+  },
   "JournalCard": {
     "day": "Day {number}",
     "readMore": "Read more →",

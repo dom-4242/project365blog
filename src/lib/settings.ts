@@ -9,3 +9,16 @@ export const getPriorityPillar = cache(async (): Promise<PriorityPillar> => {
   if (value === 'movement' || value === 'nutrition' || value === 'smoking') return value
   return 'smoking'
 })
+
+/** AppSetting-Key für die öffentliche kcal-SOLL/IST-Anzeige (N-11). */
+export const PUBLIC_SOLL_IST_KEY = 'nutrition_public_soll_ist'
+
+/**
+ * Zeigt die öffentliche Ansicht kcal SOLL/IST je Tag an? Globaler Schalter
+ * (N-11). Default aus (nur „erfüllt/nicht" öffentlich). Nur die kcal-Ebene wird
+ * je freigeschaltet — niemals Makros, Mikros oder Mahlzeit-Details.
+ */
+export const getPublicSollIst = cache(async (): Promise<boolean> => {
+  const setting = await prisma.appSetting.findUnique({ where: { key: PUBLIC_SOLL_IST_KEY } })
+  return setting?.value === 'true'
+})

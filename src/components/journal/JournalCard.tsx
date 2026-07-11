@@ -4,6 +4,7 @@ import type { JournalEntryMeta } from '@/lib/journal'
 import { getDayNumber, isPerfectDay } from '@/lib/journal'
 import { getProjectStartDate } from '@/lib/project-config'
 import { HabitBadges } from './HabitBadges'
+import { NutritionKcal } from './NutritionKcal'
 import { BannerImage } from '@/components/ui/BannerImage'
 import { Icon } from '@/components/ui/Icon'
 
@@ -95,8 +96,9 @@ export async function JournalCard({ entry }: JournalCardProps) {
             </blockquote>
           )}
 
-          <div className="pt-2 border-t border-outline-variant/10">
+          <div className="pt-2 border-t border-outline-variant/10 flex flex-wrap items-center gap-2">
             <HabitBadges habits={entry.habits} nutritionStatus={entry.nutritionStatus} sickDay={sick} />
+            <NutritionKcal kcal={entry.publicKcal} />
           </div>
         </div>
       </article>
@@ -156,7 +158,10 @@ export async function JournalCard({ entry }: JournalCardProps) {
           )}
 
           <div className="flex items-center justify-between gap-4 pt-2 border-t border-outline-variant/10">
-            <HabitBadges habits={entry.habits} nutritionStatus={entry.nutritionStatus} sickDay={sick} />
+            <div className="flex flex-wrap items-center gap-2">
+              <HabitBadges habits={entry.habits} nutritionStatus={entry.nutritionStatus} sickDay={sick} />
+              <NutritionKcal kcal={entry.publicKcal} />
+            </div>
             <span className="inline-flex items-center gap-1 text-xs font-label font-bold tracking-widest uppercase text-primary shrink-0 group-hover:gap-1.5 transition-all duration-150">
               {t('readMore')}
               <Icon name="arrow_forward" size={12} />

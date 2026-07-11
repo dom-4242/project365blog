@@ -8,6 +8,7 @@ import type { MealEntryResolved } from '@/lib/nutrition/meals'
 import type { FavoriteResolved } from '@/lib/nutrition/favorites'
 import type { DishWithItems } from '@/lib/nutrition/dishes'
 import type { DaySummary } from '@/lib/nutrition/day-aggregate'
+import { aggregateMicros, microCoverage, MICRO_META } from '@/lib/nutrition/micros'
 import { BarcodeScanner } from '@/components/nutrition/BarcodeScanner'
 import { PhotoEstimator } from '@/components/nutrition/PhotoEstimator'
 import {
@@ -117,6 +118,10 @@ export function MealLogger({ date, entries, favorites, dishes, summary }: Props)
   const { soll, ist } = summary
   const remaining = soll ? Math.round((soll.kcal - ist.kcal) * 10) / 10 : null
   const status = STATUS_LABEL[summary.fulfillmentStatus] ?? STATUS_LABEL.OPEN
+
+  // --- Mikros (N-12): null-bewusste Tagessumme aus den Snapshots ------------
+  const micros = useMemo(() => aggregateMicros(entries), [entries])
+  const microCov = microCoverage(micros)
 
   return (
     <div className="space-y-6">
@@ -383,6 +388,9 @@ export function MealLogger({ date, entries, favorites, dishes, summary }: Props)
         )}
       </section>
 
+      {/* Mikronährstoffe (N-12): best-effort, Lücken kenntlich */}
+      {entries.length > 0 && <MicroPanel micros={micros} coverage={microCov} />}
+
       {/* Einträge gruppiert */}
       <section className="space-y-4">
         {entries.length === 0 && <p className="text-sm text-on-surface-variant">Noch nichts geloggt.</p>}
@@ -410,6 +418,58 @@ function Macro({
       <p className={`text-sm font-bold tabular-nums ${accent ? 'text-primary' : 'text-on-surface'}`}>{ist}</p>
       <p className="text-[10px] text-on-surface-variant tabular-nums">/ {soll}{unit}</p>
     </div>
+  )
+}
+
+function MicroPanel({
+  micros,
+  coverage,
+}: {
+  micros: Record<string, number | null>
+  coverage: { present: number; total: number }
+}) {
+  const groups: { title: string; group: 'submakro' | 'mineral' | 'vitamin' }[] = [
+    { title: 'Sub-Makros', group: 'submakro' },
+    { title: 'Mineralstoffe', group: 'mineral' },
+    { title: 'Vitamine', group: 'vitamin' },
+  ]
+  return (
+    <section className="bg-surface-container rounded-2xl border border-surface-container-high p-5">
+      <div className="flex flex-wrap items-baseline justify-between gap-2 mb-3">
+        <h3 className="font-headline text-sm font-semibold text-on-surface">Mikronährstoffe</h3>
+        <span className="text-[10px] uppercase tracking-widest text-on-surface-variant">
+          {coverage.present}/{coverage.total} erfasst · best-effort
+        </span>
+      </div>
+      <div className="space-y-4">
+        {groups.map(({ title, group }) => (
+          <div key={group}>
+            <h4 className="text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">{title}</h4>
+            <div className="grid grid-cols-3 gap-2">
+              {MICRO_META.filter((m) => m.group === group).map((m) => {
+                const v = micros[m.key]
+                return (
+                  <div key={m.key} className="rounded-xl bg-surface-container-high py-2 px-2 text-center">
+                    <p className="text-[10px] text-on-surface-variant leading-tight">{m.label}</p>
+                    {v == null ? (
+                      <p className="text-sm text-outline tabular-nums" title="Keine Daten aus den Quellen">
+                        –
+                      </p>
+                    ) : (
+                      <p className="text-sm font-bold text-on-surface tabular-nums">
+                        {v}
+                        <span className="text-[10px] font-normal text-on-surface-variant ml-0.5">{m.unit}</span>
+                      </p>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+      <p className="text-[10px] text-on-surface-variant mt-3">„–“ = für diesen Tag liefert keine Quelle Daten.</p>
+    </section>
   )
 }
 

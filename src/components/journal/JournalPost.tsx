@@ -4,6 +4,7 @@ import type { JournalEntry } from '@/lib/journal'
 import { getDayNumber } from '@/lib/journal'
 import { getProjectStartDate } from '@/lib/project-config'
 import { HabitBadges } from './HabitBadges'
+import { NutritionKcal } from './NutritionKcal'
 import { ReactionBar } from '@/components/reactions/ReactionBar'
 import { BannerImage } from '@/components/ui/BannerImage'
 import { Icon } from '@/components/ui/Icon'
@@ -85,7 +86,10 @@ export async function JournalPost({ entry, isTranslated = false }: JournalPostPr
       )}
 
       <div className="flex flex-col gap-3 mb-8">
-        <HabitBadges habits={entry.habits} nutritionStatus={entry.nutritionStatus} sickDay={entry.sickDay} />
+        <div className="flex flex-wrap items-center gap-2">
+          <HabitBadges habits={entry.habits} nutritionStatus={entry.nutritionStatus} sickDay={entry.sickDay} />
+          <NutritionKcal kcal={entry.publicKcal} />
+        </div>
         {entry.tags && entry.tags.length > 0 && (
           <ul className="flex flex-wrap gap-2">
             {entry.tags.map((tag) => (

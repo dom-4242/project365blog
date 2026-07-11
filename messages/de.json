@@ -185,6 +185,11 @@
     "weight": "Gewicht",
     "bodyFat": "Körperfett"
   },
+  "NutritionKcal": {
+    "title": "Kalorien SOLL / IST",
+    "soll": "Ziel",
+    "ist": "Ist"
+  },
   "JournalCard": {
     "day": "Tag {number}",
     "readMore": "Weiterlesen →",

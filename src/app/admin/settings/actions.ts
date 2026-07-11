@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
-import type { PriorityPillar } from '@/lib/settings'
+import { PUBLIC_SOLL_IST_KEY, type PriorityPillar } from '@/lib/settings'
 
 export interface ProfileFormData {
   heightCm: string
@@ -95,6 +95,30 @@ export async function setPriorityPillar(pillar: PriorityPillar): Promise<{ error
     return { success: true }
   } catch (e) {
     console.error('setPriorityPillar:', e)
+    return { error: 'Fehler beim Speichern' }
+  }
+}
+
+export async function setPublicSollIst(enabled: boolean): Promise<{ error?: string; success?: boolean }> {
+  const session = await requireAdmin()
+  if (!session) return { error: 'Nicht autorisiert' }
+
+  const value = enabled ? 'true' : 'false'
+  try {
+    await prisma.appSetting.upsert({
+      where: { key: PUBLIC_SOLL_IST_KEY },
+      create: { key: PUBLIC_SOLL_IST_KEY, value },
+      update: { value },
+    })
+
+    revalidatePath('/admin/settings')
+    revalidatePath('/de')
+    revalidatePath('/en')
+    revalidatePath('/pt')
+
+    return { success: true }
+  } catch (e) {
+    console.error('setPublicSollIst:', e)
     return { error: 'Fehler beim Speichern' }
   }
 }
