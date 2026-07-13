@@ -35,6 +35,7 @@ Journal-Einträge werden in PostgreSQL gespeichert (JournalEntry Model), nicht a
 - Public: `/[locale]/` (de, en) — next-intl
 - Admin: `/admin/` (Root-Level, **nicht** unter `[locale]`)
 - Admin bleibt nur auf Deutsch
+- Coach: `/coach/[locale]/` (de, en, pt) — read-only Dashboard für Personal Trainer & Ernährungsberater. Eigenes schlankes Layout (kein öffentlicher Header/Footer), in der Middleware wie `/admin` explizit behandelt (kein intl-Middleware). Zugang: Google-Login mit E-Mail in `COACH_EMAILS` **oder** Admin. Coaches werden von `/admin` hart weggeleitet; Admin sieht beides.
 
 ### Drei Säulen (Habits)
 
@@ -129,6 +130,7 @@ NEXTAUTH_URL=...
 GOOGLE_CLIENT_ID=...
 GOOGLE_CLIENT_SECRET=...
 ADMIN_EMAIL=...
+COACH_EMAILS=...   # kommagetrennte Google-Emails für /coach (read-only)
 WITHINGS_CLIENT_ID=...
 WITHINGS_CLIENT_SECRET=...
 WITHINGS_ACCESS_TOKEN=...
@@ -258,7 +260,9 @@ Komplettes visuelles Redesign: Dark-Only, warmes Orange, Space Grotesk + Manrope
 
 ## Aktuelle Phase: Phase 7 — Neue Features & Integrationen
 
-Keine aktiven Issues. Nächste Schritte aus dem Backlog priorisieren.
+- **Coach-Dashboard** (`/coach/[locale]`, DE/EN/PT): read-only Landing Page für Personal Trainer & Ernährungsberater. Drei Spalten (Nutrition, Body, Bewegung) mit Diät-Phase/Eckdaten, Tages- & 7-Tage-Kalorien + Makro-Ring, Gewicht/Körperfett-Verlauf (14/30/90 T), Körperdiagramm für Umfänge und Withings Muskel-/Fettmasse, Foto-Vergleichsgalerie und Schritte/Trainingstage. Datenlogik in `src/lib/coach.ts` (rein lesend), Komponenten unter `src/components/coach/`. Auth via `COACH_EMAILS` (siehe Routing).
+
+Nächste Schritte aus dem Backlog priorisieren.
 
 ## Backlog (Phase 7+)
 
