@@ -36,12 +36,33 @@ function nextWithNonce(req: NextRequest, nonce: string, csp: string): NextRespon
   return res
 }
 
+const DEFAULT_LOCALE = routing.defaultLocale
+
+function normalizeEmail(email?: string | null): string {
+  return (email ?? '').trim().toLowerCase()
+}
+
+function isAdmin(email?: string | null): boolean {
+  const admin = normalizeEmail(process.env.ADMIN_EMAIL)
+  return admin.length > 0 && normalizeEmail(email) === admin
+}
+
+function isViewer(email?: string | null): boolean {
+  if (isAdmin(email)) return true
+  const e = normalizeEmail(email)
+  const coaches = (process.env.COACH_EMAILS ?? '')
+    .split(',')
+    .map((c) => normalizeEmail(c))
+    .filter((c) => c.length > 0)
+  return e.length > 0 && coaches.includes(e)
+}
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
   const csp = buildCsp(nonce)
 
-  // ── Admin routes: NextAuth protection ──────────────────────────
+  // ── Admin routes: admin-only NextAuth protection ───────────────
   if (pathname.startsWith('/admin')) {
     if (pathname === '/admin/login') {
       return nextWithNonce(req, nonce, csp)
@@ -50,6 +71,27 @@ export async function middleware(req: NextRequest) {
     if (!token) {
       const loginUrl = new URL('/admin/login', req.url)
       loginUrl.searchParams.set('callbackUrl', pathname)
+      return NextResponse.redirect(loginUrl)
+    }
+    // Coaches are authenticated but must never reach the admin area —
+    // send them to their read-only dashboard instead.
+    if (!isAdmin(token.email)) {
+      return NextResponse.redirect(new URL(`/coach/${DEFAULT_LOCALE}`, req.url))
+    }
+    return nextWithNonce(req, nonce, csp)
+  }
+
+  // ── Coach dashboard: admin OR coach, read-only ─────────────────
+  if (pathname === '/coach' || pathname.startsWith('/coach/')) {
+    const token = await getToken({ req })
+    if (!token) {
+      const loginUrl = new URL('/admin/login', req.url)
+      loginUrl.searchParams.set('callbackUrl', pathname)
+      return NextResponse.redirect(loginUrl)
+    }
+    if (!isViewer(token.email)) {
+      const loginUrl = new URL('/admin/login', req.url)
+      loginUrl.searchParams.set('error', 'AccessDenied')
       return NextResponse.redirect(loginUrl)
     }
     return nextWithNonce(req, nonce, csp)
@@ -100,6 +142,8 @@ export const config = {
   matcher: [
     // Admin routes (auth protection)
     '/admin/:path*',
+    // Coach dashboard (read-only auth protection)
+    '/coach/:path*',
     // All public routes — exclude Next.js internals, API routes, and files with extensions
     '/((?!api|_next|_vercel|.*\\..*).*)',
   ],

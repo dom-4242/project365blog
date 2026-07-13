@@ -22,7 +22,7 @@ function LoginContent() {
         <div className="bg-white rounded-2xl shadow-sm border border-surface-container-high p-8">
           {error === 'AccessDenied' && (
             <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
-              Zugriff verweigert. Nur der Admin-Account hat Zugang.
+              Zugriff verweigert. Dieser Google-Account ist nicht freigeschaltet.
             </div>
           )}
 
