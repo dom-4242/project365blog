@@ -60,9 +60,13 @@ export interface BodyComposition {
 }
 
 async function latestComposition(type: number): Promise<BodyCompositionEntry | null> {
-  // Ganzkörper-Messwerte (position 0), neueste zuerst.
+  // Whole-body composite types (76 = muscle, 8 = fat) carry a single value per
+  // measure group. Withings tags that whole-body value with a segmental position
+  // code (e.g. muscle mass arrives as type 76 / position 7), NOT position 0, so we
+  // must NOT filter on position here — the per-segment values live under separate
+  // types (175 = muscle segmental, 174 = fat segmental) and never collide with these.
   const rows = await prisma.withingsMeasurement.findMany({
-    where: { type, position: 0 },
+    where: { type },
     orderBy: { measuredAt: 'desc' },
     take: 12,
     select: { date: true, value: true },
