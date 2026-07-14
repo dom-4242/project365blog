@@ -12,10 +12,6 @@ import { dateOnly } from '@/lib/nutrition/day'
 import { zurichDayStart } from '@/lib/timezone'
 import { getActivePhase } from '@/lib/nutrition/targets'
 
-// Withings meastypes (siehe WITHINGS_MEASURE_TYPES in lib/withings.ts)
-const TYPE_MUSCLE_MASS = 76
-const TYPE_FAT_MASS = 8
-
 export type Trend = 'up' | 'down' | 'flat'
 
 export interface TrendValue {
@@ -54,17 +50,42 @@ export interface BodyCompositionEntry extends TrendValue {
   unit: string
 }
 
-export interface BodyComposition {
-  muscleMass: BodyCompositionEntry | null
-  fatMass: BodyCompositionEntry | null
+/**
+ * Withings body-scan composition metrics shown on the coach dashboard, in display
+ * order. `key` links a Withings meastype to its i18n label + presentation (unit,
+ * good direction) which live in the coach component. See WITHINGS_MEASURE_TYPES.
+ */
+const COMPOSITION_TYPES: { type: number; key: string }[] = [
+  { type: 76, key: 'muscleMass' }, // Muskelmasse (kg)
+  { type: 8, key: 'fatMass' }, // Fettmasse (kg)
+  { type: 5, key: 'leanMass' }, // Fettfreie Masse (kg)
+  { type: 77, key: 'bodyWater' }, // Körperwasser / Hydration (kg)
+  { type: 88, key: 'boneMass' }, // Knochenmasse (kg)
+  { type: 170, key: 'visceralFat' }, // Viszerales Fett (Index)
+  { type: 226, key: 'bmr' }, // Grundumsatz / BMR (kcal)
+  { type: 227, key: 'metabolicAge' }, // Stoffwechselalter (Jahre)
+]
+
+export interface CompositionMetric {
+  /** i18n key suffix; label/unit/goodDirection resolved in the coach component. */
+  key: string
+  value: number
+  delta: number | null
+  trend: Trend
+  date: string
 }
 
-async function latestComposition(type: number): Promise<BodyCompositionEntry | null> {
-  // Whole-body composite types (76 = muscle, 8 = fat) carry a single value per
-  // measure group. Withings tags that whole-body value with a segmental position
-  // code (e.g. muscle mass arrives as type 76 / position 7), NOT position 0, so we
-  // must NOT filter on position here — the per-segment values live under separate
-  // types (175 = muscle segmental, 174 = fat segmental) and never collide with these.
+export interface BodyComposition {
+  latestDate: string | null
+  metrics: CompositionMetric[]
+}
+
+async function latestForType(type: number): Promise<Omit<CompositionMetric, 'key'> | null> {
+  // Whole-body composite measures carry a single value per measure group. Withings
+  // tags that whole-body value with a segmental position code (e.g. muscle mass
+  // arrives as type 76 / position 7), NOT position 0, so we must NOT filter on
+  // position — per-segment values live under separate types (173–175) and never
+  // collide with these.
   const rows = await prisma.withingsMeasurement.findMany({
     where: { type },
     orderBy: { measuredAt: 'desc' },
@@ -86,15 +107,22 @@ async function latestComposition(type: number): Promise<BodyCompositionEntry | n
     Math.round(cur.value * 10) / 10,
     prev ? Math.round(prev.value * 10) / 10 : null,
   )
-  return { ...trend, date: toKey(cur.date), unit: 'kg' }
+  return { value: trend.current, delta: trend.delta, trend: trend.trend, date: toKey(cur.date) }
 }
 
 export async function getBodyComposition(): Promise<BodyComposition> {
-  const [muscleMass, fatMass] = await Promise.all([
-    latestComposition(TYPE_MUSCLE_MASS),
-    latestComposition(TYPE_FAT_MASS),
-  ])
-  return { muscleMass, fatMass }
+  const results = await Promise.all(
+    COMPOSITION_TYPES.map(async ({ type, key }) => {
+      const r = await latestForType(type)
+      return r ? { key, ...r } : null
+    }),
+  )
+  const metrics = results.filter((m): m is CompositionMetric => m !== null)
+  const latestDate = metrics.reduce<string | null>(
+    (acc, m) => (acc == null || m.date > acc ? m.date : acc),
+    null,
+  )
+  return { latestDate, metrics }
 }
 
 // --- Bewegung: trainierte Tage aus Journal-Einträgen -------------------------
