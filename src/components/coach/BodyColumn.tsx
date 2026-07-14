@@ -40,6 +40,19 @@ const MEASUREMENT_ORDER: MeasurementField[] = [
   'calfRight',
 ]
 
+// Presentation for each Withings composition metric (order comes from lib/coach).
+// `unit` is language-neutral except metabolicAge, whose unit is localised via i18n.
+const COMPOSITION_META: Record<string, { unit: string; goodDirection?: 'up' | 'down' }> = {
+  muscleMass: { unit: 'kg', goodDirection: 'up' },
+  fatMass: { unit: 'kg', goodDirection: 'down' },
+  leanMass: { unit: 'kg', goodDirection: 'up' },
+  bodyWater: { unit: 'kg' },
+  boneMass: { unit: 'kg' },
+  visceralFat: { unit: '', goodDirection: 'down' },
+  bmr: { unit: 'kcal' },
+  metabolicAge: { unit: '', goodDirection: 'down' },
+}
+
 export function BodyColumn({ data }: { data: BodyColumnData }) {
   const t = useTranslations('Coach')
   const locale = useLocale()
@@ -59,31 +72,18 @@ export function BodyColumn({ data }: { data: BodyColumnData }) {
     ]
   })
 
-  const compositionItems: MeasurementItem[] = []
-  if (data.composition.muscleMass) {
-    const m = data.composition.muscleMass
-    compositionItems.push({
-      id: 'muscle',
-      label: t('muscleMass'),
-      value: m.current,
-      unit: m.unit,
+  const compositionItems: MeasurementItem[] = data.composition.metrics.map((m) => {
+    const meta = COMPOSITION_META[m.key] ?? { unit: '' }
+    return {
+      id: m.key,
+      label: t(m.key),
+      value: m.value,
+      unit: m.key === 'metabolicAge' ? t('yearsUnit') : meta.unit,
       delta: m.delta,
       trend: m.trend,
-      goodDirection: 'up',
-    })
-  }
-  if (data.composition.fatMass) {
-    const f = data.composition.fatMass
-    compositionItems.push({
-      id: 'fat',
-      label: t('fatMass'),
-      value: f.current,
-      unit: f.unit,
-      delta: f.delta,
-      trend: f.trend,
-      goodDirection: 'down',
-    })
-  }
+      goodDirection: meta.goodDirection,
+    }
+  })
 
   return (
     <section className="space-y-5">
@@ -142,16 +142,13 @@ export function BodyColumn({ data }: { data: BodyColumnData }) {
         )}
       </SectionCard>
 
-      {/* Muscle / fat mass composition diagram */}
+      {/* Body composition (Withings body scan) */}
       <SectionCard
         title={t('compositionDiagram')}
         action={
-          data.composition.muscleMass || data.composition.fatMass ? (
+          data.composition.latestDate ? (
             <span className="text-[10px] text-on-surface-variant tabular-nums">
-              {formatDate(
-                (data.composition.muscleMass ?? data.composition.fatMass)!.date,
-                locale,
-              )}
+              {formatDate(data.composition.latestDate, locale)}
             </span>
           ) : undefined
         }
