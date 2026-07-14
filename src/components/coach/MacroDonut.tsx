@@ -81,14 +81,16 @@ export function MacroDonut({ actual, target, centerValue, centerLabel }: MacroDo
                 style={{ backgroundColor: r.color }}
                 aria-hidden
               />
-              <span className="text-on-surface-variant w-16 shrink-0">{r.label}</span>
-              <span className="font-semibold text-on-surface tabular-nums">{r.ist} g</span>
+              <span className="text-on-surface-variant min-w-0 flex-1 truncate">{r.label}</span>
+              <span className="font-semibold text-on-surface tabular-nums shrink-0">{r.ist} g</span>
               {r.soll != null && (
-                <span className="text-on-surface-variant text-xs tabular-nums">
+                <span className="text-on-surface-variant text-xs tabular-nums shrink-0">
                   / {r.soll} g
                 </span>
               )}
-              <span className="ml-auto text-xs text-on-surface-variant tabular-nums">{pct}%</span>
+              <span className="text-xs text-on-surface-variant tabular-nums shrink-0 w-9 text-right">
+                {pct}%
+              </span>
             </li>
           )
         })}
