@@ -8,6 +8,7 @@ import {
   getWeightBodyFatHistory,
   getBodyMeasurementTrends,
   getBodyComposition,
+  getSegmentalComposition,
   getTrainingDays,
   listCoachBodyPhotos,
   computeTrend,
@@ -32,6 +33,7 @@ export default async function CoachPage({ params: { locale } }: PageProps) {
     history,
     measurements,
     composition,
+    segmental,
     stepsRows,
     training,
     photos,
@@ -43,6 +45,7 @@ export default async function CoachPage({ params: { locale } }: PageProps) {
     getWeightBodyFatHistory(90),
     getBodyMeasurementTrends(),
     getBodyComposition(),
+    getSegmentalComposition(),
     getStepsHistory(90),
     getTrainingDays(90),
     listCoachBodyPhotos(),
@@ -87,6 +90,7 @@ export default async function CoachPage({ params: { locale } }: PageProps) {
           history,
           measurements,
           composition,
+          segmental,
           photos,
         }}
         movement={{

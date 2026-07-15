@@ -125,6 +125,165 @@ export async function getBodyComposition(): Promise<BodyComposition> {
   return { latestDate, metrics }
 }
 
+// --- Segmentale Körperzusammensetzung (Withings Body Scan) -------------------
+//
+// Bildet die Withings-App-Ansicht nach: pro Körperzone (Arme, Torso, Beine) den
+// Fett- bzw. Muskelanteil in %. Withings liefert die Segmentwerte als Massen (kg)
+// unter eigenen Typen, unterschieden über `position`:
+//   173 = fettfreie Masse (segmental)
+//   174 = Fettmasse (segmental)
+//   175 = Muskelmasse (segmental)
+// Positionscodes (Quelle: aiowithings/Home-Assistant): 2=rechter Arm, 3=linker
+// Arm, 10=linkes Bein, 11=rechtes Bein, 12=Torso. Links/rechts werden je Zone
+// summiert. Anteil = Masse ÷ (Fettmasse + fettfreie Masse) der Zone — exakt so
+// reproduziert die App ihre Prozentwerte (Torso 31.3 % Fett + 65.6 % Muskel …).
+
+const SEG_FAT_FREE = 173
+const SEG_FAT = 174
+const SEG_MUSCLE = 175
+
+export type BodyZone = 'arms' | 'torso' | 'legs'
+
+/** Withings-Positionscodes je Zone (linke + rechte Gliedmasse werden summiert). */
+const ZONE_POSITIONS: Record<BodyZone, number[]> = {
+  arms: [2, 3],
+  torso: [12],
+  legs: [10, 11],
+}
+
+export interface ZonePercent {
+  /** Fettmasse ÷ (Fett- + fettfreie Masse) × 100. */
+  fatPct: number | null
+  /** Muskelmasse ÷ (Fett- + fettfreie Masse) × 100. */
+  musclePct: number | null
+}
+
+interface SegRow {
+  type: number
+  position: number
+  value: number
+}
+
+/**
+ * Reiner Rechenhelfer: reduziert die Segmentzeilen (Typ 173/174/175) EINES
+ * Messtages auf Fett-/Muskelanteile je Zone. Ohne vollständige Fett- und
+ * fettfreie-Masse einer Zone → `null` (Anteil nicht berechenbar).
+ */
+export function computeZonePercentages(rows: SegRow[]): Record<BodyZone, ZonePercent | null> {
+  const out = {} as Record<BodyZone, ZonePercent | null>
+  for (const zone of Object.keys(ZONE_POSITIONS) as BodyZone[]) {
+    const positions = ZONE_POSITIONS[zone]
+    let fat = 0
+    let fatFree = 0
+    let muscle = 0
+    let hasFat = false
+    let hasFatFree = false
+    let hasMuscle = false
+    for (const r of rows) {
+      if (!positions.includes(r.position)) continue
+      if (r.type === SEG_FAT) {
+        fat += r.value
+        hasFat = true
+      } else if (r.type === SEG_FAT_FREE) {
+        fatFree += r.value
+        hasFatFree = true
+      } else if (r.type === SEG_MUSCLE) {
+        muscle += r.value
+        hasMuscle = true
+      }
+    }
+    const total = fat + fatFree
+    if (!hasFat || !hasFatFree || total <= 0) {
+      out[zone] = null
+      continue
+    }
+    out[zone] = {
+      fatPct: Math.round((fat / total) * 1000) / 10,
+      musclePct: hasMuscle ? Math.round((muscle / total) * 1000) / 10 : null,
+    }
+  }
+  return out
+}
+
+export interface SegmentZone extends ZonePercent {
+  /** Δ Fettanteil zum vorherigen Scan (Prozentpunkte), null ohne Vormessung. */
+  fatDelta: number | null
+  /** Δ Muskelanteil zum vorherigen Scan (Prozentpunkte), null ohne Vormessung. */
+  muscleDelta: number | null
+}
+
+export interface SegmentalComposition {
+  latestDate: string | null
+  zones: Record<BodyZone, SegmentZone | null>
+  visceralFat: { value: number; delta: number | null; trend: Trend } | null
+  /** Ob mindestens eine Zone berechenbare Werte hat (Waage mit Segmental-Support). */
+  hasData: boolean
+}
+
+const NO_SEGMENTAL: SegmentalComposition = {
+  latestDate: null,
+  zones: { arms: null, torso: null, legs: null },
+  visceralFat: null,
+  hasData: false,
+}
+
+export async function getSegmentalComposition(): Promise<SegmentalComposition> {
+  // Genug Zeilen für die letzten paar Scans (≈15 Segmentzeilen pro Scan).
+  const rows = await prisma.withingsMeasurement.findMany({
+    where: { type: { in: [SEG_FAT_FREE, SEG_FAT, SEG_MUSCLE] } },
+    orderBy: { measuredAt: 'desc' },
+    take: 120,
+    select: { type: true, position: true, value: true, date: true },
+  })
+
+  // Nach Messtag gruppieren; dayOrder ist durch das desc-Ordering neueste zuerst.
+  const byDay = new Map<string, SegRow[]>()
+  const dayOrder: string[] = []
+  for (const r of rows) {
+    const key = toKey(r.date)
+    let list = byDay.get(key)
+    if (!list) {
+      list = []
+      byDay.set(key, list)
+      dayOrder.push(key)
+    }
+    list.push({ type: r.type, position: r.position, value: r.value })
+  }
+
+  const visceral = await latestForType(170)
+  const visceralFat = visceral
+    ? { value: visceral.value, delta: visceral.delta, trend: visceral.trend }
+    : null
+
+  const latestKey = dayOrder[0]
+  if (!latestKey) return { ...NO_SEGMENTAL, visceralFat }
+
+  const cur = computeZonePercentages(byDay.get(latestKey)!)
+  const prevKey = dayOrder[1]
+  const prev = prevKey ? computeZonePercentages(byDay.get(prevKey)!) : null
+
+  const zones = {} as Record<BodyZone, SegmentZone | null>
+  let hasData = false
+  for (const zone of ['arms', 'torso', 'legs'] as BodyZone[]) {
+    const c = cur[zone]
+    if (!c) {
+      zones[zone] = null
+      continue
+    }
+    hasData = true
+    const p = prev?.[zone] ?? null
+    const fatDelta =
+      c.fatPct != null && p?.fatPct != null ? Math.round((c.fatPct - p.fatPct) * 10) / 10 : null
+    const muscleDelta =
+      c.musclePct != null && p?.musclePct != null
+        ? Math.round((c.musclePct - p.musclePct) * 10) / 10
+        : null
+    zones[zone] = { ...c, fatDelta, muscleDelta }
+  }
+
+  return { latestDate: latestKey, zones, visceralFat, hasData }
+}
+
 // --- Bewegung: trainierte Tage aus Journal-Einträgen -------------------------
 
 const TRAINED_LEVELS: MovementLevel[] = [

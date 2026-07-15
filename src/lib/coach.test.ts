@@ -8,7 +8,12 @@ const { mockPrisma } = vi.hoisted(() => ({
 
 vi.mock('@/lib/db', () => ({ prisma: mockPrisma }))
 
-import { computeTrend, getBodyComposition } from './coach'
+import {
+  computeTrend,
+  computeZonePercentages,
+  getBodyComposition,
+  getSegmentalComposition,
+} from './coach'
 
 describe('computeTrend', () => {
   it('returns flat with null delta when there is no previous value', () => {
@@ -114,5 +119,106 @@ describe('getBodyComposition', () => {
     const result = await getBodyComposition()
     expect(result.metrics).toEqual([])
     expect(result.latestDate).toBeNull()
+  })
+})
+
+describe('computeZonePercentages', () => {
+  // Torso: 8.0 kg fat + 16.0 kg fat-free (10.5 kg of which muscle).
+  //   fat% = 8/24 = 33.3, muscle% = 10.5/24 = 43.8
+  // Arms sum left (3) + right (2); legs sum left (10) + right (11).
+  const rows = [
+    // torso (position 12)
+    { type: 174, position: 12, value: 8.0 },
+    { type: 173, position: 12, value: 16.0 },
+    { type: 175, position: 12, value: 10.5 },
+    // right arm (2) + left arm (3) → arms total fat 2.0, fat-free 6.0, muscle 4.4
+    { type: 174, position: 2, value: 1.0 },
+    { type: 173, position: 2, value: 3.0 },
+    { type: 175, position: 2, value: 2.2 },
+    { type: 174, position: 3, value: 1.0 },
+    { type: 173, position: 3, value: 3.0 },
+    { type: 175, position: 3, value: 2.2 },
+    // left leg (10) + right leg (11) → legs total fat 4.0, fat-free 16.0, muscle 12.0
+    { type: 174, position: 10, value: 2.0 },
+    { type: 173, position: 10, value: 8.0 },
+    { type: 175, position: 10, value: 6.0 },
+    { type: 174, position: 11, value: 2.0 },
+    { type: 173, position: 11, value: 8.0 },
+    { type: 175, position: 11, value: 6.0 },
+  ]
+
+  it('computes fat% and muscle% per zone from summed left/right segments', () => {
+    const z = computeZonePercentages(rows)
+    expect(z.torso).toEqual({ fatPct: 33.3, musclePct: 43.8 })
+    expect(z.arms).toEqual({ fatPct: 25, musclePct: 55 }) // 2/8, 4.4/8
+    expect(z.legs).toEqual({ fatPct: 20, musclePct: 60 }) // 4/20, 12/20
+  })
+
+  it('returns null for a zone missing fat or fat-free mass', () => {
+    const z = computeZonePercentages([{ type: 174, position: 12, value: 8.0 }])
+    expect(z.torso).toBeNull()
+  })
+
+  it('yields musclePct null when only fat/fat-free are present', () => {
+    const z = computeZonePercentages([
+      { type: 174, position: 12, value: 8.0 },
+      { type: 173, position: 12, value: 16.0 },
+    ])
+    expect(z.torso).toEqual({ fatPct: 33.3, musclePct: null })
+  })
+})
+
+describe('getSegmentalComposition', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  const latest = new Date('2026-07-14T08:00:00Z')
+  const prev = new Date('2026-07-07T08:00:00Z')
+
+  // Segmental rows for two scan days + a whole-body visceral fat row (type 170).
+  function segRows() {
+    return [
+      // latest torso
+      { type: 174, position: 12, value: 8.0, date: latest, measuredAt: latest },
+      { type: 173, position: 12, value: 16.0, date: latest, measuredAt: latest },
+      { type: 175, position: 12, value: 10.5, date: latest, measuredAt: latest },
+      // previous torso (more fat, less muscle → fat up, muscle down)
+      { type: 174, position: 12, value: 9.0, date: prev, measuredAt: prev },
+      { type: 173, position: 12, value: 16.0, date: prev, measuredAt: prev },
+      { type: 175, position: 12, value: 10.0, date: prev, measuredAt: prev },
+    ]
+  }
+
+  function wire() {
+    mockPrisma.withingsMeasurement.findMany.mockImplementation(
+      (args: { where: { type: number | { in: number[] } } }) => {
+        const type = args.where.type
+        if (typeof type === 'object' && 'in' in type) return Promise.resolve(segRows())
+        if (type === 170) return Promise.resolve([{ date: latest, value: 4.6 }])
+        return Promise.resolve([])
+      },
+    )
+  }
+
+  it('derives per-zone percentages, trend deltas and visceral fat from the latest scan', async () => {
+    wire()
+    const r = await getSegmentalComposition()
+    expect(r.hasData).toBe(true)
+    expect(r.latestDate).toBe('2026-07-14')
+    expect(r.zones.torso?.fatPct).toBe(33.3)
+    // fat% latest 33.3 vs previous 36.0 → −2.7 pp
+    expect(r.zones.torso?.fatDelta).toBe(-2.7)
+    expect(r.zones.torso?.muscleDelta).toBe(3.8) // 43.8 − 40.0
+    expect(r.zones.arms).toBeNull() // no arm rows in fixture
+    expect(r.visceralFat?.value).toBe(4.6)
+  })
+
+  it('reports no data when the scale has no segmental measures', async () => {
+    mockPrisma.withingsMeasurement.findMany.mockResolvedValue([])
+    const r = await getSegmentalComposition()
+    expect(r.hasData).toBe(false)
+    expect(r.latestDate).toBeNull()
+    expect(r.zones).toEqual({ arms: null, torso: null, legs: null })
   })
 })

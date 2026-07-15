@@ -260,7 +260,7 @@ Komplettes visuelles Redesign: Dark-Only, warmes Orange, Space Grotesk + Manrope
 
 ## Aktuelle Phase: Phase 7 — Neue Features & Integrationen
 
-- **Coach-Dashboard** (`/coach/[locale]`, DE/EN/PT): read-only Landing Page für Personal Trainer & Ernährungsberater. Drei Spalten (Nutrition, Body, Bewegung) mit Diät-Phase/Eckdaten, Tages- & 7-Tage-Kalorien + Makro-Ring, Gewicht/Körperfett-Verlauf (14/30/90 T), Körperdiagramm für Umfänge und Withings Muskel-/Fettmasse, Foto-Vergleichsgalerie und Schritte/Trainingstage. Datenlogik in `src/lib/coach.ts` (rein lesend), Komponenten unter `src/components/coach/`. Auth via `COACH_EMAILS` (siehe Routing).
+- **Coach-Dashboard** (`/coach/[locale]`, DE/EN/PT): read-only Landing Page für Personal Trainer & Ernährungsberater. Drei Spalten (Nutrition, Body, Bewegung) mit Diät-Phase/Eckdaten, Tages- & 7-Tage-Kalorien + Makro-Ring, Gewicht/Körperfett-Verlauf (14/30/90 T), Körperdiagramm für Umfänge und Withings Muskel-/Fettmasse, segmentales Körperdiagramm im Withings-App-Stil (Fett/Muskel-Umschalter, eingefärbte Silhouette Arme/Torso/Beine + Viszeralfett aus den segmentalen Withings-Typen 173/174/175 je `position`), Foto-Vergleichsgalerie und Schritte/Trainingstage. Datenlogik in `src/lib/coach.ts` (rein lesend), Komponenten unter `src/components/coach/`. Auth via `COACH_EMAILS` (siehe Routing).
 
 Nächste Schritte aus dem Backlog priorisieren.
 
