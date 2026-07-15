@@ -6,11 +6,13 @@ import { SectionCard, StatTile, TrendBadge, formatDate } from './shared'
 import { WeightBodyFatChart, type WeightBodyFatPoint } from './WeightBodyFatChart'
 import { MeasurementGrid, type MeasurementItem } from './MeasurementGrid'
 import { PhotoCompareGallery } from './PhotoCompareGallery'
+import { SegmentalBodyDiagram } from './SegmentalBodyDiagram'
 import type {
   BodyComposition,
   BodyMeasurementTrends,
   CoachBodyPhoto,
   MeasurementField,
+  SegmentalComposition,
   Trend,
 } from '@/lib/coach'
 
@@ -22,6 +24,7 @@ export interface BodyColumnData {
   history: WeightBodyFatPoint[]
   measurements: BodyMeasurementTrends
   composition: BodyComposition
+  segmental: SegmentalComposition
   photos: CoachBodyPhoto[]
 }
 
@@ -159,6 +162,10 @@ export function BodyColumn({ data }: { data: BodyColumnData }) {
           <MeasurementGrid items={compositionItems} />
         )}
       </SectionCard>
+
+      {/* Segmentale Körperzusammensetzung (Withings-App-Stil) — nur wenn die
+          Waage segmentale Werte liefert. */}
+      {data.segmental.hasData && <SegmentalBodyDiagram data={data.segmental} />}
 
       <PhotoCompareGallery photos={data.photos} />
     </section>
