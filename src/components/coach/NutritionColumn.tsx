@@ -115,6 +115,24 @@ function DayPanel({ days }: { days: CoachNutritionDay[] }) {
 
   const day = days[idx]
 
+  // Gespeicherte Slot-Werte sind die deutschen MEAL_SLOTS; für DE/EN/PT lokalisieren.
+  const slotLabel = (slot: string | null): string => {
+    switch (slot) {
+      case 'Frühstück':
+        return t('mealBreakfast')
+      case 'Mittag':
+        return t('mealLunch')
+      case 'Abend':
+        return t('mealDinner')
+      case 'Snack':
+        return t('mealSnack')
+      case null:
+        return t('mealOther')
+      default:
+        return slot
+    }
+  }
+
   return (
     <SectionCard
       title={t('dayView')}
@@ -158,15 +176,17 @@ function DayPanel({ days }: { days: CoachNutritionDay[] }) {
         centerValue={day.actualKcal != null ? String(Math.round(day.actualKcal)) : undefined}
         centerLabel="kcal"
       />
-      {day.meals.length > 0 && (
-        <ul className="mt-4 space-y-1 max-h-40 overflow-y-auto pr-1">
-          {day.meals.map((m) => (
-            <li key={m.id} className="flex items-baseline justify-between gap-2 text-xs">
-              <span className="text-on-surface truncate">
-                {m.mealSlot && <span className="text-on-surface-variant">{m.mealSlot} · </span>}
-                {m.name}
+      {day.mealsBySlot.length > 0 && (
+        <ul className="mt-4 space-y-1.5">
+          {day.mealsBySlot.map((m) => (
+            <li
+              key={m.slot ?? '__none'}
+              className="flex items-baseline justify-between gap-2 border-b border-outline-variant/10 pb-1.5 text-sm"
+            >
+              <span className="font-medium text-on-surface">{slotLabel(m.slot)}</span>
+              <span className="tabular-nums font-semibold text-on-surface shrink-0">
+                {m.kcal} kcal
               </span>
-              <span className="text-on-surface-variant tabular-nums shrink-0">{m.kcal} kcal</span>
             </li>
           ))}
         </ul>
