@@ -11,6 +11,7 @@ import { MovementLevel, PhaseMode, DeficitMethod } from '@prisma/client'
 import { dateOnly } from '@/lib/nutrition/day'
 import { zurichDayStart } from '@/lib/timezone'
 import { getActivePhase } from '@/lib/nutrition/targets'
+import { MEAL_SLOTS } from '@/lib/nutrition/constants'
 
 export type Trend = 'up' | 'down' | 'flat'
 
@@ -357,14 +358,17 @@ export interface MacroSet {
   fatG: number
 }
 
-export interface CoachMealEntry {
-  id: string
-  mealSlot: string | null
-  name: string
+/**
+ * Kalorien je Mahlzeiten-Slot (Frühstück, Mittag, …). Die Coach-Ansicht zeigt
+ * bewusst NUR die Slot-Summen — einzelne Gerichte/Lebensmittel werden nicht
+ * ausgeliefert (Datensparsamkeit auf der read-only Coach-Seite).
+ */
+export interface CoachMealSlotSummary {
+  /** Slot-Bezeichnung (z. B. 'Frühstück') oder null für nicht zugeordnete Einträge. */
+  slot: string | null
   kcal: number
-  proteinG: number
-  carbsG: number
-  fatG: number
+  /** Anzahl der Einträge in diesem Slot (für „3 Einträge"-Hinweis o. Ä.). */
+  count: number
 }
 
 export interface CoachNutritionDay {
@@ -376,29 +380,57 @@ export interface CoachNutritionDay {
   target: MacroSet | null
   isRefeed: boolean
   fulfilled: boolean | null
-  meals: CoachMealEntry[]
+  mealsBySlot: CoachMealSlotSummary[]
+}
+
+/** Reihenfolge der bekannten Slots; unbekannte/null-Slots kommen ans Ende. */
+const MEAL_SLOT_ORDER = new Map<string, number>(MEAL_SLOTS.map((s, i) => [s, i]))
+
+/**
+ * Reiner Rechenhelfer: aggregiert Mahlzeiten-Einträge zu Kalorien-Summen je Slot.
+ * Sortiert nach `MEAL_SLOTS`-Reihenfolge; unbekannte Slots alphabetisch, null zuletzt.
+ */
+export function aggregateMealsBySlot(
+  entries: Array<{ mealSlot: string | null; kcal: number }>,
+): CoachMealSlotSummary[] {
+  const bySlot = new Map<string | null, { kcal: number; count: number }>()
+  for (const e of entries) {
+    const slot = e.mealSlot ?? null
+    const agg = bySlot.get(slot) ?? { kcal: 0, count: 0 }
+    agg.kcal += e.kcal
+    agg.count += 1
+    bySlot.set(slot, agg)
+  }
+
+  const rank = (slot: string | null): number => {
+    if (slot == null) return Number.MAX_SAFE_INTEGER
+    return MEAL_SLOT_ORDER.get(slot) ?? MEAL_SLOTS.length
+  }
+
+  return Array.from(bySlot.entries())
+    .map(([slot, agg]) => ({ slot, kcal: Math.round(agg.kcal), count: agg.count }))
+    .sort((a, b) => {
+      const ra = rank(a.slot)
+      const rb = rank(b.slot)
+      if (ra !== rb) return ra - rb
+      // Gleiche Rangstufe (mehrere unbekannte Slots) → alphabetisch stabil.
+      return (a.slot ?? '').localeCompare(b.slot ?? '')
+    })
 }
 
 export async function getCoachNutritionDay(date: Date): Promise<CoachNutritionDay> {
   const d = dateOnly(date)
   const [day, entries] = await Promise.all([
     prisma.day.findUnique({ where: { date: d } }),
+    // Nur Slot + Kalorien — Gerichts-/Lebensmittelnamen werden bewusst NICHT geladen.
     prisma.mealEntry.findMany({
       where: { day: { date: d } },
       orderBy: { loggedAt: 'asc' },
-      include: { foodItem: true, dish: true },
+      select: { mealSlot: true, kcal: true },
     }),
   ])
 
-  const meals: CoachMealEntry[] = entries.map((e) => ({
-    id: e.id,
-    mealSlot: e.mealSlot ?? null,
-    name: e.foodItem?.name ?? e.dish?.name ?? e.externalName ?? '—',
-    kcal: Math.round(e.kcal),
-    proteinG: Math.round(e.proteinG),
-    carbsG: Math.round(e.carbsG),
-    fatG: Math.round(e.fatG),
-  }))
+  const mealsBySlot = aggregateMealsBySlot(entries)
 
   const fulfilled =
     day?.fulfillmentStatus === 'FULFILLED'
@@ -430,7 +462,7 @@ export async function getCoachNutritionDay(date: Date): Promise<CoachNutritionDa
         : null,
     isRefeed: day?.dayType === 'REFEED',
     fulfilled,
-    meals,
+    mealsBySlot,
   }
 }
 
@@ -447,27 +479,20 @@ export async function getCoachNutritionRange(days: number): Promise<CoachNutriti
       where: { date: { gte: from, lte: to } },
       orderBy: { date: 'asc' },
     }),
+    // Nur Slot + Kalorien (+ Tag zur Gruppierung) — keine Namen ausliefern.
     prisma.mealEntry.findMany({
       where: { day: { date: { gte: from, lte: to } } },
       orderBy: { loggedAt: 'asc' },
-      include: { foodItem: true, dish: true, day: { select: { date: true } } },
+      select: { mealSlot: true, kcal: true, day: { select: { date: true } } },
     }),
   ])
 
-  const mealsByDay = new Map<string, CoachMealEntry[]>()
+  const entriesByDay = new Map<string, Array<{ mealSlot: string | null; kcal: number }>>()
   for (const e of entries) {
     const key = toKey(e.day.date)
-    const list = mealsByDay.get(key) ?? []
-    list.push({
-      id: e.id,
-      mealSlot: e.mealSlot ?? null,
-      name: e.foodItem?.name ?? e.dish?.name ?? e.externalName ?? '—',
-      kcal: Math.round(e.kcal),
-      proteinG: Math.round(e.proteinG),
-      carbsG: Math.round(e.carbsG),
-      fatG: Math.round(e.fatG),
-    })
-    mealsByDay.set(key, list)
+    const list = entriesByDay.get(key) ?? []
+    list.push({ mealSlot: e.mealSlot ?? null, kcal: e.kcal })
+    entriesByDay.set(key, list)
   }
 
   const dayByKey = new Map(dayRows.map((d) => [toKey(d.date), d]))
@@ -477,7 +502,8 @@ export async function getCoachNutritionRange(days: number): Promise<CoachNutriti
     const d = dateOnly(new Date(from.getTime() + i * 86_400_000))
     const key = toKey(d)
     const day = dayByKey.get(key) ?? null
-    const meals = mealsByDay.get(key) ?? []
+    const dayEntries = entriesByDay.get(key) ?? []
+    const mealsBySlot = aggregateMealsBySlot(dayEntries)
     const fulfilled =
       day?.fulfillmentStatus === 'FULFILLED'
         ? true
@@ -486,7 +512,7 @@ export async function getCoachNutritionRange(days: number): Promise<CoachNutriti
           : null
     result.push({
       date: key,
-      hasData: !!day && (day.actualKcal != null || meals.length > 0),
+      hasData: !!day && (day.actualKcal != null || dayEntries.length > 0),
       actualKcal: day?.actualKcal ?? null,
       targetKcal: day?.targetKcal ?? null,
       actual:
@@ -507,7 +533,7 @@ export async function getCoachNutritionRange(days: number): Promise<CoachNutriti
           : null,
       isRefeed: day?.dayType === 'REFEED',
       fulfilled,
-      meals,
+      mealsBySlot,
     })
   }
   return result

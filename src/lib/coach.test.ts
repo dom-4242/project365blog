@@ -9,6 +9,7 @@ const { mockPrisma } = vi.hoisted(() => ({
 vi.mock('@/lib/db', () => ({ prisma: mockPrisma }))
 
 import {
+  aggregateMealsBySlot,
   computeTrend,
   computeZonePercentages,
   getBodyComposition,
@@ -119,6 +120,51 @@ describe('getBodyComposition', () => {
     const result = await getBodyComposition()
     expect(result.metrics).toEqual([])
     expect(result.latestDate).toBeNull()
+  })
+})
+
+describe('aggregateMealsBySlot', () => {
+  it('sums calories per slot and counts entries', () => {
+    const r = aggregateMealsBySlot([
+      { mealSlot: 'Frühstück', kcal: 363 },
+      { mealSlot: 'Frühstück', kcal: 118 },
+      { mealSlot: 'Mittag', kcal: 200 },
+    ])
+    expect(r).toEqual([
+      { slot: 'Frühstück', kcal: 481, count: 2 },
+      { slot: 'Mittag', kcal: 200, count: 1 },
+    ])
+  })
+
+  it('orders slots by MEAL_SLOTS regardless of input order', () => {
+    const r = aggregateMealsBySlot([
+      { mealSlot: 'Abend', kcal: 500 },
+      { mealSlot: 'Frühstück', kcal: 300 },
+      { mealSlot: 'Snack', kcal: 100 },
+      { mealSlot: 'Mittag', kcal: 400 },
+    ])
+    expect(r.map((m) => m.slot)).toEqual(['Frühstück', 'Mittag', 'Abend', 'Snack'])
+  })
+
+  it('places unknown slots after known ones and null last', () => {
+    const r = aggregateMealsBySlot([
+      { mealSlot: null, kcal: 50 },
+      { mealSlot: 'Zwischenmahlzeit', kcal: 80 },
+      { mealSlot: 'Mittag', kcal: 400 },
+    ])
+    expect(r.map((m) => m.slot)).toEqual(['Mittag', 'Zwischenmahlzeit', null])
+  })
+
+  it('rounds summed calories', () => {
+    const r = aggregateMealsBySlot([
+      { mealSlot: 'Mittag', kcal: 100.4 },
+      { mealSlot: 'Mittag', kcal: 100.4 },
+    ])
+    expect(r[0].kcal).toBe(201)
+  })
+
+  it('returns an empty array for no entries', () => {
+    expect(aggregateMealsBySlot([])).toEqual([])
   })
 })
 
